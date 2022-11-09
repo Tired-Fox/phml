@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterator, Optional
 from .parent import Parent
 
 if TYPE_CHECKING:
@@ -20,7 +20,25 @@ class Root(Parent):
 
     def __init__(
         self,
-        position: Position,
-        children: list[Element | DocType | Comment | Text],
+        position: Optional[Position] = None,
     ):  # pylint: disable=useless-parent-delegation
-        super().__init__(position, children)
+        super().__init__(position)
+        self.parent = None
+        
+    def tree(self) -> Iterator[str]:
+        result = ["ROOT"]
+        for i, child in enumerate(self.children):
+            if len(self.children) > 1:
+                if i == len(self.children) - 1:
+                    sep = f"└"
+                else:
+                    sep = f"├"
+            else:
+                sep = f"└"
+            for line in child.tree(0, sep):
+                result.append(line)
+        
+        return "\n".join(result)
+        
+    def __str__(self) -> str:
+        return "\n".join(self.tree())

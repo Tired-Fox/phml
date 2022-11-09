@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from .node import Node
 from .position import Position
 
@@ -17,8 +17,8 @@ class Literal(Node):
 
     def __init__(
         self,
-        position: Position,
         value: str,
+        position: Optional[Position] = None,
     ):
         super().__init__(position)
         self.value = value

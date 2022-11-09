@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .position import Position
@@ -21,7 +21,7 @@ class Node:
 
     def __init__(
         self,
-        position: Position,
+        position: Optional[Position] = None,
     ):
         self.position = position
 

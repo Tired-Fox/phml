@@ -7,7 +7,7 @@ class Point:
     The line field (1-indexed integer) represents a line in a source file. The column field (1-indexed integer) represents a column in a source file. The offset field (0-indexed integer) represents a character in a source file.
     """
 
-    def __init__(self, line: int, column: int, offset: Optional[int]):
+    def __init__(self, line: int, column: int, offset: Optional[int] = None):
         if line < 1:
             raise IndexError(f"Point.line must be >= 1 but was {line}")
 
@@ -22,3 +22,9 @@ class Point:
             raise IndexError(f"Point.offset must be >= 0 or None but was {line}")
 
         self.offset = offset
+
+    def __repr__(self) -> str:
+        return f"point(line: {self.line}, column: {self.column}, offset: {self.offset})"
+
+    def __str__(self) -> str:
+        return f"{self.line}:{self.column}"

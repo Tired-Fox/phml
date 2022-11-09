@@ -9,6 +9,9 @@ __all__ = [
     "Text",
     "Position",
     "Point",
+    "Properties",
+    "PropertyName",
+    "PropertyValue",
 ]
 
 from .node import Node
@@ -24,3 +27,5 @@ from .text import Text
 
 from .position import Position
 from .point import Point
+
+from .types import Properties, PropertyName, PropertyValue

@@ -1,3 +1,4 @@
+from typing import Iterator
 from .literal import Literal
 
 
@@ -21,3 +22,6 @@ class Text(Literal):
     }
     ```
     """
+    
+    def tree(self, depth: int = 0, prefix: str = "└") -> Iterator[str]:
+        yield f"{' '*depth}{prefix} {self.type.upper()}"

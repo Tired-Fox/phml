@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from .node import Node
 
 if TYPE_CHECKING:
@@ -19,8 +19,7 @@ class Parent(Node):
 
     def __init__(
         self,
-        position: Position,
-        children: list[Element | DocType | Comment | Text],
+        position: Optional[Position] = None,
     ):
         super().__init__(position)
-        self.children = children
+        self.children: list[Element | DocType | Comment | Text] = []

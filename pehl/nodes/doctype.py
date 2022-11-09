@@ -1,3 +1,4 @@
+from typing import Iterator
 from .node import Node
 
 
@@ -16,3 +17,6 @@ class DocType(Node):
     {type: 'doctype'}
     ```
     """
+    
+    def tree(self, depth: int = 0, prefix: str = "└") -> Iterator[str]:
+        yield f"{' '*depth}{prefix} {self.type.upper()}"

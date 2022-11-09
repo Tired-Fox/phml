@@ -22,7 +22,7 @@ class Position:
     information.
     """
 
-    def __init__(self, start: Point, end: Point, indent: Optional[int]):
+    def __init__(self, start: Point, end: Point, indent: Optional[int] = None):
         self.start = start
         self.end = end
 
@@ -32,3 +32,6 @@ class Position:
             )
 
         self.indent = indent
+
+    def __repr__(self) -> str:
+        return f"[{self.start}-{self.end}, {self.indent}]"

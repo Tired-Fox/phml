@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Iterator, Optional
 from .parent import Parent
 
 if TYPE_CHECKING:
@@ -49,13 +49,42 @@ class Element(Parent):
 
     def __init__(
         self,
-        position: Position,
-        children: list[Element | Comment | Text],
-        content: Optional[Root],
+        tag: str,
         properties: Optional[Properties],
-        tag_name: str,
+        parent: Element | Root,
+        content: Optional[Root] = None,
+        openclose: bool = False
     ):
-        super().__init__(position, children)
+        super().__init__()
         self.content = content
         self.properties = properties
-        self.tag_name = tag_name
+        self.tag = tag
+        self.openclose = openclose
+        self.parent = parent
+
+    def tree(self, depth: int = 0, prefix: str = "└") -> str:
+        yield f"{' '*depth}{prefix} {self.tag.upper()}"
+        
+        depth = 2 if depth == 0 else depth
+        for i, child in enumerate(self.children):            
+            prefix = f"{' '*(depth)}"
+            if len(self.children) > 1:
+                if i == len(self.children) - 1:
+                    sep = f"└"
+                else:
+                    sep = f"├"
+                    prefix = f"{' '*(depth)}│"
+            else:
+                sep = f"└"
+            for i, line in enumerate(child.tree(2, sep)):
+                if i == 0:
+                    yield line
+                else:
+                    yield prefix + line
+
+    def __repr__(self) -> str:
+        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: "
+        for child in self.children:
+            out += repr(child) + "\n"
+        out += ")"
+        return out

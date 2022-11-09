@@ -9,3 +9,4 @@ Follows:
 1. [hast](https://github.com/syntax-tree/hast#list-of-utilities)
 2. [unist](https://github.com/syntax-tree/unist#intro)
 3. [Web IDL](https://webidl.spec.whatwg.org/)
+4. [hast-util-from-parse5](https://github.com/syntax-tree/hast-util-from-parse5)
