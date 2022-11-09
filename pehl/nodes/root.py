@@ -40,5 +40,17 @@ class Root(Parent):
         
         return "\n".join(result)
         
+    def pehl(self, indent: int = 0) -> str:
+        """Build indented html string of documents elements and their children.
+
+        Returns:
+            str: Built html of document
+        """
+        out = []
+        out.extend([child.pehl0) for child in self.children])
+        return "\n".join(out)
+        
     def __str__(self) -> str:
-        return "\n".join(self.tree())
+        out = []
+        out.extend([child.pehl0) for child in self.children])
+        return "\n".join(out)

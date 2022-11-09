@@ -81,6 +81,57 @@ class Element(Parent):
                     yield line
                 else:
                     yield prefix + line
+                    
+    def start_tag(self) -> str:
+        """Builds the open/start tag for the element.
+        
+        Note:
+            It will return `/>` if the tag is self closing.
+
+        Returns:
+            str: Built element start tag.
+        """
+        opening = f"<{self.tag}"
+        
+        attributes = []
+        for prop in self.properties:
+            if self.properties[prop].lower() in ['yes', 'no']:
+                if self.properties[prop].lower() == 'yes':
+                    attributes.append(prop)
+                else:
+                    attributes.append(f'{prop}="no"')
+            else:
+                attributes.append(f'{prop}="{self.properties[prop]}"')
+        if len(attributes) > 0:
+            attributes = " " + " ".join(attributes)
+        else:
+            attributes = ""
+        
+        closing = f"{' /' if self.openclose else ''}>"
+        
+        return opening + attributes + closing
+    
+    def end_tag(self) -> str:
+        """Build the elements end tag.
+
+        Returns:
+            str: Built element end tag.
+        """
+        return f"</{self.tag}>"
+    
+    def pehl(self, indent: int = 0) -> str:
+        """Build indented html string of element and it's children.
+
+        Returns:
+            str: Built html of element
+        """
+        if self.openclose:
+            return " "*indent + self.start_tag()
+        else:
+            out = [" "*indent + self.start_tag()]
+            out.extend([child.pehlindent + 4) for child in self.children])
+            out.append(" "*indent + self.end_tag())
+            return "\n".join(out)
 
     def __repr__(self) -> str:
         out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: "
@@ -88,3 +139,12 @@ class Element(Parent):
             out += repr(child) + "\n"
         out += ")"
         return out
+    
+    def __str__(self) -> str:
+        if self.openclose:
+            return self.start_tag()
+        else:
+            out = [self.start_tag()]
+            out.extend([child.pehl4) for child in self.children])
+            out.append(self.end_tag())
+            return "\n".join(out)

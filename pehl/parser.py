@@ -28,6 +28,8 @@ class PEHLParser(HTMLParser):
             else:
                 properties[attr[0]] = "yes"
         
+        # TODO Custom element for python tags
+        
         self.cur.children.append(Element(tag=tag, properties=properties, parent=self.cur))
         self.cur = self.cur.children[-1]
 
@@ -39,7 +41,7 @@ class PEHLParser(HTMLParser):
             else:
                 properties[attr[0]] = "yes"
         
-        self.cur.children.append(Element(tag=tag, properties=properties, parent=self.cur))
+        self.cur.children.append(Element(tag=tag, properties=properties, parent=self.cur, openclose=True))
 
     def handle_endtag(self, tag):
         if tag == self.cur.tag:
@@ -50,7 +52,16 @@ class PEHLParser(HTMLParser):
     def handle_data(self, data):
         data = data.split("\n")
         if len(data) > 1:
-            data = list(filter(lambda d: re.search(r"[^ \t\n]", d) is not None, data))
+            data = [
+                d.replace("\t", "    ")
+                for d in list(
+                    filter(
+                        lambda d: re.search(r"[^ \t\n]", d) is not None, 
+                        data,
+                    )
+                )
+            ]
+            data = "\n".join(data)
         else:
             data = data[0].strip()
         
@@ -71,4 +82,8 @@ def parse(path: str | Path):
     
     parser.feed(src)
     
-    print(parser.cur.tree())
+    # print(parser.cur.tree())
+    # print(parser.cur)
+    
+    with open("output.pehl", "+w", encoding="utf-8") as out_file:
+        out_file.write(parser.cur.pehl))
