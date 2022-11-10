@@ -1,0 +1,184 @@
+{
+  "type": "root",
+  "children": [
+    {
+      "type": "doctype",
+      "value": "html"
+    },
+    {
+      "type": "element",
+      "tag": "html",
+      "properties": {
+        "lang": "en"
+      },
+      "startend": false,
+      "children": [
+        {
+          "type": "element",
+          "tag": "head",
+          "properties": {},
+          "startend": false,
+          "children": [
+            {
+              "type": "element",
+              "tag": "meta",
+              "properties": {
+                "charset": "UTF-8"
+              },
+              "startend": true,
+              "children": []
+            },
+            {
+              "type": "element",
+              "tag": "meta",
+              "properties": {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              "startend": true,
+              "children": []
+            },
+            {
+              "type": "element",
+              "tag": "meta",
+              "properties": {
+                "name": "viewport",
+                "content": "width=device-width, initial-scale=1.0"
+              },
+              "startend": true,
+              "children": []
+            },
+            {
+              "type": "element",
+              "tag": "title",
+              "properties": {},
+              "startend": false,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Document"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "element",
+          "tag": "body",
+          "properties": {},
+          "startend": false,
+          "children": [
+            {
+              "type": "comment",
+              "value": " py- prefix for python injected logic. Value is python "
+            },
+            {
+              "type": "element",
+              "tag": "div",
+              "properties": {
+                "py-if": "'dog' == 'cat'"
+              },
+              "startend": false,
+              "children": [
+                {
+                  "type": "element",
+                  "tag": "p",
+                  "properties": {},
+                  "startend": false,
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "Cat's and dog's are not the same thing"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "tag": "div",
+              "properties": {
+                "py-elif": "'dog' in ['cat', 'dog', 'bird']"
+              },
+              "startend": false,
+              "children": [
+                {
+                  "type": "element",
+                  "tag": "p",
+                  "properties": {},
+                  "startend": false,
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "dog in the list ['cat', 'dog', 'bird']"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "tag": "div",
+              "properties": {
+                "py-else": "yes"
+              },
+              "startend": false,
+              "children": [
+                {
+                  "type": "element",
+                  "tag": "p",
+                  "properties": {},
+                  "startend": false,
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "py-else statement"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "tag": "python",
+              "properties": {},
+              "startend": false,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "            if True:\n                print(\"Hello World\")\n            data = \"Esperr\""
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "tag": "img",
+              "properties": {
+                "src": "https://example.com",
+                "alt": "Example"
+              },
+              "startend": true,
+              "children": []
+            },
+            {
+              "type": "comment",
+              "value": " Brackets ({,}) inject python. Can be any python and can be multiline "
+            },
+            {
+              "type": "element",
+              "tag": "p",
+              "properties": {},
+              "startend": false,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "{date}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

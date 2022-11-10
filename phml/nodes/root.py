@@ -24,33 +24,52 @@ class Root(Parent):
     ):  # pylint: disable=useless-parent-delegation
         super().__init__(position)
         self.parent = None
-        
+
     def tree(self) -> Iterator[str]:
+        """Yields the tree representation of the node."""
         result = ["ROOT"]
         for i, child in enumerate(self.children):
             if len(self.children) > 1:
                 if i == len(self.children) - 1:
-                    sep = f"└"
+                    sep = "└"
                 else:
-                    sep = f"├"
+                    sep = "├"
             else:
-                sep = f"└"
+                sep = "└"
             for line in child.tree(0, sep):
                 result.append(line)
-        
+
         return "\n".join(result)
-        
-    def pehl(self, indent: int = 0) -> str:
+
+    def as_dict(self) -> dict:
+        """Convert root node to a dict."""
+
+        return {
+            "type": self.type,
+            "children": [child.as_dict() for child in self.children]
+        }
+
+    def html(self, indent: int = 4) -> str:
+        """Convert root node and all children to an html string."""
+        return ""
+
+    def json(self, indent: int = 2) -> str:
+        """Convert root node and all children to a json string."""
+        from json import dumps #pylint: disable=import-outside-toplevel
+
+        return dumps(self.as_dict(), indent=indent)
+
+    def phml(self, indent: int = 0) -> str:
         """Build indented html string of documents elements and their children.
 
         Returns:
             str: Built html of document
         """
         out = []
-        out.extend([child.pehl0) for child in self.children])
+        out.extend([child.phml() for child in self.children])
         return "\n".join(out)
-        
+
     def __str__(self) -> str:
         out = []
-        out.extend([child.pehl0) for child in self.children])
+        out.extend([child.phml() for child in self.children])
         return "\n".join(out)

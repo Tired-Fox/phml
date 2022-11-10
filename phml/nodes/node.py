@@ -9,7 +9,7 @@ class Node:
     """All node values can be expressed in JSON as: string, number,
     object, array, true, false, or null. This means that the syntax tree should
     be able to be converted to and from JSON and produce the same tree.
-    For example, in JavaScript, a tree can be passed through JSON.parse(JSON.stringify(tree))
+    For example, in JavaScript, a tree can be passed through JSON.parse(JSON.phml(tree))
     and result in the same tree.
     """
 

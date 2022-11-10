@@ -1,0 +1,18 @@
+{
+  "type": "element",
+  "tag": "h1",
+  "properties": {
+    "id": "world"
+  },
+  "startend": false,
+  "children": [
+    {
+      "type": "text",
+      "value": "World!"
+    },
+    {
+      "type": "comment",
+      "value": "after"
+    }
+  ]
+}

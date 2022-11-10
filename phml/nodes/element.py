@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterator, Optional
+from typing import TYPE_CHECKING, Optional
 from .parent import Parent
 
 if TYPE_CHECKING:
@@ -16,13 +16,16 @@ class Element(Parent):
 
     A tagName field must be present. It represents the element’s local name ([DOM]).
 
-    The properties field represents information associated with the element. The value of the properties field implements the Properties interface.
+    The properties field represents information associated with the element.
+    The value of the properties field implements the Properties interface.
 
-    If the tagName field is 'template', a content field can be present. The value of the content field implements the Root interface.
+    If the tagName field is 'template', a content field can be present. The value
+    of the content field implements the Root interface.
 
     If the tagName field is 'template', the element must be a leaf.
 
-    If the tagName field is 'noscript', its children should be represented as if scripting is disabled ([HTML]).
+    If the tagName field is 'noscript', its children should be represented as if
+    scripting is disabled ([HTML]).
 
 
     For example, the following HTML:
@@ -63,8 +66,9 @@ class Element(Parent):
         self.parent = parent
 
     def tree(self, depth: int = 0, prefix: str = "└") -> str:
+        """Yields the tree representation of the node."""
         yield f"{' '*depth}{prefix} {self.tag.upper()}"
-        
+
         depth = 2 if depth == 0 else depth
         for i, child in enumerate(self.children):            
             prefix = f"{' '*(depth)}"
@@ -81,10 +85,10 @@ class Element(Parent):
                     yield line
                 else:
                     yield prefix + line
-                    
+
     def start_tag(self) -> str:
         """Builds the open/start tag for the element.
-        
+
         Note:
             It will return `/>` if the tag is self closing.
 
@@ -92,7 +96,7 @@ class Element(Parent):
             str: Built element start tag.
         """
         opening = f"<{self.tag}"
-        
+
         attributes = []
         for prop in self.properties:
             if self.properties[prop].lower() in ['yes', 'no']:
@@ -106,11 +110,11 @@ class Element(Parent):
             attributes = " " + " ".join(attributes)
         else:
             attributes = ""
-        
+
         closing = f"{' /' if self.openclose else ''}>"
-        
+
         return opening + attributes + closing
-    
+
     def end_tag(self) -> str:
         """Build the elements end tag.
 
@@ -118,8 +122,28 @@ class Element(Parent):
             str: Built element end tag.
         """
         return f"</{self.tag}>"
-    
-    def pehl(self, indent: int = 0) -> str:
+
+    def as_dict(self) -> dict:
+        """Convert element node to dict."""
+        return {
+            "type": self.type,
+            "tag": self.tag,
+            "properties": self.properties,
+            "startend": self.openclose,
+            "children": [child.as_dict() for child in self.children]
+        }
+
+    def html(self, indent: int = 4) -> str:
+        """Convert element node and all children to an html string."""
+        return ""
+
+    def json(self, indent: int = 2) -> str:
+        """Convert element node and all children to a json string."""
+        from json import dumps
+
+        return dumps(self.as_dict(), indent=indent)
+
+    def phml(self, indent: int = 0) -> str:
         """Build indented html string of element and it's children.
 
         Returns:
@@ -129,7 +153,7 @@ class Element(Parent):
             return " "*indent + self.start_tag()
         else:
             out = [" "*indent + self.start_tag()]
-            out.extend([child.pehlindent + 4) for child in self.children])
+            out.extend([child.phml(indent + 4) for child in self.children])
             out.append(" "*indent + self.end_tag())
             return "\n".join(out)
 
@@ -139,12 +163,12 @@ class Element(Parent):
             out += repr(child) + "\n"
         out += ")"
         return out
-    
+
     def __str__(self) -> str:
         if self.openclose:
             return self.start_tag()
         else:
             out = [self.start_tag()]
-            out.extend([child.pehl4) for child in self.children])
+            out.extend([child.phml(4) for child in self.children])
             out.append(self.end_tag())
             return "\n".join(out)

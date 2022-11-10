@@ -28,6 +28,7 @@
         <python>
             if True:
                 print("Hello World")
+            data = "Esperr"
         </python>
         <img src="https://example.com" alt="Example" />
         <!--  Brackets ({,}) inject python. Can be any python and can be multiline  -->

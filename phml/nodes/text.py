@@ -26,7 +26,7 @@ class Text(Literal):
     def tree(self, depth: int = 0, prefix: str = "└") -> Iterator[str]:
         yield f"{' '*depth}{prefix} {self.type.upper()}"
 
-    def pehl(self, indent: int = 0) -> str:
+    def phml(self, indent: int = 0) -> str:
         """Build indented html string of html text.
 
         Returns:
