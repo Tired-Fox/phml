@@ -56,35 +56,15 @@ class Element(Parent):
         properties: Optional[Properties],
         parent: Element | Root,
         content: Optional[Root] = None,
-        openclose: bool = False
+        openclose: bool = False,
+        position: Optional[Position] = None,
     ):
-        super().__init__()
+        super().__init__(position)
         self.content = content
         self.properties = properties
         self.tag = tag
         self.openclose = openclose
         self.parent = parent
-
-    def tree(self, depth: int = 0, prefix: str = "└") -> str:
-        """Yields the tree representation of the node."""
-        yield f"{' '*depth}{prefix} {self.tag.upper()}"
-
-        depth = 2 if depth == 0 else depth
-        for i, child in enumerate(self.children):            
-            prefix = f"{' '*(depth)}"
-            if len(self.children) > 1:
-                if i == len(self.children) - 1:
-                    sep = f"└"
-                else:
-                    sep = f"├"
-                    prefix = f"{' '*(depth)}│"
-            else:
-                sep = f"└"
-            for i, line in enumerate(child.tree(2, sep)):
-                if i == 0:
-                    yield line
-                else:
-                    yield prefix + line
 
     def start_tag(self) -> str:
         """Builds the open/start tag for the element.
@@ -133,6 +113,31 @@ class Element(Parent):
             "children": [child.as_dict() for child in self.children]
         }
 
+    def tree(self, depth: int = 0, prefix: str = "") -> str:
+        """Yields the tree representation of the node."""
+        yield f"{' '*depth}{prefix} {self.tag.upper()} [{len(self.children)}]  {self.position}"
+
+        depth = 2 if depth == 0 else depth
+        for i, child in enumerate(self.children):            
+            prefix = f"{' '*(depth)}"
+            if len(self.children) > 1:
+                if i == len(self.children) - 1:
+                    sep = "└"
+                else:
+                    sep = "├"
+                    prefix = f"{' '*(depth)}│"
+            else:
+                sep = "└"
+            for i, line in enumerate(child.tree(2, sep)):
+                if i == 0:
+                    yield line
+                else:
+                    yield prefix + line
+
+    def inspect(self) -> str:
+        """Return an inspected tree view of the node."""
+        return "\n".join(self.tree())
+
     def html(self, indent: int = 4) -> str:
         """Convert element node and all children to an html string."""
         return ""
@@ -165,10 +170,4 @@ class Element(Parent):
         return out
 
     def __str__(self) -> str:
-        if self.openclose:
-            return self.start_tag()
-        else:
-            out = [self.start_tag()]
-            out.extend([child.phml(4) for child in self.children])
-            out.append(self.end_tag())
-            return "\n".join(out)
+        return f"{self.type}.{self.tag}(startend: {self.openclose}, children: {len(self.children)}, properties: {self.properties})"

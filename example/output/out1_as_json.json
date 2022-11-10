@@ -56,9 +56,21 @@
               "children": [
                 {
                   "type": "text",
-                  "value": "Document"
+                  "value": "            Sample 1"
                 }
               ]
+            }
+          ]
+        },
+        {
+          "type": "element",
+          "tag": "python",
+          "properties": {},
+          "startend": false,
+          "children": [
+            {
+              "type": "text",
+              "value": "        if True:\n            print(\"Hello World\")\n        message = \"Hello World!\""
             }
           ]
         },
@@ -70,7 +82,7 @@
           "children": [
             {
               "type": "comment",
-              "value": " py- prefix for python injected logic. Value is python "
+              "value": "`py-` prefix for python injected logic. Value is python"
             },
             {
               "type": "element",
@@ -88,7 +100,7 @@
                   "children": [
                     {
                       "type": "text",
-                      "value": "Cat's and dog's are not the same thing"
+                      "value": "                Cat's and dog's are not the same thing"
                     }
                   ]
                 }
@@ -110,7 +122,7 @@
                   "children": [
                     {
                       "type": "text",
-                      "value": "dog in the list ['cat', 'dog', 'bird']"
+                      "value": "                dog in the list ['cat', 'dog', 'bird']"
                     }
                   ]
                 }
@@ -132,21 +144,9 @@
                   "children": [
                     {
                       "type": "text",
-                      "value": "py-else statement"
+                      "value": "                py-else statement"
                     }
                   ]
-                }
-              ]
-            },
-            {
-              "type": "element",
-              "tag": "python",
-              "properties": {},
-              "startend": false,
-              "children": [
-                {
-                  "type": "text",
-                  "value": "            if True:\n                print(\"Hello World\")\n            data = \"Esperr\""
                 }
               ]
             },
@@ -162,17 +162,17 @@
             },
             {
               "type": "comment",
-              "value": " Brackets ({,}) inject python. Can be any python and can be multiline "
+              "value": "Brackets ({,}) inject python. Can be any python and can be multiline"
             },
             {
               "type": "element",
-              "tag": "p",
+              "tag": "h2",
               "properties": {},
               "startend": false,
               "children": [
                 {
                   "type": "text",
-                  "value": "{date}"
+                  "value": "            {message}"
                 }
               ]
             }

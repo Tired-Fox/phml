@@ -18,17 +18,18 @@ class DocType(Node):
     ```
     """
 
-    def tree(self, depth: int = 0, prefix: str = "└") -> Iterator[str]:
-        """Yields the tree representation of the node."""
-        yield f"{' '*depth}{prefix} {self.type.upper()}"
-
     def as_dict(self) -> dict:
         """Convert root node to a dict."""
 
-        return {
-            "type": self.type,
-            "value": "html"
-        }
+        return {"type": self.type, "value": "html"}
+
+    def tree(self, depth: int = 0, prefix: str = "└") -> Iterator[str]:
+        """Yields the tree representation of the node."""
+        yield f"{' '*depth}{prefix} {self.type.upper()}  {self.position}"
+
+    def inspect(self) -> str:
+        """Return an inspected tree view of the node."""
+        return "\n".join(self.tree())
 
     def html(self, indent: int = 4) -> str:
         """Convert doctype node to an html string."""
@@ -36,7 +37,7 @@ class DocType(Node):
 
     def json(self, indent: int = 2) -> str:
         """Convert doctype node to a json string."""
-        from json import dumps #pylint: disable=import-outside-toplevel
+        from json import dumps  # pylint: disable=import-outside-toplevel
 
         return dumps(self.as_dict(), indent=indent)
 
@@ -46,7 +47,7 @@ class DocType(Node):
         Returns:
             str: Built html of doctype element
         """
-        return ' '*indent + str(self)
+        return ' ' * indent + "<!DOCTYPE html>"
 
     def __str__(self) -> str:
-        return "<!DOCTYPE html>"
+        return "node.doctype()"

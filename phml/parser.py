@@ -5,7 +5,8 @@ from pathlib import Path
 from html.parser import HTMLParser
 from typing import Optional
 
-from .nodes import Element, Root, DocType, Properties, Text, Comment
+from .ast import AST
+from .nodes import Element, Root, DocType, Properties, Text, Comment, Position, Point
 from .file_types import HTML, PHML, JSON
 
 
@@ -24,7 +25,8 @@ class PHMLParser(HTMLParser):
 
     def handle_decl(self, decl: str) -> None:
         if self.cur.type == "root":
-            self.cur.children.append(DocType())
+            cur_point = Point(*self.getpos())
+            self.cur.children.append(DocType(position=Position(cur_point, cur_point)))
         else:
             raise Exception("<!doctype> must be in the root!")
 
@@ -42,6 +44,9 @@ class PHMLParser(HTMLParser):
         self.cur.children.append(Element(tag=tag, properties=properties, parent=self.cur))
         self.cur = self.cur.children[-1]
 
+        cur_pos = self.getpos()
+        self.cur.position = Position(Point(cur_pos[0], cur_pos[1], self.offset), Point(0, 0, 0))
+
     def handle_startendtag(self, tag, attrs):
         properties: Properties = {}
         for attr in attrs:
@@ -50,42 +55,80 @@ class PHMLParser(HTMLParser):
             else:
                 properties[attr[0]] = "yes"
 
+        cur_pos = self.getpos()
+        start_pos = Point(cur_pos[0], cur_pos[1], self.offset)
+
+        tag_text = self.get_starttag_text().split("\n")
+
+        line = len(tag_text) - 1
+        col = len(tag_text[-1])
+
+        end_pos = Point(cur_pos[0] + line, col)
+
         self.cur.children.append(
             Element(
-                tag=tag, 
-                properties=properties, 
+                tag=tag,
+                properties=properties,
                 parent=self.cur,
                 openclose=True,
+                position=Position(start_pos, end_pos),
             )
         )
 
     def handle_endtag(self, tag):
         if tag == self.cur.tag:
+            line, col = self.getpos()
+            end_pos = Point(line, col)
+
+            self.cur.position.end = end_pos
             self.cur = self.cur.parent
         else:
             raise Exception(f"Mismatched tag: <{self.cur.tag}> and </{tag}>")
 
     def handle_data(self, data):
+        lines, cols = 0, len(data)
         data = data.split("\n")
         if len(data) > 1:
             data = [
                 d.replace("\t", "    ")
                 for d in list(
                     filter(
-                        lambda d: re.search(r"[^ \t\n]", d) is not None, 
+                        lambda d: re.search(r"[^ \t\n]", d) is not None,
                         data,
                     )
                 )
             ]
+            if len(data) > 0:
+                lines, cols = len(data) - 1, len(data[-1])
             data = "\n".join(data)
         else:
             data = data[0].strip()
 
         if data not in [[], "", None]:
-            self.cur.children.append(Text(data))
+            cur_pos = self.getpos()
+            end_point = Point(cur_pos[0] + lines, cols)
+
+            self.cur.children.append(Text(data, position=Position(Point(*cur_pos), end_point)))
 
     def handle_comment(self, data: str) -> None:
-        self.cur.children.append(Comment(data))
+        lines, cols = 0, len(data)
+        data = data.split("\n")
+        if len(data) > 1:
+            lines = len(data) - 1
+            cols = len(data[-1]) + 3
+        else:
+            cols += 7
+
+        data = "\n".join(data)
+        cur_pos = self.getpos()
+
+        self.cur.children.append(
+            Comment(
+                data.strip(),
+                Position(Point(*cur_pos), Point(cur_pos[0] + lines, cols)),
+            )
+        )
+
 
 class Parser:
     """Primary logic to handle everything with a phml file.
@@ -123,13 +166,13 @@ class Parser:
         """
         self.phml_parser.reset()
         self.phml_parser.cur = Root()
-        
+
         with open(Path(path), "r", encoding="utf-8") as source:
             src = source.read()
 
         self.phml_parser.feed(src)
 
-        self.ast = self.phml_parser.cur
+        self.ast = AST(self.phml_parser.cur)
 
         return self
 
@@ -147,7 +190,7 @@ class Parser:
 
         return self
 
-    def stringify(self, file_type: str = PHML, ast: Optional[Root] = None) -> str:
+    def stringify(self, file_type: str = PHML, ast: Optional[AST] = None) -> str:
         """Convert a phml ast to a string.
 
         Defaults to writing the parsed ast on this object to a file.
@@ -162,10 +205,10 @@ class Parser:
                 raise Exception(
                     "User must provide an ast. Either run PHML.parse() first or pass a phml ast."
                 )
-      
+
         if file_type == HTML:
-            return ast.html()
+            return ast.to_html()
         elif file_type == JSON:
-            return ast.json()
+            return ast.to_json()
         else:
-            return ast.phml()
+            return ast.to_phml()

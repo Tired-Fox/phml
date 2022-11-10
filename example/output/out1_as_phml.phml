@@ -5,11 +5,16 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
-            Document
+            Sample 1
         </title>
     </head>
+    <python>
+        if True:
+            print("Hello World")
+        message = "Hello World!"
+    </python>
     <body>
-        <!--  py- prefix for python injected logic. Value is python  -->
+        <!-- `py-` prefix for python injected logic. Value is python -->
         <div py-if="'dog' == 'cat'">
             <p>
                 Cat's and dog's are not the same thing
@@ -25,15 +30,10 @@
                 py-else statement
             </p>
         </div>
-        <python>
-            if True:
-                print("Hello World")
-            data = "Esperr"
-        </python>
         <img src="https://example.com" alt="Example" />
-        <!--  Brackets ({,}) inject python. Can be any python and can be multiline  -->
-        <p>
-            {date}
-        </p>
+        <!-- Brackets ({,}) inject python. Can be any python and can be multiline -->
+        <h2>
+            {message}
+        </h2>
     </body>
 </html>

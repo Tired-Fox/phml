@@ -8,17 +8,17 @@ class Point:
     """
 
     def __init__(self, line: int, column: int, offset: Optional[int] = None):
-        if line < 1:
-            raise IndexError(f"Point.line must be >= 1 but was {line}")
+        if line < 0:
+            raise IndexError(f"Point.line must be >= 0 but was {line}")
 
         self.line = line
 
-        if column < 1:
-            raise IndexError(f"Point.column must be >= 1 but was {column}")
+        if column < 0:
+            raise IndexError(f"Point.column must be >= 0 but was {column}")
 
         self.column = column
 
-        if offset is not None and offset < 1:
+        if offset is not None and offset < 0:
             raise IndexError(f"Point.offset must be >= 0 or None but was {line}")
 
         self.offset = offset

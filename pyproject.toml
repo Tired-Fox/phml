@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "phml"
+version = "0.1.0"
+description = "Python Hypertext Markup Language - Extension of HTML"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name="Tired Fox", email="zboehm104@gmail.com"}
+]
+classifiers = [
+
+]
+requires-python = ">=3.7"
+dependencies = []
+
+[project.optional-dependencies]
+
+[project.urls]
+"Homepage" = "https://github.com/Tired-Fox/phml"
+"Website" = "https://tired-fox.github.io/phml/"
+
+[project.scripts]
+
+[tool.black]
+line-length = 100
+target-version = ["py37"]
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+ignore_missing_imports = true
+warn_unreachable = true
+no_implicit_optional = true
+show_error_codes = true

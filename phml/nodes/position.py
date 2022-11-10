@@ -34,4 +34,5 @@ class Position:
         self.indent = indent
 
     def __repr__(self) -> str:
-        return f"[{self.start}-{self.end}, {self.indent}]"
+        indent = f", {self.indent}" if self.indent is not None else ""
+        return f"<{self.start}-{self.end}{indent}>"

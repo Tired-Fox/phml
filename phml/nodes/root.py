@@ -25,9 +25,17 @@ class Root(Parent):
         super().__init__(position)
         self.parent = None
 
+    def as_dict(self) -> dict:
+        """Convert root node to a dict."""
+
+        return {
+            "type": self.type,
+            "children": [child.as_dict() for child in self.children]
+        }
+
     def tree(self) -> Iterator[str]:
         """Yields the tree representation of the node."""
-        result = ["ROOT"]
+        yield f"ROOT [{len(self.children)}]"
         for i, child in enumerate(self.children):
             if len(self.children) > 1:
                 if i == len(self.children) - 1:
@@ -36,18 +44,11 @@ class Root(Parent):
                     sep = "├"
             else:
                 sep = "└"
-            for line in child.tree(0, sep):
-                result.append(line)
+            yield from child.tree(0, sep)
 
-        return "\n".join(result)
-
-    def as_dict(self) -> dict:
-        """Convert root node to a dict."""
-
-        return {
-            "type": self.type,
-            "children": [child.as_dict() for child in self.children]
-        }
+    def inspect(self) -> str:
+        """Return an inspected tree view of the node."""
+        return "\n".join(self.tree())
 
     def html(self, indent: int = 4) -> str:
         """Convert root node and all children to an html string."""
@@ -70,6 +71,4 @@ class Root(Parent):
         return "\n".join(out)
 
     def __str__(self) -> str:
-        out = []
-        out.extend([child.phml() for child in self.children])
-        return "\n".join(out)
+        return f"root [{len(self.children)}]"

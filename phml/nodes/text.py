@@ -22,9 +22,13 @@ class Text(Literal):
     }
     ```
     """
-    
-    def tree(self, depth: int = 0, prefix: str = "└") -> Iterator[str]:
-        yield f"{' '*depth}{prefix} {self.type.upper()}"
+
+    def tree(self, depth: int = 0, prefix: str = "") -> Iterator[str]:
+        yield f"{' '*depth}{prefix} {self.type.upper()}  {self.position}"
+
+    def inspect(self) -> str:
+        """Return an inspected tree view of the node."""
+        return "\n".join(self.tree())
 
     def phml(self, indent: int = 0) -> str:
         """Build indented html string of html text.
@@ -40,8 +44,8 @@ class Text(Literal):
             out = joiner.join(lines)
         else:
             out = lines[0].strip()
-            
-        return ' '*indent + out
+
+        return ' ' * indent + out
 
     def __str__(self) -> str:
-        return self.value
+        return "literal.text()"
