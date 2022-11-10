@@ -110,7 +110,7 @@ The current version is able to parse phml using an html parser. This creates a p
 
 **Use**
 
-PHML provides file type varibles for better ease of use. The types include `HTML`, `PHML`, and `JSON`. They can be imported with `from phml import HTML, PHML, JSON.
+PHML provides file type varibles for better ease of use. The types include `HTML`, `PHML`, and `JSON`. They can be imported with `from phml import HTML, PHML, JSON`.
 
 First import the parser, `from phml import Parser`. Then you can do the following:
 
@@ -127,6 +127,6 @@ If you want to write to a file you can call `parser.write("path/to/output/file.p
 
 For both `stringify` and `write` you will first need to call `Parser.parse("path/to/source/file.phml")`. This parses the source file and stores the ast in the parser. `stringify` and `write` then use that ast to create the desired output.
 
-`Parser.parse` and `Parser.write` return self which allows for method chaining. See the example in `example/` to see how this can be used.
+`Parser.parse` and `Parser.write` return `self` which allows for method chaining. See the example in `example/` to see how this can be used.
 
 Every time `Parser.parse` is called it will overwrite the ast.
