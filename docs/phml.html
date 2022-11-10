@@ -52,17 +52,17 @@ inject javascript data into html using brackets. A lot of the frameworks also
 have custom attributes on elements for conditional rendering.</p>
 
 <p>phml strives to do similar things, However, the nuance here
-is that phml uses python. There is a new html element that is resurved for phml.
+is that phml uses python. There is a new html element that is reserved for phml.
 This element is the <code>&lt;python&gt;</code> element. It means to replicate the purpose of the
 <code>&lt;script&gt;</code> element. On top of this there are smaller blocks that use brackets
 that expect the expression to return some sort of value. Finally, there are custom
 attributes. <code>py-if</code>, <code>py-elif</code>, and <code>py-else</code> are reserved for conditional rendering.
-All attributes prefixed with <code>py-</code> will have their value evalutated as python. More details
+All attributes prefixed with <code>py-</code> will have their value evaluated as python. More details
 on each of these topics is described below.</p>
 
 <p>Let's start with the new <code>python</code> element. Python is a whitespace language. As such phml
-has the chanllenge of maintaining the indentation in a appropriate way. With this in phml,
-you can have as much leading whitespace as you want as long as the indentation is consistant.
+has the challenge of maintaining the indentation in a appropriate way. With this in phml,
+you can have as much leading whitespace as you want as long as the indentation is consistent.
 This means that indentation is based of the first lines offset. Take this phml example:</p>
 
 <div class="pdoc-code codehilite">
@@ -84,7 +84,7 @@ This means that indentation is based of the first lines offset. Take this phml e
 <p>So now we can write python code, now what? You can define functions and variables
 how you normally would and they are now available to the scope of the entire file.
 Take, for instance, the example from above, the one with <code>py-src="urls('youtube')"</code>.
-You can define the urls function in the <code>python</code> element and it can be accessed in the <code>py-src</code>
+You can define the URLs function in the <code>python</code> element and it can be accessed in the <code>py-src</code>
 attribute. So the code would look like this:</p>
 
 <div class="pdoc-code codehilite">
@@ -106,13 +106,13 @@ def urls(link: str) -&gt; str:
 </div>
 
 <p>phml treats <code>python</code> elements as their own python files. This is meant literally.
-phml creates a temporarty python file with a unique name and imports everything from that file.
+phml creates a temporary python file with a unique name and imports everything from that file.
 With that in mind that means you have the full power of whatever version of python you are using.
-The phml parser has functionality to perminantly write these python files out if you so desire.</p>
+The phml parser has functionality to permanently write these python files out if you so desire.</p>
 
 <p>Next up is inline python blocks. These are represented with <code>{}</code>. Any text with this block or
-normal html attribute with the value containing it will process the text inbetween the brackets as
-python. This is mostly usefull when you want to inject some python processed or stored value
+normal html attribute with the value containing it will process the text in-between the brackets as
+python. This is mostly useful when you want to inject some python processed or stored value
 into html. Assume that there is a variable defined in the <code>python</code> element called <code>message</code>
 and it contains <code>Hello World!</code>. Now this variable can be used like this, <code>&lt;p&gt;{ message }&lt;/p&gt;</code>,
 which renders to, <code>&lt;p&gt;Hello World!&lt;/p&gt;</code>. Inline python blocks are only rendered in inside a Text
@@ -120,16 +120,16 @@ element or inside an html attribute.</p>
 
 <p>Conditional Rendering with <code>py-if</code>, <code>py-elif</code>, and <code>py-else</code> is an extremely helpful tool in phml.
 <code>py-if</code> can be used alone and that the python inside it's value must be truthy for the element to be
-rendered. <code>py-elif</code> requires an element with a <code>py-if</code> or <code>py-elif</code> attribute immediatly before it,
+rendered. <code>py-elif</code> requires an element with a <code>py-if</code> or <code>py-elif</code> attribute immediately before it,
 and it's condition is rendered the same as <code>py-if</code> but only rendered if a <code>py-if</code> or <code>py-elif</code> first
-fails. <code>py-else</code> requires there to be either a <code>py-if</code> or a <code>py-else</code> immediatly before it. It only
+fails. <code>py-else</code> requires there to be either a <code>py-if</code> or a <code>py-else</code> immediately before it. It only
 renders if the previous elements condition fails. If <code>py-elif</code> or <code>py-else</code> is on an element, but
 the previous element isn't a <code>py-if</code> or <code>py-elif</code> then it will be rendered as normal without the
 condition. Most importantly, the first element in a chain of conditions must be a <code>py-if</code>.</p>
 
 <p>Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in
 phml, you would inject python logic into an attribute similar to this: <code>src="{url('youtube')}"</code>.
-As a way to simplify the value and to make it obvious that the attribute is using pyhon you can
+As a way to simplify the value and to make it obvious that the attribute is using python you can
 prefix any attribute with <code>py-</code>. This keeps the attribute name the same after the prefix, but tells
 the parser that the entire value should be processed as python. So the previous example can also be
 expressed as <code>py-src="url('youtube')"</code>.</p>
@@ -157,17 +157,17 @@ to render markdown to html, then to inject that into the renderer by passing it 
 </span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="sd">have custom attributes on elements for conditional rendering.</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">phml strives to do similar things, However, the nuance here</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">is that phml uses python. There is a new html element that is resurved for phml.</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">is that phml uses python. There is a new html element that is reserved for phml.</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">This element is the `&lt;python&gt;` element. It means to replicate the purpose of the</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="sd">`&lt;script&gt;` element. On top of this there are smaller blocks that use brackets</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="sd">that expect the expression to return some sort of value. Finally, there are custom</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="sd">attributes. `py-if`, `py-elif`, and `py-else` are reserved for conditional rendering.</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="sd">All attributes prefixed with `py-` will have their value evalutated as python. More details</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="sd">All attributes prefixed with `py-` will have their value evaluated as python. More details</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="sd">on each of these topics is described below.</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>
 </span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">Let&#39;s start with the new `python` element. Python is a whitespace language. As such phml</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="sd">has the chanllenge of maintaining the indentation in a appropriate way. With this in phml,</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="sd">you can have as much leading whitespace as you want as long as the indentation is consistant.</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="sd">has the challenge of maintaining the indentation in a appropriate way. With this in phml,</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="sd">you can have as much leading whitespace as you want as long as the indentation is consistent.</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="sd">This means that indentation is based of the first lines offset. Take this phml example:</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="sd">```python</span>
@@ -187,7 +187,7 @@ to render markdown to html, then to inject that into the renderer by passing it 
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">So now we can write python code, now what? You can define functions and variables</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">how you normally would and they are now available to the scope of the entire file.</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">Take, for instance, the example from above, the one with `py-src=&quot;urls(&#39;youtube&#39;)&quot;`.</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="sd">You can define the urls function in the `python` element and it can be accessed in the `py-src`</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="sd">You can define the URLs function in the `python` element and it can be accessed in the `py-src`</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">attribute. So the code would look like this:</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="sd">```html</span>
@@ -208,13 +208,13 @@ to render markdown to html, then to inject that into the renderer by passing it 
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">```</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">phml treats `python` elements as their own python files. This is meant literally.</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">phml creates a temporarty python file with a unique name and imports everything from that file.</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">phml creates a temporary python file with a unique name and imports everything from that file.</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">With that in mind that means you have the full power of whatever version of python you are using.</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">The phml parser has functionality to perminantly write these python files out if you so desire.</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">The phml parser has functionality to permanently write these python files out if you so desire.</span>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">Next up is inline python blocks. These are represented with `{}`. Any text with this block or</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">normal html attribute with the value containing it will process the text inbetween the brackets as</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">python. This is mostly usefull when you want to inject some python processed or stored value</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">normal html attribute with the value containing it will process the text in-between the brackets as</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">python. This is mostly useful when you want to inject some python processed or stored value</span>
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">into html. Assume that there is a variable defined in the `python` element called `message`</span>
 </span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">and it contains `Hello World!`. Now this variable can be used like this, `&lt;p&gt;{ message }&lt;/p&gt;`,</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">which renders to, `&lt;p&gt;Hello World!&lt;/p&gt;`. Inline python blocks are only rendered in inside a Text</span>
@@ -222,16 +222,16 @@ to render markdown to html, then to inject that into the renderer by passing it 
 </span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">Conditional Rendering with `py-if`, `py-elif`, and `py-else` is an extremely helpful tool in phml.</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">`py-if` can be used alone and that the python inside it&#39;s value must be truthy for the element to be</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">rendered. `py-elif` requires an element with a `py-if` or `py-elif` attribute immediatly before it,</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">rendered. `py-elif` requires an element with a `py-if` or `py-elif` attribute immediately before it,</span>
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">and it&#39;s condition is rendered the same as `py-if` but only rendered if a `py-if` or `py-elif` first</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">fails. `py-else` requires there to be either a `py-if` or a `py-else` immediatly before it. It only</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">fails. `py-else` requires there to be either a `py-if` or a `py-else` immediately before it. It only</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">renders if the previous elements condition fails. If `py-elif` or `py-else` is on an element, but</span>
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="sd">the previous element isn&#39;t a `py-if` or `py-elif` then it will be rendered as normal without the</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">condition. Most importantly, the first element in a chain of conditions must be a `py-if`.</span>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">phml, you would inject python logic into an attribute similar to this: `src=&quot;{url(&#39;youtube&#39;)}&quot;`.</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">As a way to simplify the value and to make it obvious that the attribute is using pyhon you can</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">As a way to simplify the value and to make it obvious that the attribute is using python you can</span>
 </span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">prefix any attribute with `py-`. This keeps the attribute name the same after the prefix, but tells</span>
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">the parser that the entire value should be processed as python. So the previous example can also be</span>
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">expressed as `py-src=&quot;url(&#39;youtube&#39;)&quot;`.</span>
