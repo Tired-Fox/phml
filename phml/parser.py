@@ -121,6 +121,9 @@ class Parser:
         Args:
             path (str | Path): The path to the file that should be parsed.
         """
+        self.phml_parser.reset()
+        self.phml_parser.cur = Root()
+        
         with open(Path(path), "r", encoding="utf-8") as source:
             src = source.read()
 
