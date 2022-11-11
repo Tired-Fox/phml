@@ -1,0 +1,92 @@
+{
+  "type": "root",
+  "children": [
+    {
+      "type": "doctype",
+      "value": "html"
+    },
+    {
+      "type": "element",
+      "tag": "html",
+      "properties": {
+        "lang": "en"
+      },
+      "startend": false,
+      "children": [
+        {
+          "type": "element",
+          "tag": "head",
+          "properties": {},
+          "startend": false,
+          "children": [
+            {
+              "type": "element",
+              "tag": "meta",
+              "properties": {
+                "charset": "UTF-8"
+              },
+              "startend": true,
+              "children": []
+            },
+            {
+              "type": "element",
+              "tag": "meta",
+              "properties": {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              "startend": true,
+              "children": []
+            },
+            {
+              "type": "element",
+              "tag": "meta",
+              "properties": {
+                "name": "viewport",
+                "content": "width=device-width, initial-scale=1.0"
+              },
+              "startend": true,
+              "children": []
+            },
+            {
+              "type": "element",
+              "tag": "title",
+              "properties": {},
+              "startend": false,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Document"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "element",
+          "tag": "body",
+          "properties": {},
+          "startend": false,
+          "children": [
+            {
+              "type": "comment",
+              "value": " Test Comment "
+            },
+            {
+              "type": "element",
+              "tag": "h1",
+              "properties": {},
+              "startend": false,
+              "children": [
+                {
+                  "type": "text",
+                  "value": "Hello World!"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

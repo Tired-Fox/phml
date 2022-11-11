@@ -24,7 +24,7 @@ class Comment(Literal):
         Returns:
             str: Built html of comment
         """
-        return ' ' * indent + f"<!-- {self.value} -->"
+        return ' ' * indent + f"<!--{self.value}-->"
 
     def __str__(self) -> str:
         return f"literal.comment(value: {self.value})"

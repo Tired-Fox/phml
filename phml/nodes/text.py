@@ -36,16 +36,16 @@ class Text(Literal):
         Returns:
             str: Built html of text
         """
-        lines = self.value.split("\n")
-        if len(lines) > 1:
-            offset = len(lines[0]) - len(lines[0].lstrip())
-            lines = [line[offset:] for line in lines]
-            joiner = "\n" + f"{' '*indent}"
-            out = joiner.join(lines)
-        else:
-            out = lines[0].strip()
-
-        return ' ' * indent + out
+        # lines = self.value.split("\n")
+        # if len(lines) > 1:
+        #     offset = len(lines[0]) - len(lines[0].lstrip())
+        #     lines = [line[offset:] for line in lines]
+        #     joiner = "\n" + f"{' '*indent}"
+        #     out = joiner.join(lines)
+        # else:
+        #     out = lines[0].strip()
+        # ' ' * indent + out
+        return self.value
 
     def __str__(self) -> str:
         return "literal.text()"

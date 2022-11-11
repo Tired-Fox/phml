@@ -82,7 +82,7 @@
           "children": [
             {
               "type": "comment",
-              "value": "`py-` prefix for python injected logic. Value is python"
+              "value": "  `py-` prefix for python injected logic. Value is python  "
             },
             {
               "type": "element",
@@ -162,7 +162,7 @@
             },
             {
               "type": "comment",
-              "value": "Brackets ({,}) inject python. Can be any python and can be multiline"
+              "value": "  Brackets ({,}) inject python. Can be any python and can be multiline  "
             },
             {
               "type": "element",

@@ -14,7 +14,7 @@
         message = "Hello World!"
     </python>
     <body>
-        <!-- `py-` prefix for python injected logic. Value is python -->
+        <!--  `py-` prefix for python injected logic. Value is python  -->
         <div py-if="'dog' == 'cat'">
             <p>
                 Cat's and dog's are not the same thing
@@ -31,7 +31,7 @@
             </p>
         </div>
         <img src="https://example.com" alt="Example" />
-        <!-- Brackets ({,}) inject python. Can be any python and can be multiline -->
+        <!--  Brackets ({,}) inject python. Can be any python and can be multiline  -->
         <h2>
             {message}
         </h2>

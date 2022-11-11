@@ -15,9 +15,12 @@ classifiers = [
 
 ]
 requires-python = ">=3.7"
-dependencies = []
+dependencies = ["teddecor>=1.0.2"]
 
 [project.optional-dependencies]
+tests = [
+    "tedtest>=1.0.1"
+]
 
 [project.urls]
 "Homepage" = "https://github.com/Tired-Fox/phml"

@@ -1,4 +1,16 @@
-from phml import Parser, PHML, JSON, Element, Root, test
+from phml import (
+    Parser,
+    PHML,
+    JSON,
+    Element,
+    Root,
+    Position,
+    Point,
+    DocType,
+    Comment,
+    Text,
+    AST,
+)
 
 if __name__ == "__main__":
     parser = Parser()
@@ -14,5 +26,8 @@ if __name__ == "__main__":
     )
 
     parent = Root()
-    el = Element("div", {}, parent)
-    parent.children.append(el)
+    el_1 = Element("div", {}, parent)
+    el_2 = Element("a", {}, parent)
+    parent.children.extend([el_1, el_2])
+
+    print(parser.parse("phml/sample.phml").write("output/sample.pehl").write("output/sample.json", JSON).ast.inspect())

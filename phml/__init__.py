@@ -101,6 +101,5 @@ __version__ = "0.1.0"
 from .file_types import HTML, PHML, JSON
 from .parser import Parser
 from .nodes import *
-from .utils import test
-
-All_Nodes = Root | Element | Text | Comment | DocType | Parent | Node | Literal
+from .utils import *
+from .ast import AST

@@ -5,9 +5,29 @@ from pathlib import Path
 from html.parser import HTMLParser
 from typing import Optional
 
-from .ast import AST
-from .nodes import Element, Root, DocType, Properties, Text, Comment, Position, Point
-from .file_types import HTML, PHML, JSON
+from phml.ast import AST
+from phml.nodes import Element, Root, DocType, Properties, Text, Comment, Position, Point
+from phml.file_types import HTML, PHML, JSON
+
+self_closing_tags = [
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+    "command",
+    "keygen",
+    "menuitem",
+]
 
 
 class PHMLParser(HTMLParser):
@@ -26,7 +46,7 @@ class PHMLParser(HTMLParser):
     def handle_decl(self, decl: str) -> None:
         if self.cur.type == "root":
             cur_point = Point(*self.getpos())
-            self.cur.children.append(DocType(position=Position(cur_point, cur_point)))
+            self.cur.children.append(DocType(self.cur, position=Position(cur_point, cur_point)))
         else:
             raise Exception("<!doctype> must be in the root!")
 
@@ -42,10 +62,33 @@ class PHMLParser(HTMLParser):
                 properties[attr[0]] = "yes"
 
         self.cur.children.append(Element(tag=tag, properties=properties, parent=self.cur))
-        self.cur = self.cur.children[-1]
 
-        cur_pos = self.getpos()
-        self.cur.position = Position(Point(cur_pos[0], cur_pos[1], self.offset), Point(0, 0, 0))
+        if tag in self_closing_tags:
+            # from sys import stderr
+            # from teddecor import TED
+
+            # stderr.write(
+            #     TED.parse(
+            #         f"[@F yellow]*Warning[@F]:* <{tag}> should be self closing: [@F red] all children will be be pushed to parent element\n"
+            #     )
+            # )
+            # stderr.flush()
+            
+            self.cur.children[-1].openclose = True
+            cur_pos = self.getpos()
+            
+            tag_text = self.get_starttag_text().split("\n")
+
+            line = len(tag_text) - 1
+            col = len(tag_text[-1]) + cur_pos[1] if len(tag_text) == 1 else len(tag_text[-1])
+            
+            self.cur.children[-1].position = Position(Point(cur_pos[0], cur_pos[1]), Point(cur_pos[0]+line, col))
+        else:
+            self.cur = self.cur.children[-1]
+            cur_pos = self.getpos()
+            self.cur.position = Position(Point(cur_pos[0], cur_pos[1]), Point(0, 0))
+
+        # input(f"{tag} | Start | {cur_pos}")
 
     def handle_startendtag(self, tag, attrs):
         properties: Properties = {}
@@ -56,7 +99,7 @@ class PHMLParser(HTMLParser):
                 properties[attr[0]] = "yes"
 
         cur_pos = self.getpos()
-        start_pos = Point(cur_pos[0], cur_pos[1], self.offset)
+        start_pos = Point(cur_pos[0], cur_pos[1])
 
         tag_text = self.get_starttag_text().split("\n")
 
@@ -80,13 +123,22 @@ class PHMLParser(HTMLParser):
             line, col = self.getpos()
             end_pos = Point(line, col)
 
+            if len(self.cur.children) == 0:
+                self.cur.openclose = True
+
             self.cur.position.end = end_pos
+            if line - self.cur.position.start.line > 0:
+                self.cur.position.indent = col // 4 if col != 0 else 0
+            
+            
+            # input(f"{tag} | end | {end_pos} | {self.cur.position}")
+            
             self.cur = self.cur.parent
         else:
             raise Exception(f"Mismatched tag: <{self.cur.tag}> and </{tag}>")
 
     def handle_data(self, data):
-        lines, cols = 0, len(data)
+        lines, cols = 0, len(data) + self.getpos()[1]
         data = data.split("\n")
         if len(data) > 1:
             data = [
@@ -99,19 +151,25 @@ class PHMLParser(HTMLParser):
                 )
             ]
             if len(data) > 0:
-                lines, cols = len(data) - 1, len(data[-1])
+                lines, cols = len(data) - 1, len(data[-1]) 
             data = "\n".join(data)
         else:
-            data = data[0].strip()
+            data = data[0]
 
         if data not in [[], "", None]:
             cur_pos = self.getpos()
             end_point = Point(cur_pos[0] + lines, cols)
 
-            self.cur.children.append(Text(data, position=Position(Point(*cur_pos), end_point)))
+            self.cur.children.append(
+                Text(
+                    data,
+                    self.cur,
+                    position=Position(Point(*cur_pos), end_point),
+                )
+            )
 
     def handle_comment(self, data: str) -> None:
-        lines, cols = 0, len(data)
+        lines, cols = 0, len(data) + self.getpos()[1]
         data = data.split("\n")
         if len(data) > 1:
             lines = len(data) - 1
@@ -124,7 +182,8 @@ class PHMLParser(HTMLParser):
 
         self.cur.children.append(
             Comment(
-                data.strip(),
+                data,
+                self.cur,
                 Position(Point(*cur_pos), Point(cur_pos[0] + lines, cols)),
             )
         )
@@ -148,7 +207,7 @@ class Parser:
     parser: PHMLParser
     """The custom builtin `html.parser` class that builds phml ast."""
 
-    ast: Root
+    ast: AST
     """The recursive node tree of the phml ast."""
 
     def __init__(self):
@@ -166,8 +225,9 @@ class Parser:
         """
         self.phml_parser.reset()
         self.phml_parser.cur = Root()
+        
 
-        with open(Path(path), "r", encoding="utf-8") as source:
+        with open(path, "r", encoding="utf-8") as source:
             src = source.read()
 
         self.phml_parser.feed(src)
