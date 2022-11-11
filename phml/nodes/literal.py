@@ -1,6 +1,8 @@
 from typing import Optional
 from .node import Node
 from .position import Position
+from .element import Element
+from .root import Root
 
 
 class Literal(Node):
@@ -18,18 +20,31 @@ class Literal(Node):
     def __init__(
         self,
         value: str,
+        parent: Optional[Element | Root] = None,
         position: Optional[Position] = None,
     ):
         super().__init__(position)
         self.value = value
+        self.parent = parent
+
+    def __eq__(self, obj) -> bool:
+        if self.type == obj.type:
+            if self.position == obj.position:
+                if self.value == obj.value:
+                    return True
+                else:
+                    # print(f"`{self.value}` != `{obj.value}`: Values are not equal")
+                    return False
+            else:
+                # print(f"{self.position} != {obj.position}: Position values are not equal")
+                return False
+        # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be represented as {type(obj).__name__}")
+        return False
 
     def as_dict(self) -> dict:
         """Convert literal node to a dict."""
 
-        return {
-            "type": self.type,
-            "value": self.value
-        }
+        return {"type": self.type, "value": self.value}
 
     def html(self, indent: int = 4) -> str:
         """Convert literal node to an html string."""
@@ -37,6 +52,6 @@ class Literal(Node):
 
     def json(self, indent: int = 2) -> str:
         """Convert literal node to a json string."""
-        from json import dumps #pylint: disable=import-outside-toplevel
+        from json import dumps  # pylint: disable=import-outside-toplevel
 
         return dumps(self.as_dict(), indent=indent)

@@ -54,17 +54,39 @@ class Element(Parent):
         self,
         tag: str,
         properties: Optional[Properties],
-        parent: Element | Root,
-        content: Optional[Root] = None,
+        parent: Optional[Element | Root] = None,
         openclose: bool = False,
         position: Optional[Position] = None,
+        children: Optional[list] = None,
     ):
-        super().__init__(position)
-        self.content = content
+        super().__init__(position, children)
         self.properties = properties
         self.tag = tag
         self.openclose = openclose
         self.parent = parent
+
+    def __eq__(self, obj) -> bool:
+        if obj.type == self.type:
+            if self.tag != obj.tag:
+                # print(f"{self.tag} != {obj.tag}: Tag values are not equal")
+                return False
+            if self.position != obj.position:
+                # print(f"{self.position} != {obj.position}: Position values are not equal")
+                return False
+            if self.openclose != obj.openclose:
+                # print(f"{self.openclose} != {obj.openclose}: openclose values are not equal")
+                return False
+            if self.properties != obj.properties:
+                # print(f"{self.properties} != {obj.properties}: Properties values are not equal")
+                return False
+            for c, oc in zip(self.children, obj.children):
+                if c != oc:
+                    # print(f"{c} != {oc}: Children values are not equal")
+                    return False
+            return True
+        else:
+            # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be equated to {type(obj).__name__}")
+            return False
 
     def start_tag(self) -> str:
         """Builds the open/start tag for the element.
@@ -154,13 +176,21 @@ class Element(Parent):
         Returns:
             str: Built html of element
         """
+        
         if self.openclose:
             return " "*indent + self.start_tag()
         else:
-            out = [" "*indent + self.start_tag()]
-            out.extend([child.phml(indent + 4) for child in self.children])
-            out.append(" "*indent + self.end_tag())
-            return "\n".join(out)
+            if self.position is not None and self.position.indent is not None:
+                indent = self.position.indent * 4
+                out = [" "*indent + self.start_tag()]
+                out.extend([child.phml(indent + 4) for child in self.children])
+                out.append(" "*indent + self.end_tag())
+                return "\n".join(out)
+            else:
+                out = [" "*indent + self.start_tag()]
+                out.extend([child.phml(indent + 4) for child in self.children])
+                out.append(self.end_tag())
+                return "".join(out)
 
     def __repr__(self) -> str:
         out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: "

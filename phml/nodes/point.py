@@ -23,6 +23,22 @@ class Point:
 
         self.offset = offset
 
+    def __eq__(self, obj) -> bool:
+        if isinstance(obj, self.__class__):
+            if self.line == obj.line:
+                if self.column == obj.column:
+                    return True
+                else:
+                    # print(f"{self.column} != {obj.column}: Columns are not equal")
+                    return False
+            else:
+                # print(f"{self.line} != {obj.line}: Lines are not equal")
+                return False
+        # print(
+        #     f"{type(self).__name__} != {type(obj).__name__}: Point can not be equated to {type(obj).__name__}"
+        # )
+        return False
+
     def __repr__(self) -> str:
         return f"point(line: {self.line}, column: {self.column}, offset: {self.offset})"
 

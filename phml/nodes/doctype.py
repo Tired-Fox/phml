@@ -1,5 +1,8 @@
-from typing import Iterator
+from typing import Optional, Iterator
 from .node import Node
+from .root import Root
+from .element import Element
+from .position import Position
 
 
 class DocType(Node):
@@ -17,6 +20,21 @@ class DocType(Node):
     {type: 'doctype'}
     ```
     """
+
+    def __init__(
+        self,
+        parent: Optional[Element | Root] = None,
+        position: Optional[Position] = None,
+    ):
+        super().__init__(position)
+        self.parent = parent
+
+    def __eq__(self, obj) -> bool:
+        if hasattr(obj, "type") and obj.type == self.type:
+            return True
+        
+        # print(f"{self.__class__} != {obj.__class__}: {type(self).__name__} can not be equated to {type(obj).__name__}")
+        return False
 
     def as_dict(self) -> dict:
         """Convert root node to a dict."""

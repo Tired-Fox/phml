@@ -21,17 +21,29 @@ class Root(Parent):
     def __init__(
         self,
         position: Optional[Position] = None,
+        children: Optional[list] = None,
     ):  # pylint: disable=useless-parent-delegation
-        super().__init__(position)
+        super().__init__(position, children)
         self.parent = None
+
+    def __eq__(self, obj) -> bool:
+        if hasattr(obj, "type") and self.type == obj.type:
+            if self.position != obj.position:
+                # print(f"{self.position} != {obj.position}: Position values are not equal")
+                return False
+            for c, oc in zip(self.children, obj.children):
+                if c != oc:
+                    # print(f"{c} != {oc}: Children values are not equal")
+                    return False
+            return True
+        else:
+            # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be equated to {type(obj).__name__}")
+            return False
 
     def as_dict(self) -> dict:
         """Convert root node to a dict."""
 
-        return {
-            "type": self.type,
-            "children": [child.as_dict() for child in self.children]
-        }
+        return {"type": self.type, "children": [child.as_dict() for child in self.children]}
 
     def tree(self) -> Iterator[str]:
         """Yields the tree representation of the node."""
@@ -56,7 +68,7 @@ class Root(Parent):
 
     def json(self, indent: int = 2) -> str:
         """Convert root node and all children to a json string."""
-        from json import dumps #pylint: disable=import-outside-toplevel
+        from json import dumps  # pylint: disable=import-outside-toplevel
 
         return dumps(self.as_dict(), indent=indent)
 

@@ -26,13 +26,30 @@ class Position:
         self.start = start
         self.end = end
 
-        if indent is not None and indent < 1:
-            raise IndexError(
-                f"Position.indent value must be >= 1 or None but was {indent}"
-            )
+        if indent is not None and indent < 0:
+            raise IndexError(f"Position.indent value must be >= 0 or None but was {indent}")
 
         self.indent = indent
 
+    def __eq__(self, obj) -> bool:
+        if isinstance(obj, Position):
+            if self.start == obj.start:
+                if self.end == obj.end:
+                    return True
+                else:
+                    # print(f"{self.end} != {obj.end}: end values are not equal")
+                    return False
+            else:
+                # print(f"{self.start} != {obj.start}: start values are not equal")
+                return False
+        # print(
+            # f"{type(self).__name__} != {type(obj).__name__}: {type(self).__name__} can not be equated to {type(obj).__name__}"
+        # )
+        return False
+
     def __repr__(self) -> str:
-        indent = f", {self.indent}" if self.indent is not None else ""
+        indent = f" ~ {self.indent}" if self.indent is not None else ""
         return f"<{self.start}-{self.end}{indent}>"
+
+    def __str__(self) -> str:
+        return repr(self)
