@@ -45,13 +45,8 @@ def test(
             return False
 
     if _test is None:
-        # If none then validate node for basic logic and conditions
-        if hasattr(node, "children"):
-            if node.type not in ["parent", "root", "element"]:
-                return False
-        if hasattr(node, "tag"):
-            if node.type != "element":
-                return False
+        if not isinstance(node, All_Nodes):
+            return False
 
     elif isinstance(_test, str):
         # If string then validate that the type is the same
