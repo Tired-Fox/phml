@@ -1,6 +1,7 @@
 from __future__ import annotations
 from functools import cached_property
 from typing import Iterator
+from phml import VPElement, get_vp_result, process_vp_blocks
 
 from .nodes import (
     Root,
@@ -49,4 +50,8 @@ class AST:
 
     def to_html(self) -> str:
         """Get the ast as a rendered html string."""
-        return ""
+        return self.tree.html()
+        # 1. Search each scope for python element and add it to outer scope
+        # 2. Search each scope for conditions and process conditions
+        # 3. Search each scope for for-loop conditions and execute them
+        # 4. Take the final manipulated tree and print out

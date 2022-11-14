@@ -162,7 +162,20 @@ class Element(Parent):
 
     def html(self, indent: int = 4) -> str:
         """Convert element node and all children to an html string."""
-        return ""
+        if self.openclose:
+            return " "*indent + self.start_tag()
+        else:
+            if self.position is not None and self.position.indent is not None:
+                indent = self.position.indent * 4
+                out = [" "*indent + self.start_tag()]
+                out.extend([child.phml(indent + 4) for child in self.children])
+                out.append(" "*indent + self.end_tag())
+                return "\n".join(out)
+            else:
+                out = [" "*indent + self.start_tag()]
+                out.extend([child.phml(indent + 4) for child in self.children])
+                out.append(self.end_tag())
+                return "".join(out)
 
     def json(self, indent: int = 2) -> str:
         """Convert element node and all children to a json string."""

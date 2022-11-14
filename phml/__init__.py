@@ -70,6 +70,12 @@ and it contains `Hello World!`. Now this variable can be used like this, `<p>{ m
 which renders to, `<p>Hello World!</p>`. Inline python blocks are only rendered in inside a Text
 element or inside an html attribute.
 
+Now multiline blocks are a lot like inline python blocks, but they also have soem differences.
+They are not one line single python expressions, but full multiline python source code.
+You can do whatever you like inside this block, however if you expect a value to come from
+a multiline block it comes from the last local. So if you have a variable or function as the
+last local; it will be used as the compiled result that replaces the python block.
+
 Conditional Rendering with `py-if`, `py-elif`, and `py-else` is an extremely helpful tool in phml.
 `py-if` can be used alone and that the python inside it's value must be truthy for the element to be
 rendered. `py-elif` requires an element with a `py-if` or `py-elif` attribute immediately before it,
@@ -78,6 +84,33 @@ fails. `py-else` requires there to be either a `py-if` or a `py-else` immediatel
 renders if the previous elements condition fails. If `py-elif` or `py-else` is on an element, but
 the previous element isn't a `py-if` or `py-elif` then it will be rendered as normal without the
 condition. Most importantly, the first element in a chain of conditions must be a `py-if`.
+
+Other than conditions, there is also a built it py-for attribute. Techinally you can do a multiline
+python block or use a python element to create a html string based on a list. However, for ease
+of use phml provides phml. Any element with py-for will take a python for-loop expression that
+will be applied to that element. So if you did something like this:
+```html
+<ul>
+    <li py-for='for i in range(3)'>
+        <p>{i}</p>
+    </li>
+</ul>
+```
+
+The compiled html will be:
+```html
+<ul>
+    <li>
+        <p>1</p>
+    </li>
+    <li>
+        <p>2</p>
+    </li>
+    <li>
+        <p>3</p>
+    </li>
+</ul>
+```
 
 Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in
 phml, you would inject python logic into an attribute similar to this: `src="{url('youtube')}"`.
@@ -103,3 +136,4 @@ from .parser import Parser
 from .nodes import *
 from .utils import *
 from .ast import AST
+from .VirtualPython import VirtualPython as VPElement, process_vp_blocks, get_vp_result

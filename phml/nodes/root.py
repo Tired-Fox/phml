@@ -62,10 +62,6 @@ class Root(Parent):
         """Return an inspected tree view of the node."""
         return "\n".join(self.tree())
 
-    def html(self, indent: int = 4) -> str:
-        """Convert root node and all children to an html string."""
-        return ""
-
     def json(self, indent: int = 2) -> str:
         """Convert root node and all children to a json string."""
         from json import dumps  # pylint: disable=import-outside-toplevel

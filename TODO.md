@@ -18,7 +18,12 @@
     - [ ] validate
 - [ ] Convert From Formats
   - [ ] Json
-  - [ ] html/phml
+  - [x] html/phml
+  - [ ] markdown
+- [ ] Convert To Formats
+  - [x] Json
+  - [x] phml
+  - [ ] html
   - [ ] markdown
 
 ## Utils from [`unist`](https://github.com/syntax-tree/unist#list-of-utilities) and [`hast`](https://github.com/syntax-tree/hast#list-of-utilities) to implement
