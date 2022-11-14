@@ -1,7 +1,7 @@
 from __future__ import annotations
 from functools import cached_property
 from typing import Iterator
-from phml import VPElement, get_vp_result, process_vp_blocks
+from phml.VirtualPython import VirtualPython, get_vp_result, process_vp_blocks
 
 from .nodes import (
     Root,

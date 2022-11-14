@@ -1,6 +1,6 @@
 from functools import cached_property
 from typing import Any
-from ImportObjects import Import, ImportFrom
+from .ImportObjects import Import, ImportFrom
 
 
 class VirtualPython:

@@ -136,4 +136,3 @@ from .parser import Parser
 from .nodes import *
 from .utils import *
 from .ast import AST
-from .VirtualPython import VirtualPython as VPElement, process_vp_blocks, get_vp_result
