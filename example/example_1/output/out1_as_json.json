@@ -26,7 +26,8 @@
                 "charset": "UTF-8"
               },
               "startend": true,
-              "children": []
+              "children": [],
+              "locals": {}
             },
             {
               "type": "element",
@@ -36,7 +37,8 @@
                 "content": "IE=edge"
               },
               "startend": true,
-              "children": []
+              "children": [],
+              "locals": {}
             },
             {
               "type": "element",
@@ -46,7 +48,8 @@
                 "content": "width=device-width, initial-scale=1.0"
               },
               "startend": true,
-              "children": []
+              "children": [],
+              "locals": {}
             },
             {
               "type": "element",
@@ -56,11 +59,13 @@
               "children": [
                 {
                   "type": "text",
-                  "value": "            Sample 1"
+                  "value": "Sample 1"
                 }
-              ]
+              ],
+              "locals": {}
             }
-          ]
+          ],
+          "locals": {}
         },
         {
           "type": "element",
@@ -70,9 +75,10 @@
           "children": [
             {
               "type": "text",
-              "value": "        if True:\n            print(\"Hello World\")\n        message = \"Hello World!\""
+              "value": "        if True:\n            print(\"Hello World\")\n        message = \"Hello World!\"\n        errors = [\n            \"Error 1\",\n            \"Error 2\",\n            \"Bad formatting\",\n            \"Yolo\",\n        ]"
             }
-          ]
+          ],
+          "locals": {}
         },
         {
           "type": "element",
@@ -102,9 +108,11 @@
                       "type": "text",
                       "value": "                Cat's and dog's are not the same thing"
                     }
-                  ]
+                  ],
+                  "locals": {}
                 }
-              ]
+              ],
+              "locals": {}
             },
             {
               "type": "element",
@@ -124,9 +132,11 @@
                       "type": "text",
                       "value": "                dog in the list ['cat', 'dog', 'bird']"
                     }
-                  ]
+                  ],
+                  "locals": {}
                 }
-              ]
+              ],
+              "locals": {}
             },
             {
               "type": "element",
@@ -146,9 +156,11 @@
                       "type": "text",
                       "value": "                py-else statement"
                     }
-                  ]
+                  ],
+                  "locals": {}
                 }
-              ]
+              ],
+              "locals": {}
             },
             {
               "type": "element",
@@ -158,7 +170,8 @@
                 "alt": "Example"
               },
               "startend": true,
-              "children": []
+              "children": [],
+              "locals": {}
             },
             {
               "type": "comment",
@@ -174,11 +187,62 @@
                   "type": "text",
                   "value": "            {message}"
                 }
-              ]
+              ],
+              "locals": {}
+            },
+            {
+              "type": "element",
+              "tag": "ul",
+              "properties": {},
+              "startend": false,
+              "children": [
+                {
+                  "type": "element",
+                  "tag": "li",
+                  "properties": {
+                    "py-for": "error in errors"
+                  },
+                  "startend": false,
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "{error}"
+                    }
+                  ],
+                  "locals": {}
+                }
+              ],
+              "locals": {}
+            },
+            {
+              "type": "element",
+              "tag": "p",
+              "properties": {},
+              "startend": false,
+              "children": [
+                {
+                  "type": "element",
+                  "tag": "span",
+                  "properties": {
+                    "py-for": "for char in message:"
+                  },
+                  "startend": false,
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "{char}"
+                    }
+                  ],
+                  "locals": {}
+                }
+              ],
+              "locals": {}
             }
-          ]
+          ],
+          "locals": {}
         }
-      ]
+      ],
+      "locals": {}
     }
   ]
 }

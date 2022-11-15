@@ -1,5 +1,6 @@
-from functools import cached_property
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, Optional
 from .ImportObjects import Import, ImportFrom
 
 
@@ -8,27 +9,46 @@ class VirtualPython:
     with the locals.
     """
 
-    def __init__(self, content: str):
-        self.content = content
+    def __init__(
+        self,
+        content: Optional[str] = None,
+        imports: Optional[list] = None,
+        local_env: Optional[dict] = None,
+    ):
+        self.content = content or ""
+        self.imports = imports or []
+        self.locals = local_env or {}
 
-    @cached_property
-    def imports(self) -> list[Import | ImportFrom]:
-        import ast
+        if self.content != "":
+            import ast
 
-        imports = []
-        for node in ast.parse(self.content).body:
-            if isinstance(node, ast.ImportFrom):
-                imports.append(ImportFrom.from_node(node))
-            elif isinstance(node, ast.Import):
-                imports.append(Import.from_node(node))
+            self.__normalize_indent()
 
-        return imports
+            # Extract imports from content
+            for node in ast.parse(self.content).body:
+                if isinstance(node, ast.ImportFrom):
+                    self.imports.append(ImportFrom.from_node(node))
+                elif isinstance(node, ast.Import):
+                    self.imports.append(Import.from_node(node))
 
-    @cached_property
-    def locals(self) -> dict[str, Any]:
-        local_env = {}
-        exec(self.content, globals(), local_env)
-        return local_env
+            # Retreive locals from content
+            exec(self.content, globals(), self.locals)
+            
+    def __normalize_indent(self):
+        self.content = self.content.split("\n")
+        offset = len(self.content[0]) - len(self.content[0].lstrip())
+        lines = [line[offset:] for line in self.content]
+        joiner = "\n"
+        self.content = joiner.join(lines)
+
+    def __add__(self, obj: VirtualPython) -> VirtualPython:
+        return VirtualPython(
+            imports=[*self.imports, *obj.imports],
+            local_env={**self.locals, **obj.locals},
+        )
+
+    def __repr__(self) -> str:
+        return f"VP(imports: {len(self.imports)}, locals: {len(self.locals.keys())})"
 
 
 def get_vp_result(expr: str, **kwargs) -> Any:
@@ -41,8 +61,11 @@ def get_vp_result(expr: str, **kwargs) -> Any:
         exec(expr, {}, kwargs)
         return kwargs["result"] or kwargs["results"]
     else:
-        exec(f"phml_vp_result = {expr}", {}, kwargs)
-        return kwargs["phml_vp_result"]
+        try:
+            exec(f"phml_vp_result = {expr}", {}, kwargs)
+            return kwargs["phml_vp_result"]
+        except NameError as e:
+            print(e, expr, kwargs)
 
 
 def extract_expressions(data: str) -> str:
@@ -65,10 +88,11 @@ def extract_expressions(data: str) -> str:
                 offset = len(expr[0]) - len(expr[0].lstrip())
                 lines = [line[offset:] for line in expr]
                 joiner = "\n"
-                expression=joiner.join(lines)
+                expression = joiner.join(lines)
             else:
-                expression=expr[0]
+                expression = expr[0]
     return expressions
+
 
 def process_vp_blocks(line: str, vp: VirtualPython, **kwargs) -> str:
     """Process a lines python blocks. Use the VirtualPython locals,
@@ -77,26 +101,29 @@ def process_vp_blocks(line: str, vp: VirtualPython, **kwargs) -> str:
 
     Args:
         line (str): The line to process
-        vp (VirtualPython): The virtual python code to use.
+        **kwargs (Any): The extra data to pass to the exec function
 
     Returns:
         str: The processed line as str.
     """
     from re import sub
-    
+
     # Bring vp imports into scope
     for imp in vp.imports:
         exec(str(imp))
-    
+
     expr = extract_expressions(line)
+    kwargs.update(vp.locals)
     if expr is not None:
         for e in expr:
-            result = get_vp_result(e, **vp.locals, **kwargs)
-            line = sub(
-                r"\{.*\}", result, line
-            )
-    
+            result = get_vp_result(e, **kwargs)
+            if isinstance(result, bool):
+                line = sub(r"\{.*\}", "yes" if result else "no", line)
+            else:
+                line = sub(r"\{.*\}", str(result), line)
+
     return line
+
 
 if __name__ == "__main__":
     # Extra data to similuate extra info a user may pass

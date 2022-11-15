@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import ast
-
 
 class PythonImport:
     def __init__(self):
@@ -23,7 +21,7 @@ class Import(PythonImport):
         self.modules = modules
 
     @classmethod
-    def from_node(cls, imp: ast.Import) -> Import:
+    def from_node(cls, imp) -> Import:
         """Generates a new import object from a python ast Import.
 
         Args:
@@ -51,7 +49,7 @@ class ImportFrom(PythonImport):
         self.names = names
 
     @classmethod
-    def from_node(cls, imp: ast.ImportFrom) -> Import:
+    def from_node(cls, imp) -> Import:
         """Generates a new import object from a python ast Import.
 
         Args:

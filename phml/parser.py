@@ -5,7 +5,7 @@ from pathlib import Path
 from html.parser import HTMLParser
 from typing import Optional
 
-from phml.ast import AST
+from phml.AST import AST
 from phml.nodes import Element, Root, DocType, Properties, Text, Comment, Position, Point
 from phml.file_types import HTML, PHML, JSON
 
@@ -236,7 +236,7 @@ class Parser:
 
         return self
 
-    def write(self, path: str, file_type: str = PHML, ast: Optional[Root] = None):
+    def write(self, path: str, file_type: str = HTML, ast: Optional[Root] = None):
         """Write a phml ast to a file.
 
         Defaults to writing the parsed ast on this object to a file.
@@ -250,7 +250,7 @@ class Parser:
 
         return self
 
-    def stringify(self, file_type: str = PHML, ast: Optional[AST] = None) -> str:
+    def stringify(self, file_type: str = HTML, ast: Optional[AST] = None) -> str:
         """Convert a phml ast to a string.
 
         Defaults to writing the parsed ast on this object to a file.
@@ -267,8 +267,8 @@ class Parser:
                 )
 
         if file_type == HTML:
-            return ast.to_html()
+            return ast.render()
         elif file_type == JSON:
-            return ast.to_json()
+            return ast.json()
         else:
-            return ast.to_phml()
+            return ast.source()

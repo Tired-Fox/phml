@@ -21,12 +21,10 @@ def filter_nodes(tree: Root | Element, condition: Test):
     """
 
     def filter_children(node: Root | Element):
+        node.children = [n for n in node.children if test(n, condition)] 
         for i, child in enumerate(node.children):
-            if test(child, condition):
-                if isinstance(child, (Root, Element)):
-                    filter_children(child)
-            else:
-                del node.children[i]
+            if isinstance(child, (Root, Element)):
+                filter_children(child)
 
     filter_children(tree)
 
@@ -43,13 +41,11 @@ def remove_nodes(tree: Root | Element, condition: Test):
     """
 
     def filter_children(node: Root | Element):
-        for i, child in enumerate(node.children):
-            if test(child, condition):
-                del node.children[i]
-            else:
-                if isinstance(child, (Root, Element)):
-                    filter_children(child)
-
+        node.children = [n for n in node.children if not test(n, condition)] 
+        for child in node.children:
+            if isinstance(child, (Root, Element)):
+                filter_children(child)
+                
     filter_children(tree)
 
 

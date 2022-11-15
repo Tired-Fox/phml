@@ -4,14 +4,18 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>
-            Sample 1
-        </title>
+        <title>Sample 1</title>
     </head>
     <python>
         if True:
             print("Hello World")
         message = "Hello World!"
+        errors = [
+            "Error 1",
+            "Error 2",
+            "Bad formatting",
+            "Yolo",
+        ]
     </python>
     <body>
         <!--  `py-` prefix for python injected logic. Value is python  -->
@@ -35,5 +39,13 @@
         <h2>
             {message}
         </h2>
+
+        <ul>
+            <li py-for="error in errors">{error}</li>
+        </ul>
+
+        <p>
+            <span py-for="for char in message:">{char}</span>
+        </p>
     </body>
 </html>

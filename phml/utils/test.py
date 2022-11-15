@@ -37,7 +37,6 @@ def test(
     Returns:
         True if all tests pass.
     """
-
     if parent is not None:
         # If parent is given then index has to be also.
         #   Validate index is correct in parent.children
@@ -47,16 +46,18 @@ def test(
     if _test is None:
         if not isinstance(node, All_Nodes):
             return False
-
+        else:
+            return True
     elif isinstance(_test, str):
         # If string then validate that the type is the same
         return hasattr(node, "type") and node.type == _test
     elif isinstance(_test, dict):
         # If dict validate all items with properties are the same
+        # Either in attributes or in
         for key, value in _test.items():
-            if key not in node.properties or value != node.properties[key]:
-                return False
-
+            if not hasattr(node, key) or value != getattr(node, key):
+                if not hasattr(node, "properties") or key not in node.properties or value != node.properties[key]:
+                    return False
         return True
     elif isinstance(_test, list):
         # If list then recursively apply tests
@@ -64,6 +65,9 @@ def test(
             if isinstance(t, Test):
                 if not test(node, t, index, parent):
                     return False
+        return True
     elif isinstance(test, Callable):
         # If callable return result of collable after passing node, index, and parent
         return _test(node, index, parent)
+    else:
+        print("NOTHING TO SEE HERE")

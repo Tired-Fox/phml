@@ -64,6 +64,7 @@ class Element(Parent):
         self.tag = tag
         self.openclose = openclose
         self.parent = parent
+        self.locals = {}
 
     def __eq__(self, obj) -> bool:
         if obj.type == self.type:
@@ -132,7 +133,8 @@ class Element(Parent):
             "tag": self.tag,
             "properties": self.properties,
             "startend": self.openclose,
-            "children": [child.as_dict() for child in self.children]
+            "children": [child.as_dict() for child in self.children],
+            "locals": self.locals
         }
 
     def tree(self, depth: int = 0, prefix: str = "") -> str:
@@ -141,7 +143,7 @@ class Element(Parent):
 
         depth = 2 if depth == 0 else depth
         for i, child in enumerate(self.children):            
-            prefix = f"{' '*(depth)}"
+            prefix = ' '*depth
             if len(self.children) > 1:
                 if i == len(self.children) - 1:
                     sep = "└"
@@ -206,10 +208,7 @@ class Element(Parent):
                 return "".join(out)
 
     def __repr__(self) -> str:
-        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: "
-        for child in self.children:
-            out += repr(child) + "\n"
-        out += ")"
+        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: {len(self.children)})"
         return out
 
     def __str__(self) -> str:

@@ -49,6 +49,23 @@ def find(node: Root | Element, condition: Test) -> Optional[All_Nodes]:
     return None
 
 
+def find_all(node: Root | Element, condition: Test) -> list[All_Nodes]:
+    """Find all nodes that match the condition.
+
+    Args:
+        node (Root | Element): Starting node.
+        condition (Test): Condition to apply to each node.
+
+    Returns:
+        list[All_Nodes]: List of found nodes. Empty if no nodes are found.
+    """
+    results = []
+    for n in walk(node):
+        if test(n, condition):
+            results.append(n)
+    return results
+
+
 def find_after(
     node: All_Nodes,
     condition: Optional[Test] = None,

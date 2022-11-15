@@ -1,9 +1,0 @@
-from pprint import pprint
-
-data = {
-    "name": "Zachary",
-    "age": "22"
-}
-
-def print_data(data):
-    pprint(data)

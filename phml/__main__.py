@@ -1,5 +1,5 @@
-from .parser import PHML
+from parser import Parser
 
 if __name__ == "__main__":
-    parser = PHML()
-    parser.parse("../sample.phml").write("../output.phml")
+    parser = Parser().parse("../tests/sample.phml")
+    parser.ast.to_html()

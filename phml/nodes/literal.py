@@ -41,6 +41,9 @@ class Literal(Node):
         # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be represented as {type(obj).__name__}")
         return False
 
+    def __repr__(self) -> str:
+        return f"{self.type}(value:{len(self.value)})"
+
     def as_dict(self) -> dict:
         """Convert literal node to a dict."""
 
