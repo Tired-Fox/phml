@@ -11,13 +11,13 @@
       "properties": {
         "lang": "en"
       },
-      "startend": false,
+      "openclose": false,
       "children": [
         {
           "type": "element",
           "tag": "head",
           "properties": {},
-          "startend": false,
+          "openclose": false,
           "children": [
             {
               "type": "element",
@@ -25,7 +25,7 @@
               "properties": {
                 "charset": "UTF-8"
               },
-              "startend": true,
+              "openclose": true,
               "children": [],
               "locals": {}
             },
@@ -36,7 +36,7 @@
                 "http-equiv": "X-UA-Compatible",
                 "content": "IE=edge"
               },
-              "startend": true,
+              "openclose": true,
               "children": [],
               "locals": {}
             },
@@ -47,7 +47,7 @@
                 "name": "viewport",
                 "content": "width=device-width, initial-scale=1.0"
               },
-              "startend": true,
+              "openclose": true,
               "children": [],
               "locals": {}
             },
@@ -55,7 +55,7 @@
               "type": "element",
               "tag": "title",
               "properties": {},
-              "startend": false,
+              "openclose": false,
               "children": [
                 {
                   "type": "text",
@@ -71,7 +71,7 @@
           "type": "element",
           "tag": "python",
           "properties": {},
-          "startend": false,
+          "openclose": false,
           "children": [
             {
               "type": "text",
@@ -84,7 +84,7 @@
           "type": "element",
           "tag": "body",
           "properties": {},
-          "startend": false,
+          "openclose": false,
           "children": [
             {
               "type": "comment",
@@ -96,13 +96,13 @@
               "properties": {
                 "py-if": "'dog' == 'cat'"
               },
-              "startend": false,
+              "openclose": false,
               "children": [
                 {
                   "type": "element",
                   "tag": "p",
                   "properties": {},
-                  "startend": false,
+                  "openclose": false,
                   "children": [
                     {
                       "type": "text",
@@ -120,13 +120,13 @@
               "properties": {
                 "py-elif": "'dog' in ['cat', 'dog', 'bird']"
               },
-              "startend": false,
+              "openclose": false,
               "children": [
                 {
                   "type": "element",
                   "tag": "p",
                   "properties": {},
-                  "startend": false,
+                  "openclose": false,
                   "children": [
                     {
                       "type": "text",
@@ -144,13 +144,13 @@
               "properties": {
                 "py-else": "yes"
               },
-              "startend": false,
+              "openclose": false,
               "children": [
                 {
                   "type": "element",
                   "tag": "p",
                   "properties": {},
-                  "startend": false,
+                  "openclose": false,
                   "children": [
                     {
                       "type": "text",
@@ -169,7 +169,7 @@
                 "src": "https://example.com",
                 "alt": "Example"
               },
-              "startend": true,
+              "openclose": true,
               "children": [],
               "locals": {}
             },
@@ -181,7 +181,7 @@
               "type": "element",
               "tag": "h2",
               "properties": {},
-              "startend": false,
+              "openclose": false,
               "children": [
                 {
                   "type": "text",
@@ -194,7 +194,7 @@
               "type": "element",
               "tag": "ul",
               "properties": {},
-              "startend": false,
+              "openclose": false,
               "children": [
                 {
                   "type": "element",
@@ -202,7 +202,7 @@
                   "properties": {
                     "py-for": "error in errors"
                   },
-                  "startend": false,
+                  "openclose": false,
                   "children": [
                     {
                       "type": "text",
@@ -218,7 +218,7 @@
               "type": "element",
               "tag": "p",
               "properties": {},
-              "startend": false,
+              "openclose": false,
               "children": [
                 {
                   "type": "element",
@@ -226,7 +226,7 @@
                   "properties": {
                     "py-for": "for char in message:"
                   },
-                  "startend": false,
+                  "openclose": false,
                   "children": [
                     {
                       "type": "text",

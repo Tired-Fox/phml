@@ -1,7 +1,4 @@
-from phml import (
-    Parser,
-    AST,
-)
+from phml import Parser
 
 from phml.file_types import (
     PHML,
@@ -9,27 +6,19 @@ from phml.file_types import (
     HTML
 )
 
-from phml.nodes import (
-    Element,
-    Root,
-    Position,
-    Point,
-    DocType,
-    Comment,
-    Text,
-)
-
 if __name__ == "__main__":
     parser = Parser()
+    
+    parser.load("output/out1_as_json.json").write("output/from_json.html")
 
-    parser.parse("phml/sample1.phml")\
+    parser.load("phml/sample1.phml")\
         .write("output/out1_as_phml.phml", PHML)\
         .write("output/out1_as_json.json", JSON)\
         .write("output/out1_as_html.html", HTML)
 
-    parser.parse("phml/sample2.phml")\
+    parser.load("phml/sample2.phml")\
         .write("output/out2_as_phml.phml", PHML)\
         .write("output/out2_as_json.json", JSON)\
         .write("output/out2_as_html.html", HTML)
 
-    print(parser.parse("phml/sample.phml").write("output/sample.pehl").write("output/sample.json", JSON).ast.inspect())
+    print(parser.load("phml/sample.phml").write("output/sample.pehl").write("output/sample.json", JSON).ast.inspect())

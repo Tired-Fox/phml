@@ -11,13 +11,13 @@
       "properties": {
         "lang": "en"
       },
-      "startend": false,
+      "openclose": false,
       "children": [
         {
           "type": "element",
           "tag": "head",
           "properties": {},
-          "startend": false,
+          "openclose": false,
           "children": [
             {
               "type": "element",
@@ -25,7 +25,7 @@
               "properties": {
                 "charset": "UTF-8"
               },
-              "startend": true,
+              "openclose": true,
               "children": [],
               "locals": {}
             },
@@ -36,7 +36,7 @@
                 "http-equiv": "X-UA-Compatible",
                 "content": "IE=edge"
               },
-              "startend": true,
+              "openclose": true,
               "children": [],
               "locals": {}
             },
@@ -47,7 +47,7 @@
                 "name": "viewport",
                 "content": "width=device-width, initial-scale=1.0"
               },
-              "startend": true,
+              "openclose": true,
               "children": [],
               "locals": {}
             },
@@ -55,7 +55,7 @@
               "type": "element",
               "tag": "title",
               "properties": {},
-              "startend": false,
+              "openclose": false,
               "children": [
                 {
                   "type": "text",
@@ -71,7 +71,7 @@
           "type": "element",
           "tag": "body",
           "properties": {},
-          "startend": false,
+          "openclose": false,
           "children": [
             {
               "type": "comment",
@@ -81,7 +81,7 @@
               "type": "element",
               "tag": "h1",
               "properties": {},
-              "startend": false,
+              "openclose": false,
               "children": [
                 {
                   "type": "text",

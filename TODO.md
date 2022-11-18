@@ -1,4 +1,17 @@
 # TODO
+- [x] from-python: create temp python file for `python` tag and evaluate and import all *`from temp_python import *`*
+- [x] evaluate-python: evaluate a string containing python
+- [ ] Node conversion external from nodes
+- [ ] Convert From Formats
+  - [x] Json
+  - [x] html
+  - [x] phml
+  - [ ] Markdown
+- [ ] Convert To Formats
+  - [x] Json
+  - [x] phml
+  - [x] html
+  - [ ] Markdown
 - [ ] Write Tests
   - [ ] Parsing
     - [ ] Correct AST Generation / Correct ast conversion
@@ -16,15 +29,6 @@
     - [ ] transform
     - [ ] travel
     - [ ] validate
-- [ ] Convert From Formats
-  - [ ] Json
-  - [x] html/phml
-  - [ ] markdown
-- [ ] Convert To Formats
-  - [x] Json
-  - [x] phml
-  - [ ] html
-  - [ ] markdown
 
 ## Utils from [`unist`](https://github.com/syntax-tree/unist#list-of-utilities) and [`hast`](https://github.com/syntax-tree/hast#list-of-utilities) to implement
 
@@ -89,5 +93,3 @@
 - [ ] phrasing: check if node is phrasing content
 
 # Custom
-- [ ] from-python: create temp python file for `python` tag and evaluate and import all *`from temp_python import *`*
-- [ ] evaluate-python: evaluate a string containing python

@@ -7,16 +7,15 @@
         <title>Unicode Characters</title>
     </head>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Noto Sans', sans-serif;
             font-size: 62.5%;
         }
-
         p {
             font-size: 3rem;
         }
@@ -49,7 +48,7 @@
     <body>
         <!--  List of all unicode characters  -->
         <div id="unicode-table">
-            <button py-for="num in range(10000)" id="u{num}" py-onclick="f'copyUnicode({num})'"><p>&#{num}</p></button>
+            <button py-for="num in range(10001)" id="u{num}" py-onclick="f'copyUnicode({num})'"><p>&#{num}</p></button>
         </div>
     </body>
 </html>

@@ -19,7 +19,7 @@ class Literal(Node):
 
     def __init__(
         self,
-        value: str,
+        value: str = "",
         parent: Optional[Element | Root] = None,
         position: Optional[Position] = None,
     ):
@@ -58,3 +58,14 @@ class Literal(Node):
         from json import dumps  # pylint: disable=import-outside-toplevel
 
         return dumps(self.as_dict(), indent=indent)
+    
+    def get_ancestry(self) -> list[str]:
+        def get_parent(parent) -> list[str]:
+            result = []
+            if parent is not None and hasattr(parent, "tag"):
+                result.append(parent.tag)
+            if parent.parent is not None:
+                result.extend(get_parent(parent.parent))
+            return result
+        
+        return get_parent(self.parent)

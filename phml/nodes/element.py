@@ -52,8 +52,8 @@ class Element(Parent):
 
     def __init__(
         self,
-        tag: str,
-        properties: Optional[Properties],
+        tag: str = "element",
+        properties: Optional[Properties]= {},
         parent: Optional[Element | Root] = None,
         openclose: bool = False,
         position: Optional[Position] = None,
@@ -132,7 +132,7 @@ class Element(Parent):
             "type": self.type,
             "tag": self.tag,
             "properties": self.properties,
-            "startend": self.openclose,
+            "openclose": self.openclose,
             "children": [child.as_dict() for child in self.children],
             "locals": self.locals
         }
@@ -195,17 +195,22 @@ class Element(Parent):
         if self.openclose:
             return " "*indent + self.start_tag()
         else:
-            if self.position is not None and self.position.indent is not None:
-                indent = self.position.indent * 4
+            if len(self.children) > 1 or (self.children[0].type == "text" and self.children[0].num_lines > 1):
                 out = [" "*indent + self.start_tag()]
                 out.extend([child.phml(indent + 4) for child in self.children])
                 out.append(" "*indent + self.end_tag())
                 return "\n".join(out)
             else:
-                out = [" "*indent + self.start_tag()]
-                out.extend([child.phml(indent + 4) for child in self.children])
-                out.append(self.end_tag())
-                return "".join(out)
+                if self.children[0].type == "text":
+                    out = [" "*indent + self.start_tag()]
+                    out.append(self.children[0].phml(indent + 4 if self.children[0].num_lines > 1 else 0))
+                    out.append(self.end_tag())
+                    return "".join(out)
+                else:
+                    out = [" "*indent + self.start_tag()]
+                    out.extend([child.phml(indent + 4) for child in self.children])
+                    out.append(" "*indent + self.end_tag())
+                    return "\n".join(out)
 
     def __repr__(self) -> str:
         out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: {len(self.children)})"

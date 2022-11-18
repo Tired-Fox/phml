@@ -73,16 +73,18 @@ class PHMLParser(HTMLParser):
             #     )
             # )
             # stderr.flush()
-            
+
             self.cur.children[-1].openclose = True
             cur_pos = self.getpos()
-            
+
             tag_text = self.get_starttag_text().split("\n")
 
             line = len(tag_text) - 1
             col = len(tag_text[-1]) + cur_pos[1] if len(tag_text) == 1 else len(tag_text[-1])
-            
-            self.cur.children[-1].position = Position(Point(cur_pos[0], cur_pos[1]), Point(cur_pos[0]+line, col))
+
+            self.cur.children[-1].position = Position(
+                Point(cur_pos[0], cur_pos[1]), Point(cur_pos[0] + line, col)
+            )
         else:
             self.cur = self.cur.children[-1]
             cur_pos = self.getpos()
@@ -129,10 +131,9 @@ class PHMLParser(HTMLParser):
             self.cur.position.end = end_pos
             if line - self.cur.position.start.line > 0:
                 self.cur.position.indent = col // 4 if col != 0 else 0
-            
-            
+
             # input(f"{tag} | end | {end_pos} | {self.cur.position}")
-            
+
             self.cur = self.cur.parent
         else:
             raise Exception(f"Mismatched tag: <{self.cur.tag}> and </{tag}>")
@@ -151,7 +152,7 @@ class PHMLParser(HTMLParser):
                 )
             ]
             if len(data) > 0:
-                lines, cols = len(data) - 1, len(data[-1]) 
+                lines, cols = len(data) - 1, len(data[-1])
             data = "\n".join(data)
         else:
             data = data[0]
@@ -189,6 +190,47 @@ class PHMLParser(HTMLParser):
         )
 
 
+def json_to_ast(json_obj: dict):
+    """Convert a json object to a string."""
+
+    def get_node_type(t: str):
+        if t == "root":
+            return Root()
+        elif t == "element":
+            return Element()
+        elif t == "doctype":
+            return DocType()
+        elif t == "text":
+            return Text()
+        elif t == "comment":
+            return Comment()
+        else:
+            return None
+
+    def recurse(obj: dict):
+        """Recursivly construct ast from json."""
+        if 'type' in obj:
+            val = get_node_type(obj['type'])
+            if val is not None:
+                for key in obj:
+                    if key not in ["children", "type"] and hasattr(val, key):
+                        setattr(val, key, obj[key])
+                if 'children' in obj and hasattr(val, "children"):
+                    for child in obj["children"]:
+                        new_child = recurse(child)
+                        new_child.parent = val
+                        val.children.append(new_child)
+                return val
+            else:
+                raise Exception(f"Unkown node type <{obj['type']}>")
+        else:
+            raise Exception(
+                'Invalid json for phml. Every node must have a type. Nodes may only have the types; root, element, doctype, text, or comment'
+            )
+
+    return recurse(json_obj)
+
+
 class Parser:
     """Primary logic to handle everything with a phml file.
 
@@ -214,7 +256,7 @@ class Parser:
         self.phml_parser = PHMLParser()
         self.ast = None
 
-    def parse(self, path: str | Path):
+    def load(self, path: str | Path):
         """Parse a given phml file to AST following hast and unist.
 
         When finished the PHML.ast variable will be populated with the
@@ -223,16 +265,47 @@ class Parser:
         Args:
             path (str | Path): The path to the file that should be parsed.
         """
-        self.phml_parser.reset()
-        self.phml_parser.cur = Root()
-        
+        path = Path(path)
 
-        with open(path, "r", encoding="utf-8") as source:
-            src = source.read()
+        if path.suffix == ".json":
+            from json import loads
 
-        self.phml_parser.feed(src)
+            with open(path, "r", encoding="utf-8") as source:
+                src = source.read()
+            self.ast = AST(json_to_ast(loads(src)))
+        else:
+            self.phml_parser.reset()
+            self.phml_parser.cur = Root()
 
-        self.ast = AST(self.phml_parser.cur)
+            with open(path, "r", encoding="utf-8") as source:
+                src = source.read()
+
+            self.phml_parser.feed(src)
+
+            self.ast = AST(self.phml_parser.cur)
+
+        return self
+
+    def parse(self, data: str | dict, is_markdown: bool = False):
+        """Parse data from a phml/html string or from a dict to a phml ast.
+
+        Args:
+            data (str | dict): Data to parse in to a ast
+            data_type (str): Can be `HTML`, `PHML`, `MARKDOWN`, or `JSON` which
+            tells parser how to parse the data. Otherwise it will assume
+            str data to be html/phml and dict as `json`.
+        """
+        if isinstance(data, dict):
+            self.ast = AST(json_to_ast(data))
+        elif not is_markdown and isinstance(data, str):
+            self.phml_parser.reset()
+            self.phml_parser.cur = Root()
+
+            self.phml_parser.feed(data)
+            self.ast = AST(self.phml_parser.cur)
+        else:
+            raise NotImplementedError("Markdown support is not supported")
+            
 
         return self
 
@@ -246,11 +319,11 @@ class Parser:
         """
 
         with open(path, "+w", encoding="utf-8") as out_file:
-            out_file.write(self.stringify(file_type, ast))
+            out_file.write(self.dump(file_type, ast))
 
         return self
 
-    def stringify(self, file_type: str = HTML, ast: Optional[AST] = None) -> str:
+    def dump(self, file_type: str = HTML, ast: Optional[AST] = None) -> str:
         """Convert a phml ast to a string.
 
         Defaults to writing the parsed ast on this object to a file.
