@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, Optional
 
 if TYPE_CHECKING:
-    from phml import All_Nodes, Root, Element
+    from phml.nodes import All_Nodes, Root, Element
 
 Test = None | str | list | dict | Callable
 
