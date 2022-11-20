@@ -49,17 +49,7 @@ class DocType(Node):
         """Return an inspected tree view of the node."""
         return "\n".join(self.tree())
 
-    def html(self, indent: int = 4) -> str:
-        """Convert doctype node to an html string."""
-        return ""
-
-    def json(self, indent: int = 2) -> str:
-        """Convert doctype node to a json string."""
-        from json import dumps  # pylint: disable=import-outside-toplevel
-
-        return dumps(self.as_dict(), indent=indent)
-
-    def phml(self, indent: int = 0) -> str:
+    def stringify(self, indent: int = 0) -> str:
         """Build indented html string of html doctype element.
 
         Returns:
@@ -67,5 +57,5 @@ class DocType(Node):
         """
         return ' ' * indent + "<!DOCTYPE html>"
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return "node.doctype()"

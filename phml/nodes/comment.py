@@ -18,7 +18,7 @@ class Comment(Literal):
         """Return an inspected tree view of the node."""
         return "\n".join(self.tree())
 
-    def phml(self, indent: int = 0) -> str:
+    def stringify(self, indent: int = 0) -> str:
         """Build indented html string of html comment.
 
         Returns:
@@ -26,5 +26,5 @@ class Comment(Literal):
         """
         return ' ' * indent + f"<!--{self.value}-->"
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"literal.comment(value: {self.value})"

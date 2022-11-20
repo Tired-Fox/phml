@@ -53,16 +53,16 @@ class Element(Parent):
     def __init__(
         self,
         tag: str = "element",
-        properties: Optional[Properties]= {},
+        properties: Optional[Properties] = {},
         parent: Optional[Element | Root] = None,
-        openclose: bool = False,
+        startend: bool = False,
         position: Optional[Position] = None,
         children: Optional[list] = None,
     ):
         super().__init__(position, children)
         self.properties = properties
         self.tag = tag
-        self.openclose = openclose
+        self.startend = startend
         self.parent = parent
         self.locals = {}
 
@@ -74,7 +74,7 @@ class Element(Parent):
             if self.position != obj.position:
                 # print(f"{self.position} != {obj.position}: Position values are not equal")
                 return False
-            if self.openclose != obj.openclose:
+            if self.startend != obj.startend:
                 # print(f"{self.openclose} != {obj.openclose}: openclose values are not equal")
                 return False
             if self.properties != obj.properties:
@@ -114,7 +114,7 @@ class Element(Parent):
         else:
             attributes = ""
 
-        closing = f"{' /' if self.openclose else ''}>"
+        closing = f"{' /' if self.startend else ''}>"
 
         return opening + attributes + closing
 
@@ -126,24 +126,13 @@ class Element(Parent):
         """
         return f"</{self.tag}>"
 
-    def as_dict(self) -> dict:
-        """Convert element node to dict."""
-        return {
-            "type": self.type,
-            "tag": self.tag,
-            "properties": self.properties,
-            "openclose": self.openclose,
-            "children": [child.as_dict() for child in self.children],
-            "locals": self.locals
-        }
-
     def tree(self, depth: int = 0, prefix: str = "") -> str:
         """Yields the tree representation of the node."""
         yield f"{' '*depth}{prefix} {self.tag.upper()} [{len(self.children)}]  {self.position}"
 
         depth = 2 if depth == 0 else depth
-        for i, child in enumerate(self.children):            
-            prefix = ' '*depth
+        for i, child in enumerate(self.children):
+            prefix = ' ' * depth
             if len(self.children) > 1:
                 if i == len(self.children) - 1:
                     sep = "└"
@@ -162,59 +151,6 @@ class Element(Parent):
         """Return an inspected tree view of the node."""
         return "\n".join(self.tree())
 
-    def html(self, indent: int = 4) -> str:
-        """Convert element node and all children to an html string."""
-        if self.openclose:
-            return " "*indent + self.start_tag()
-        else:
-            if self.position is not None and self.position.indent is not None:
-                indent = self.position.indent * 4
-                out = [" "*indent + self.start_tag()]
-                out.extend([child.phml(indent + 4) for child in self.children])
-                out.append(" "*indent + self.end_tag())
-                return "\n".join(out)
-            else:
-                out = [" "*indent + self.start_tag()]
-                out.extend([child.phml(indent + 4) for child in self.children])
-                out.append(self.end_tag())
-                return "".join(out)
-
-    def json(self, indent: int = 2) -> str:
-        """Convert element node and all children to a json string."""
-        from json import dumps
-
-        return dumps(self.as_dict(), indent=indent)
-
-    def phml(self, indent: int = 0) -> str:
-        """Build indented html string of element and it's children.
-
-        Returns:
-            str: Built html of element
-        """
-        
-        if self.openclose:
-            return " "*indent + self.start_tag()
-        else:
-            if len(self.children) > 1 or (self.children[0].type == "text" and self.children[0].num_lines > 1):
-                out = [" "*indent + self.start_tag()]
-                out.extend([child.phml(indent + 4) for child in self.children])
-                out.append(" "*indent + self.end_tag())
-                return "\n".join(out)
-            else:
-                if self.children[0].type == "text":
-                    out = [" "*indent + self.start_tag()]
-                    out.append(self.children[0].phml(indent + 4 if self.children[0].num_lines > 1 else 0))
-                    out.append(self.end_tag())
-                    return "".join(out)
-                else:
-                    out = [" "*indent + self.start_tag()]
-                    out.extend([child.phml(indent + 4) for child in self.children])
-                    out.append(" "*indent + self.end_tag())
-                    return "\n".join(out)
-
     def __repr__(self) -> str:
-        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: {len(self.children)})"
+        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: {len(self.children)}), properties: {self.properties})"
         return out
-
-    def __str__(self) -> str:
-        return f"{self.type}.{self.tag}(startend: {self.openclose}, children: {len(self.children)}, properties: {self.properties})"

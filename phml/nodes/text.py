@@ -35,7 +35,7 @@ class Text(Literal):
         """Determine the number of lines the text has."""
         return len([line for line in self.value.split("\n") if line.strip() != ""])
 
-    def phml(self, indent: int = 0) -> str:
+    def stringify(self, indent: int = 0) -> str:
         """Build indented html string of html text.
 
         Returns:
@@ -48,5 +48,5 @@ class Text(Literal):
             return "\n".join(lines)
         return self.value
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return "literal.text()"

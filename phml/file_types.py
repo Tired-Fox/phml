@@ -3,9 +3,11 @@
 __all__ = [
     "HTML",
     "PHML",
-    "JSON"
+    "JSON",
+    "Markdown"
 ]
 
 HTML: str = "html"
 PHML: str = "phml"
 JSON: str = "json"
+Markdown: str = "md"

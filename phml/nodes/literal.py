@@ -43,21 +43,6 @@ class Literal(Node):
 
     def __repr__(self) -> str:
         return f"{self.type}(value:{len(self.value)})"
-
-    def as_dict(self) -> dict:
-        """Convert literal node to a dict."""
-
-        return {"type": self.type, "value": self.value}
-
-    def html(self, indent: int = 4) -> str:
-        """Convert literal node to an html string."""
-        return ""
-
-    def json(self, indent: int = 2) -> str:
-        """Convert literal node to a json string."""
-        from json import dumps  # pylint: disable=import-outside-toplevel
-
-        return dumps(self.as_dict(), indent=indent)
     
     def get_ancestry(self) -> list[str]:
         def get_parent(parent) -> list[str]:

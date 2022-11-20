@@ -40,11 +40,6 @@ class Root(Parent):
             # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be equated to {type(obj).__name__}")
             return False
 
-    def as_dict(self) -> dict:
-        """Convert root node to a dict."""
-
-        return {"type": self.type, "children": [child.as_dict() for child in self.children]}
-
     def tree(self) -> Iterator[str]:
         """Yields the tree representation of the node."""
         yield f"ROOT [{len(self.children)}]"
@@ -62,21 +57,15 @@ class Root(Parent):
         """Return an inspected tree view of the node."""
         return "\n".join(self.tree())
 
-    def json(self, indent: int = 2) -> str:
-        """Convert root node and all children to a json string."""
-        from json import dumps  # pylint: disable=import-outside-toplevel
-
-        return dumps(self.as_dict(), indent=indent)
-
-    def phml(self, indent: int = 0) -> str:
+    def stringify(self) -> str:
         """Build indented html string of documents elements and their children.
 
         Returns:
             str: Built html of document
         """
         out = []
-        out.extend([child.phml() for child in self.children])
+        out.extend([child.stringify() for child in self.children])
         return "\n".join(out)
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"root [{len(self.children)}]"
