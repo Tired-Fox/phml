@@ -1,19 +1,58 @@
 {
   "type": "element",
-  "tag": "h1",
+  "position": {
+    "start": {
+      "line": 3,
+      "column": 0,
+      "offset": null
+    },
+    "end": {
+      "line": 0,
+      "column": 0,
+      "offset": null
+    },
+    "indent": null
+  },
   "properties": {
     "id": "world"
   },
-  "openclose": false,
+  "tag": "h1",
+  "startend": false,
+  "locals": {},
   "children": [
     {
       "type": "text",
+      "position": {
+        "start": {
+          "line": 3,
+          "column": 15,
+          "offset": null
+        },
+        "end": {
+          "line": 3,
+          "column": 6,
+          "offset": null
+        },
+        "indent": null
+      },
       "value": "World!"
     },
     {
       "type": "comment",
+      "position": {
+        "start": {
+          "line": 4,
+          "column": 4,
+          "offset": null
+        },
+        "end": {
+          "line": 4,
+          "column": 16,
+          "offset": null
+        },
+        "indent": null
+      },
       "value": "after"
     }
-  ],
-  "locals": {}
+  ]
 }

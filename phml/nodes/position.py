@@ -30,6 +30,21 @@ class Position:
             raise IndexError(f"Position.indent value must be >= 0 or None but was {indent}")
 
         self.indent = indent
+        
+    def as_dict(self) -> dict:
+        return {
+            "start": {
+                "line": self.start.line,
+                "column": self.start.column,
+                "offset": self.start.offset,
+            },
+            "end": {
+                "line": self.end.line,
+                "column": self.end.column,
+                "offset": self.end.offset,
+            },
+            "indent": self.indent
+        }
 
     def __eq__(self, obj) -> bool:
         if isinstance(obj, Position):

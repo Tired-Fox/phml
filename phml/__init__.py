@@ -131,7 +131,97 @@ to render markdown to html, then to inject that into the renderer by passing it 
 
 __version__ = "0.1.0"
 
-from .file_types import HTML, PHML, JSON
+from typing import Optional
+from pathlib import Path
+
+from . import file_types
 from .parser import Parser
+from .compile import Compiler
 from .utils import *
 from .AST import AST
+
+__all__ = [
+    "Parser",
+    "Compiler",
+    "PHMLCore",
+    "AST",
+    "find",
+    "transform",
+    "travel",
+    "validate",
+    "file_types",
+    "test",
+]
+
+
+class PHMLCore:
+    """A helper class that bundles the functionality
+    of the parser and compiler together. Allows for loading source files,
+    parsing strings and dicts, rendering to a different format, and finally
+    writing the results of a render to a file.
+    """
+
+    parser: Parser
+    """Instance of a [Parser][phml.parser.Parser]."""
+    compiler: Compiler
+    """Instance of a [Compiler][phml.compile.Compiler]."""
+
+    @property
+    def ast(self) -> AST:
+        return self.parser.ast
+
+    def __init__(self):
+        self.parser = Parser()
+        self.compiler = Compiler()
+
+    def load(self, path: str | Path):
+        """Load a source files data and parse it to phml.
+
+        Args:
+            path (str | Path): The path to the source file.
+        """
+        self.parser.load(path)
+        return self
+
+    def parse(self, data: str | dict):
+        """Parse a str or dict object into phml.
+
+        Args:
+            data (str | dict): Object to parse to phml
+        """
+        self.parser.parse(data)
+        return self
+
+    def render(self, file_type: str = file_types.HTML, indent: Optional[int] = None) -> str:
+        """Render the parsed ast to a different format. Defaults to rendering to html.
+
+        Args:
+            file_type (str): The format to render to. Currently support html, phml, and json.
+            indent (Optional[int], optional): The number of spaces per indent. By default it will
+            use the standard for the given format. HTML has 4 spaces, phml has 4 spaces, and json
+            has 2 spaces.
+
+        Returns:
+            str: The rendered content in the appropriate format.
+        """
+        return self.compiler.compile(self.parser.ast, file_type, indent)
+
+    def write(
+        self,
+        dest: str | Path,
+        file_type: str = file_types.HTML,
+        indent: Optional[int] = None,
+    ):
+        """Renders the parsed ast to a different format, then writes
+        it to a given file. Defaults to rendering and writing out as html.
+
+        Args:
+            dest (str | Path): The path to the file to be written to.
+            file_type (str): The format to render the ast as.
+            indent (Optional[int], optional): The number of spaces per indent. By default it will
+            use the standard for the given format. HTML has 4 spaces, phml has 4 spaces, and json
+            has 2 spaces.
+        """
+        with open(dest, "+w", encoding="utf-8") as dest_file:
+            dest_file.write(self.render(file_type, indent))
+        return self

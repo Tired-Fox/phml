@@ -1,248 +1,659 @@
 {
   "type": "root",
+  "position": null,
   "children": [
     {
       "type": "doctype",
-      "value": "html"
+      "position": {
+        "start": {
+          "line": 1,
+          "column": 0,
+          "offset": null
+        },
+        "end": {
+          "line": 1,
+          "column": 0,
+          "offset": null
+        },
+        "indent": null
+      }
     },
     {
       "type": "element",
-      "tag": "html",
+      "position": {
+        "start": {
+          "line": 2,
+          "column": 0,
+          "offset": null
+        },
+        "end": {
+          "line": 51,
+          "column": 0,
+          "offset": null
+        },
+        "indent": 0
+      },
       "properties": {
         "lang": "en"
       },
-      "openclose": false,
+      "tag": "html",
+      "startend": false,
+      "locals": {},
       "children": [
         {
           "type": "element",
-          "tag": "head",
+          "position": {
+            "start": {
+              "line": 3,
+              "column": 4,
+              "offset": null
+            },
+            "end": {
+              "line": 8,
+              "column": 4,
+              "offset": null
+            },
+            "indent": 1
+          },
           "properties": {},
-          "openclose": false,
+          "tag": "head",
+          "startend": false,
+          "locals": {},
           "children": [
             {
               "type": "element",
-              "tag": "meta",
+              "position": {
+                "start": {
+                  "line": 4,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 4,
+                  "column": 24,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {
                 "charset": "UTF-8"
               },
-              "openclose": true,
-              "children": [],
-              "locals": {}
+              "tag": "meta",
+              "startend": true,
+              "locals": {},
+              "children": []
             },
             {
               "type": "element",
-              "tag": "meta",
+              "position": {
+                "start": {
+                  "line": 5,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 5,
+                  "column": 55,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {
                 "http-equiv": "X-UA-Compatible",
                 "content": "IE=edge"
               },
-              "openclose": true,
-              "children": [],
-              "locals": {}
+              "tag": "meta",
+              "startend": true,
+              "locals": {},
+              "children": []
             },
             {
               "type": "element",
-              "tag": "meta",
+              "position": {
+                "start": {
+                  "line": 6,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 6,
+                  "column": 72,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {
                 "name": "viewport",
                 "content": "width=device-width, initial-scale=1.0"
               },
-              "openclose": true,
-              "children": [],
-              "locals": {}
+              "tag": "meta",
+              "startend": true,
+              "locals": {},
+              "children": []
             },
             {
               "type": "element",
-              "tag": "title",
+              "position": {
+                "start": {
+                  "line": 7,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 7,
+                  "column": 23,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {},
-              "openclose": false,
+              "tag": "title",
+              "startend": false,
+              "locals": {},
               "children": [
                 {
                   "type": "text",
-                  "value": "Sample 1"
+                  "position": {
+                    "start": {
+                      "line": 7,
+                      "column": 15,
+                      "offset": null
+                    },
+                    "end": {
+                      "line": 7,
+                      "column": 23,
+                      "offset": null
+                    },
+                    "indent": null
+                  },
+                  "value": "Sample 1",
+                  "num_lines": 1
                 }
-              ],
-              "locals": {}
+              ]
             }
-          ],
-          "locals": {}
+          ]
         },
         {
           "type": "element",
-          "tag": "python",
+          "position": {
+            "start": {
+              "line": 9,
+              "column": 4,
+              "offset": null
+            },
+            "end": {
+              "line": 19,
+              "column": 4,
+              "offset": null
+            },
+            "indent": 1
+          },
           "properties": {},
-          "openclose": false,
+          "tag": "python",
+          "startend": false,
+          "locals": {},
           "children": [
             {
               "type": "text",
-              "value": "        if True:\n            print(\"Hello World\")\n        message = \"Hello World!\"\n        errors = [\n            \"Error 1\",\n            \"Error 2\",\n            \"Bad formatting\",\n            \"Yolo\",\n        ]"
+              "position": {
+                "start": {
+                  "line": 9,
+                  "column": 12,
+                  "offset": null
+                },
+                "end": {
+                  "line": 17,
+                  "column": 9,
+                  "offset": null
+                },
+                "indent": null
+              },
+              "value": "        if True:\n            print(\"Hello World\")\n        message = \"Hello World!\"\n        errors = [\n            \"Error 1\",\n            \"Error 2\",\n            \"Bad formatting\",\n            \"Yolo\",\n        ]",
+              "num_lines": 9
             }
-          ],
-          "locals": {}
+          ]
         },
         {
           "type": "element",
-          "tag": "body",
+          "position": {
+            "start": {
+              "line": 20,
+              "column": 4,
+              "offset": null
+            },
+            "end": {
+              "line": 50,
+              "column": 4,
+              "offset": null
+            },
+            "indent": 1
+          },
           "properties": {},
-          "openclose": false,
+          "tag": "body",
+          "startend": false,
+          "locals": {},
           "children": [
             {
               "type": "comment",
+              "position": {
+                "start": {
+                  "line": 21,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 21,
+                  "column": 74,
+                  "offset": null
+                },
+                "indent": null
+              },
               "value": "  `py-` prefix for python injected logic. Value is python  "
             },
             {
               "type": "element",
-              "tag": "div",
+              "position": {
+                "start": {
+                  "line": 22,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 26,
+                  "column": 8,
+                  "offset": null
+                },
+                "indent": 2
+              },
               "properties": {
                 "py-if": "'dog' == 'cat'"
               },
-              "openclose": false,
+              "tag": "div",
+              "startend": false,
+              "locals": {},
               "children": [
                 {
                   "type": "element",
-                  "tag": "p",
+                  "position": {
+                    "start": {
+                      "line": 23,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "end": {
+                      "line": 25,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "indent": 3
+                  },
                   "properties": {},
-                  "openclose": false,
+                  "tag": "p",
+                  "startend": false,
+                  "locals": {},
                   "children": [
                     {
                       "type": "text",
-                      "value": "                Cat's and dog's are not the same thing"
+                      "position": {
+                        "start": {
+                          "line": 23,
+                          "column": 15,
+                          "offset": null
+                        },
+                        "end": {
+                          "line": 23,
+                          "column": 54,
+                          "offset": null
+                        },
+                        "indent": null
+                      },
+                      "value": "                Cat's and dog's are not the same thing",
+                      "num_lines": 1
                     }
-                  ],
-                  "locals": {}
+                  ]
                 }
-              ],
-              "locals": {}
+              ]
             },
             {
               "type": "element",
-              "tag": "div",
+              "position": {
+                "start": {
+                  "line": 27,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 31,
+                  "column": 8,
+                  "offset": null
+                },
+                "indent": 2
+              },
               "properties": {
                 "py-elif": "'dog' in ['cat', 'dog', 'bird']"
               },
-              "openclose": false,
+              "tag": "div",
+              "startend": false,
+              "locals": {},
               "children": [
                 {
                   "type": "element",
-                  "tag": "p",
+                  "position": {
+                    "start": {
+                      "line": 28,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "end": {
+                      "line": 30,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "indent": 3
+                  },
                   "properties": {},
-                  "openclose": false,
+                  "tag": "p",
+                  "startend": false,
+                  "locals": {},
                   "children": [
                     {
                       "type": "text",
-                      "value": "                dog in the list ['cat', 'dog', 'bird']"
+                      "position": {
+                        "start": {
+                          "line": 28,
+                          "column": 15,
+                          "offset": null
+                        },
+                        "end": {
+                          "line": 28,
+                          "column": 54,
+                          "offset": null
+                        },
+                        "indent": null
+                      },
+                      "value": "                dog in the list ['cat', 'dog', 'bird']",
+                      "num_lines": 1
                     }
-                  ],
-                  "locals": {}
+                  ]
                 }
-              ],
-              "locals": {}
+              ]
             },
             {
               "type": "element",
-              "tag": "div",
+              "position": {
+                "start": {
+                  "line": 32,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 36,
+                  "column": 8,
+                  "offset": null
+                },
+                "indent": 2
+              },
               "properties": {
                 "py-else": "yes"
               },
-              "openclose": false,
+              "tag": "div",
+              "startend": false,
+              "locals": {},
               "children": [
                 {
                   "type": "element",
-                  "tag": "p",
+                  "position": {
+                    "start": {
+                      "line": 33,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "end": {
+                      "line": 35,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "indent": 3
+                  },
                   "properties": {},
-                  "openclose": false,
+                  "tag": "p",
+                  "startend": false,
+                  "locals": {},
                   "children": [
                     {
                       "type": "text",
-                      "value": "                py-else statement"
+                      "position": {
+                        "start": {
+                          "line": 33,
+                          "column": 15,
+                          "offset": null
+                        },
+                        "end": {
+                          "line": 33,
+                          "column": 33,
+                          "offset": null
+                        },
+                        "indent": null
+                      },
+                      "value": "                py-else statement",
+                      "num_lines": 1
                     }
-                  ],
-                  "locals": {}
+                  ]
                 }
-              ],
-              "locals": {}
+              ]
             },
             {
               "type": "element",
-              "tag": "img",
+              "position": {
+                "start": {
+                  "line": 37,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 37,
+                  "column": 47,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {
                 "src": "https://example.com",
                 "alt": "Example"
               },
-              "openclose": true,
-              "children": [],
-              "locals": {}
+              "tag": "img",
+              "startend": true,
+              "locals": {},
+              "children": []
             },
             {
               "type": "comment",
+              "position": {
+                "start": {
+                  "line": 38,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 38,
+                  "column": 87,
+                  "offset": null
+                },
+                "indent": null
+              },
               "value": "  Brackets ({,}) inject python. Can be any python and can be multiline  "
             },
             {
               "type": "element",
-              "tag": "h2",
+              "position": {
+                "start": {
+                  "line": 39,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 41,
+                  "column": 8,
+                  "offset": null
+                },
+                "indent": 2
+              },
               "properties": {},
-              "openclose": false,
+              "tag": "h2",
+              "startend": false,
+              "locals": {},
               "children": [
                 {
                   "type": "text",
-                  "value": "            {message}"
+                  "position": {
+                    "start": {
+                      "line": 39,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "end": {
+                      "line": 39,
+                      "column": 21,
+                      "offset": null
+                    },
+                    "indent": null
+                  },
+                  "value": "            {message}",
+                  "num_lines": 1
                 }
-              ],
-              "locals": {}
+              ]
             },
             {
               "type": "element",
-              "tag": "ul",
+              "position": {
+                "start": {
+                  "line": 43,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 45,
+                  "column": 8,
+                  "offset": null
+                },
+                "indent": 2
+              },
               "properties": {},
-              "openclose": false,
+              "tag": "ul",
+              "startend": false,
+              "locals": {},
               "children": [
                 {
                   "type": "element",
-                  "tag": "li",
+                  "position": {
+                    "start": {
+                      "line": 44,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "end": {
+                      "line": 44,
+                      "column": 48,
+                      "offset": null
+                    },
+                    "indent": null
+                  },
                   "properties": {
                     "py-for": "error in errors"
                   },
-                  "openclose": false,
+                  "tag": "li",
+                  "startend": false,
+                  "locals": {},
                   "children": [
                     {
                       "type": "text",
-                      "value": "{error}"
+                      "position": {
+                        "start": {
+                          "line": 44,
+                          "column": 41,
+                          "offset": null
+                        },
+                        "end": {
+                          "line": 44,
+                          "column": 48,
+                          "offset": null
+                        },
+                        "indent": null
+                      },
+                      "value": "{error}",
+                      "num_lines": 1
                     }
-                  ],
-                  "locals": {}
+                  ]
                 }
-              ],
-              "locals": {}
+              ]
             },
             {
               "type": "element",
-              "tag": "p",
+              "position": {
+                "start": {
+                  "line": 47,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 49,
+                  "column": 8,
+                  "offset": null
+                },
+                "indent": 2
+              },
               "properties": {},
-              "openclose": false,
+              "tag": "p",
+              "startend": false,
+              "locals": {},
               "children": [
                 {
                   "type": "element",
-                  "tag": "span",
+                  "position": {
+                    "start": {
+                      "line": 48,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "end": {
+                      "line": 48,
+                      "column": 54,
+                      "offset": null
+                    },
+                    "indent": null
+                  },
                   "properties": {
                     "py-for": "for char in message:"
                   },
-                  "openclose": false,
+                  "tag": "span",
+                  "startend": false,
+                  "locals": {},
                   "children": [
                     {
                       "type": "text",
-                      "value": "{char}"
+                      "position": {
+                        "start": {
+                          "line": 48,
+                          "column": 48,
+                          "offset": null
+                        },
+                        "end": {
+                          "line": 48,
+                          "column": 54,
+                          "offset": null
+                        },
+                        "indent": null
+                      },
+                      "value": "{char}",
+                      "num_lines": 1
                     }
-                  ],
-                  "locals": {}
+                  ]
                 }
-              ],
-              "locals": {}
+              ]
             }
-          ],
-          "locals": {}
+          ]
         }
-      ],
-      "locals": {}
+      ]
     }
   ]
 }

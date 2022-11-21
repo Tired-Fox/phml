@@ -59,6 +59,9 @@ def find_all(node: Root | Element, condition: Test) -> list[All_Nodes]:
     Returns:
         list[All_Nodes]: List of found nodes. Empty if no nodes are found.
     """
+    if node.__class__.__name__ == "AST":
+        node = node.tree
+    
     results = []
     for n in walk(node):
         if test(n, condition):

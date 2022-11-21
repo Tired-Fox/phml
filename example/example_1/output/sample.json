@@ -1,100 +1,256 @@
 {
   "type": "root",
+  "position": null,
   "children": [
     {
       "type": "doctype",
-      "value": "html"
+      "position": {
+        "start": {
+          "line": 1,
+          "column": 0,
+          "offset": null
+        },
+        "end": {
+          "line": 1,
+          "column": 0,
+          "offset": null
+        },
+        "indent": null
+      }
     },
     {
       "type": "element",
-      "tag": "html",
+      "position": {
+        "start": {
+          "line": 2,
+          "column": 0,
+          "offset": null
+        },
+        "end": {
+          "line": 13,
+          "column": 0,
+          "offset": null
+        },
+        "indent": 0
+      },
       "properties": {
         "lang": "en"
       },
-      "openclose": false,
+      "tag": "html",
+      "startend": false,
+      "locals": {},
       "children": [
         {
           "type": "element",
-          "tag": "head",
+          "position": {
+            "start": {
+              "line": 3,
+              "column": 4,
+              "offset": null
+            },
+            "end": {
+              "line": 8,
+              "column": 4,
+              "offset": null
+            },
+            "indent": 1
+          },
           "properties": {},
-          "openclose": false,
+          "tag": "head",
+          "startend": false,
+          "locals": {},
           "children": [
             {
               "type": "element",
-              "tag": "meta",
+              "position": {
+                "start": {
+                  "line": 4,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 4,
+                  "column": 30,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {
                 "charset": "UTF-8"
               },
-              "openclose": true,
-              "children": [],
-              "locals": {}
+              "tag": "meta",
+              "startend": true,
+              "locals": {},
+              "children": []
             },
             {
               "type": "element",
-              "tag": "meta",
+              "position": {
+                "start": {
+                  "line": 5,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 5,
+                  "column": 61,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {
                 "http-equiv": "X-UA-Compatible",
                 "content": "IE=edge"
               },
-              "openclose": true,
-              "children": [],
-              "locals": {}
+              "tag": "meta",
+              "startend": true,
+              "locals": {},
+              "children": []
             },
             {
               "type": "element",
-              "tag": "meta",
+              "position": {
+                "start": {
+                  "line": 6,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 6,
+                  "column": 78,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {
                 "name": "viewport",
                 "content": "width=device-width, initial-scale=1.0"
               },
-              "openclose": true,
-              "children": [],
-              "locals": {}
+              "tag": "meta",
+              "startend": true,
+              "locals": {},
+              "children": []
             },
             {
               "type": "element",
-              "tag": "title",
+              "position": {
+                "start": {
+                  "line": 7,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 7,
+                  "column": 23,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {},
-              "openclose": false,
+              "tag": "title",
+              "startend": false,
+              "locals": {},
               "children": [
                 {
                   "type": "text",
+                  "position": {
+                    "start": {
+                      "line": 7,
+                      "column": 15,
+                      "offset": null
+                    },
+                    "end": {
+                      "line": 7,
+                      "column": 23,
+                      "offset": null
+                    },
+                    "indent": null
+                  },
                   "value": "Document"
                 }
-              ],
-              "locals": {}
+              ]
             }
-          ],
-          "locals": {}
+          ]
         },
         {
           "type": "element",
-          "tag": "body",
+          "position": {
+            "start": {
+              "line": 9,
+              "column": 4,
+              "offset": null
+            },
+            "end": {
+              "line": 12,
+              "column": 4,
+              "offset": null
+            },
+            "indent": 1
+          },
           "properties": {},
-          "openclose": false,
+          "tag": "body",
+          "startend": false,
+          "locals": {},
           "children": [
             {
               "type": "comment",
+              "position": {
+                "start": {
+                  "line": 10,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 10,
+                  "column": 29,
+                  "offset": null
+                },
+                "indent": null
+              },
               "value": " Test Comment "
             },
             {
               "type": "element",
-              "tag": "h1",
+              "position": {
+                "start": {
+                  "line": 11,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 11,
+                  "column": 24,
+                  "offset": null
+                },
+                "indent": null
+              },
               "properties": {},
-              "openclose": false,
+              "tag": "h1",
+              "startend": false,
+              "locals": {},
               "children": [
                 {
                   "type": "text",
+                  "position": {
+                    "start": {
+                      "line": 11,
+                      "column": 12,
+                      "offset": null
+                    },
+                    "end": {
+                      "line": 11,
+                      "column": 24,
+                      "offset": null
+                    },
+                    "indent": null
+                  },
                   "value": "Hello World!"
                 }
-              ],
-              "locals": {}
+              ]
             }
-          ],
-          "locals": {}
+          ]
         }
-      ],
-      "locals": {}
+      ]
     }
   ]
 }

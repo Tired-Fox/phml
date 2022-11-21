@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from copy import deepcopy
 from re import sub, match
-from typing import Optional
+from typing import Callable, Optional
 
 from phml.AST import AST
 from phml.file_types import HTML, JSON, PHML, Markdown
-from phml.nodes import Element, Root
+from phml.nodes import All_Nodes, Root, Element, Position
 from phml.utils.travel import visit_children
 from phml.VirtualPython import VirtualPython, get_vp_result, process_vp_blocks
 from phml.utils.find import find_all
@@ -24,28 +24,42 @@ class Compiler:
     ast: AST
     """phml ast used by the compiler to generate a new format."""
 
-    def __init__(self, ast: AST):
+    def __init__(self, ast: Optional[AST] = None):
         self.ast = ast
         self.file = None
 
-    def compile(self, format: str, indent: Optional[int] = None):
+    def compile(
+        self,
+        ast: Optional[AST] = None,
+        to_format: str = HTML,
+        indent: Optional[int] = None,
+        handler: Optional[Callable] = None,
+    ):
         """Execute compilation to a different format."""
-        if format == PHML:
-            return self.__phml(indent or 4)
-        elif format == HTML:
-            return self.__html(indent or 4)
-        elif format == JSON:
-            return self.__json(indent or 2)
-        elif format == Markdown:
-            return self.__markdown()
+
+        ast = ast or self.ast
+
+        if ast is None:
+            raise Exception("Must provide an ast to compile.")
+
+        if to_format == PHML:
+            return self.__phml(ast, indent or 4)
+        elif to_format == HTML:
+            return self.__html(ast, indent or 4)
+        elif to_format == JSON:
+            return self.__json(ast, indent or 2)
+        elif to_format == Markdown:
+            return self.__markdown(ast)
+        elif handler is None:
+            raise Exception(f"Unkown format < { to_format } >")
         else:
-            raise Exception(f"Unkown format < { format } >")
+            return handler(ast, indent)
 
-    def __phml(self, indent: int = 0) -> str:
-        return self.__to_html(self.ast, indent)
+    def __phml(self, ast: AST, indent: int = 0) -> str:
+        return self.__to_html(ast, indent)
 
-    def __html(self, indent: int = 0, **kwargs) -> str:
-        html = deepcopy(self.ast)
+    def __html(self, ast: AST, indent: int = 0, **kwargs) -> str:
+        html = deepcopy(ast)
 
         # 1. Search for all python elements and get source info.
         #    - Remove when done
@@ -69,14 +83,18 @@ class Compiler:
 
         return self.__to_html(html, indent)
 
-    def __json(self, indent: int = 0) -> str:
+    def __json(self, ast: AST, indent: int = 0) -> str:
         from json import dumps
 
         def compile_children(node: Root | Element) -> dict:
-            data = {}
+            data = {"type": node.type}
             for attr in vars(node):
                 if attr not in ["parent", "children"]:
-                    data[attr] = getattr(node, attr)
+                    value = getattr(node, attr)
+                    if isinstance(value, Position):
+                        data[attr] = value.as_dict()
+                    else:
+                        data[attr] = value
 
             if hasattr(node, "children"):
                 data["children"] = []
@@ -85,51 +103,53 @@ class Compiler:
 
             return data
 
-        data = compile_children(self.ast.tree)
+        data = compile_children(ast.tree)
         return dumps(data, indent=indent)
 
-    def __markdown(self) -> str:
-        raise NotImplementedError("Markdown support is supported.")
+    def __markdown(self, ast: AST) -> str:
+        raise NotImplementedError("Markdown is not supported.")
 
     def __to_html(self, ast: AST, offset: int = 0) -> str:
-        def compile_children(node: Root | Element, indent: int = 0) -> list[str]:
+        def compile_children(node: All_Nodes, indent: int = 0) -> list[str]:
             data = []
-            for child in visit_children(node):
-                if child.type == "element":
-                    if child.openclose:
-                        data.append(" " * indent + child.start_tag())
-                    else:
-                        if (
-                            len(child.children) == 1
-                            and child.children[0].type == "text"
-                            and child.children[0].num_lines > 1
-                        ):
-                            out = []
-                            out.append(" " * indent + child.start_tag())
-                            out.append(
-                                child.children[0].stringify(
-                                    indent + 4 if child.children[0].num_lines > 1 else 0
-                                )
-                            )
-                            out.append(child.end_tag())
-                            data.append("".join(out))
-                        else:
-                            data.append(" " * indent + child.start_tag())
-                            for c in child.children:
-                                if child.type == "element":
-                                    data.extend(compile_children(c, indent + offset))
-                                else:
-                                    data.append(c.stringify(indent + offset))
-                            data.append(" " * indent + child.end_tag())
+            if node.type == "element":
+                if node.startend:
+                    data.append(" " * indent + node.start_tag())
                 else:
-                    data.append(child.stringify(indent + offset))
+                    if (
+                        len(node.children) == 1
+                        and node.children[0].type == "text"
+                        and node.children[0].num_lines == 1
+                    ):
+                        out = []
+                        out.append(" " * indent + node.start_tag())
+                        out.append(
+                            node.children[0].stringify(
+                                indent + offset if node.children[0].num_lines > 1 else 0
+                            )
+                        )
+                        out.append(node.end_tag())
+                        data.append("".join(out))
+                    else:
+                        data.append(" " * indent + node.start_tag())
+                        for c in visit_children(node):
+                            if c.type == "element":
+                                data.extend(compile_children(c, indent + offset))
+                            else:
+                                data.append(c.stringify(indent + offset))
+                        data.append(" " * indent + node.end_tag())
+            elif node.type == "root":
+                for child in visit_children(node):
+                    data.extend(compile_children(child))
+            else:
+                data.append(node.stringify(indent + offset))
             return data
 
         data = compile_children(ast.tree)
         return "\n".join(data)
 
 
-def apply_conditions(node: Root | Element, vp: VirtualPython, **kwargs):
+def apply_conditions(node: Root | Element | AST, vp: VirtualPython, **kwargs):
     """Applys all `py-if`, `py-elif`, `py-else`, and `py-for` to the node
     recursively.
 
@@ -137,13 +157,17 @@ def apply_conditions(node: Root | Element, vp: VirtualPython, **kwargs):
         node (Root | Element): The node to recursively apply `py-` attributes too.
         vp (VirtualPython): All of the data from the python elements.
     """
+
+    if isinstance(node, AST):
+        node = node.tree
+
     process_conditions(node, vp, **kwargs)
     for child in node.children:
         if isinstance(child, (Root, Element)):
             apply_conditions(child, vp, **kwargs)
 
 
-def apply_python(node: Root | Element, vp: VirtualPython, **kwargs):
+def apply_python(node: Root | Element | AST, vp: VirtualPython, **kwargs):
     """Recursively travers the node and search for python blocks. When found
     process them and apply the results.
 
@@ -151,6 +175,9 @@ def apply_python(node: Root | Element, vp: VirtualPython, **kwargs):
         node (Root | Element): The node to traverse
         vp (VirtualPython): The python elements data
     """
+
+    if isinstance(node, AST):
+        node = node.tree
 
     def process_children(n: Root | Element, local_env: dict):
         for child in n.children:

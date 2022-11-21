@@ -19,6 +19,9 @@ def filter_nodes(tree: Root | Element, condition: Test):
     Returns:
         Root | Element: The given tree after being filtered.
     """
+    
+    if  tree.__class__.__name__ == "AST":
+        tree = tree.tree
 
     def filter_children(node: Root | Element):
         node.children = [n for n in node.children if test(n, condition)] 
@@ -39,6 +42,8 @@ def remove_nodes(tree: Root | Element, condition: Test):
         tree (Root | Element): The parent node to start recursively removing from.
         condition (Test): The condition to apply to each node.
     """
+    if tree.__class__.__name__ == "AST":
+        tree = tree.tree
 
     def filter_children(node: Root | Element):
         node.children = [n for n in node.children if not test(n, condition)] 
@@ -70,6 +75,9 @@ def map_nodes(tree: Root | Element, transform: Callable):
         to each node.
     """
 
+    if  tree.__class__.__name__ == "AST":
+        tree = tree.tree
+        
     for node in walk(tree):
         node = transform(node)
         
