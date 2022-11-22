@@ -9,6 +9,6 @@
     <body>
         <!-- Test Comment -->
         <h1>Hello World!</h1>
-        <input #type="'checkbox'">
+        <input :type="'checkbox'">
     </body>
 </html>

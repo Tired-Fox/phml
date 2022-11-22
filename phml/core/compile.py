@@ -16,10 +16,10 @@ __all__ = ["Compiler"]
 
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
-condition_prefix = ""
+condition_prefix = "@"
 
 # ? Change prefix char for python attributes here
-python_attr_prefix = "#"
+python_attr_prefix = ":"
 
 
 class Compiler:

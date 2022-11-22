@@ -19,20 +19,14 @@
     </python>
     <body>
         <!--  `py-` prefix for python injected logic. Value is python  -->
-        <div py-if="'dog' == 'cat'">
-            <p>Cat's and dog's are not the same thing</p>
-        </div>
-        <div py-elif="'dog' in ['cat', 'dog', 'bird']">
-            <p>dog in the list ['cat', 'dog', 'bird']</p>
-        </div>
-        <div py-else>
-            <p>py-else statement</p>
-        </div>
+        <p @if="'dog' == 'cat'">Cat's and dog's are not the same thing</p>
+        <p py-elif="'dog' in ['cat', 'dog', 'bird']">dog in the list ['cat', 'dog', 'bird']</p>
+        <p @else>py-else statement</p>
         <img src="https://example.com" alt="Example" />
         <!--  Brackets ({,}) inject python. Can be any python and can be multiline  -->
         <h2>{message}</h2>
         <ul>
-            <li py-for="error in errors">{error}</li>
+            <li @for="error in errors">{error}</li>
         </ul>
         <p>
             <span py-for="for char in message:">{char}</span>

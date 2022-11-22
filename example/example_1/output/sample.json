@@ -259,13 +259,13 @@
                 },
                 "end": {
                   "line": 12,
-                  "column": 32,
+                  "column": 34,
                   "offset": null
                 },
                 "indent": null
               },
               "properties": {
-                "~type": "checkbox"
+                ":type": "'checkbox'"
               },
               "tag": "input",
               "startend": true,
