@@ -80,7 +80,7 @@
 - [x] shift-heading: change heading rank (depth/level)
 - [x] find-and-replace: find and replace text in tree
 
-- [ ] select: `querySelector`, `querySelectorAll`, and `matches`
+- [x] select: `querySelector`, `querySelectorAll`, and `matches`
 - [ ] sanitize: sanitize nodes
 - [ ] reading-time: estimate the reading time
 

@@ -1,13 +1,11 @@
 """Pythonic Hypertext Markup Language (phml) parser."""
 
-import re
+from re import search
 from pathlib import Path
 from html.parser import HTMLParser
 from typing import Callable, Optional
 
-from phml.AST import AST
-from phml.nodes import Element, Root, DocType, Properties, Text, Comment, Position, Point
-from phml.file_types import HTML, PHML, JSON
+from phml.nodes import AST, Element, Root, DocType, Properties, Text, Comment, Position, Point
 
 self_closing_tags = [
     "area",
@@ -144,7 +142,7 @@ class PHMLParser(HTMLParser):
                 d.replace("\t", "    ")
                 for d in list(
                     filter(
-                        lambda d: re.search(r"[^ \t\n]", d) is not None,
+                        lambda d: search(r"[^ \t\n]", d) is not None,
                         data,
                     )
                 )

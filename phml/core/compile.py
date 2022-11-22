@@ -4,14 +4,13 @@ from copy import deepcopy
 from re import sub, match
 from typing import Callable, Optional
 
-from phml.AST import AST
-from phml.file_types import HTML, JSON, PHML, Markdown
-from phml.nodes import All_Nodes, Root, Element, Position
+from phml.core.file_types import HTML, JSON, PHML, Markdown
+from phml.nodes import AST, All_Nodes, Root, Element, Position
 from phml.utils.travel import visit_children
+from phml.utils.locate.find import find_all
+from phml.utils.transform.transform import remove_nodes
+from phml.utils.validate.test import test
 from phml.VirtualPython import VirtualPython, get_vp_result, process_vp_blocks
-from phml.utils.find import find_all
-from phml.utils.transform import remove_nodes
-from phml.utils.test import test
 
 __all__ = ["Compiler"]
 

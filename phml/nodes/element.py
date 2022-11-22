@@ -151,5 +151,5 @@ class Element(Parent):
         return "\n".join(self.tree())
 
     def __repr__(self) -> str:
-        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: {len(self.children)}), properties: {self.properties})"
+        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: {len(self.children)})"
         return out

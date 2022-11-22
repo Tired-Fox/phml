@@ -1,7 +1,16 @@
+"""utils.travel
+
+Collection of utilities that hep with traversing an ast or node tree.
+"""
+
 from typing import Iterator
 
+from phml.nodes import All_Nodes, Root, Element
 
-def path(node) -> list:
+__all__ = ["path", "walk", "visit_children", "visit_all_after"]
+
+
+def path(node: All_Nodes) -> list[All_Nodes]:
     """Get a list of nodes where each one is a child of
     the other leading to the node passed in. This gives a
     path to the node.
@@ -23,7 +32,7 @@ def path(node) -> list:
     return ancestors
 
 
-def walk(node) -> Iterator:
+def walk(node: Root | Element) -> Iterator:
     """Recursively traverse the node and it's chidlren as an iterator.
     Left to right depth first.
     """
@@ -41,13 +50,13 @@ def walk(node) -> Iterator:
         yield node
 
 
-def visit_children(parent) -> Iterator:
+def visit_children(parent: Root | Element) -> Iterator:
     """Traverse the children as an iterator."""
     for child in parent.children:
         yield child
 
 
-def visit_all_after(start) -> Iterator:
+def visit_all_after(start: All_Nodes) -> Iterator:
     """Recursively traverse the tree starting at given node."""
 
     def get_children(parent) -> Iterator:

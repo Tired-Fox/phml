@@ -1,11 +1,22 @@
 from typing import Callable
 
-from phml.utils.test import Test, test
-from phml.nodes import Element, Root, All_Nodes
-from .travel import walk
+from phml.nodes import Element, Root, AST
+
+from phml.utils.validate.test import Test, test
+from phml.utils.travel import walk
+from phml.utils.misc import heading_rank
 
 
-def filter_nodes(tree, condition: Test):
+__all__ = [
+    "filter_nodes",
+    "remove_nodes",
+    "map_nodes",
+    "find_and_replace",
+    "shift_heading",
+]
+
+
+def filter_nodes(tree: Root | Element | AST, condition: Test):
     """Take a given tree and filter the nodes with the condition.
     Only nodes passing the condition stay. If the parent node fails,
     then all children are removed.
@@ -32,7 +43,7 @@ def filter_nodes(tree, condition: Test):
     filter_children(tree)
 
 
-def remove_nodes(tree, condition: Test):
+def remove_nodes(tree: Root | Element | AST, condition: Test):
     """Take a given tree and remove the nodes that match the condition.
     If a parent node is removed so is all the children.
 
@@ -54,7 +65,7 @@ def remove_nodes(tree, condition: Test):
     filter_children(tree)
 
 
-def map_nodes(tree, transform: Callable):
+def map_nodes(tree: Root | Element | AST, transform: Callable):
     """Takes a tree and a callable that returns a node and maps each node.
 
     Signature for the transform function should be as follows:
@@ -82,18 +93,7 @@ def map_nodes(tree, transform: Callable):
         node = transform(node)
 
 
-def size(node) -> int:
-    """Get the number of nodes recursively."""
-
-    count = 0
-
-    for _ in walk(node):
-        count += 1
-
-    return count
-
-
-def find_and_replace(node, *replacements: tuple[str, str | Callable]) -> int:
+def find_and_replace(node: Root | Element, *replacements: tuple[str, str | Callable]) -> int:
     """Takes a ast, root, or any node and replaces text in `text`
     nodes with matching replacements.
 
@@ -124,3 +124,15 @@ def find_and_replace(node, *replacements: tuple[str, str | Callable]) -> int:
                 #             pass
                 #         elif isinstance(result, list):
                 #             pass
+
+
+def shift_heading(node: Element, amount: int):
+    """Shift the heading by the amount specified.
+
+    value is clamped between 1 and 6.
+    """
+
+    rank = heading_rank(node)
+    rank += amount
+
+    node.tag = f"h{min(6, max(1, rank))}"

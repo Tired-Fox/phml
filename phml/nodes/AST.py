@@ -2,13 +2,6 @@ from __future__ import annotations
 from functools import cached_property
 from typing import Iterator
 
-from phml.nodes import (
-    Root,
-    Element,
-)  # , Node, DocType, Parent, Literal, Comment, Text, Position, Point, Properties, PropertyName, PropertyValue
-
-from phml.utils.transform import walk, size
-
 __all__ = ["AST"]
 
 
@@ -18,10 +11,15 @@ class AST:
     Contains utility functions that can manipulate the ast.
     """
 
-    def __init__(self, tree: Root | Element):
-        self.tree = tree
+    def __init__(self, tree):
+        if hasattr(tree, "type") and tree.type in ["root", "element"]:
+            self.tree = tree
+        else:
+            raise TypeError("The given tree/root node for AST must be of type `Root` or `Element`")
 
     def __iter__(self) -> Iterator:
+        from phml.utils import walk
+        
         return walk(self.tree)
 
     def __eq__(self, obj) -> bool:
@@ -34,8 +32,9 @@ class AST:
     @cached_property
     def size(self) -> int:
         """Get the number of nodes in the ast tree."""
-
-        size(self.tree)
+        from phml.utils import size
+        
+        return size(self.tree)
 
     def inspect(self) -> str:
         """Return the full tree's inspect data."""

@@ -1,3 +1,9 @@
+"""phml.nodes
+
+All things related to phml node data objects.
+"""
+
+from .AST import AST
 from .node import Node
 from .root import Root
 from .doctype import DocType
@@ -17,6 +23,7 @@ from .types import Properties, PropertyName, PropertyValue
 All_Nodes = Root | Element | Text | Comment | DocType | Parent | Node | Literal
 
 __all__ = [
+    "AST",
     "Node",
     "Root",
     "DocType",

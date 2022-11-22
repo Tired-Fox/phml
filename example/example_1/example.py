@@ -1,6 +1,6 @@
 from phml import PHMLCore
 
-from phml.file_types import PHML, JSON, HTML, Markdown
+from phml.core.file_types import PHML, JSON, HTML, Markdown
 
 if __name__ == "__main__":
     core = PHMLCore()

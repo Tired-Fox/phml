@@ -134,25 +134,16 @@ __version__ = "0.1.0"
 from typing import Optional
 from pathlib import Path
 
-from . import file_types
-from .parser import Parser
-from .compile import Compiler
-from .utils import *
-from .AST import AST
+from .core import file_types, Parser, Compiler
+from .nodes import AST
 
 __all__ = [
-    "Parser",
-    "Compiler",
-    "PHMLCore",
     "AST",
-    "find",
-    "transform",
-    "travel",
-    "validate",
+    "Compiler",
     "file_types",
-    "test",
+    "Parser",
+    "PHMLCore"
 ]
-
 
 class PHMLCore:
     """A helper class that bundles the functionality

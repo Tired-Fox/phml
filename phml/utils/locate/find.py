@@ -1,16 +1,28 @@
 from typing import Optional
 
+from phml.utils.validate import Test, test
+from phml.utils.travel import walk, path
 
-from .test import Test, test
-from .travel import walk, path
+from phml.nodes import All_Nodes, Root, Element
 
+__all__ = [
+    "ancestor",
+    "find",
+    "find_all",
+    "find_after",
+    "find_all_after",
+    "find_all_before",
+    "find_before",
+    "find_all_between"
+]
 
-def ancestor(*nodes):
+def ancestor(*nodes: All_Nodes) -> Optional[All_Nodes]:
     """Get the common ancestor between two nodes.
 
     Args:
-        first (All_Nodes): First node to use.
-        second (All_Nodes): Second node to use.
+        *nodes (All_Nodes): A list of any number of nodes
+        to find the common ancestor form. Worst case it will
+        return the root.
 
     Returns:
         Optional[All_Nodes]: The node that is the common
@@ -27,12 +39,13 @@ def ancestor(*nodes):
     return total_path[-1] if len(total_path) > 0 else None
 
 
-def find(node, condition: Test):
+def find(node: Root | Element, condition: Test) -> Optional[All_Nodes]:
     """Walk the nodes children and return the desired node.
 
     Returns the first node that matches the condition.
 
     Args:
+        node (Root | Element): Starting node.
         condition (Test): Condition to check against each node.
 
     Returns:
@@ -46,7 +59,7 @@ def find(node, condition: Test):
     return None
 
 
-def find_all(node, condition: Test) -> list:
+def find_all(node: Root | Element, condition: Test) -> list[All_Nodes]:
     """Find all nodes that match the condition.
 
     Args:
@@ -67,9 +80,9 @@ def find_all(node, condition: Test) -> list:
 
 
 def find_after(
-    node,
+    node: Root | Element,
     condition: Optional[Test] = None,
-):
+) -> Optional[All_Nodes]:
     """Get the first sibling node.
 
     Args:
@@ -93,7 +106,7 @@ def find_after(
 def find_all_after(
     node,
     condition: Optional[Test] = None,
-) -> list:
+) -> list[All_Nodes]:
     """Get the all sibling nodes.
 
     Args:
@@ -121,7 +134,7 @@ def find_all_after(
 def find_before(
     node,
     condition: Optional[Test] = None,
-):
+) -> Optional[All_Nodes]:
     """Find the first sibling node before the given node. If a condition is applied
     then it will be the first sibling node that passes that condition.
 
@@ -145,7 +158,7 @@ def find_before(
 def find_all_before(
     node,
     condition: Optional[Test] = None,
-) -> list:
+) -> list[All_Nodes]:
     """Find all nodes that come before the given node.
 
     Args:
@@ -176,7 +189,7 @@ def find_all_between(
     end: Optional[int] = 0,
     condition: Optional[Test] = None,
     _range: Optional[slice] = None,
-) -> list:
+) -> list[All_Nodes]:
     """Find all sibling nodes in parent that meet the provided condition from start index
     to end index.
 
