@@ -132,7 +132,7 @@ to render markdown to html, then to inject that into the renderer by passing it 
 from typing import Optional
 from pathlib import Path
 
-from . import core, nodes, utils, virtual_python
+from . import builder, core, nodes, utils, virtual_python
 from .core import Compiler, Parser, file_types
 from .nodes import AST
 
@@ -146,7 +146,8 @@ __all__ = [
     "nodes",
     "utils",
     "virtual_python",
-    "file_types"
+    "file_types",
+    "builder"
 ]
 
 class PHMLCore:
@@ -164,6 +165,10 @@ class PHMLCore:
     @property
     def ast(self) -> AST:
         return self.parser.ast
+    
+    @ast.setter
+    def ast(self, _ast: AST):
+        self.parser.ast = _ast
 
     def __init__(self):
         self.parser = Parser()
@@ -187,7 +192,7 @@ class PHMLCore:
         self.parser.parse(data)
         return self
 
-    def render(self, file_type: str = file_types.HTML, indent: Optional[int] = None) -> str:
+    def render(self, file_type: str = file_types.HTML, indent: Optional[int] = None, **kwargs) -> str:
         """Render the parsed ast to a different format. Defaults to rendering to html.
 
         Args:
@@ -199,7 +204,7 @@ class PHMLCore:
         Returns:
             str: The rendered content in the appropriate format.
         """
-        return self.compiler.compile(self.parser.ast, file_type, indent)
+        return self.compiler.compile(self.parser.ast, file_type, indent, **kwargs)
 
     def write(
         self,

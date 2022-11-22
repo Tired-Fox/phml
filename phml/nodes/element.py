@@ -70,9 +70,6 @@ class Element(Parent):
             if self.tag != obj.tag:
                 # print(f"{self.tag} != {obj.tag}: Tag values are not equal")
                 return False
-            if self.position != obj.position:
-                # print(f"{self.position} != {obj.position}: Position values are not equal")
-                return False
             if self.startend != obj.startend:
                 # print(f"{self.openclose} != {obj.openclose}: openclose values are not equal")
                 return False
@@ -101,8 +98,8 @@ class Element(Parent):
 
         attributes = []
         for prop in self.properties:
-            if self.properties[prop].lower() in ['yes', 'no']:
-                if self.properties[prop].lower() == 'yes':
+            if isinstance(self.properties[prop], bool) or self.properties[prop] in ["yes", "no"]:
+                if self.properties[prop] == "yes" or self.properties[prop]:
                     attributes.append(prop)
                 else:
                     attributes.append(f'{prop}="no"')
@@ -127,7 +124,7 @@ class Element(Parent):
 
     def tree(self, depth: int = 0, prefix: str = "") -> str:
         """Yields the tree representation of the node."""
-        yield f"{' '*depth}{prefix} {self.tag.upper()} [{len(self.children)}]  {self.position}"
+        yield f"{' '*depth}{prefix} {'/' if self.startend else ''}{self.tag.upper()} [{len(self.children)}]{' Properties: ' + str(self.properties) if len(self.properties.keys()) > 0 else ''}"
 
         depth = 2 if depth == 0 else depth
         for i, child in enumerate(self.children):

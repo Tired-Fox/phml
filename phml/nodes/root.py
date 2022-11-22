@@ -28,9 +28,6 @@ class Root(Parent):
 
     def __eq__(self, obj) -> bool:
         if hasattr(obj, "type") and self.type == obj.type:
-            if self.position != obj.position:
-                # print(f"{self.position} != {obj.position}: Position values are not equal")
-                return False
             for c, oc in zip(self.children, obj.children):
                 if c != oc:
                     # print(f"{c} != {oc}: Children values are not equal")

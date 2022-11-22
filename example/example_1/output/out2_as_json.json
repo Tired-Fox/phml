@@ -21,6 +21,11 @@
   "locals": {},
   "children": [
     {
+      "type": "doctype",
+      "position": null,
+      "dtype": "html"
+    },
+    {
       "type": "text",
       "position": {
         "start": {
@@ -29,13 +34,13 @@
           "offset": null
         },
         "end": {
-          "line": 3,
-          "column": 6,
+          "line": 4,
+          "column": 4,
           "offset": null
         },
         "indent": null
       },
-      "value": "World!"
+      "value": "World!\n    "
     },
     {
       "type": "comment",

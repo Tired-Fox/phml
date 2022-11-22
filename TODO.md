@@ -1,34 +1,42 @@
 # TODO
-- [x] from-python: create temp python file for `python` tag and evaluate and import all *`from temp_python import *`*
-- [x] evaluate-python: evaluate a string containing python
-- [ ] Node conversion external from nodes
-- [ ] Convert From Formats
-  - [x] Json
-  - [x] html
-  - [x] phml
-  - [ ] Markdown
-- [ ] Convert To Formats
-  - [x] Json
-  - [x] phml
-  - [x] html
-  - [ ] Markdown
+- [ ] re-write inspect to be external util function
+  - [ ] Pretty lines
+  - [ ] # children
+  - [ ] Positional
+  - [ ] Type and/or tag
+  - [ ] values of literals
+  - [ ] properties of elements
+  - [ ] data of entire tree
 - [ ] Write Tests
-  - [ ] Parsing
-    - [ ] Correct AST Generation / Correct ast conversion
-      - [x] To json
-      - [x] To phml
-      - [ ] To html
-      - [ ] To Markdown
-      - [ ] From phml/html
-      - [ ] From markdown
-      - [ ] From json
   - [ ] Utils
     - [ ] find
     - [ ] misc
-    - [ ] test
     - [ ] transform
     - [ ] travel
     - [ ] validate
+  - [x] AST
+    - [x] Correct AST Generation (parsing)
+      - [x] To json
+      - [x] To phml
+      - [x] To html
+    - [x] Correct ast conversion (compiling)
+      - [x] From phml/html
+      - [x] From json
+- [x] from-python: create temp python file for `python` tag and evaluate and import all *`from temp_python import *`*
+- [x] evaluate-python: evaluate a string containing python
+- [x] Node conversion external from nodes
+- [x] Validate ast is proper format
+  - [x] doctype is only in root
+  - [x] if no doctype add doctype
+  - [x] root nodes are at the root of the tree
+- [x] Convert From Formats
+  - [x] Json
+  - [x] html
+  - [x] phml
+- [x] Convert To Formats
+  - [x] Json
+  - [x] phml
+  - [x] html
 
 ## Utils from [`unist`](https://github.com/syntax-tree/unist#list-of-utilities) and [`hast`](https://github.com/syntax-tree/hast#list-of-utilities) to implement
 
@@ -56,8 +64,8 @@
 - [x] assert: Asserts that a node is valid
 - [x] generated: Check if node is generated
  
+- [x] builder: Helper for creating ast's (Own module)
 - [ ] index: Index the tree given conditions. Helps with traversal
-- [ ] builder: Helper for creating ast's (Own module)
 
 - [ ] modify-children: modify direct children of a parent
 - [ ] replace-all-between: replace nodes between two nodes or positions
@@ -84,11 +92,10 @@
 - [ ] sanitize: sanitize nodes
 - [ ] reading-time: estimate the reading time
 
-- [ ] to-markdown: Converts phml ast tree to markdown
-- [ ] from-markdown: Uses python markdown and gets ast from rendered markdown
-
-*Extensions?*
 - [ ] embedded: check if a node is an embedded element
 - [ ] interactive: check if the node is an interactive element
 - [ ] menu-state: check the state of a menu element
 - [ ] phrasing: check if node is phrasing content
+
+- [ ] to-markdown: Converts phml ast tree to markdown
+- [ ] from-markdown: Uses python markdown and gets ast from rendered markdown

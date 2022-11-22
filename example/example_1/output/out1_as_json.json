@@ -16,7 +16,8 @@
           "offset": null
         },
         "indent": null
-      }
+      },
+      "dtype": "html"
     },
     {
       "type": "element",
@@ -301,13 +302,13 @@
                           "offset": null
                         },
                         "end": {
-                          "line": 23,
-                          "column": 54,
+                          "line": 24,
+                          "column": 12,
                           "offset": null
                         },
                         "indent": null
                       },
-                      "value": "                Cat's and dog's are not the same thing",
+                      "value": "                Cat's and dog's are not the same thing\n            ",
                       "num_lines": 1
                     }
                   ]
@@ -365,13 +366,13 @@
                           "offset": null
                         },
                         "end": {
-                          "line": 28,
-                          "column": 54,
+                          "line": 29,
+                          "column": 12,
                           "offset": null
                         },
                         "indent": null
                       },
-                      "value": "                dog in the list ['cat', 'dog', 'bird']",
+                      "value": "                dog in the list ['cat', 'dog', 'bird']\n            ",
                       "num_lines": 1
                     }
                   ]
@@ -394,7 +395,7 @@
                 "indent": 2
               },
               "properties": {
-                "py-else": "yes"
+                "py-else": true
               },
               "tag": "div",
               "startend": false,
@@ -429,13 +430,13 @@
                           "offset": null
                         },
                         "end": {
-                          "line": 33,
-                          "column": 33,
+                          "line": 34,
+                          "column": 12,
                           "offset": null
                         },
                         "indent": null
                       },
-                      "value": "                py-else statement",
+                      "value": "                py-else statement\n            ",
                       "num_lines": 1
                     }
                   ]
@@ -512,13 +513,13 @@
                       "offset": null
                     },
                     "end": {
-                      "line": 39,
-                      "column": 21,
+                      "line": 40,
+                      "column": 8,
                       "offset": null
                     },
                     "indent": null
                   },
-                  "value": "            {message}",
+                  "value": "            {message}\n        ",
                   "num_lines": 1
                 }
               ]

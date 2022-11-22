@@ -16,7 +16,8 @@
           "offset": null
         },
         "indent": null
-      }
+      },
+      "dtype": "html"
     },
     {
       "type": "element",
@@ -27,7 +28,7 @@
           "offset": null
         },
         "end": {
-          "line": 13,
+          "line": 14,
           "column": 0,
           "offset": null
         },
@@ -181,7 +182,7 @@
               "offset": null
             },
             "end": {
-              "line": 12,
+              "line": 13,
               "column": 4,
               "offset": null
             },
@@ -247,6 +248,29 @@
                   "value": "Hello World!"
                 }
               ]
+            },
+            {
+              "type": "element",
+              "position": {
+                "start": {
+                  "line": 12,
+                  "column": 8,
+                  "offset": null
+                },
+                "end": {
+                  "line": 12,
+                  "column": 32,
+                  "offset": null
+                },
+                "indent": null
+              },
+              "properties": {
+                "~type": "checkbox"
+              },
+              "tag": "input",
+              "startend": true,
+              "locals": {},
+              "children": []
             }
           ]
         }

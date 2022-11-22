@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from copy import deepcopy
 from re import sub, match
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 from phml.core.file_types import HTML, JSON, PHML, Markdown
-from phml.nodes import AST, All_Nodes, Root, Element, Position
+from phml.nodes import AST, All_Nodes, Root, Element, Position, DocType
 from phml.utils.travel import visit_children
 from phml.utils.locate.find import find_all
 from phml.utils.transform.transform import remove_nodes
@@ -13,6 +13,13 @@ from phml.utils.validate.test import test
 from phml.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
 
 __all__ = ["Compiler"]
+
+
+# ? Change prefix char for `if`, `elif`, `else`, and `fore` here
+condition_prefix = ""
+
+# ? Change prefix char for python attributes here
+python_attr_prefix = "#"
 
 
 class Compiler:
@@ -33,7 +40,8 @@ class Compiler:
         to_format: str = HTML,
         indent: Optional[int] = None,
         handler: Optional[Callable] = None,
-    ):
+        **kwargs: Any,
+    ) -> str:
         """Execute compilation to a different format."""
 
         ast = ast or self.ast
@@ -41,10 +49,14 @@ class Compiler:
         if ast is None:
             raise Exception("Must provide an ast to compile.")
 
+        doctypes = [dt for dt in visit_children(ast.tree) if test(dt, "doctype")]
+        if len(doctypes) == 0:
+            ast.tree.children.insert(0, DocType(ast.tree))
+
         if to_format == PHML:
             return self.__phml(ast, indent or 4)
         elif to_format == HTML:
-            return self.__html(ast, indent or 4)
+            return self.__html(ast, indent or 4, **kwargs)
         elif to_format == JSON:
             return self.__json(ast, indent or 2)
         elif to_format == Markdown:
@@ -87,6 +99,11 @@ class Compiler:
 
         def compile_children(node: Root | Element) -> dict:
             data = {"type": node.type}
+
+            if data["type"] == "root":
+                if node.parent is not None:
+                    raise Exception("Root nodes must only occur as the root of an ast/tree.")
+
             for attr in vars(node):
                 if attr not in ["parent", "children"]:
                     value = getattr(node, attr)
@@ -179,16 +196,17 @@ def apply_python(node: Root | Element | AST, vp: VirtualPython, **kwargs):
         node = node.tree
 
     def process_children(n: Root | Element, local_env: dict):
+
         for child in n.children:
             if test(child, "element"):
                 le = {**local_env, **child.locals}
                 new_props = {}
                 for prop in child.properties:
-                    if prop.startswith("py"):
-                        new_props[prop.lstrip("py")] = get_vp_result(
+                    if prop.startswith((python_attr_prefix, "py-")):
+                        new_props[prop.lstrip(python_attr_prefix).lstrip("py-")] = get_vp_result(
                             child.properties[prop], **le, **vp.locals
                         )
-                    elif match(r".*\{.*\}.*", child.properties[prop]) is not None:
+                    elif match(r".*\{.*\}.*", str(child.properties[prop])) is not None:
                         new_props[prop] = process_vp_blocks(child.properties[prop], vp, **le)
                     else:
                         new_props[prop] = child.properties[prop]
@@ -203,7 +221,21 @@ def apply_python(node: Root | Element | AST, vp: VirtualPython, **kwargs):
 
 def process_conditions(tree: Root | Element, vp: VirtualPython, **kwargs):
     def py_conditions(node) -> bool:
-        return [k for k in node.properties.keys() if k in ["py-for", "py-if", "py-elif", "py-else"]]
+        return [
+            k
+            for k in node.properties.keys()
+            if k
+            in [
+                "py-for",
+                "py-if",
+                "py-elif",
+                "py-else",
+                f"{condition_prefix}if",
+                f"{condition_prefix}elif",
+                f"{condition_prefix}else",
+                f"{condition_prefix}for",
+            ]
+        ]
 
     conditions = []
     for child in visit_children(tree):
@@ -212,8 +244,7 @@ def process_conditions(tree: Root | Element, vp: VirtualPython, **kwargs):
                 conditions.append((py_conditions(child)[0], child))
             elif len(py_conditions(child)) > 1:
                 raise Exception(
-                    f"There can only be one of 'py-if', 'py-elif', 'py-else',\
-or 'py-for' at a time:\n{child.phml()}"
+                    f"There can only be one python condition statement at a time:\n{repr(child)}"
                 )
 
     tree.children = execute_conditions(conditions, tree.children, vp, **kwargs)
@@ -222,32 +253,81 @@ or 'py-for' at a time:\n{child.phml()}"
 def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **kwargs) -> list:
 
     valid_prev = {
-        "py-for": ["py-if", "py-elif", "py-else", "py-for"],
-        "py-if": ["py-if", "py-elif", "py-else", "py-for"],
-        "py-elif": ["py-if", "py-elif"],
-        "py-else": ["py-if", "py-elif"],
+        "py-for": [
+            "py-if",
+            "py-elif",
+            "py-else",
+            "py-for",
+            f"{condition_prefix}if",
+            f"{condition_prefix}elif",
+            f"{condition_prefix}else",
+            f"{condition_prefix}for",
+        ],
+        "py-if": [
+            "py-if",
+            "py-elif",
+            "py-else",
+            "py-for",
+            f"{condition_prefix}if",
+            f"{condition_prefix}elif",
+            f"{condition_prefix}else",
+            f"{condition_prefix}for",
+        ],
+        "py-elif": ["py-if", "py-elif", f"{condition_prefix}if", f"{condition_prefix}elif"],
+        "py-else": ["py-if", "py-elif", f"{condition_prefix}if", f"{condition_prefix}elif"],
+        f"{condition_prefix}for": [
+            "py-if",
+            "py-elif",
+            "py-else",
+            "py-for",
+            f"{condition_prefix}if",
+            f"{condition_prefix}elif",
+            f"{condition_prefix}else",
+            f"{condition_prefix}for",
+        ],
+        f"{condition_prefix}if": [
+            "py-if",
+            "py-elif",
+            "py-else",
+            "py-for",
+            f"{condition_prefix}if",
+            f"{condition_prefix}elif",
+            f"{condition_prefix}else",
+            f"{condition_prefix}for",
+        ],
+        f"{condition_prefix}elif": [
+            "py-if",
+            "py-elif",
+            f"{condition_prefix}if",
+            f"{condition_prefix}elif",
+        ],
+        f"{condition_prefix}else": [
+            "py-if",
+            "py-elif",
+            f"{condition_prefix}if",
+            f"{condition_prefix}elif",
+        ],
     }
 
     first_cond = False
-    previous = "py-for"
+    previous = f"{condition_prefix}for"
 
     kwargs.update(vp.locals)
     for imp in vp.imports:
         exec(str(imp))
 
     for condition, child in cond:
-        if condition == "py-for":
+        if condition in ["py-for", f"{condition_prefix}for"]:
             # TODO: Split for loop into it's own function
             for_loop = sub(r"for |:", "", child.properties[condition]).strip()
-            new_locals = (
-                sub(
+            new_locals = [
+                item.strip()
+                for item in sub(
                     r"\s+",
                     " ",
                     match(r"(for )?(.*)in", for_loop).group(2),
-                )
-                .strip()
-                .split(", ")
-            )
+                ).split(",")
+            ]
             key_value = "\"{key}\": {key}"
             insert = children.index(child)
 
@@ -275,18 +355,18 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
             )
 
             children = local_env["children"]
-            previous = ("py-for", False)
+            previous = (f"{condition_prefix}for", False)
             first_cond = False
-        elif condition == "py-if":
+        elif condition in ["py-if", f"{condition_prefix}if"]:
             result = get_vp_result(sub(r"\{|\}", "", child.properties[condition].strip()), **kwargs)
             if result:
                 del child.properties[condition]
-                previous = ("py-if", True)
+                previous = (f"{condition_prefix}if", True)
             else:
                 children.remove(child)
-                previous = ("py-if", False)
+                previous = (f"{condition_prefix}if", False)
             first_cond = True
-        elif condition == "py-elif":
+        elif condition in ["py-elif", f"{condition_prefix}elif"]:
             if previous[0] in valid_prev[condition] and first_cond:
                 if not previous[1]:
                     result = get_vp_result(
@@ -294,21 +374,21 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
                     )
                     if result:
                         del child.properties[condition]
-                        previous = ("py-elif", True)
+                        previous = (f"{condition_prefix}elif", True)
                     else:
                         children.remove(child)
-                        previous = ("py-elif", False)
+                        previous = (f"{condition_prefix}elif", False)
                 else:
                     children.remove(child)
             else:
                 raise Exception(
                     f"py-elif must follow a py-if. It may follow a py-elif if the first condition was a py-if.\n{child}"
                 )
-        elif condition == "py-else":
+        elif condition in ["py-else", f"{condition_prefix}else"]:
             if previous[0] in valid_prev[condition] and first_cond:
                 if not previous[1]:
                     child.properties[condition]
-                    previous = ("py-else", True)
+                    previous = (f"{condition_prefix}else", True)
                 else:
                     children.remove(child)
                 first_cond = False

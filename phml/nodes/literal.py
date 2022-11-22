@@ -29,14 +29,10 @@ class Literal(Node):
 
     def __eq__(self, obj) -> bool:
         if self.type == obj.type:
-            if self.position == obj.position:
-                if self.value == obj.value:
-                    return True
-                else:
-                    # print(f"`{self.value}` != `{obj.value}`: Values are not equal")
-                    return False
+            if self.value == obj.value:
+                return True
             else:
-                # print(f"{self.position} != {obj.position}: Position values are not equal")
+                # print(f"`{self.value}` != `{obj.value}`: Values are not equal")
                 return False
         # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be represented as {type(obj).__name__}")
         return False

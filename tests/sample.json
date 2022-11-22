@@ -1,0 +1,275 @@
+{
+  "type": "root",
+  "position": null,
+  "children": [
+    {
+      "type": "doctype",
+      "position": null,
+      "dtype": "html"
+    },
+    {
+      "type": "element",
+      "position": null,
+      "properties": {
+        "lang": "en"
+      },
+      "tag": "html",
+      "startend": false,
+      "locals": {},
+      "children": [
+        {
+          "type": "element",
+          "position": null,
+          "properties": {},
+          "tag": "head",
+          "startend": false,
+          "locals": {},
+          "children": [
+            {
+              "type": "element",
+              "position": null,
+              "properties": {
+                "charset": "UTF-8"
+              },
+              "tag": "meta",
+              "startend": true,
+              "locals": {},
+              "children": []
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              "tag": "meta",
+              "startend": true,
+              "locals": {},
+              "children": []
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {
+                "name": "viewport",
+                "content": "width=device-width, initial-scale=1.0"
+              },
+              "tag": "meta",
+              "startend": true,
+              "locals": {},
+              "children": []
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {},
+              "tag": "title",
+              "startend": false,
+              "locals": {},
+              "children": [
+                {
+                  "type": "text",
+                  "position": null,
+                  "value": "{title or \"\"}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "element",
+          "position": null,
+          "properties": {},
+          "tag": "python",
+          "startend": false,
+          "locals": {},
+          "children": [
+            {
+              "type": "text",
+              "position": null,
+              "value": "        date = \"11/15/2022\"\n        data = {\n            \"name\": \"Zachary\",\n            \"age\": \"22\",\n            \"type\": \"checkbox\"\n        }"
+            }
+          ]
+        },
+        {
+          "type": "element",
+          "position": null,
+          "properties": {},
+          "tag": "body",
+          "startend": false,
+          "locals": {},
+          "children": [
+            {
+              "type": "comment",
+              "position": null,
+              "value": " Text Comment "
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {},
+              "tag": "h1",
+              "startend": false,
+              "locals": {},
+              "children": [
+                {
+                  "type": "text",
+                  "position": null,
+                  "value": "Hello World!"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {
+                "py-type": "data['type']",
+                "checked": "{date == '11/15/2022'}"
+              },
+              "tag": "input",
+              "startend": true,
+              "locals": {},
+              "children": []
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {
+                "py-if": "date == '11/15/2022'"
+              },
+              "tag": "p",
+              "startend": false,
+              "locals": {},
+              "children": [
+                {
+                  "type": "text",
+                  "position": null,
+                  "value": "{date}"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {
+                "py-elif": "data['name'] == 'Zachary'"
+              },
+              "tag": "p",
+              "startend": false,
+              "locals": {},
+              "children": [
+                {
+                  "type": "text",
+                  "position": null,
+                  "value": "{date[\"name\"]}"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {
+                "py-else": true
+              },
+              "tag": "p",
+              "startend": false,
+              "locals": {},
+              "children": [
+                {
+                  "type": "text",
+                  "position": null,
+                  "value": "Wonderful day today!"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {
+                "id": "python-loop"
+              },
+              "tag": "ul",
+              "startend": false,
+              "locals": {},
+              "children": [
+                {
+                  "type": "element",
+                  "position": null,
+                  "properties": {
+                    "py-for": "key, value in data.items()"
+                  },
+                  "tag": "li",
+                  "startend": false,
+                  "locals": {},
+                  "children": [
+                    {
+                      "type": "element",
+                      "position": null,
+                      "properties": {},
+                      "tag": "span",
+                      "startend": false,
+                      "locals": {},
+                      "children": [
+                        {
+                          "type": "text",
+                          "position": null,
+                          "value": "{key}: "
+                        }
+                      ]
+                    },
+                    {
+                      "type": "element",
+                      "position": null,
+                      "properties": {},
+                      "tag": "span",
+                      "startend": false,
+                      "locals": {},
+                      "children": [
+                        {
+                          "type": "text",
+                          "position": null,
+                          "value": "{value}"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {},
+              "tag": "h4",
+              "startend": false,
+              "locals": {},
+              "children": [
+                {
+                  "type": "text",
+                  "position": null,
+                  "value": "The end"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "position": null,
+              "properties": {},
+              "tag": "python",
+              "startend": false,
+              "locals": {},
+              "children": [
+                {
+                  "type": "text",
+                  "position": null,
+                  "value": "            from pprint import pprint\n\n            def print_data(data):\n                pprint(data)"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

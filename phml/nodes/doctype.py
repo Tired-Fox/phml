@@ -28,6 +28,7 @@ class DocType(Node):
     ):
         super().__init__(position)
         self.parent = parent
+        self.dtype = "html"
 
     def __eq__(self, obj) -> bool:
         if hasattr(obj, "type") and obj.type == self.type:
@@ -35,11 +36,6 @@ class DocType(Node):
         
         # print(f"{self.__class__} != {obj.__class__}: {type(self).__name__} can not be equated to {type(obj).__name__}")
         return False
-
-    def as_dict(self) -> dict:
-        """Convert root node to a dict."""
-
-        return {"type": self.type, "value": "html"}
 
     def tree(self, depth: int = 0, prefix: str = "└") -> Iterator[str]:
         """Yields the tree representation of the node."""
@@ -55,7 +51,7 @@ class DocType(Node):
         Returns:
             str: Built html of doctype element
         """
-        return ' ' * indent + "<!DOCTYPE html>"
+        return "<!DOCTYPE html>"
 
     def __repr__(self) -> str:
         return "node.doctype()"

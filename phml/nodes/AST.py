@@ -26,7 +26,6 @@ class AST:
         if isinstance(obj, self.__class__):
             if self.tree == obj.tree:
                 return True
-
         return False
 
     @cached_property

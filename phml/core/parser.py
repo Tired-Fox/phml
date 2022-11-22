@@ -54,9 +54,9 @@ class PHMLParser(HTMLParser):
         properties: Properties = {}
         for attr in attrs:          
             if attr[1] is not None:
-                properties[attr[0]] = attr[1]
+                properties[attr[0]] = attr[1] if attr[1] != "no" else False
             else:
-                properties[attr[0]] = "yes"
+                properties[attr[0]] = True
 
         self.cur.children.append(Element(tag=tag, properties=properties, parent=self.cur))
 
@@ -92,9 +92,9 @@ class PHMLParser(HTMLParser):
         properties: Properties = {}
         for attr in attrs:
             if attr[1] is not None:
-                properties[attr[0]] = attr[1]
+                properties[attr[0]] = attr[1] if attr[1] != "no" else False
             else:
-                properties[attr[0]] = "yes"
+                properties[attr[0]] = True
 
         cur_pos = self.getpos()
         start_pos = Point(cur_pos[0], cur_pos[1])
@@ -138,20 +138,28 @@ class PHMLParser(HTMLParser):
         lines, cols = 0, len(data) + self.getpos()[1]
         data = data.split("\n")
         if len(data) > 1:
-            data = [
-                d.replace("\t", "    ")
-                for d in list(
-                    filter(
-                        lambda d: search(r"[^ \t\n]", d) is not None,
-                        data,
-                    )
-                )
-            ]
+            for idx in range(len(data)):
+                if data[idx].strip() != "":
+                    data = data[idx:]
+                    break
+                if idx == len(data) - 1:
+                    data = []
+                    break
+                
+            if len(data) > 0:
+                for idx in range(len(data) - 1, 0, -1):
+                    if data[idx].replace("\n", " ").strip() != "":
+                        data = data[:idx + 1]
+                        break
+
             if len(data) > 0:
                 lines, cols = len(data) - 1, len(data[-1])
             data = "\n".join(data)
         else:
-            data = data[0]
+            if data[0].replace("\n", " ").strip() != "":
+                data = data[0]
+            else:
+                data = ""
 
         if data not in [[], "", None]:
             cur_pos = self.getpos()
@@ -216,7 +224,7 @@ def json_to_ast(json_obj: dict):
                         new_child = recurse(child)
                         new_child.parent = val
                         val.children.append(new_child)
-                if 'position' in obj and hasattr(val, 'position'):
+                if 'position' in obj and hasattr(val, 'position') and obj["position"] is not None:
                     # start, end, indent
                     # line, column, offset
                     start = obj["position"]["start"]

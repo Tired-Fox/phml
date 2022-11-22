@@ -48,7 +48,7 @@
     <body>
         <!--  List of all unicode characters  -->
         <div id="unicode-table">
-            <button py-for="num in range(10001)" id="u{num}" py-onclick="f'copyUnicode({num})'"><p>&#{num}</p></button>
+            <button for="num in range(10001)" id="u{num}" onclick="copyUnicode({num})"><p>&#{num}</p></button>
         </div>
     </body>
 </html>

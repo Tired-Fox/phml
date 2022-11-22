@@ -118,7 +118,7 @@ def process_vp_blocks(line: str, vp: VirtualPython, **kwargs) -> str:
         for e in expr:
             result = get_vp_result(e, **kwargs)
             if isinstance(result, bool):
-                line = sub(r"\{.*\}", "yes" if result else "no", line)
+                line = result # sub(r"\{.*\}", "yes" if result else "no", line)
             else:
                 line = sub(r"\{.*\}", str(result), line)
 

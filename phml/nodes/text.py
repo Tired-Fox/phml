@@ -24,7 +24,7 @@ class Text(Literal):
     """
 
     def tree(self, depth: int = 0, prefix: str = "") -> Iterator[str]:
-        yield f"{' '*depth}{prefix} {self.type.upper()}  {self.position}"
+        yield f"{' '*depth}{prefix} {self.type.upper()}  {self.position} \"{self.value}\""
 
     def inspect(self) -> str:
         """Return an inspected tree view of the node."""
@@ -42,7 +42,7 @@ class Text(Literal):
             str: Built html of text
         """
         if not any(tag in self.get_ancestry() for tag in ["pre", "python"]):
-            lines = [line.strip() for line in self.value.split("\n") if line.strip() != ""]
+            lines = [line.lstrip() for line in self.value.split("\n") if line.strip() != ""]
             for line in lines:
                 line = ' ' * indent + line
             return "\n".join(lines)
