@@ -29,7 +29,6 @@ self_closing_tags = [
     "menuitem",
 ]
 
-
 class PHMLParser(HTMLParser):
     """Custom html parser inherited from the python
     built-in html.parser.
@@ -55,7 +54,7 @@ class PHMLParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         properties: Properties = {}
-        for attr in attrs:
+        for attr in attrs:          
             if attr[1] is not None:
                 properties[attr[0]] = attr[1]
             else:

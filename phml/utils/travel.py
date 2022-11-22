@@ -1,9 +1,7 @@
 from typing import Iterator
 
-from phml.nodes import Root, Element, All_Nodes
 
-
-def path(node: All_Nodes) -> list[All_Nodes]:
+def path(node) -> list:
     """Get a list of nodes where each one is a child of
     the other leading to the node passed in. This gives a
     path to the node.
@@ -25,33 +23,36 @@ def path(node: All_Nodes) -> list[All_Nodes]:
     return ancestors
 
 
-def walk(node: Root | Element) -> Iterator:
+def walk(node) -> Iterator:
     """Recursively traverse the node and it's chidlren as an iterator.
     Left to right depth first.
     """
 
-    def get_children(parent: All_Nodes) -> Iterator:
+    def get_children(parent) -> Iterator:
         yield parent
-        if isinstance(parent, Root) or isinstance(parent, Element):
+        if parent.type in ["root", "element"]:
             for child in parent.children:
                 yield from get_children(child)
 
-    for child in visit_children(node):
-        yield from get_children(child)
+    if node.type in ["root", "element"]:
+        for child in visit_children(node):
+            yield from get_children(child)
+    else:
+        yield node
 
 
-def visit_children(parent: Root | Element) -> Iterator:
+def visit_children(parent) -> Iterator:
     """Traverse the children as an iterator."""
     for child in parent.children:
         yield child
 
 
-def visit_all_after(start: All_Nodes) -> Iterator:
+def visit_all_after(start) -> Iterator:
     """Recursively traverse the tree starting at given node."""
 
-    def get_children(parent: All_Nodes) -> Iterator:
+    def get_children(parent) -> Iterator:
         yield parent
-        if isinstance(parent, Root) or isinstance(parent, Element):
+        if parent.type in ["root", "element"]:
             for child in parent.children:
                 yield from get_children(child)
 

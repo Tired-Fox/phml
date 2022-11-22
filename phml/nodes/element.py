@@ -10,7 +10,6 @@ if TYPE_CHECKING:
     from .comment import Comment
     from .text import Text
 
-
 class Element(Parent):
     """Element (Parent) represents an Element ([DOM]).
 

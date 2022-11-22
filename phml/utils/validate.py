@@ -41,3 +41,16 @@ def literal(node: Text | Comment) -> bool:
     if hasattr(node, "value"):
         if not isinstance(node, str):
             raise AssertionError("Literal nodes 'value' type should be 'str'")
+
+
+def generated(node: All_Nodes) -> bool:
+    """Checks if a node has been generated. A node is concidered
+    generated if it does not have a position.
+
+    Args:
+        node (All_Nodes): Node to check for position with.
+
+    Returns:
+        bool: Whether a node has a position or not.
+    """
+    return hasattr(node, "position") and node.position is not None

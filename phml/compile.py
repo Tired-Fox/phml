@@ -185,8 +185,8 @@ def apply_python(node: Root | Element | AST, vp: VirtualPython, **kwargs):
                 le = {**local_env, **child.locals}
                 new_props = {}
                 for prop in child.properties:
-                    if prop.startswith("py-"):
-                        new_props[prop.lstrip("py-")] = get_vp_result(
+                    if prop.startswith("py"):
+                        new_props[prop.lstrip("py")] = get_vp_result(
                             child.properties[prop], **le, **vp.locals
                         )
                     elif match(r".*\{.*\}.*", child.properties[prop]) is not None:
