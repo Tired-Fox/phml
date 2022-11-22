@@ -10,7 +10,7 @@ from phml.utils.travel import visit_children
 from phml.utils.locate.find import find_all
 from phml.utils.transform.transform import remove_nodes
 from phml.utils.validate.test import test
-from phml.VirtualPython import VirtualPython, get_vp_result, process_vp_blocks
+from phml.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
 
 __all__ = ["Compiler"]
 

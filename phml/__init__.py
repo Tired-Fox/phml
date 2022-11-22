@@ -129,20 +129,24 @@ and inject it into their document. A good example of this is using the `markdown
 to render markdown to html, then to inject that into the renderer by passing it in as a kwarg.
 """
 
-__version__ = "0.1.0"
-
 from typing import Optional
 from pathlib import Path
 
-from .core import file_types, Parser, Compiler
+from . import core, nodes, utils, virtual_python
+from .core import Compiler, Parser, file_types
 from .nodes import AST
 
+__version__ = "0.1.0"
 __all__ = [
-    "AST",
     "Compiler",
-    "file_types",
     "Parser",
-    "PHMLCore"
+    "file_types",
+    "AST",
+    "core",
+    "nodes",
+    "utils",
+    "virtual_python",
+    "file_types"
 ]
 
 class PHMLCore:
