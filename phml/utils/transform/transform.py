@@ -136,3 +136,24 @@ def shift_heading(node: Element, amount: int):
     rank += amount
 
     node.tag = f"h{min(6, max(1, rank))}"
+
+
+def modify_children(func):
+    """Function wrapper that when called and passed an
+    AST, Root, or Element will apply the wrapped function
+    to each child. This means that whatever is returned
+    from the wrapped function will be assigned to the child.
+
+    The wrapped function will be passed the child node,
+    the index in the parents children, and the parent node
+    """
+    from phml.utils import visit_children
+
+    def inner(start: AST | Element | Root):
+        if isinstance(start, AST):
+            start = start.tree
+
+        for idx, child in enumerate(visit_children(start)):
+            start.children[idx] = func(child, idx, child.parent)
+
+    return inner

@@ -1,12 +1,7 @@
 # TODO
-- [ ] re-write inspect to be external util function
-  - [ ] Pretty lines
-  - [ ] # children
-  - [ ] Positional
-  - [ ] Type and/or tag
-  - [ ] values of literals
-  - [ ] properties of elements
-  - [ ] data of entire tree
+- [ ] All utilities
+  - [ ] unist
+  - [ ] hast
 - [ ] Write Tests
   - [ ] Utils
     - [ ] find
@@ -22,6 +17,14 @@
     - [x] Correct ast conversion (compiling)
       - [x] From phml/html
       - [x] From json
+- [x] re-write inspect to be external util function
+  - [x] Pretty lines
+  - [x] # children
+  - [x] Positional
+  - [x] Type and/or tag
+  - [x] values of literals
+  - [x] properties of elements
+  - [x] data of entire tree
 - [x] from-python: create temp python file for `python` tag and evaluate and import all *`from temp_python import *`*
 - [x] evaluate-python: evaluate a string containing python
 - [x] Node conversion external from nodes
@@ -65,14 +68,14 @@
 - [x] generated: Check if node is generated
  
 - [x] builder: Helper for creating ast's (Own module)
-- [ ] index: Index the tree given conditions. Helps with traversal
+- [x] index: Index the tree given conditions. Helps with traversal
+- [x] modify-children: modify direct children of a parent
 
-- [ ] modify-children: modify direct children of a parent
-- [ ] replace-all-between: replace nodes between two nodes or positions
-- [ ] reduce: recursively reduce tree
-- [ ] flatmap: Flat version of tree
-- [ ] flat-filter: flat map of `filter`
-- [ ] source: get the source of a value
+- [ ] ? replace-all-between: replace nodes between two nodes or positions
+- [ ] ? reduce: recursively reduce tree
+- [ ] ? flatmap: Flat version of tree
+- [ ] ? flat-filter: flat map of `filter`
+- [ ] ? source: get the source of a value
 
 ## hast
 - [x] class-list: Mimic browser's classList API
@@ -87,15 +90,17 @@
 - [x] is-javascript: check if node is a javascript `script` [ref](https://html.spec.whatwg.org/#category-label)
 - [x] shift-heading: change heading rank (depth/level)
 - [x] find-and-replace: find and replace text in tree
+- [x] to-string: Get textContent of element
+
+- [x] embedded: check if a node is an embedded element
+- [x] interactive: check if the node is an interactive element
+- [x] phrasing: check if node is phrasing content
+- [ ] ? menu-state: check the state of a menu element
 
 - [x] select: `querySelector`, `querySelectorAll`, and `matches`
 - [ ] sanitize: sanitize nodes
 - [ ] reading-time: estimate the reading time
+- [ ] to-text: inner-text of element - Rendered text
 
-- [ ] embedded: check if a node is an embedded element
-- [ ] interactive: check if the node is an interactive element
-- [ ] menu-state: check the state of a menu element
-- [ ] phrasing: check if node is phrasing content
-
-- [ ] to-markdown: Converts phml ast tree to markdown
-- [ ] from-markdown: Uses python markdown and gets ast from rendered markdown
+- [ ] ? to-markdown: Converts phml ast tree to markdown
+- [ ] ? from-markdown: Uses python markdown and gets ast from rendered markdown

@@ -23,13 +23,6 @@ class Text(Literal):
     ```
     """
 
-    def tree(self, depth: int = 0, prefix: str = "") -> Iterator[str]:
-        yield f"{' '*depth}{prefix} {self.type.upper()}  {self.position} \"{self.value}\""
-
-    def inspect(self) -> str:
-        """Return an inspected tree view of the node."""
-        return "\n".join(self.tree())
-
     @cached_property
     def num_lines(self) -> int:
         """Determine the number of lines the text has."""

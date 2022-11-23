@@ -34,7 +34,3 @@ class AST:
         from phml.utils import size
         
         return size(self.tree)
-
-    def inspect(self) -> str:
-        """Return the full tree's inspect data."""
-        return self.tree.inspect()

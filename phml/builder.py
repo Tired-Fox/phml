@@ -31,7 +31,9 @@ def p(
 
     if isinstance(selector, str) and selector.startswith("<!--") and selector.endswith("-->"):
         return Comment(selector.lstrip("<!--").rstrip("-->"))
-    if not isinstance(selector, str) or len(selector.split(" ")) > 1:
+    if selector is not None and (not isinstance(selector, str) or len(selector.split(" ")) > 1):
+        if isinstance(selector, str) and (len(selector.split(" ")) > 1 or selector.split("\n") )and len(args) == 0:
+            return Text(selector)
         args = [selector, *args]
         selector = None
 
@@ -179,20 +181,3 @@ def __parse_specifiers(specifier: str) -> dict:
             tokens.append(element)
 
     return tokens
-
-
-if __name__ == "__main__":
-    print(
-        p(
-            "Some Text",
-            p(
-                "div",
-                p("h1", "Header 1"),
-                p("<!-- Text Comment -->"),
-                p(
-                    "p",
-                    p("span", "Some text"),
-                ),
-            ),
-        ).inspect()
-    )

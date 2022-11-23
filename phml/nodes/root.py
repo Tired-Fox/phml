@@ -37,23 +37,6 @@ class Root(Parent):
             # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be equated to {type(obj).__name__}")
             return False
 
-    def tree(self) -> Iterator[str]:
-        """Yields the tree representation of the node."""
-        yield f"ROOT [{len(self.children)}]"
-        for i, child in enumerate(self.children):
-            if len(self.children) > 1:
-                if i == len(self.children) - 1:
-                    sep = "└"
-                else:
-                    sep = "├"
-            else:
-                sep = "└"
-            yield from child.tree(0, sep)
-
-    def inspect(self) -> str:
-        """Return an inspected tree view of the node."""
-        return "\n".join(self.tree())
-
     def stringify(self) -> str:
         """Build indented html string of documents elements and their children.
 

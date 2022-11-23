@@ -1,6 +1,7 @@
 from phml import PHMLCore
 
 from phml.core.file_types import PHML, JSON, HTML, Markdown
+from phml.utils import inspect
 
 if __name__ == "__main__":
     core = PHMLCore()
@@ -20,8 +21,10 @@ if __name__ == "__main__":
     )
 
     print(
-        core.load("phml/sample.phml")
-        .write("output/sample.pehl")
-        .write("output/sample.json", JSON)
-        .ast.inspect()
+        inspect(
+            core.load("phml/sample.phml")
+            .write("output/sample.pehl")
+            .write("output/sample.json", JSON)
+            .ast
+        )
     )

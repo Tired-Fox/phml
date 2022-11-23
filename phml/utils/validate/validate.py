@@ -13,7 +13,7 @@ __all__ = [
     "is_css_style",
     "is_javascript",
     "is_element",
-    "is_event_handler"
+    "is_event_handler",
 ]
 
 
@@ -139,7 +139,7 @@ def is_javascript(node) -> bool:
     )
 
 
-def is_element(node, condition: str | list) -> bool:
+def is_element(node, *conditions: str | list) -> bool:
     """Checks if the given node is a certain element.
 
     When providing an str it will check that the elements tag matches.
@@ -150,12 +150,13 @@ def is_element(node, condition: str | list) -> bool:
     if node.type != "element":
         return False
 
-    if isinstance(condition, str):
-        return node.tag == condition
-    elif isinstance(condition, list):
-        for c in condition:
-            if node.tag == c:
-                return True
+    for condition in conditions:
+        if isinstance(condition, str) and node.tag == condition:
+            return True
+        elif isinstance(condition, list):
+            for c in condition:
+                if node.tag == c:
+                    return True
         return False
 
 
@@ -172,3 +173,168 @@ def has_property(node, attribute: str) -> bool:
         if attribute in node.properties:
             return True
     return False
+
+
+def is_embedded(node: Element) -> bool:
+    """Check to see if an element is an embedded element.
+
+    Embedded Elements:
+
+    * audio
+    * canvas
+    * embed
+    * iframe
+    * img
+    * MathML math
+    * object
+    * picture
+    * SVG svg
+    * video
+
+    Returns:
+        True if emedded
+    """
+    # audio,canvas,embed,iframe,img,MathML math,object,picture,SVG svg,video
+
+    return is_element(
+        node,
+        "audio",
+        "canvas",
+        "embed",
+        "iframe",
+        "img",
+        "math",
+        "object",
+        "picture",
+        "svg",
+        "video",
+    )
+
+
+def is_interactive(node: Element) -> bool:
+    """Check if the element is intended for user interaction.
+
+    Conditions:
+
+    * a (if the href attribute is present)
+    * audio (if the controls attribute is present)
+    * button, details, embed, iframe, img (if the usemap attribute is present)
+    * input (if the type attribute is not in the Hidden state)
+    * label, select, text, area, video (if the controls attribute is present)
+
+    Returns:
+        True if element is interactive
+    """
+
+    if is_element(node, "a"):
+        return has_property(node, "href")
+    elif is_element(node, "input"):
+        return has_property(node, "type") and node.properties["type"].lower() != "hidden"
+    elif is_element(node, "button", "details", "embed", "iframe", "img"):
+        return has_property(node, "usemap")
+    elif is_element(node, "audio", "label", "select", "text", "area", "video"):
+        return has_property(node, "controls")
+
+
+def is_phrasing(node: Element) -> bool:
+    """Check if a node is phrasing text according to
+    https://html.spec.whatwg.org/#phrasing-content-2.
+
+    Phrasing content is the text of the document, as well as elements that mark up that text at the intra-paragraph level. Runs of phrasing content form paragraphs.
+
+    * area (if it is a descendant of a map element)
+    * link (if it is allowed in the body)
+    * meta (if the itemprop attribute is present)
+    * map, mark, math, audio, b, bdi, bdo, br, button, canvas, cite, code, data, datalist, del, dfn, em, embed,
+     i, iframe, img, input, ins, kbd, label, a, abbr, meter, noscript, object, output, picture,
+     progress, q, ruby, s, samp, script, select, slot, small, span, strong, sub, sup, svg, template,
+     textarea, time, u, var, video, wbr, text (true)
+
+    Returns:
+        True if the element is phrasing text
+    """
+
+    if isinstance(node, Text):
+        return True
+    elif is_element(node, "area"):
+        return node.parent is not None and is_element(node.parent, "map")
+    elif is_element(node, "meta"):
+        return has_property(node, "itemprop")
+    elif is_element(node, "link"):
+        body_ok = [
+            "dns-prefetch",
+            "modulepreload",
+            "pingback",
+            "preconnect",
+            "prefetch",
+            "preload",
+            "prerender",
+            "stylesheet",
+        ]
+
+        if has_property(node, "itemprop"):
+            return True
+        elif has_property(node, "rel"):
+            tokens = node.properties["rel"].split(" ")
+            for token in tokens:
+                if token.strip() not in body_ok:
+                    return False
+            return True
+        return False
+    elif is_element(
+        "node",
+        "map",
+        "mark",
+        "math",
+        "audio",
+        "b",
+        "bdi",
+        "bdo",
+        "br",
+        "button",
+        "canvas",
+        "cite",
+        "code",
+        "data",
+        "datalist",
+        "del",
+        "dfn",
+        "em",
+        "embed",
+        "i",
+        "iframe",
+        "img",
+        "input",
+        "ins",
+        "kbd",
+        "label",
+        "a",
+        "abbr",
+        "meter",
+        "noscript",
+        "object",
+        "output",
+        "picture",
+        "progress",
+        "q",
+        "ruby",
+        "s",
+        "samp",
+        "script",
+        "select",
+        "slot",
+        "small",
+        "span",
+        "strong",
+        "sub",
+        "sup",
+        "svg",
+        "template",
+        "textarea",
+        "time",
+        "u",
+        "var",
+        "video",
+        "wbr",
+    ):
+        return True

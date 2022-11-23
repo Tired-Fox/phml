@@ -37,14 +37,6 @@ class DocType(Node):
         # print(f"{self.__class__} != {obj.__class__}: {type(self).__name__} can not be equated to {type(obj).__name__}")
         return False
 
-    def tree(self, depth: int = 0, prefix: str = "└") -> Iterator[str]:
-        """Yields the tree representation of the node."""
-        yield f"{' '*depth}{prefix} {self.type.upper()}  {self.position}"
-
-    def inspect(self) -> str:
-        """Return an inspected tree view of the node."""
-        return "\n".join(self.tree())
-
     def stringify(self, indent: int = 0) -> str:
         """Build indented html string of html doctype element.
 

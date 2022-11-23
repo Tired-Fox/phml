@@ -11,13 +11,6 @@ class Comment(Literal):
     ```
     """
 
-    def tree(self, depth: int = 0, prefix: str = "└") -> Iterator[str]:
-        yield f"{' '*depth}{prefix} {self.type.upper()}  {self.position}"
-
-    def inspect(self) -> str:
-        """Return an inspected tree view of the node."""
-        return "\n".join(self.tree())
-
     def stringify(self, indent: int = 0) -> str:
         """Build indented html string of html comment.
 

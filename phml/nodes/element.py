@@ -122,31 +122,6 @@ class Element(Parent):
         """
         return f"</{self.tag}>"
 
-    def tree(self, depth: int = 0, prefix: str = "") -> str:
-        """Yields the tree representation of the node."""
-        yield f"{' '*depth}{prefix} {'/' if self.startend else ''}{self.tag.upper()} [{len(self.children)}]{' Properties: ' + str(self.properties) if len(self.properties.keys()) > 0 else ''}"
-
-        depth = 2 if depth == 0 else depth
-        for i, child in enumerate(self.children):
-            prefix = ' ' * depth
-            if len(self.children) > 1:
-                if i == len(self.children) - 1:
-                    sep = "└"
-                else:
-                    sep = "├"
-                    prefix = f"{' '*(depth)}│"
-            else:
-                sep = "└"
-            for i, line in enumerate(child.tree(2, sep)):
-                if i == 0:
-                    yield line
-                else:
-                    yield prefix + line
-
-    def inspect(self) -> str:
-        """Return an inspected tree view of the node."""
-        return "\n".join(self.tree())
-
     def __repr__(self) -> str:
         out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: {len(self.children)})"
         return out

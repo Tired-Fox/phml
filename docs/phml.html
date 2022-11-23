@@ -78,9 +78,6 @@
                         <li>
                                 <a class="variable" href="#AST.size">size</a>
                         </li>
-                        <li>
-                                <a class="function" href="#AST.inspect">inspect</a>
-                        </li>
                 </ul>
 
             </li>
@@ -1029,10 +1026,6 @@ resulting ast.</p>
 </span><span id="AST-35"><a href="#AST-35"><span class="linenos">35</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">size</span>
 </span><span id="AST-36"><a href="#AST-36"><span class="linenos">36</span></a>        
 </span><span id="AST-37"><a href="#AST-37"><span class="linenos">37</span></a>        <span class="k">return</span> <span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
-</span><span id="AST-38"><a href="#AST-38"><span class="linenos">38</span></a>
-</span><span id="AST-39"><a href="#AST-39"><span class="linenos">39</span></a>    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="AST-40"><a href="#AST-40"><span class="linenos">40</span></a>        <span class="sd">&quot;&quot;&quot;Return the full tree&#39;s inspect data.&quot;&quot;&quot;</span>
-</span><span id="AST-41"><a href="#AST-41"><span class="linenos">41</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">inspect</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -1072,28 +1065,6 @@ resulting ast.</p>
     <a class="headerlink" href="#AST.size"></a>
     
             <div class="docstring"><p>Get the number of nodes in the ast tree.</p>
-</div>
-
-
-                            </div>
-                            <div id="AST.inspect" class="classattr">
-                                        <input id="AST.inspect-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">inspect</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
-
-                <label class="view-source-button" for="AST.inspect-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#AST.inspect"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AST.inspect-39"><a href="#AST.inspect-39"><span class="linenos">39</span></a>    <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="AST.inspect-40"><a href="#AST.inspect-40"><span class="linenos">40</span></a>        <span class="sd">&quot;&quot;&quot;Return the full tree&#39;s inspect data.&quot;&quot;&quot;</span>
-</span><span id="AST.inspect-41"><a href="#AST.inspect-41"><span class="linenos">41</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">inspect</span><span class="p">()</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Return the full tree's inspect data.</p>
 </div>
 
 

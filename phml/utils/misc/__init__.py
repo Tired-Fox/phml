@@ -1,8 +1,17 @@
 from phml.nodes import Root, Element
 from .classes import *
 from .heading import *
+from .inspect import *
 
-__all__ = ["depth", "size", "heading_rank", "classnames", "ClassList"]
+# __all__ = [
+#     "depth",
+#     "size",
+#     "heading_rank",
+#     "classnames",
+#     "ClassList",
+#     "inspect",
+#     "normalize_indent",
+# ]
 
 
 def depth(el) -> int:
@@ -23,7 +32,7 @@ def depth(el) -> int:
 def size(node: Root | Element) -> int:
     """Get the number of nodes recursively."""
     from phml.utils import walk
-    
+
     count = 0
 
     for _ in walk(node):

@@ -27,6 +27,12 @@
                    pattern=".+" required>
 
 
+        <h2>Submodules</h2>
+        <ul>
+                <li><a href="misc/classes.html">classes</a></li>
+                <li><a href="misc/heading.html">heading</a></li>
+                <li><a href="misc/inspect.html">inspect</a></li>
+        </ul>
 
         <h2>API Documentation</h2>
             <ul class="memberlist">
@@ -35,36 +41,6 @@
             </li>
             <li>
                     <a class="function" href="#size">size</a>
-            </li>
-            <li>
-                    <a class="function" href="#heading_rank">heading_rank</a>
-            </li>
-            <li>
-                    <a class="function" href="#classnames">classnames</a>
-            </li>
-            <li>
-                    <a class="class" href="#ClassList">ClassList</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#ClassList.__init__">ClassList</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ClassList.contains">contains</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ClassList.toggle">toggle</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ClassList.add">add</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ClassList.replace">replace</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ClassList.remove">remove</a>
-                        </li>
-                </ul>
-
             </li>
     </ul>
 
@@ -90,35 +66,44 @@
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">phml.nodes</span> <span class="kn">import</span> <span class="n">Root</span><span class="p">,</span> <span class="n">Element</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">from</span> <span class="nn">.classes</span> <span class="kn">import</span> <span class="o">*</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span> <span class="nn">.heading</span> <span class="kn">import</span> <span class="o">*</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">,</span> <span class="s2">&quot;heading_rank&quot;</span><span class="p">,</span> <span class="s2">&quot;classnames&quot;</span><span class="p">,</span> <span class="s2">&quot;ClassList&quot;</span><span class="p">]</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="k">def</span> <span class="nf">depth</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="sd">&quot;&quot;&quot;Get the depth in the tree for a given node.</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    -1 means that you passed in the tree itself and you are at the</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    ast&#39;s root.</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="n">level</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    <span class="k">while</span> <span class="n">el</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>        <span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>        <span class="n">el</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">parent</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span> <span class="nn">.inspect</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="c1"># __all__ = [</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="c1">#     &quot;depth&quot;,</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="c1">#     &quot;size&quot;,</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="c1">#     &quot;heading_rank&quot;,</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="c1">#     &quot;classnames&quot;,</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="c1">#     &quot;ClassList&quot;,</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="c1">#     &quot;inspect&quot;,</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="c1">#     &quot;normalize_indent&quot;,</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="c1"># ]</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="k">def</span> <span class="nf">depth</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="sd">&quot;&quot;&quot;Get the depth in the tree for a given node.</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="k">return</span> <span class="n">level</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="sd">&quot;&quot;&quot;Get the number of nodes recursively.&quot;&quot;&quot;</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">walk</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    -1 means that you passed in the tree itself and you are at the</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    ast&#39;s root.</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="n">level</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="k">while</span> <span class="n">el</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>        <span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>        <span class="n">el</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">parent</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="k">return</span> <span class="n">level</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="k">return</span> <span class="n">count</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="sd">&quot;&quot;&quot;Get the number of nodes recursively.&quot;&quot;&quot;</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">walk</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="k">return</span> <span class="n">count</span>
 </span></pre></div>
 
 
@@ -134,19 +119,19 @@
 
     </div>
     <a class="headerlink" href="#depth"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="depth-9"><a href="#depth-9"><span class="linenos"> 9</span></a><span class="k">def</span> <span class="nf">depth</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="depth-10"><a href="#depth-10"><span class="linenos">10</span></a>    <span class="sd">&quot;&quot;&quot;Get the depth in the tree for a given node.</span>
-</span><span id="depth-11"><a href="#depth-11"><span class="linenos">11</span></a>
-</span><span id="depth-12"><a href="#depth-12"><span class="linenos">12</span></a><span class="sd">    -1 means that you passed in the tree itself and you are at the</span>
-</span><span id="depth-13"><a href="#depth-13"><span class="linenos">13</span></a><span class="sd">    ast&#39;s root.</span>
-</span><span id="depth-14"><a href="#depth-14"><span class="linenos">14</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="depth-15"><a href="#depth-15"><span class="linenos">15</span></a>
-</span><span id="depth-16"><a href="#depth-16"><span class="linenos">16</span></a>    <span class="n">level</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-</span><span id="depth-17"><a href="#depth-17"><span class="linenos">17</span></a>    <span class="k">while</span> <span class="n">el</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="depth-18"><a href="#depth-18"><span class="linenos">18</span></a>        <span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="depth-19"><a href="#depth-19"><span class="linenos">19</span></a>        <span class="n">el</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">parent</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="depth-18"><a href="#depth-18"><span class="linenos">18</span></a><span class="k">def</span> <span class="nf">depth</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="depth-19"><a href="#depth-19"><span class="linenos">19</span></a>    <span class="sd">&quot;&quot;&quot;Get the depth in the tree for a given node.</span>
 </span><span id="depth-20"><a href="#depth-20"><span class="linenos">20</span></a>
-</span><span id="depth-21"><a href="#depth-21"><span class="linenos">21</span></a>    <span class="k">return</span> <span class="n">level</span>
+</span><span id="depth-21"><a href="#depth-21"><span class="linenos">21</span></a><span class="sd">    -1 means that you passed in the tree itself and you are at the</span>
+</span><span id="depth-22"><a href="#depth-22"><span class="linenos">22</span></a><span class="sd">    ast&#39;s root.</span>
+</span><span id="depth-23"><a href="#depth-23"><span class="linenos">23</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="depth-24"><a href="#depth-24"><span class="linenos">24</span></a>
+</span><span id="depth-25"><a href="#depth-25"><span class="linenos">25</span></a>    <span class="n">level</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+</span><span id="depth-26"><a href="#depth-26"><span class="linenos">26</span></a>    <span class="k">while</span> <span class="n">el</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="depth-27"><a href="#depth-27"><span class="linenos">27</span></a>        <span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="depth-28"><a href="#depth-28"><span class="linenos">28</span></a>        <span class="n">el</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">parent</span>
+</span><span id="depth-29"><a href="#depth-29"><span class="linenos">29</span></a>
+</span><span id="depth-30"><a href="#depth-30"><span class="linenos">30</span></a>    <span class="k">return</span> <span class="n">level</span>
 </span></pre></div>
 
 
@@ -169,16 +154,16 @@ ast's root.</p>
 
     </div>
     <a class="headerlink" href="#size"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="size-24"><a href="#size-24"><span class="linenos">24</span></a><span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="size-25"><a href="#size-25"><span class="linenos">25</span></a>    <span class="sd">&quot;&quot;&quot;Get the number of nodes recursively.&quot;&quot;&quot;</span>
-</span><span id="size-26"><a href="#size-26"><span class="linenos">26</span></a>    <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">walk</span>
-</span><span id="size-27"><a href="#size-27"><span class="linenos">27</span></a>    
-</span><span id="size-28"><a href="#size-28"><span class="linenos">28</span></a>    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="size-29"><a href="#size-29"><span class="linenos">29</span></a>
-</span><span id="size-30"><a href="#size-30"><span class="linenos">30</span></a>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-</span><span id="size-31"><a href="#size-31"><span class="linenos">31</span></a>        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="size-32"><a href="#size-32"><span class="linenos">32</span></a>
-</span><span id="size-33"><a href="#size-33"><span class="linenos">33</span></a>    <span class="k">return</span> <span class="n">count</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="size-33"><a href="#size-33"><span class="linenos">33</span></a><span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="size-34"><a href="#size-34"><span class="linenos">34</span></a>    <span class="sd">&quot;&quot;&quot;Get the number of nodes recursively.&quot;&quot;&quot;</span>
+</span><span id="size-35"><a href="#size-35"><span class="linenos">35</span></a>    <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">walk</span>
+</span><span id="size-36"><a href="#size-36"><span class="linenos">36</span></a>
+</span><span id="size-37"><a href="#size-37"><span class="linenos">37</span></a>    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="size-38"><a href="#size-38"><span class="linenos">38</span></a>
+</span><span id="size-39"><a href="#size-39"><span class="linenos">39</span></a>    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+</span><span id="size-40"><a href="#size-40"><span class="linenos">40</span></a>        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="size-41"><a href="#size-41"><span class="linenos">41</span></a>
+</span><span id="size-42"><a href="#size-42"><span class="linenos">42</span></a>    <span class="k">return</span> <span class="n">count</span>
 </span></pre></div>
 
 
@@ -186,357 +171,6 @@ ast's root.</p>
 </div>
 
 
-                </section>
-                <section id="heading_rank">
-                            <input id="heading_rank-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">heading_rank</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">node</span><span class="p">:</span> <span class="n">phml</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
-
-                <label class="view-source-button" for="heading_rank-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#heading_rank"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="heading_rank-9"><a href="#heading_rank-9"><span class="linenos"> 9</span></a><span class="k">def</span> <span class="nf">heading_rank</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="heading_rank-10"><a href="#heading_rank-10"><span class="linenos">10</span></a>    <span class="sd">&quot;&quot;&quot;Get the rank of the heading element.</span>
-</span><span id="heading_rank-11"><a href="#heading_rank-11"><span class="linenos">11</span></a>
-</span><span id="heading_rank-12"><a href="#heading_rank-12"><span class="linenos">12</span></a><span class="sd">    Example:</span>
-</span><span id="heading_rank-13"><a href="#heading_rank-13"><span class="linenos">13</span></a><span class="sd">        `h2` yields `2`</span>
-</span><span id="heading_rank-14"><a href="#heading_rank-14"><span class="linenos">14</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="heading_rank-15"><a href="#heading_rank-15"><span class="linenos">15</span></a>    <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">is_heading</span>
-</span><span id="heading_rank-16"><a href="#heading_rank-16"><span class="linenos">16</span></a>
-</span><span id="heading_rank-17"><a href="#heading_rank-17"><span class="linenos">17</span></a>    <span class="k">if</span> <span class="n">is_heading</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-</span><span id="heading_rank-18"><a href="#heading_rank-18"><span class="linenos">18</span></a>        <span class="n">rank</span> <span class="o">=</span> <span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;h([1-6])&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="heading_rank-19"><a href="#heading_rank-19"><span class="linenos">19</span></a>        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
-</span><span id="heading_rank-20"><a href="#heading_rank-20"><span class="linenos">20</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="heading_rank-21"><a href="#heading_rank-21"><span class="linenos">21</span></a>        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Node must be a heading. Was a </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Get the rank of the heading element.</p>
-
-<h6 id="example">Example</h6>
-
-<blockquote>
-  <p><code>h2</code> yields <code>2</code></p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="classnames">
-                            <input id="classnames-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">classnames</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">node</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">phml</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="o">*</span><span class="n">conditionals</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
-
-                <label class="view-source-button" for="classnames-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#classnames"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="classnames-18"><a href="#classnames-18"><span class="linenos">18</span></a><span class="k">def</span> <span class="nf">classnames</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Element</span><span class="p">]</span> <span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">conditionals</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="classnames-19"><a href="#classnames-19"><span class="linenos">19</span></a>    <span class="sd">&quot;&quot;&quot;Concat a bunch of class names. Can take a str as a class,</span>
-</span><span id="classnames-20"><a href="#classnames-20"><span class="linenos">20</span></a><span class="sd">    int which is cast to a str to be a class, a dict of conditional classes,</span>
-</span><span id="classnames-21"><a href="#classnames-21"><span class="linenos">21</span></a><span class="sd">    and a list of all the previous conditions including itself.</span>
-</span><span id="classnames-22"><a href="#classnames-22"><span class="linenos">22</span></a>
-</span><span id="classnames-23"><a href="#classnames-23"><span class="linenos">23</span></a><span class="sd">    Examples:</span>
-</span><span id="classnames-24"><a href="#classnames-24"><span class="linenos">24</span></a><span class="sd">    * `classnames(node, &#39;flex&#39;)` yields `&#39;flex&#39;`</span>
-</span><span id="classnames-25"><a href="#classnames-25"><span class="linenos">25</span></a><span class="sd">    * `classnames(node, 13)` yields `&#39;13&#39;`</span>
-</span><span id="classnames-26"><a href="#classnames-26"><span class="linenos">26</span></a><span class="sd">    * `classnames(node, {&#39;shadow&#39;: True, &#39;border&#39;: 0})` yields `&#39;shadow&#39;`</span>
-</span><span id="classnames-27"><a href="#classnames-27"><span class="linenos">27</span></a><span class="sd">    * `classnames(node, &#39;a&#39;, 13, {&#39;b&#39;: True}, [&#39;c&#39;, {&#39;d&#39;: False}])` yields `&#39;a b c&#39;`</span>
-</span><span id="classnames-28"><a href="#classnames-28"><span class="linenos">28</span></a>
-</span><span id="classnames-29"><a href="#classnames-29"><span class="linenos">29</span></a><span class="sd">    Args:</span>
-</span><span id="classnames-30"><a href="#classnames-30"><span class="linenos">30</span></a><span class="sd">        node (Element | None): Node to apply the classes too. If no node is given</span>
-</span><span id="classnames-31"><a href="#classnames-31"><span class="linenos">31</span></a><span class="sd">        then the function returns a string.</span>
-</span><span id="classnames-32"><a href="#classnames-32"><span class="linenos">32</span></a>
-</span><span id="classnames-33"><a href="#classnames-33"><span class="linenos">33</span></a><span class="sd">    Returns:</span>
-</span><span id="classnames-34"><a href="#classnames-34"><span class="linenos">34</span></a><span class="sd">        str: The concat string of classes after processing.</span>
-</span><span id="classnames-35"><a href="#classnames-35"><span class="linenos">35</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="classnames-36"><a href="#classnames-36"><span class="linenos">36</span></a>
-</span><span id="classnames-37"><a href="#classnames-37"><span class="linenos">37</span></a>    <span class="n">classes</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="classnames-38"><a href="#classnames-38"><span class="linenos">38</span></a>    <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">conditionals</span><span class="p">:</span>
-</span><span id="classnames-39"><a href="#classnames-39"><span class="linenos">39</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="classnames-40"><a href="#classnames-40"><span class="linenos">40</span></a>            <span class="n">classes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; +&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">.</span><span class="n">strip</span><span class="p">())))</span>
-</span><span id="classnames-41"><a href="#classnames-41"><span class="linenos">41</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="classnames-42"><a href="#classnames-42"><span class="linenos">42</span></a>            <span class="n">classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">condition</span><span class="p">))</span>
-</span><span id="classnames-43"><a href="#classnames-43"><span class="linenos">43</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-</span><span id="classnames-44"><a href="#classnames-44"><span class="linenos">44</span></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">condition</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="classnames-45"><a href="#classnames-45"><span class="linenos">45</span></a>                <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-</span><span id="classnames-46"><a href="#classnames-46"><span class="linenos">46</span></a>                    <span class="n">classes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; +&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">strip</span><span class="p">())))</span>
-</span><span id="classnames-47"><a href="#classnames-47"><span class="linenos">47</span></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="classnames-48"><a href="#classnames-48"><span class="linenos">48</span></a>            <span class="n">classes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">classnames</span><span class="p">(</span><span class="o">*</span><span class="n">condition</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">))</span>
-</span><span id="classnames-49"><a href="#classnames-49"><span class="linenos">49</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="classnames-50"><a href="#classnames-50"><span class="linenos">50</span></a>            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unkown conditional statement: </span><span class="si">{</span><span class="n">condition</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="classnames-51"><a href="#classnames-51"><span class="linenos">51</span></a>
-</span><span id="classnames-52"><a href="#classnames-52"><span class="linenos">52</span></a>    <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="classnames-53"><a href="#classnames-53"><span class="linenos">53</span></a>        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
-</span><span id="classnames-54"><a href="#classnames-54"><span class="linenos">54</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="classnames-55"><a href="#classnames-55"><span class="linenos">55</span></a>        <span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Concat a bunch of class names. Can take a str as a class,
-int which is cast to a str to be a class, a dict of conditional classes,
-and a list of all the previous conditions including itself.</p>
-
-<p>Examples:</p>
-
-<ul>
-<li><code>classnames(node, 'flex')</code> yields <code>'flex'</code></li>
-<li><code>classnames(node, 13)</code> yields <code>'13'</code></li>
-<li><code>classnames(node, {'shadow': True, 'border': 0})</code> yields <code>'shadow'</code></li>
-<li><code>classnames(node, 'a', 13, {'b': True}, ['c', {'d': False}])</code> yields <code>'a b c'</code></li>
-</ul>
-
-<h6 id="args">Args</h6>
-
-<ul>
-<li><strong>node (Element | None):</strong>  Node to apply the classes too. If no node is given</li>
-<li>then the function returns a string.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<blockquote>
-  <p>str: The concat string of classes after processing.</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="ClassList">
-                            <input id="ClassList-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">ClassList</span>:
-
-                <label class="view-source-button" for="ClassList-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#ClassList"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ClassList-58"><a href="#ClassList-58"><span class="linenos"> 58</span></a><span class="k">class</span> <span class="nc">ClassList</span><span class="p">:</span>
-</span><span id="ClassList-59"><a href="#ClassList-59"><span class="linenos"> 59</span></a>    <span class="sd">&quot;&quot;&quot;Utility class to manipulate the class list on a node.</span>
-</span><span id="ClassList-60"><a href="#ClassList-60"><span class="linenos"> 60</span></a>
-</span><span id="ClassList-61"><a href="#ClassList-61"><span class="linenos"> 61</span></a><span class="sd">    Based on the hast-util-class-list:</span>
-</span><span id="ClassList-62"><a href="#ClassList-62"><span class="linenos"> 62</span></a><span class="sd">    https://github.com/brechtcs/hast-util-class-list</span>
-</span><span id="ClassList-63"><a href="#ClassList-63"><span class="linenos"> 63</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="ClassList-64"><a href="#ClassList-64"><span class="linenos"> 64</span></a>
-</span><span id="ClassList-65"><a href="#ClassList-65"><span class="linenos"> 65</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">):</span>
-</span><span id="ClassList-66"><a href="#ClassList-66"><span class="linenos"> 66</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
-</span><span id="ClassList-67"><a href="#ClassList-67"><span class="linenos"> 67</span></a>
-</span><span id="ClassList-68"><a href="#ClassList-68"><span class="linenos"> 68</span></a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">klass</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList-69"><a href="#ClassList-69"><span class="linenos"> 69</span></a>        <span class="sd">&quot;&quot;&quot;Check if `class` contains a certain class.&quot;&quot;&quot;</span>
-</span><span id="ClassList-70"><a href="#ClassList-70"><span class="linenos"> 70</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">has_property</span>
-</span><span id="ClassList-71"><a href="#ClassList-71"><span class="linenos"> 71</span></a>    
-</span><span id="ClassList-72"><a href="#ClassList-72"><span class="linenos"> 72</span></a>        <span class="k">if</span> <span class="n">has_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;class&quot;</span><span class="p">):</span>
-</span><span id="ClassList-73"><a href="#ClassList-73"><span class="linenos"> 73</span></a>            <span class="k">return</span> <span class="n">search</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-</span><span id="ClassList-74"><a href="#ClassList-74"><span class="linenos"> 74</span></a>        <span class="k">return</span> <span class="kc">False</span>
-</span><span id="ClassList-75"><a href="#ClassList-75"><span class="linenos"> 75</span></a>
-</span><span id="ClassList-76"><a href="#ClassList-76"><span class="linenos"> 76</span></a>    <span class="k">def</span> <span class="nf">toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">klasses</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList-77"><a href="#ClassList-77"><span class="linenos"> 77</span></a>        <span class="sd">&quot;&quot;&quot;Toggle a class in `class`.&quot;&quot;&quot;</span>
-</span><span id="ClassList-78"><a href="#ClassList-78"><span class="linenos"> 78</span></a>
-</span><span id="ClassList-79"><a href="#ClassList-79"><span class="linenos"> 79</span></a>        <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="n">klasses</span><span class="p">:</span>
-</span><span id="ClassList-80"><a href="#ClassList-80"><span class="linenos"> 80</span></a>            <span class="k">if</span> <span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ClassList-81"><a href="#ClassList-81"><span class="linenos"> 81</span></a>                <span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span><span id="ClassList-82"><a href="#ClassList-82"><span class="linenos"> 82</span></a>                <span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; +&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span><span id="ClassList-83"><a href="#ClassList-83"><span class="linenos"> 83</span></a>            <span class="k">else</span><span class="p">:</span>
-</span><span id="ClassList-84"><a href="#ClassList-84"><span class="linenos"> 84</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="ClassList-85"><a href="#ClassList-85"><span class="linenos"> 85</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="ClassList-86"><a href="#ClassList-86"><span class="linenos"> 86</span></a>                <span class="p">)</span>
-</span><span id="ClassList-87"><a href="#ClassList-87"><span class="linenos"> 87</span></a>
-</span><span id="ClassList-88"><a href="#ClassList-88"><span class="linenos"> 88</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">klasses</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList-89"><a href="#ClassList-89"><span class="linenos"> 89</span></a>        <span class="sd">&quot;&quot;&quot;Add one or more classes to `class`.&quot;&quot;&quot;</span>
-</span><span id="ClassList-90"><a href="#ClassList-90"><span class="linenos"> 90</span></a>
-</span><span id="ClassList-91"><a href="#ClassList-91"><span class="linenos"> 91</span></a>        <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="n">klasses</span><span class="p">:</span>
-</span><span id="ClassList-92"><a href="#ClassList-92"><span class="linenos"> 92</span></a>            <span class="k">if</span> <span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ClassList-93"><a href="#ClassList-93"><span class="linenos"> 93</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="ClassList-94"><a href="#ClassList-94"><span class="linenos"> 94</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="ClassList-95"><a href="#ClassList-95"><span class="linenos"> 95</span></a>                <span class="p">)</span>
-</span><span id="ClassList-96"><a href="#ClassList-96"><span class="linenos"> 96</span></a>
-</span><span id="ClassList-97"><a href="#ClassList-97"><span class="linenos"> 97</span></a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_klass</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new_klass</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList-98"><a href="#ClassList-98"><span class="linenos"> 98</span></a>        <span class="sd">&quot;&quot;&quot;Replace a certain class in `class` with</span>
-</span><span id="ClassList-99"><a href="#ClassList-99"><span class="linenos"> 99</span></a><span class="sd">        another class.</span>
-</span><span id="ClassList-100"><a href="#ClassList-100"><span class="linenos">100</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="ClassList-101"><a href="#ClassList-101"><span class="linenos">101</span></a>
-</span><span id="ClassList-102"><a href="#ClassList-102"><span class="linenos">102</span></a>        <span class="k">if</span> <span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">old_klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ClassList-103"><a href="#ClassList-103"><span class="linenos">103</span></a>            <span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">old_klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">new_klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span><span id="ClassList-104"><a href="#ClassList-104"><span class="linenos">104</span></a>            <span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; +&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span><span id="ClassList-105"><a href="#ClassList-105"><span class="linenos">105</span></a>
-</span><span id="ClassList-106"><a href="#ClassList-106"><span class="linenos">106</span></a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">klasses</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList-107"><a href="#ClassList-107"><span class="linenos">107</span></a>        <span class="sd">&quot;&quot;&quot;Remove one or more classes from `class`.&quot;&quot;&quot;</span>
-</span><span id="ClassList-108"><a href="#ClassList-108"><span class="linenos">108</span></a>
-</span><span id="ClassList-109"><a href="#ClassList-109"><span class="linenos">109</span></a>        <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="n">klasses</span><span class="p">:</span>
-</span><span id="ClassList-110"><a href="#ClassList-110"><span class="linenos">110</span></a>            <span class="k">if</span> <span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ClassList-111"><a href="#ClassList-111"><span class="linenos">111</span></a>                <span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span><span id="ClassList-112"><a href="#ClassList-112"><span class="linenos">112</span></a>                <span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; +&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Utility class to manipulate the class list on a node.</p>
-
-<p>Based on the hast-util-class-list:
-<a href="https://github.com/brechtcs/hast-util-class-list">https://github.com/brechtcs/hast-util-class-list</a></p>
-</div>
-
-
-                            <div id="ClassList.__init__" class="classattr">
-                                        <input id="ClassList.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="name">ClassList</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">node</span><span class="p">:</span> <span class="n">phml</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span></span>)</span>
-
-                <label class="view-source-button" for="ClassList.__init__-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#ClassList.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ClassList.__init__-65"><a href="#ClassList.__init__-65"><span class="linenos">65</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">):</span>
-</span><span id="ClassList.__init__-66"><a href="#ClassList.__init__-66"><span class="linenos">66</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
-</span></pre></div>
-
-
-    
-
-                            </div>
-                            <div id="ClassList.contains" class="classattr">
-                                        <input id="ClassList.contains-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">contains</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">klass</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="ClassList.contains-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#ClassList.contains"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ClassList.contains-68"><a href="#ClassList.contains-68"><span class="linenos">68</span></a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">klass</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList.contains-69"><a href="#ClassList.contains-69"><span class="linenos">69</span></a>        <span class="sd">&quot;&quot;&quot;Check if `class` contains a certain class.&quot;&quot;&quot;</span>
-</span><span id="ClassList.contains-70"><a href="#ClassList.contains-70"><span class="linenos">70</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">has_property</span>
-</span><span id="ClassList.contains-71"><a href="#ClassList.contains-71"><span class="linenos">71</span></a>    
-</span><span id="ClassList.contains-72"><a href="#ClassList.contains-72"><span class="linenos">72</span></a>        <span class="k">if</span> <span class="n">has_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;class&quot;</span><span class="p">):</span>
-</span><span id="ClassList.contains-73"><a href="#ClassList.contains-73"><span class="linenos">73</span></a>            <span class="k">return</span> <span class="n">search</span><span class="p">(</span><span class="n">klass</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-</span><span id="ClassList.contains-74"><a href="#ClassList.contains-74"><span class="linenos">74</span></a>        <span class="k">return</span> <span class="kc">False</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Check if <code>class</code> contains a certain class.</p>
-</div>
-
-
-                            </div>
-                            <div id="ClassList.toggle" class="classattr">
-                                        <input id="ClassList.toggle-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">toggle</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">*</span><span class="n">klasses</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="ClassList.toggle-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#ClassList.toggle"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ClassList.toggle-76"><a href="#ClassList.toggle-76"><span class="linenos">76</span></a>    <span class="k">def</span> <span class="nf">toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">klasses</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList.toggle-77"><a href="#ClassList.toggle-77"><span class="linenos">77</span></a>        <span class="sd">&quot;&quot;&quot;Toggle a class in `class`.&quot;&quot;&quot;</span>
-</span><span id="ClassList.toggle-78"><a href="#ClassList.toggle-78"><span class="linenos">78</span></a>
-</span><span id="ClassList.toggle-79"><a href="#ClassList.toggle-79"><span class="linenos">79</span></a>        <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="n">klasses</span><span class="p">:</span>
-</span><span id="ClassList.toggle-80"><a href="#ClassList.toggle-80"><span class="linenos">80</span></a>            <span class="k">if</span> <span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ClassList.toggle-81"><a href="#ClassList.toggle-81"><span class="linenos">81</span></a>                <span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span><span id="ClassList.toggle-82"><a href="#ClassList.toggle-82"><span class="linenos">82</span></a>                <span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; +&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span><span id="ClassList.toggle-83"><a href="#ClassList.toggle-83"><span class="linenos">83</span></a>            <span class="k">else</span><span class="p">:</span>
-</span><span id="ClassList.toggle-84"><a href="#ClassList.toggle-84"><span class="linenos">84</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="ClassList.toggle-85"><a href="#ClassList.toggle-85"><span class="linenos">85</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="ClassList.toggle-86"><a href="#ClassList.toggle-86"><span class="linenos">86</span></a>                <span class="p">)</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Toggle a class in <code>class</code>.</p>
-</div>
-
-
-                            </div>
-                            <div id="ClassList.add" class="classattr">
-                                        <input id="ClassList.add-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">add</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">*</span><span class="n">klasses</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="ClassList.add-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#ClassList.add"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ClassList.add-88"><a href="#ClassList.add-88"><span class="linenos">88</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">klasses</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList.add-89"><a href="#ClassList.add-89"><span class="linenos">89</span></a>        <span class="sd">&quot;&quot;&quot;Add one or more classes to `class`.&quot;&quot;&quot;</span>
-</span><span id="ClassList.add-90"><a href="#ClassList.add-90"><span class="linenos">90</span></a>
-</span><span id="ClassList.add-91"><a href="#ClassList.add-91"><span class="linenos">91</span></a>        <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="n">klasses</span><span class="p">:</span>
-</span><span id="ClassList.add-92"><a href="#ClassList.add-92"><span class="linenos">92</span></a>            <span class="k">if</span> <span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ClassList.add-93"><a href="#ClassList.add-93"><span class="linenos">93</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-</span><span id="ClassList.add-94"><a href="#ClassList.add-94"><span class="linenos">94</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="ClassList.add-95"><a href="#ClassList.add-95"><span class="linenos">95</span></a>                <span class="p">)</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Add one or more classes to <code>class</code>.</p>
-</div>
-
-
-                            </div>
-                            <div id="ClassList.replace" class="classattr">
-                                        <input id="ClassList.replace-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">replace</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">old_klass</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">new_klass</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="ClassList.replace-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#ClassList.replace"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ClassList.replace-97"><a href="#ClassList.replace-97"><span class="linenos"> 97</span></a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_klass</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new_klass</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList.replace-98"><a href="#ClassList.replace-98"><span class="linenos"> 98</span></a>        <span class="sd">&quot;&quot;&quot;Replace a certain class in `class` with</span>
-</span><span id="ClassList.replace-99"><a href="#ClassList.replace-99"><span class="linenos"> 99</span></a><span class="sd">        another class.</span>
-</span><span id="ClassList.replace-100"><a href="#ClassList.replace-100"><span class="linenos">100</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="ClassList.replace-101"><a href="#ClassList.replace-101"><span class="linenos">101</span></a>
-</span><span id="ClassList.replace-102"><a href="#ClassList.replace-102"><span class="linenos">102</span></a>        <span class="k">if</span> <span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">old_klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ClassList.replace-103"><a href="#ClassList.replace-103"><span class="linenos">103</span></a>            <span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">old_klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">new_klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span><span id="ClassList.replace-104"><a href="#ClassList.replace-104"><span class="linenos">104</span></a>            <span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; +&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Replace a certain class in <code>class</code> with
-another class.</p>
-</div>
-
-
-                            </div>
-                            <div id="ClassList.remove" class="classattr">
-                                        <input id="ClassList.remove-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">remove</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">*</span><span class="n">klasses</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="ClassList.remove-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#ClassList.remove"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="ClassList.remove-106"><a href="#ClassList.remove-106"><span class="linenos">106</span></a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">klasses</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="ClassList.remove-107"><a href="#ClassList.remove-107"><span class="linenos">107</span></a>        <span class="sd">&quot;&quot;&quot;Remove one or more classes from `class`.&quot;&quot;&quot;</span>
-</span><span id="ClassList.remove-108"><a href="#ClassList.remove-108"><span class="linenos">108</span></a>
-</span><span id="ClassList.remove-109"><a href="#ClassList.remove-109"><span class="linenos">109</span></a>        <span class="k">for</span> <span class="n">klass</span> <span class="ow">in</span> <span class="n">klasses</span><span class="p">:</span>
-</span><span id="ClassList.remove-110"><a href="#ClassList.remove-110"><span class="linenos">110</span></a>            <span class="k">if</span> <span class="n">search</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="ClassList.remove-111"><a href="#ClassList.remove-111"><span class="linenos">111</span></a>                <span class="n">sub</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\b</span><span class="si">{</span><span class="n">klass</span><span class="si">}</span><span class="se">\b</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span><span id="ClassList.remove-112"><a href="#ClassList.remove-112"><span class="linenos">112</span></a>                <span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; +&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s2">&quot;class&quot;</span><span class="p">])</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Remove one or more classes from <code>class</code>.</p>
-</div>
-
-
-                            </div>
                 </section>
     </main>
 <script>
