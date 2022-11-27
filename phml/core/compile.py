@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from re import sub, match
+from re import sub, match, search
 from typing import Any, Callable, Optional
 
 from phml.core.file_types import HTML, JSON, PHML, Markdown
-from phml.nodes import AST, All_Nodes, Root, Element, Position, DocType
+from phml.nodes import *
 from phml.utils.travel import visit_children
 from phml.utils.locate.find import find_all
 from phml.utils.transform.transform import remove_nodes
@@ -30,9 +30,51 @@ class Compiler:
     ast: AST
     """phml ast used by the compiler to generate a new format."""
 
-    def __init__(self, ast: Optional[AST] = None):
+    def __init__(
+        self,
+        ast: Optional[AST] = None,
+        components: Optional[dict[str, All_Nodes]] = None,
+    ):
         self.ast = ast
-        self.file = None
+        self.components = components or {}
+
+    def add(self, components: dict[str, All_Nodes]):
+        """Add a component to the compilers component list.
+
+        Note:
+            Any duplicate components will be replaced.
+
+        Args:
+            components (dict[str, All_Nodes]): Any number of dictionaries indicating
+            the component and the name of the component. The name is used
+            to replace a element with the tag==name.
+        """
+        for key, value in components.items():
+            self.components[key] = value
+
+        return self
+
+    def remove(self, *components: str | All_Nodes):
+        """Takes either component names or components and removes them
+        from the dictionary.
+
+        Args:
+            components (str | All_Nodes): Any str name of components or
+            node value to remove from the components list in the compiler.
+        """
+        for component in components:
+            if isinstance(component, str):
+                if component in self.components:
+                    self.components.pop(component, None)
+                else:
+                    raise KeyError(f"Invalid component name {component}")
+            elif isinstance(component, All_Nodes):
+                for key, value in self.components:
+                    if value == component:
+                        self.components.pop(key, None)
+                        break
+
+        return self
 
     def compile(
         self,
@@ -83,12 +125,15 @@ class Compiler:
 
         remove_nodes(html, ["element", {"tag": "python"}])
 
-        # 2. Search each element and find py-if, py-elif, py-else, and py-for
+        # 2. Replace specific element node with given replacement components
+        replace_components(html, self.components, vp, **kwargs)
+
+        # 3. Search each element and find py-if, py-elif, py-else, and py-for
         #    - Execute those statements
 
         apply_conditions(html, vp, **kwargs)
 
-        # 3. Search for python blocks and process them.
+        # 4. Search for python blocks and process them.
 
         apply_python(html, vp, **kwargs)
 
@@ -165,6 +210,56 @@ class Compiler:
         return "\n".join(data)
 
 
+def replace_components(
+    node: Root | Element | AST, components: dict[str, All_Nodes], vp: VirtualPython, **kwargs
+):
+    """Replace all nodes in the tree with matching components.
+
+    Args:
+        node (Root | Element | AST): The starting point.
+        vp (VirtualPython): Temp
+    """
+    from phml.utils import visit_children, replace_node
+
+    if isinstance(node, AST):
+        node = node.tree
+
+    def recurse_replace(node: All_Nodes):
+        if isinstance(node, Element):
+            for child in visit_children(node):
+                recurse_replace(child)
+            if node.tag in components.keys() and node.parent is not None:
+                new_props = {}
+                for prop in node.properties:
+                    if prop.startswith((python_attr_prefix, "py-")):
+                        for imp in vp.imports:
+                            exec(str(imp))
+                        new_props[prop.lstrip(python_attr_prefix).lstrip("py-")] = get_vp_result(
+                            node.properties[prop], **vp.locals, **kwargs
+                        )
+                    elif match(r".*\{.*\}.*", str(node.properties[prop])) is not None:
+                        new_props[prop] = process_vp_blocks(node.properties[prop], vp, **kwargs)
+                    else:
+                        new_props[prop] = node.properties[prop]
+
+                props = new_props
+                children = node.children
+
+                rnode = deepcopy(components[node.tag])
+                rnode.locals.update(props)
+                replace_node(rnode, ["element", {"tag": "slot"}], children)
+
+                idx = node.parent.children.index(node)
+                node.parent.children = (
+                    node.parent.children[:idx] + [rnode] + node.parent.children[idx + 1 :]
+                )
+        else:
+            return
+
+    for n in visit_children(node):
+        recurse_replace(n)
+
+
 def apply_conditions(node: Root | Element | AST, vp: VirtualPython, **kwargs):
     """Applys all `py-if`, `py-elif`, `py-else`, and `py-for` to the node
     recursively.
@@ -213,7 +308,11 @@ def apply_python(node: Root | Element | AST, vp: VirtualPython, **kwargs):
 
                 child.properties = new_props
                 process_children(child, {**le})
-            elif test(child, "text") and child.parent.tag not in ["script", "style"]:
+            elif (
+                test(child, "text")
+                and child.parent.tag not in ["script", "style"]
+                and search(r".*\{.*\}.*", child.value) is not None
+            ):
                 child.value = process_vp_blocks(child.value, vp, **local_env)
 
     process_children(node, {**kwargs})

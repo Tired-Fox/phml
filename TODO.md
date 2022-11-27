@@ -1,4 +1,11 @@
 # TODO
+- [ ] Component based system
+- [ ] Optimize
+  - [ ] AST linking from parser and compiler
+  - [ ] Parsing files
+  - [ ] Compiling files
+  - [ ] Utilities
+  - [ ] Nodes to dataclasses?
 - [ ] All utilities
   - [ ] unist
   - [ ] hast

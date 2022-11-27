@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 from .ImportObjects import Import, ImportFrom
+from ast import walk, parse, Name, Assign
 
 
 class VirtualPython:
@@ -33,7 +34,7 @@ class VirtualPython:
 
             # Retreive locals from content
             exec(self.content, globals(), self.locals)
-            
+
     def __normalize_indent(self):
         self.content = self.content.split("\n")
         offset = len(self.content[0]) - len(self.content[0].lstrip())
@@ -51,12 +52,36 @@ class VirtualPython:
         return f"VP(imports: {len(self.imports)}, locals: {len(self.locals.keys())})"
 
 
+def parse_ast_assign(vals: list[Name | tuple[Name]]) -> list[str]:
+    values = vals[0]
+    if isinstance(values, Name):
+        return [values.id]
+    elif isinstance(values, tuple):
+        return [name.id for name in values]
+
+
 def get_vp_result(expr: str, **kwargs) -> Any:
     """Execute the given python expression, while using
     the kwargs as the local variables.
 
     This will collect the result of the expression and return it.
     """
+    # Find all assigned vars in expression
+    avars = []
+    for assign in walk(parse(expr)):
+        if isinstance(assign, Assign):
+            avars.extend(parse_ast_assign(assign.targets))
+
+    # Find all variables being used that are not are not assigned
+    used_vars = [
+        name.id for name in walk(parse(expr)) if isinstance(name, Name) and name.id not in avars
+    ]
+
+    # For all variables used if they are not in kwargs then they == None
+    for uv in used_vars:
+        if uv not in kwargs:
+            kwargs[uv] = None
+
     if len(expr.split("\n")) > 1:
         exec(expr, {}, kwargs)
         return kwargs["result"] or kwargs["results"]
@@ -118,7 +143,7 @@ def process_vp_blocks(line: str, vp: VirtualPython, **kwargs) -> str:
         for e in expr:
             result = get_vp_result(e, **kwargs)
             if isinstance(result, bool):
-                line = result # sub(r"\{.*\}", "yes" if result else "no", line)
+                line = result  # sub(r"\{.*\}", "yes" if result else "no", line)
             else:
                 line = sub(r"\{.*\}", str(result), line)
 

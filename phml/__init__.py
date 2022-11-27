@@ -134,7 +134,7 @@ from pathlib import Path
 
 from . import builder, core, nodes, utils, virtual_python
 from .core import Compiler, Parser, file_types
-from .nodes import AST
+from .nodes import AST, All_Nodes
 
 __version__ = "0.1.0"
 __all__ = [
@@ -170,9 +170,30 @@ class PHMLCore:
     def ast(self, _ast: AST):
         self.parser.ast = _ast
 
-    def __init__(self):
+    def __init__(self, components: Optional[dict[str, All_Nodes]] = None):
         self.parser = Parser()
-        self.compiler = Compiler()
+        self.compiler = Compiler(components=components)
+        
+    def add(self, components: dict[str, All_Nodes]):
+        """Add a component to the element replacement list.
+        The key is the tag of the element that will be replaced.
+        The value is what the element will be replaced with.
+
+        Args:
+            components (dict[str, All_Nodes]): Dict of element replacements.
+        """
+        self.compiler.add(components)
+        return self
+        
+    def remove(self, *components: str | All_Nodes):
+        """Remove an element from the list of element replacements.
+        
+        Takes any number of strings or node objects. If a string is passed
+        it is used as the key that will be removed. If a node object is passed
+        it will attempt to find a matching node and remove it.
+        """
+        self.compiler.remove(*components)
+        return self
 
     def load(self, path: str | Path):
         """Load a source files data and parse it to phml.

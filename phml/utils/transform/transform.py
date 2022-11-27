@@ -1,6 +1,6 @@
-from typing import Callable
+from typing import Callable, Optional
 
-from phml.nodes import Element, Root, AST
+from phml.nodes import Element, Root, AST, All_Nodes
 
 from phml.utils.validate.test import Test, test
 from phml.utils.travel import walk
@@ -13,6 +13,7 @@ __all__ = [
     "map_nodes",
     "find_and_replace",
     "shift_heading",
+    "replace_node",
 ]
 
 
@@ -91,6 +92,32 @@ def map_nodes(tree: Root | Element | AST, transform: Callable):
 
     for node in walk(tree):
         node = transform(node)
+
+
+def replace_node(
+    node: Root | Element, condition: Test, replacement: Optional[All_Nodes | list[All_Nodes]]
+):
+    """Search for a specific node in the tree and replace it with either
+    a node or list of nodes. If replacement is None the found node is just removed.
+
+    Args:
+        node (Root | Element): The starting point.
+        condition (test): Test condition to find the correct node.
+        replacement (All_Nodes | list[All_Nodes] | None): What to replace the node with.
+    """
+    for n in walk(node):
+        if test(n, condition):
+            if n.parent is not None:
+                idx = n.parent.children.index(n)
+                if replacement is not None:
+                    n.parent.children = (
+                        n.parent.children[:idx] + replacement + n.parent.children[idx + 1 :]
+                        if isinstance(replacement, list)
+                        else n.parent.children[:idx] + [replacement] + n.parent.children[idx + 1 :]
+                    )
+                else:
+                    n.parent.children.pop(idx)
+                break
 
 
 def find_and_replace(node: Root | Element, *replacements: tuple[str, str | Callable]) -> int:
