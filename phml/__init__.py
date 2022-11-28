@@ -147,8 +147,9 @@ __all__ = [
     "utils",
     "virtual_python",
     "file_types",
-    "builder"
+    "builder",
 ]
+
 
 class PHMLCore:
     """A helper class that bundles the functionality
@@ -165,29 +166,57 @@ class PHMLCore:
     @property
     def ast(self) -> AST:
         return self.parser.ast
-    
+
     @ast.setter
     def ast(self, _ast: AST):
         self.parser.ast = _ast
 
-    def __init__(self, components: Optional[dict[str, All_Nodes]] = None):
+    def __init__(
+        self,
+        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+    ):
         self.parser = Parser()
         self.compiler = Compiler(components=components)
-        
-    def add(self, components: dict[str, All_Nodes]):
+
+    def add(
+        self,
+        *components: dict[str, dict[str, list | All_Nodes] | AST]
+        | tuple[str, dict[str, list | All_Nodes] | AST]
+        | Path,
+    ):
         """Add a component to the element replacement list.
-        The key is the tag of the element that will be replaced.
-        The value is what the element will be replaced with.
+
+        Components passed in can be of a few types. The first type it can be is a
+        pathlib.Path type. This will allow for automatic parsing of the file at the
+        path and then the filename and parsed ast are passed to the compiler. It can
+        also be a dictionary of str being the name of the element to be replaced.
+        The name can be snake case, camel case, or pascal cased. The value can either
+        be the parsed result of the component from phml.utils.parse_component() or the
+        parsed ast of the component. Lastely, the component can be a tuple. The first
+        value is the name of the element to be replaced; with the second value being
+        either the parsed result of the component or the component's ast.
+
+        Note:
+            Any duplicate components will be replaced.
 
         Args:
-            components (dict[str, All_Nodes]): Dict of element replacements.
+            components: Any number values indicating
+            name of the component and the the component. The name is used
+            to replace a element with the tag==name.
         """
-        self.compiler.add(components)
+        from phml.utils import filename_from_path
+
+        for component in components:
+            if isinstance(component, Path):
+                self.parser.load(component)
+                self.compiler.add((filename_from_path(component), self.parser.ast))
+            else:
+                self.compiler.add(component)
         return self
-        
+
     def remove(self, *components: str | All_Nodes):
         """Remove an element from the list of element replacements.
-        
+
         Takes any number of strings or node objects. If a string is passed
         it is used as the key that will be removed. If a node object is passed
         it will attempt to find a matching node and remove it.
@@ -213,7 +242,9 @@ class PHMLCore:
         self.parser.parse(data)
         return self
 
-    def render(self, file_type: str = file_types.HTML, indent: Optional[int] = None, **kwargs) -> str:
+    def render(
+        self, file_type: str = file_types.HTML, indent: Optional[int] = None, **kwargs
+    ) -> str:
         """Render the parsed ast to a different format. Defaults to rendering to html.
 
         Args:
@@ -232,7 +263,7 @@ class PHMLCore:
         dest: str | Path,
         file_type: str = file_types.HTML,
         indent: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ):
         """Renders the parsed ast to a different format, then writes
         it to a given file. Defaults to rendering and writing out as html.

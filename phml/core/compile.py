@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from pathlib import Path
 from re import sub, match, search
 from typing import Any, Callable, Optional
 
 from phml.core.file_types import HTML, JSON, PHML, Markdown
 from phml.nodes import *
+from phml.utils import parse_component, tag_from_file
 from phml.utils.travel import visit_children, path
 from phml.utils.locate import find_all
-from phml.utils.transform.transform import remove_nodes,replace_node
+from phml.utils.transform.transform import remove_nodes, replace_node
 from phml.utils.validate.test import test
 from phml.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
 
@@ -33,24 +35,47 @@ class Compiler:
     def __init__(
         self,
         ast: Optional[AST] = None,
-        components: Optional[dict[str, All_Nodes]] = None,
+        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
     ):
         self.ast = ast
         self.components = components or {}
 
-    def add(self, components: dict[str, All_Nodes]):
+    def add(
+        self,
+        *components: dict[str, dict[str, list | All_Nodes] | AST]
+        | tuple[str, dict[str, list | All_Nodes] | AST],
+    ):
         """Add a component to the compilers component list.
+
+        Components passed in can be of a few types. It can also be a dictionary of str
+        being the name of the element to be replaced. The name can be snake case, camel
+        case, or pascal cased. The value can either be the parsed result of the component
+        from phml.utils.parse_component() or the parsed ast of the component. Lastely,
+        the component can be a tuple. The first value is the name of the element to be
+        replaced; with the second value being either the parsed result of the component
+        or the component's ast.
 
         Note:
             Any duplicate components will be replaced.
 
         Args:
-            components (dict[str, All_Nodes]): Any number of dictionaries indicating
-            the component and the name of the component. The name is used
+            components: Any number values indicating
+            name of the component and the the component. The name is used
             to replace a element with the tag==name.
         """
-        for key, value in components.items():
-            self.components[key] = value
+
+        for component in components:
+            if isinstance(component, dict):
+                for key, value in component.items():
+                    if isinstance(value, AST):
+                        self.components[tag_from_file(key)] = parse_component(value)
+                    else:
+                        self.components[tag_from_file(key)] = value
+            elif isinstance(component, tuple):
+                if isinstance(component[1], AST):
+                    self.components[tag_from_file(component[0])] = parse_component(component[1])
+                else:
+                    self.components[tag_from_file(component[0])] = component[1]
 
         return self
 
@@ -70,7 +95,10 @@ class Compiler:
                     raise KeyError(f"Invalid component name {component}")
             elif isinstance(component, All_Nodes):
                 for key, value in self.components:
-                    if value == component:
+                    if isinstance(value, dict) and value["component"] == component:
+                        self.components.pop(key, None)
+                        break
+                    elif value == components:
                         self.components.pop(key, None)
                         break
 
@@ -128,10 +156,20 @@ class Compiler:
         # 2. Replace specific element node with given replacement components
         replace_components(html, self.components, vp, **kwargs)
 
+        for pb in find_all(html, {"tag": "python"}):
+            if len(pb.children) == 1:
+                if pb.children[0].type == "text":
+                    vp += VirtualPython(pb.children[0].value)
+
+        remove_nodes(html, ["element", {"tag": "python"}])
+        # from phml.utils import inspect
+        # input(inspect(html))
         # 3. Search each element and find py-if, py-elif, py-else, and py-for
         #    - Execute those statements
 
         apply_conditions(html, vp, **kwargs)
+        # from phml.utils import inspect
+        # input(inspect(html))
 
         # 4. Search for python blocks and process them.
 
@@ -219,58 +257,68 @@ def replace_components(
         node (Root | Element | AST): The starting point.
         vp (VirtualPython): Temp
     """
-    from phml.utils import visit_children
+    from phml.utils import find
 
     if isinstance(node, AST):
         node = node.tree
 
-    def recurse_replace(node: All_Nodes):
-        if isinstance(node, Element):
-            for child in visit_children(node):
-                recurse_replace(child)
-            if node.tag in components.keys() and node.parent is not None:
-                new_props = {}
-                for prop in node.properties:
-                    if prop.startswith((python_attr_prefix, "py-")):
-                        for imp in vp.imports:
-                            exec(str(imp))
-                        new_props[prop.lstrip(python_attr_prefix).lstrip("py-")] = get_vp_result(
-                            node.properties[prop], **vp.locals, **kwargs
-                        )
-                    elif match(r".*\{.*\}.*", str(node.properties[prop])) is not None:
-                        new_props[prop] = process_vp_blocks(node.properties[prop], vp, **kwargs)
-                    else:
-                        new_props[prop] = node.properties[prop]
+    for name, value in components.items():
+        curr_node = find(node, ["element", {"tag": name}])
+        while curr_node is not None:
+            new_props = {}
+            for prop in curr_node.properties:
+                if prop.startswith((python_attr_prefix, "py-")):
+                    for imp in vp.imports:
+                        exec(str(imp))
+                    new_props[prop.lstrip(python_attr_prefix).lstrip("py-")] = get_vp_result(
+                        curr_node.properties[prop], **vp.locals, **kwargs
+                    )
+                elif match(r".*\{.*\}.*", str(curr_node.properties[prop])) is not None:
+                    new_props[prop] = process_vp_blocks(curr_node.properties[prop], vp, **kwargs)
+                else:
+                    new_props[prop] = curr_node.properties[prop]
 
-                props = new_props
-                props["children"] = node.children
+            props = new_props
+            props["children"] = curr_node.children
 
-                rnode = deepcopy(components[node.tag])
-                rnode.locals.update(props)
+            rnode = deepcopy(value["component"])
+            rnode.locals.update(props)
+            rnode.parent = curr_node.parent
+            
+            # Retain conditional properties
+            condition = __has_py_condition(curr_node)
+            if condition is not None:
+                rnode.properties[condition[0]] = condition[1]
+                rnode.locals.pop(condition[0], None)
 
-                idx = node.parent.children.index(node)
-                node.parent.children = (
-                    node.parent.children[:idx] + [rnode] + node.parent.children[idx + 1 :]
-                )
-        else:
-            return
+            idx = curr_node.parent.children.index(curr_node)
+            curr_node.parent.children = (
+                curr_node.parent.children[:idx]
+                + [
+                    *components[curr_node.tag]["python"],
+                    *components[curr_node.tag]["script"],
+                    *components[curr_node.tag]["style"],
+                    rnode,
+                ]
+                + curr_node.parent.children[idx + 1 :]
+            )
+            curr_node = find(node, ["element", {"tag": name}])
 
-    for n in visit_children(node):
-        recurse_replace(n)
-
-def __has_py_condition(node: Element) -> bool:
+def __has_py_condition(node: Element) -> Optional[tuple[str, str]]:
     for cond in [
-                "py-for",
-                "py-if",
-                "py-elif",
-                "py-else",
-                f"{condition_prefix}if",
-                f"{condition_prefix}elif",
-                f"{condition_prefix}else",
-                f"{condition_prefix}for",
-            ]:
+        "py-for",
+        "py-if",
+        "py-elif",
+        "py-else",
+        f"{condition_prefix}if",
+        f"{condition_prefix}elif",
+        f"{condition_prefix}else",
+        f"{condition_prefix}for",
+    ]:
         if cond in node.properties.keys():
-            return True
+            return (cond, node.properties[cond])
+    return None
+
 
 def apply_conditions(node: Root | Element | AST, vp: VirtualPython, **kwargs):
     """Applys all `py-if`, `py-elif`, `py-else`, and `py-for` to the node
@@ -309,7 +357,8 @@ def apply_python(node: Root | Element | AST, vp: VirtualPython, **kwargs):
                 if "children" in child.locals.keys():
                     replace_node(child, ["element", {"tag": "slot"}], child.locals["children"])
 
-                le = {**local_env, **child.locals}
+                le = {**local_env}
+                le.update(child.locals)
                 new_props = {}
                 for prop in child.properties:
                     if prop.startswith((python_attr_prefix, "py-")):
@@ -424,7 +473,7 @@ def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **k
     }
 
     first_cond = False
-    previous = f"{condition_prefix}for"
+    previous = (f"{condition_prefix}for", True)
 
     kwargs.update(vp.locals)
     for imp in vp.imports:
@@ -432,8 +481,6 @@ def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **k
 
     for condition, child in cond:
         if condition in ["py-for", f"{condition_prefix}for"]:
-            # TODO: Split for loop into it's own function
-
             clocals = {}
             for parent in path(child):
                 if parent.type == "element":
@@ -467,7 +514,8 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
                 "children": children,
                 "insert": insert,
                 "child": child,
-                "local_vals": clocals**kwargs,
+                "local_vals": clocals,
+                **kwargs
             }
             exec(
                 for_loop,
@@ -479,14 +527,15 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
             previous = (f"{condition_prefix}for", False)
             first_cond = False
         elif condition in ["py-if", f"{condition_prefix}if"]:
-            clocals = {}
+            clocals = {**kwargs}
             for parent in path(child):
                 if parent.type == "element":
                     clocals.update(parent.locals)
+            
             clocals.update(child.locals)
 
             result = get_vp_result(
-                sub(r"\{|\}", "", child.properties[condition].strip()), **kwargs, **clocals
+                sub(r"\{|\}", "", child.properties[condition].strip()), **clocals
             )
             if result:
                 del child.properties[condition]
@@ -496,7 +545,7 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
                 previous = (f"{condition_prefix}if", False)
             first_cond = True
         elif condition in ["py-elif", f"{condition_prefix}elif"]:
-            clocals = {}
+            clocals = {**kwargs}
             for parent in path(child):
                 if parent.type == "element":
                     clocals.update(parent.locals)
@@ -505,7 +554,7 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
             if previous[0] in valid_prev[condition] and first_cond:
                 if not previous[1]:
                     result = get_vp_result(
-                        sub(r"\{|\}", "", child.properties[condition].strip()), **kwargs, **clocals
+                        sub(r"\{|\}", "", child.properties[condition].strip()), **clocals
                     )
                     if result:
                         del child.properties[condition]
@@ -522,7 +571,7 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
         elif condition in ["py-else", f"{condition_prefix}else"]:
             if previous[0] in valid_prev[condition] and first_cond:
                 if not previous[1]:
-                    child.properties[condition]
+                    del child.properties[condition]
                     previous = (f"{condition_prefix}else", True)
                 else:
                     children.remove(child)

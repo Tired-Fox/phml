@@ -1,0 +1,15 @@
+<style>
+h1 {
+    margin: 0;
+}
+
+#hero {
+    margin-bottom: 1rem;
+}
+</style>
+<python>
+tmessage = "Overview"
+</python>
+<div id="hero">
+    <h1>{tmessage}</h1>
+</div>

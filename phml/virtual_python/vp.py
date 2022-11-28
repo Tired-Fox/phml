@@ -43,9 +43,11 @@ class VirtualPython:
         self.content = joiner.join(lines)
 
     def __add__(self, obj: VirtualPython) -> VirtualPython:
+        local_env = {**self.locals}
+        local_env.update(obj.locals)
         return VirtualPython(
             imports=[*self.imports, *obj.imports],
-            local_env={**self.locals, **obj.locals},
+            local_env=local_env,
         )
 
     def __repr__(self) -> str:

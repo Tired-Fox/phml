@@ -1,8 +1,8 @@
-from pathlib import Path
 from phml.nodes import Root, Element
 from .classes import *
 from .heading import *
 from .inspect import *
+from .component import *
 
 # __all__ = [
 #     "depth",
@@ -13,33 +13,6 @@ from .inspect import *
 #     "inspect",
 #     "normalize_indent",
 # ]
-
-
-def tag_from_file(filename: str) -> str:
-    """Generates a tag name some-tag-name from a filename.
-    Assumes filenames of:
-    * snakecase - some_file_name
-    * camel case - someFileName
-    * pascal case - SomeFileName
-    """
-    from re import finditer
-
-    tokens = []
-    for token in finditer(r"(\b|[A-Z]|_)([a-z]+)", filename):
-        first, rest = token.groups()
-        if first.isupper():
-            rest = first + rest
-        tokens.append(rest.lower())
-
-    return "-".join(tokens)
-
-def filename_from_path(file: Path) -> str:
-    """Get the filename without the suffix from a pathlib.Path."""
-    
-    if file.is_file():
-        return file.name.replace(file.suffix, "")
-    else:
-        raise TypeError(f"Expected {type(Path)} not {type(file)}")
 
 
 def depth(el) -> int:

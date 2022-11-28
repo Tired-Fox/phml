@@ -1,71 +1,55 @@
-<div>
-    <style>
-        .w-6 {
-            width: 1.75rem;
-        }
+<style>
+    .w-6 {
+        width: 1.5rem;
+    }
 
-        .h-6 {
+    .h-6 {
 
-            height: 1.75rem;
-        }
+        height: 1.5rem;
+    }
 
-        .callout h3 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-        }
+    .callout h3 {
+        margin: 0;
+    }
 
-        .callout {
-            width: 100%;
-            height: fit-content;
-            padding: 1rem;
-            border-radius: .25rem;
+    .callout {
+        width: 100%;
+        height: fit-content;
+        
+        display: flex;
+        flex-direction: column;
+        
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        background-color: white;
+        border-radius: .25rem;
+        margin-block: 1rem;
+        padding: 1rem;
+    }
 
-            display: flex;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            background-color: white;
-            margin-block: 1rem;
-        }
+    .callout-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
 
-        .callout>div:nth-child(1) {
-            margin-right: 1rem;
-        }
-
-        .callout>div:nth-child(2) {
-            display: flex;
-            flex-direction: column;
-            gap: .25rem;
-        }
-    </style>
-    <div class="callout">
-        <!-- Icon -->
-        <div>
-            <!--   Warn -->
-            <svg @if="icon in ['warn', 'warning']" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                stroke-width="1.5" stroke="rgb(250 204 21)" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-            </svg>
-
-            <!--   Danger -->
-            <svg @elif="icon in ['important', 'danger', 'fail', 'failure']" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="rgb(244 63 94)" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
-            </svg>
-
-            <!--   Info -->
-            <svg @else="icon in ['info','tip']" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                stroke-width="1.5" stroke="rgb(14 165 233)" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-            </svg>
-        </div>
-        <div>
-            <!-- Title -->
-            <h3>{title or icon.upper()}</h3>
-            <!-- Message -->
-            <p @if="message is not None">{message}</p>
-            <slot @else />
-        </div>
+    .callout-body {
+        margin-left: 2.5rem;
+        width: fit-content;
+        height: fit-content;
+    }
+</style>
+<div class="callout">
+    <!-- Icon -->
+    <div class="callout-header">
+        <icon-warning @if="icon in ['warn', 'warning']" />
+        <icon-danger @elif="icon in ['important', 'danger', 'fail', 'failure']" />
+        <icon-info @else />
+        <!-- Title -->
+        <h3>{title or icon.upper()}</h3>
+    </div>
+    <div class="callout-body">
+        <!-- Message -->
+        <p @if="message is not None">{message}</p>
+        <slot @else />
     </div>
 </div>
