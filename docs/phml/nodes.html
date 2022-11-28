@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 12.3.0"/>
+    <meta name="generator" content="pdoc 12.2.0"/>
     <title>phml.nodes API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -42,6 +42,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#AST.size">size</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AST.children">children</a>
                         </li>
                 </ul>
 
@@ -173,7 +176,154 @@
                     <a class="variable" href="#Properties">Properties</a>
             </li>
             <li>
-                    <a class="variable" href="#PropertyName">PropertyName</a>
+                    <a class="class" href="#PropertyName">PropertyName</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#PropertyName.__init__">PropertyName</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.encode">encode</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.replace">replace</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.split">split</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.rsplit">rsplit</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.join">join</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.capitalize">capitalize</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.casefold">casefold</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.title">title</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.center">center</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.count">count</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.expandtabs">expandtabs</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.find">find</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.partition">partition</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.index">index</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.ljust">ljust</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.lower">lower</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.lstrip">lstrip</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.rfind">rfind</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.rindex">rindex</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.rjust">rjust</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.rstrip">rstrip</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.rpartition">rpartition</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.splitlines">splitlines</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.strip">strip</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.swapcase">swapcase</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.translate">translate</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.upper">upper</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.startswith">startswith</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.endswith">endswith</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.removeprefix">removeprefix</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.removesuffix">removesuffix</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isascii">isascii</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.islower">islower</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isupper">isupper</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.istitle">istitle</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isspace">isspace</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isdecimal">isdecimal</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isdigit">isdigit</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isnumeric">isnumeric</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isalpha">isalpha</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isalnum">isalnum</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isidentifier">isidentifier</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.isprintable">isprintable</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.zfill">zfill</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.format">format</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.format_map">format_map</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#PropertyName.maketrans">maketrans</a>
+                        </li>
+                </ul>
+
             </li>
             <li>
                     <a class="variable" href="#PropertyValue">PropertyValue</a>
@@ -276,7 +426,7 @@
 </span><span id="AST-20"><a href="#AST-20"><span class="linenos">20</span></a>
 </span><span id="AST-21"><a href="#AST-21"><span class="linenos">21</span></a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
 </span><span id="AST-22"><a href="#AST-22"><span class="linenos">22</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">walk</span>
-</span><span id="AST-23"><a href="#AST-23"><span class="linenos">23</span></a>        
+</span><span id="AST-23"><a href="#AST-23"><span class="linenos">23</span></a>
 </span><span id="AST-24"><a href="#AST-24"><span class="linenos">24</span></a>        <span class="k">return</span> <span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
 </span><span id="AST-25"><a href="#AST-25"><span class="linenos">25</span></a>
 </span><span id="AST-26"><a href="#AST-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -289,8 +439,15 @@
 </span><span id="AST-33"><a href="#AST-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 </span><span id="AST-34"><a href="#AST-34"><span class="linenos">34</span></a>        <span class="sd">&quot;&quot;&quot;Get the number of nodes in the ast tree.&quot;&quot;&quot;</span>
 </span><span id="AST-35"><a href="#AST-35"><span class="linenos">35</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">size</span>
-</span><span id="AST-36"><a href="#AST-36"><span class="linenos">36</span></a>        
+</span><span id="AST-36"><a href="#AST-36"><span class="linenos">36</span></a>
 </span><span id="AST-37"><a href="#AST-37"><span class="linenos">37</span></a>        <span class="k">return</span> <span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
+</span><span id="AST-38"><a href="#AST-38"><span class="linenos">38</span></a>
+</span><span id="AST-39"><a href="#AST-39"><span class="linenos">39</span></a>    <span class="nd">@property</span>
+</span><span id="AST-40"><a href="#AST-40"><span class="linenos">40</span></a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+</span><span id="AST-41"><a href="#AST-41"><span class="linenos">41</span></a>        <span class="sd">&quot;&quot;&quot;Get access to the ast roots children.</span>
+</span><span id="AST-42"><a href="#AST-42"><span class="linenos">42</span></a><span class="sd">        Is none if there is no root.</span>
+</span><span id="AST-43"><a href="#AST-43"><span class="linenos">43</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="AST-44"><a href="#AST-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -330,6 +487,20 @@
     <a class="headerlink" href="#AST.size"></a>
     
             <div class="docstring"><p>Get the number of nodes in the ast tree.</p>
+</div>
+
+
+                            </div>
+                            <div id="AST.children" class="classattr">
+                                <div class="attr variable">
+            <span class="name">children</span><span class="annotation">: list</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AST.children"></a>
+    
+            <div class="docstring"><p>Get access to the ast roots children.
+Is none if there is no root.</p>
 </div>
 
 
@@ -540,7 +711,7 @@ of the content field on a 'template' Element, never as a child.</p>
 
             <div class="docstring"><p>Build indented html string of documents elements and their children.</p>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="returns">Returns</h6>
 
 <blockquote>
   <p>str: Built html of document</p>
@@ -681,7 +852,7 @@ of the content field on a 'template' Element, never as a child.</p>
 
             <div class="docstring"><p>Build indented html string of html doctype element.</p>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="returns">Returns</h6>
 
 <blockquote>
   <p>str: Built html of doctype element</p>
@@ -1014,13 +1185,13 @@ scripting is disabled ([HTML]).</p>
 
             <div class="docstring"><p>Builds the open/start tag for the element.</p>
 
-<h6 id="note">Note:</h6>
+<h6 id="note">Note</h6>
 
 <blockquote>
   <p>It will return <code>/&gt;</code> if the tag is self closing.</p>
 </blockquote>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="returns">Returns</h6>
 
 <blockquote>
   <p>str: Built element start tag.</p>
@@ -1052,7 +1223,7 @@ scripting is disabled ([HTML]).</p>
 
             <div class="docstring"><p>Build the elements end tag.</p>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="returns">Returns</h6>
 
 <blockquote>
   <p>str: Built element end tag.</p>
@@ -1292,7 +1463,7 @@ The position field must not be present if a node is generated.</p>
 
             <div class="docstring"><p>Build indented html string of html comment.</p>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="returns">Returns</h6>
 
 <blockquote>
   <p>str: Built html of comment</p>
@@ -1437,7 +1608,7 @@ The position field must not be present if a node is generated.</p>
 
             <div class="docstring"><p>Build indented html string of html text.</p>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="returns">Returns</h6>
 
 <blockquote>
   <p>str: Built html of text</p>
@@ -1718,15 +1889,938 @@ information.</p>
 
                 </section>
                 <section id="PropertyName">
-                    <div class="attr variable">
-            <span class="name">PropertyName</span><span class="default_value"> = &lt;class &#39;str&#39;&gt;</span>
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">PropertyName</span>:
 
         
     </div>
     <a class="headerlink" href="#PropertyName"></a>
     
+            <div class="docstring"><p>str(object='') -> str
+str(bytes_or_buffer[, encoding[, errors]]) -> str</p>
+
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p>
+</div>
+
+
+                            <div id="PropertyName.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">PropertyName</span><span class="signature pdoc-code condensed">()</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.__init__"></a>
+    
     
 
+                            </div>
+                            <div id="PropertyName.encode" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">encode</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span>, </span><span class="param"><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span>, </span><span class="param"><span class="n">errors</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.encode"></a>
+    
+            <div class="docstring"><p>Encode the string using the codec registered for encoding.</p>
+
+<p>encoding
+  The encoding in which to encode the string.
+errors
+  The error handling scheme to use for encoding errors.
+  The default is 'strict' meaning that encoding errors raise a
+  UnicodeEncodeError.  Other possible values are 'ignore', 'replace' and
+  'xmlcharrefreplace' as well as any other name registered with
+  codecs.register_error that can handle UnicodeEncodeErrors.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.replace" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">replace</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">old</span>, </span><span class="param"><span class="n">new</span>, </span><span class="param"><span class="n">count</span><span class="o">=-</span><span class="mi">1</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.replace"></a>
+    
+            <div class="docstring"><p>Return a copy with all occurrences of substring old replaced by new.</p>
+
+<p>count
+    Maximum number of occurrences to replace.
+    -1 (the default value) means replace all occurrences.</p>
+
+<p>If the optional argument count is given, only the first count occurrences are
+replaced.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.split" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">split</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span>, </span><span class="param"><span class="n">sep</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">maxsplit</span><span class="o">=-</span><span class="mi">1</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.split"></a>
+    
+            <div class="docstring"><p>Return a list of the substrings in the string, using sep as the separator string.</p>
+
+<p>sep
+    The separator used to split the string.</p>
+
+<pre><code>When set to None (the default value), will split on any whitespace
+character (including \\n \\r \\t \\f and spaces) and will discard
+empty strings from the result.
+</code></pre>
+
+<p>maxsplit
+    Maximum number of splits (starting from the left).
+    -1 (the default value) means no limit.</p>
+
+<p>Note, str.split() is mainly useful for data that has been intentionally
+delimited.  With natural text that includes punctuation, consider using
+the regular expression module.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.rsplit" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">rsplit</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span>, </span><span class="param"><span class="n">sep</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">maxsplit</span><span class="o">=-</span><span class="mi">1</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.rsplit"></a>
+    
+            <div class="docstring"><p>Return a list of the substrings in the string, using sep as the separator string.</p>
+
+<p>sep
+    The separator used to split the string.</p>
+
+<pre><code>When set to None (the default value), will split on any whitespace
+character (including \\n \\r \\t \\f and spaces) and will discard
+empty strings from the result.
+</code></pre>
+
+<p>maxsplit
+    Maximum number of splits (starting from the left).
+    -1 (the default value) means no limit.</p>
+
+<p>Splitting starts at the end of the string and works to the front.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.join" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">join</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">iterable</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.join"></a>
+    
+            <div class="docstring"><p>Concatenate any number of strings.</p>
+
+<p>The string whose method is called is inserted in between each given string.
+The result is returned as a new string.</p>
+
+<p>Example: '.'.join(['ab', 'pq', 'rs']) -> 'ab.pq.rs'</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.capitalize" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">capitalize</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.capitalize"></a>
+    
+            <div class="docstring"><p>Return a capitalized version of the string.</p>
+
+<p>More specifically, make the first character have upper case and the rest lower
+case.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.casefold" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">casefold</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.casefold"></a>
+    
+            <div class="docstring"><p>Return a version of the string suitable for caseless comparisons.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.title" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">title</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.title"></a>
+    
+            <div class="docstring"><p>Return a version of the string where each word is titlecased.</p>
+
+<p>More specifically, words start with uppercased characters and all remaining
+cased characters have lower case.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.center" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">center</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">width</span>, </span><span class="param"><span class="n">fillchar</span><span class="o">=</span><span class="s1">&#39; &#39;</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.center"></a>
+    
+            <div class="docstring"><p>Return a centered string of length width.</p>
+
+<p>Padding is done using the specified fill character (default is a space).</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.count" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">count</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.count"></a>
+    
+            <div class="docstring"><p>S.count(sub[, start[, end]]) -> int</p>
+
+<p>Return the number of non-overlapping occurrences of substring sub in
+string S[start:end].  Optional arguments start and end are
+interpreted as in slice notation.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.expandtabs" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">expandtabs</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span>, </span><span class="param"><span class="n">tabsize</span><span class="o">=</span><span class="mi">8</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.expandtabs"></a>
+    
+            <div class="docstring"><p>Return a copy where all tab characters are expanded using spaces.</p>
+
+<p>If tabsize is not given, a tab size of 8 characters is assumed.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.find" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">find</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.find"></a>
+    
+            <div class="docstring"><p>S.find(sub[, start[, end]]) -> int</p>
+
+<p>Return the lowest index in S where substring sub is found,
+such that sub is contained within S[start:end].  Optional
+arguments start and end are interpreted as in slice notation.</p>
+
+<p>Return -1 on failure.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.partition" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">partition</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">sep</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.partition"></a>
+    
+            <div class="docstring"><p>Partition the string into three parts using the given separator.</p>
+
+<p>This will search for the separator in the string.  If the separator is found,
+returns a 3-tuple containing the part before the separator, the separator
+itself, and the part after it.</p>
+
+<p>If the separator is not found, returns a 3-tuple containing the original string
+and two empty strings.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.index" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">index</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.index"></a>
+    
+            <div class="docstring"><p>S.index(sub[, start[, end]]) -> int</p>
+
+<p>Return the lowest index in S where substring sub is found,
+such that sub is contained within S[start:end].  Optional
+arguments start and end are interpreted as in slice notation.</p>
+
+<p>Raises ValueError when the substring is not found.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.ljust" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">ljust</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">width</span>, </span><span class="param"><span class="n">fillchar</span><span class="o">=</span><span class="s1">&#39; &#39;</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.ljust"></a>
+    
+            <div class="docstring"><p>Return a left-justified string of length width.</p>
+
+<p>Padding is done using the specified fill character (default is a space).</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.lower" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">lower</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.lower"></a>
+    
+            <div class="docstring"><p>Return a copy of the string converted to lowercase.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.lstrip" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">lstrip</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">chars</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.lstrip"></a>
+    
+            <div class="docstring"><p>Return a copy of the string with leading whitespace removed.</p>
+
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.rfind" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">rfind</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.rfind"></a>
+    
+            <div class="docstring"><p>S.rfind(sub[, start[, end]]) -> int</p>
+
+<p>Return the highest index in S where substring sub is found,
+such that sub is contained within S[start:end].  Optional
+arguments start and end are interpreted as in slice notation.</p>
+
+<p>Return -1 on failure.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.rindex" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">rindex</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.rindex"></a>
+    
+            <div class="docstring"><p>S.rindex(sub[, start[, end]]) -> int</p>
+
+<p>Return the highest index in S where substring sub is found,
+such that sub is contained within S[start:end].  Optional
+arguments start and end are interpreted as in slice notation.</p>
+
+<p>Raises ValueError when the substring is not found.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.rjust" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">rjust</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">width</span>, </span><span class="param"><span class="n">fillchar</span><span class="o">=</span><span class="s1">&#39; &#39;</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.rjust"></a>
+    
+            <div class="docstring"><p>Return a right-justified string of length width.</p>
+
+<p>Padding is done using the specified fill character (default is a space).</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.rstrip" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">rstrip</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">chars</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.rstrip"></a>
+    
+            <div class="docstring"><p>Return a copy of the string with trailing whitespace removed.</p>
+
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.rpartition" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">rpartition</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">sep</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.rpartition"></a>
+    
+            <div class="docstring"><p>Partition the string into three parts using the given separator.</p>
+
+<p>This will search for the separator in the string, starting at the end. If
+the separator is found, returns a 3-tuple containing the part before the
+separator, the separator itself, and the part after it.</p>
+
+<p>If the separator is not found, returns a 3-tuple containing two empty strings
+and the original string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.splitlines" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">splitlines</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span>, </span><span class="param"><span class="n">keepends</span><span class="o">=</span><span class="kc">False</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.splitlines"></a>
+    
+            <div class="docstring"><p>Return a list of the lines in the string, breaking at line boundaries.</p>
+
+<p>Line breaks are not included in the resulting list unless keepends is given and
+true.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.strip" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">strip</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">chars</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.strip"></a>
+    
+            <div class="docstring"><p>Return a copy of the string with leading and trailing whitespace removed.</p>
+
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.swapcase" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">swapcase</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.swapcase"></a>
+    
+            <div class="docstring"><p>Convert uppercase characters to lowercase and lowercase characters to uppercase.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.translate" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">translate</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">table</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.translate"></a>
+    
+            <div class="docstring"><p>Replace each character in the string using the given translation table.</p>
+
+<p>table
+    Translation table, which must be a mapping of Unicode ordinals to
+    Unicode ordinals, strings, or None.</p>
+
+<p>The table must implement lookup/indexing via __getitem__, for instance a
+dictionary or list.  If this operation raises LookupError, the character is
+left untouched.  Characters mapped to None are deleted.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.upper" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">upper</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.upper"></a>
+    
+            <div class="docstring"><p>Return a copy of the string converted to uppercase.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.startswith" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">startswith</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.startswith"></a>
+    
+            <div class="docstring"><p>S.startswith(prefix[, start[, end]]) -> bool</p>
+
+<p>Return True if S starts with the specified prefix, False otherwise.
+With optional start, test S beginning at that position.
+With optional end, stop comparing S at that position.
+prefix can also be a tuple of strings to try.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.endswith" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">endswith</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.endswith"></a>
+    
+            <div class="docstring"><p>S.endswith(suffix[, start[, end]]) -> bool</p>
+
+<p>Return True if S ends with the specified suffix, False otherwise.
+With optional start, test S beginning at that position.
+With optional end, stop comparing S at that position.
+suffix can also be a tuple of strings to try.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.removeprefix" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">removeprefix</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">prefix</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.removeprefix"></a>
+    
+            <div class="docstring"><p>Return a str with the given prefix string removed if present.</p>
+
+<p>If the string starts with the prefix string, return string[len(prefix):].
+Otherwise, return a copy of the original string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.removesuffix" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">removesuffix</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">suffix</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.removesuffix"></a>
+    
+            <div class="docstring"><p>Return a str with the given suffix string removed if present.</p>
+
+<p>If the string ends with the suffix string and that suffix is not empty,
+return string[:-len(suffix)]. Otherwise, return a copy of the original
+string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isascii" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isascii</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isascii"></a>
+    
+            <div class="docstring"><p>Return True if all characters in the string are ASCII, False otherwise.</p>
+
+<p>ASCII characters have code points in the range U+0000-U+007F.
+Empty string is ASCII too.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.islower" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">islower</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.islower"></a>
+    
+            <div class="docstring"><p>Return True if the string is a lowercase string, False otherwise.</p>
+
+<p>A string is lowercase if all cased characters in the string are lowercase and
+there is at least one cased character in the string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isupper" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isupper</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isupper"></a>
+    
+            <div class="docstring"><p>Return True if the string is an uppercase string, False otherwise.</p>
+
+<p>A string is uppercase if all cased characters in the string are uppercase and
+there is at least one cased character in the string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.istitle" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">istitle</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.istitle"></a>
+    
+            <div class="docstring"><p>Return True if the string is a title-cased string, False otherwise.</p>
+
+<p>In a title-cased string, upper- and title-case characters may only
+follow uncased characters and lowercase characters only cased ones.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isspace" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isspace</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isspace"></a>
+    
+            <div class="docstring"><p>Return True if the string is a whitespace string, False otherwise.</p>
+
+<p>A string is whitespace if all characters in the string are whitespace and there
+is at least one character in the string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isdecimal" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isdecimal</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isdecimal"></a>
+    
+            <div class="docstring"><p>Return True if the string is a decimal string, False otherwise.</p>
+
+<p>A string is a decimal string if all characters in the string are decimal and
+there is at least one character in the string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isdigit" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isdigit</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isdigit"></a>
+    
+            <div class="docstring"><p>Return True if the string is a digit string, False otherwise.</p>
+
+<p>A string is a digit string if all characters in the string are digits and there
+is at least one character in the string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isnumeric" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isnumeric</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isnumeric"></a>
+    
+            <div class="docstring"><p>Return True if the string is a numeric string, False otherwise.</p>
+
+<p>A string is numeric if all characters in the string are numeric and there is at
+least one character in the string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isalpha" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isalpha</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isalpha"></a>
+    
+            <div class="docstring"><p>Return True if the string is an alphabetic string, False otherwise.</p>
+
+<p>A string is alphabetic if all characters in the string are alphabetic and there
+is at least one character in the string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isalnum" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isalnum</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isalnum"></a>
+    
+            <div class="docstring"><p>Return True if the string is an alpha-numeric string, False otherwise.</p>
+
+<p>A string is alpha-numeric if all characters in the string are alpha-numeric and
+there is at least one character in the string.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isidentifier" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isidentifier</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isidentifier"></a>
+    
+            <div class="docstring"><p>Return True if the string is a valid Python identifier, False otherwise.</p>
+
+<p>Call keyword.iskeyword(s) to test whether string s is a reserved identifier,
+such as "def" or "class".</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.isprintable" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">isprintable</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.isprintable"></a>
+    
+            <div class="docstring"><p>Return True if the string is printable, False otherwise.</p>
+
+<p>A string is printable if all of its characters are considered printable in
+repr() or if it is empty.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.zfill" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">zfill</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">width</span>, </span><span class="param"><span class="o">/</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.zfill"></a>
+    
+            <div class="docstring"><p>Pad a numeric string with zeros on the left, to fill a field of the given width.</p>
+
+<p>The string is never truncated.</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.format" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">format</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.format"></a>
+    
+            <div class="docstring"><p>S.format(<em>args, *</em>kwargs) -> str</p>
+
+<p>Return a formatted version of S, using substitutions from args and kwargs.
+The substitutions are identified by braces ('{' and '}').</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.format_map" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">format_map</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.format_map"></a>
+    
+            <div class="docstring"><p>S.format_map(mapping) -> str</p>
+
+<p>Return a formatted version of S, using substitutions from mapping.
+The substitutions are identified by braces ('{' and '}').</p>
+</div>
+
+
+                            </div>
+                            <div id="PropertyName.maketrans" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">maketrans</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unknown</span></span><span class="return-annotation">):</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#PropertyName.maketrans"></a>
+    
+            <div class="docstring"><p>Return a translation table usable for str.translate().</p>
+
+<p>If there is only one argument, it must be a dictionary mapping Unicode
+ordinals (integers) or characters to Unicode ordinals, strings or None.
+Character keys will be then converted to ordinals.
+If there are two arguments, they must be strings of equal length, and
+in the resulting dictionary, each character in x will be mapped to the
+character at the same position in y. If there is a third argument, it
+must be a string, whose characters will be mapped to None in the result.</p>
+</div>
+
+
+                            </div>
                 </section>
                 <section id="PropertyValue">
                     <div class="attr variable">
@@ -1851,7 +2945,7 @@ information.</p>
                 }
 
                 let heading;
-                switch (result.doc.kind) {
+                switch (result.doc.type) {
                     case "function":
                         if (doc.fullname.endsWith(".__init__")) {
                             heading = `<span class="name">${doc.fullname.replace(/\.__init__$/, "")}</span>${doc.signature}`;
@@ -1878,7 +2972,7 @@ information.</p>
                 }
                 html += `
                         <section class="search-result">
-                        <a href="${url}" class="attr ${doc.kind}">${heading}</a>
+                        <a href="${url}" class="attr ${doc.type}">${heading}</a>
                         <div class="docstring">${doc.doc}</div>
                         </section>
                     `;
