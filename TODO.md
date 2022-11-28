@@ -1,5 +1,10 @@
 # TODO
 - [ ] Component based system
+- [ ] Memoization for styling
+- [ ] Layout for components
+  - [ ] Can provide script, python, styles elements
+  - [ ] Style elements are remembered and compressed to one element
+  - [ ] Parent element or single element and then script, style, python, etc?
 - [ ] Optimize
   - [ ] AST linking from parser and compiler
   - [ ] Parsing files

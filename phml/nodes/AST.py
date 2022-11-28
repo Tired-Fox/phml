@@ -19,7 +19,7 @@ class AST:
 
     def __iter__(self) -> Iterator:
         from phml.utils import walk
-        
+
         return walk(self.tree)
 
     def __eq__(self, obj) -> bool:
@@ -32,5 +32,12 @@ class AST:
     def size(self) -> int:
         """Get the number of nodes in the ast tree."""
         from phml.utils import size
-        
+
         return size(self.tree)
+
+    @property
+    def children(self) -> list:
+        """Get access to the ast roots children.
+        Is none if there is no root.
+        """
+        return self.tree.children if self.tree is not None else None

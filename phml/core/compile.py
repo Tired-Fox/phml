@@ -6,9 +6,9 @@ from typing import Any, Callable, Optional
 
 from phml.core.file_types import HTML, JSON, PHML, Markdown
 from phml.nodes import *
-from phml.utils.travel import visit_children
-from phml.utils.locate.find import find_all
-from phml.utils.transform.transform import remove_nodes
+from phml.utils.travel import visit_children, path
+from phml.utils.locate import find_all
+from phml.utils.transform.transform import remove_nodes,replace_node
 from phml.utils.validate.test import test
 from phml.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
 
@@ -219,7 +219,7 @@ def replace_components(
         node (Root | Element | AST): The starting point.
         vp (VirtualPython): Temp
     """
-    from phml.utils import visit_children, replace_node
+    from phml.utils import visit_children
 
     if isinstance(node, AST):
         node = node.tree
@@ -243,11 +243,10 @@ def replace_components(
                         new_props[prop] = node.properties[prop]
 
                 props = new_props
-                children = node.children
+                props["children"] = node.children
 
                 rnode = deepcopy(components[node.tag])
                 rnode.locals.update(props)
-                replace_node(rnode, ["element", {"tag": "slot"}], children)
 
                 idx = node.parent.children.index(node)
                 node.parent.children = (
@@ -259,6 +258,19 @@ def replace_components(
     for n in visit_children(node):
         recurse_replace(n)
 
+def __has_py_condition(node: Element) -> bool:
+    for cond in [
+                "py-for",
+                "py-if",
+                "py-elif",
+                "py-else",
+                f"{condition_prefix}if",
+                f"{condition_prefix}elif",
+                f"{condition_prefix}else",
+                f"{condition_prefix}for",
+            ]:
+        if cond in node.properties.keys():
+            return True
 
 def apply_conditions(node: Root | Element | AST, vp: VirtualPython, **kwargs):
     """Applys all `py-if`, `py-elif`, `py-else`, and `py-for` to the node
@@ -294,6 +306,9 @@ def apply_python(node: Root | Element | AST, vp: VirtualPython, **kwargs):
 
         for child in n.children:
             if test(child, "element"):
+                if "children" in child.locals.keys():
+                    replace_node(child, ["element", {"tag": "slot"}], child.locals["children"])
+
                 le = {**local_env, **child.locals}
                 new_props = {}
                 for prop in child.properties:
@@ -418,6 +433,13 @@ def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **k
     for condition, child in cond:
         if condition in ["py-for", f"{condition_prefix}for"]:
             # TODO: Split for loop into it's own function
+
+            clocals = {}
+            for parent in path(child):
+                if parent.type == "element":
+                    clocals.update(parent.locals)
+            clocals.update(child.locals)
+
             for_loop = sub(r"for |:", "", child.properties[condition]).strip()
             new_locals = [
                 item.strip()
@@ -434,7 +456,7 @@ def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **k
 new_children = []
 for {for_loop}:
     new_children.append(deepcopy(child))
-    new_children[-1].locals = {{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}}
+    new_children[-1].locals = {{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}, **local_vals}}
 children = [*children[:insert], *new_children, *children[insert+1:]]\
 '''
 
@@ -445,7 +467,7 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
                 "children": children,
                 "insert": insert,
                 "child": child,
-                **kwargs,
+                "local_vals": clocals**kwargs,
             }
             exec(
                 for_loop,
@@ -457,7 +479,15 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
             previous = (f"{condition_prefix}for", False)
             first_cond = False
         elif condition in ["py-if", f"{condition_prefix}if"]:
-            result = get_vp_result(sub(r"\{|\}", "", child.properties[condition].strip()), **kwargs)
+            clocals = {}
+            for parent in path(child):
+                if parent.type == "element":
+                    clocals.update(parent.locals)
+            clocals.update(child.locals)
+
+            result = get_vp_result(
+                sub(r"\{|\}", "", child.properties[condition].strip()), **kwargs, **clocals
+            )
             if result:
                 del child.properties[condition]
                 previous = (f"{condition_prefix}if", True)
@@ -466,10 +496,16 @@ children = [*children[:insert], *new_children, *children[insert+1:]]\
                 previous = (f"{condition_prefix}if", False)
             first_cond = True
         elif condition in ["py-elif", f"{condition_prefix}elif"]:
+            clocals = {}
+            for parent in path(child):
+                if parent.type == "element":
+                    clocals.update(parent.locals)
+            clocals.update(child.locals)
+
             if previous[0] in valid_prev[condition] and first_cond:
                 if not previous[1]:
                     result = get_vp_result(
-                        sub(r"\{|\}", "", child.properties[condition].strip()), **kwargs
+                        sub(r"\{|\}", "", child.properties[condition].strip()), **kwargs, **clocals
                     )
                     if result:
                         del child.properties[condition]

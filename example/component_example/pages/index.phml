@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Callout Example</title>
+    </head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: rgb(238, 238, 238);
+            padding: 1rem;
+        }
+    </style>
+    <body>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc nec turpis mauris. Curabitur sodales velit quis consequat ullamcorper. Curabitur suscipit pellentesque nibh eu pharetra. Nunc mattis lobortis massa, ac malesuada augue auctor ut. Nunc leo ante, tristique sed dapibus ut, tincidunt id tortor. Nulla pellentesque dui sed libero finibus lacinia. Morbi ornare consequat ornare. Donec ut sollicitudin arcu. Suspendisse accumsan enim elit, eu iaculis ex fermentum non. Integer convallis dictum fermentum. Curabitur libero nisi, fermentum ut tempor vel, viverra sed ligula. Pellentesque nec mollis nunc. Mauris euismod turpis ut urna commodo, et aliquet augue tristique. Proin eget mi mollis, varius libero vulputate, vulputate mi.</p>
+        
+        <callout icon="warning" title="Some Title"/>
+
+        <p>Maecenas feugiat pulvinar varius. Phasellus ac justo non nibh finibus efficitur. Sed iaculis mattis augue, id commodo leo pharetra eu. Nulla justo orci, ornare quis tincidunt nec, faucibus ac metus. Pellentesque fermentum metus non justo pulvinar tincidunt. Praesent sed purus vitae tellus ullamcorper gravida sit amet a odio. Cras ut convallis elit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Maecenas non ex efficitur, auctor ante in, vestibulum tellus. Aliquam ut tortor euismod, pellentesque libero ac, fringilla justo. Suspendisse enim est, cursus id lorem id, gravida dignissim nisl. Pellentesque ac justo ornare, scelerisque tellus nec, euismod elit. Mauris eget sem vel leo vulputate tempor. Nullam pellentesque scelerisque ante vitae pulvinar. Cras vel congue massa. Aenean fermentum cursus nibh, ac bibendum turpis laoreet sit amet.</p>
+
+        <callout icon="info" message="Here is an info message" />
+        
+        <p>Suspendisse euismod velit eu blandit rutrum. Vivamus quam massa, posuere id mi ac, rhoncus suscipit sem. Aliquam maximus vel felis at tincidunt. Cras auctor tortor id ante auctor aliquam. Curabitur accumsan placerat felis, id ultricies erat eleifend ac. Duis vitae facilisis odio. Aenean est justo, tincidunt ut lorem sed, mattis dapibus ipsum.</p>
+
+        <callout icon="danger">
+            <p>Callout with children</p>
+        </callout>
+        
+        <callout icon="danger" message="Same callout but with message override">
+            <p>Callout with children</p>
+        </callout>
+    </body>
+
+</html>

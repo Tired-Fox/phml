@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Callout Example</title>
+    </head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: rgb(238, 238, 238);
+            padding: 1rem;
+        }
+    </style>
+    <body>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc nec turpis mauris. Curabitur sodales velit quis consequat ullamcorper. Curabitur suscipit pellentesque nibh eu pharetra. Nunc mattis lobortis massa, ac malesuada augue auctor ut. Nunc leo ante, tristique sed dapibus ut, tincidunt id tortor. Nulla pellentesque dui sed libero finibus lacinia. Morbi ornare consequat ornare. Donec ut sollicitudin arcu. Suspendisse accumsan enim elit, eu iaculis ex fermentum non. Integer convallis dictum fermentum. Curabitur libero nisi, fermentum ut tempor vel, viverra sed ligula. Pellentesque nec mollis nunc. Mauris euismod turpis ut urna commodo, et aliquet augue tristique. Proin eget mi mollis, varius libero vulputate, vulputate mi.</p>
+        <div>
+            <style>
+        .w-6 {
+            width: 1.75rem;
+        }
+
+        .h-6 {
+
+            height: 1.75rem;
+        }
+
+        .callout h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .callout {
+            width: 100%;
+            height: fit-content;
+            padding: 1rem;
+            border-radius: .25rem;
+
+            display: flex;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            background-color: white;
+            margin-block: 1rem;
+        }
+
+        .callout>div:nth-child(1) {
+            margin-right: 1rem;
+        }
+
+        .callout>div:nth-child(2) {
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+        }
+            </style>
+            <div class="callout">
+                <!-- Icon -->
+                <div>
+                    <!--   Warn -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="rgb(250 204 21)" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                    <!--   Danger -->
+                    <!--   Info -->
+                </div>
+                <div>
+                    <!-- Title -->
+                    <h3>Some Title</h3>
+                    <!-- Message -->
+                </div>
+            </div>
+        </div>
+        <p>Maecenas feugiat pulvinar varius. Phasellus ac justo non nibh finibus efficitur. Sed iaculis mattis augue, id commodo leo pharetra eu. Nulla justo orci, ornare quis tincidunt nec, faucibus ac metus. Pellentesque fermentum metus non justo pulvinar tincidunt. Praesent sed purus vitae tellus ullamcorper gravida sit amet a odio. Cras ut convallis elit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Maecenas non ex efficitur, auctor ante in, vestibulum tellus. Aliquam ut tortor euismod, pellentesque libero ac, fringilla justo. Suspendisse enim est, cursus id lorem id, gravida dignissim nisl. Pellentesque ac justo ornare, scelerisque tellus nec, euismod elit. Mauris eget sem vel leo vulputate tempor. Nullam pellentesque scelerisque ante vitae pulvinar. Cras vel congue massa. Aenean fermentum cursus nibh, ac bibendum turpis laoreet sit amet.</p>
+        <div>
+            <style>
+        .w-6 {
+            width: 1.75rem;
+        }
+
+        .h-6 {
+
+            height: 1.75rem;
+        }
+
+        .callout h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .callout {
+            width: 100%;
+            height: fit-content;
+            padding: 1rem;
+            border-radius: .25rem;
+
+            display: flex;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            background-color: white;
+            margin-block: 1rem;
+        }
+
+        .callout>div:nth-child(1) {
+            margin-right: 1rem;
+        }
+
+        .callout>div:nth-child(2) {
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+        }
+            </style>
+            <div class="callout">
+                <!-- Icon -->
+                <div>
+                    <!--   Warn -->
+                    <!--   Danger -->
+                    <!--   Info -->
+                    <svg @else="icon in ['info','tip']" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="rgb(14 165 233)" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                </div>
+                <div>
+                    <!-- Title -->
+                    <h3>INFO</h3>
+                    <!-- Message -->
+                    <p>Here is an info message</p>
+                </div>
+            </div>
+        </div>
+        <p>Suspendisse euismod velit eu blandit rutrum. Vivamus quam massa, posuere id mi ac, rhoncus suscipit sem. Aliquam maximus vel felis at tincidunt. Cras auctor tortor id ante auctor aliquam. Curabitur accumsan placerat felis, id ultricies erat eleifend ac. Duis vitae facilisis odio. Aenean est justo, tincidunt ut lorem sed, mattis dapibus ipsum.</p>
+        <div>
+            <style>
+        .w-6 {
+            width: 1.75rem;
+        }
+
+        .h-6 {
+
+            height: 1.75rem;
+        }
+
+        .callout h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .callout {
+            width: 100%;
+            height: fit-content;
+            padding: 1rem;
+            border-radius: .25rem;
+
+            display: flex;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            background-color: white;
+            margin-block: 1rem;
+        }
+
+        .callout>div:nth-child(1) {
+            margin-right: 1rem;
+        }
+
+        .callout>div:nth-child(2) {
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+        }
+            </style>
+            <div class="callout">
+                <!-- Icon -->
+                <div>
+                    <!--   Warn -->
+                    <!--   Danger -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="rgb(244 63 94)" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+                    </svg>
+                    <!--   Info -->
+                </div>
+                <div>
+                    <!-- Title -->
+                    <h3>DANGER</h3>
+                    <!-- Message -->
+                    <p>Callout with children</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <style>
+        .w-6 {
+            width: 1.75rem;
+        }
+
+        .h-6 {
+
+            height: 1.75rem;
+        }
+
+        .callout h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .callout {
+            width: 100%;
+            height: fit-content;
+            padding: 1rem;
+            border-radius: .25rem;
+
+            display: flex;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            background-color: white;
+            margin-block: 1rem;
+        }
+
+        .callout>div:nth-child(1) {
+            margin-right: 1rem;
+        }
+
+        .callout>div:nth-child(2) {
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+        }
+            </style>
+            <div class="callout">
+                <!-- Icon -->
+                <div>
+                    <!--   Warn -->
+                    <!--   Danger -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24" stroke-width="1.5" stroke="rgb(244 63 94)" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+                    </svg>
+                    <!--   Info -->
+                </div>
+                <div>
+                    <!-- Title -->
+                    <h3>DANGER</h3>
+                    <!-- Message -->
+                    <p>Same callout but with message override</p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

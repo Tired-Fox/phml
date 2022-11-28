@@ -232,6 +232,7 @@ class PHMLCore:
         dest: str | Path,
         file_type: str = file_types.HTML,
         indent: Optional[int] = None,
+        **kwargs
     ):
         """Renders the parsed ast to a different format, then writes
         it to a given file. Defaults to rendering and writing out as html.
@@ -242,7 +243,9 @@ class PHMLCore:
             indent (Optional[int], optional): The number of spaces per indent. By default it will
             use the standard for the given format. HTML has 4 spaces, phml has 4 spaces, and json
             has 2 spaces.
+            kwargs: Any additional data to pass to the compiler that will be exposed to the
+            phml files.
         """
         with open(dest, "+w", encoding="utf-8") as dest_file:
-            dest_file.write(self.render(file_type, indent))
+            dest_file.write(self.render(file_type=file_type, indent=indent, **kwargs))
         return self
