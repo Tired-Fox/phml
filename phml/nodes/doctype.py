@@ -23,17 +23,18 @@ class DocType(Node):
 
     def __init__(
         self,
+        lang: Optional[str] = None,
         parent: Optional[Element | Root] = None,
         position: Optional[Position] = None,
     ):
         super().__init__(position)
         self.parent = parent
-        self.dtype = "html"
+        self.lang = lang
 
     def __eq__(self, obj) -> bool:
         if hasattr(obj, "type") and obj.type == self.type:
-            return True
-        
+            if self.lang == obj.lang:
+                return True
         # print(f"{self.__class__} != {obj.__class__}: {type(self).__name__} can not be equated to {type(obj).__name__}")
         return False
 
@@ -43,7 +44,7 @@ class DocType(Node):
         Returns:
             str: Built html of doctype element
         """
-        return "<!DOCTYPE html>"
+        return f"<!DOCTYPE {self.lang or 'html'}>"
 
     def __repr__(self) -> str:
-        return "node.doctype()"
+        return f"node.doctype({self.lang or 'html'})"

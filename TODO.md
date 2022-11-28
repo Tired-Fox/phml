@@ -1,16 +1,11 @@
 # TODO
-- [ ] Component based system
-- [ ] Memoization for styling
-- [ ] Layout for components
-  - [ ] Can provide script, python, styles elements
-  - [ ] Style elements are remembered and compressed to one element
-  - [ ] Parent element or single element and then script, style, python, etc?
+- [ ] Ensure python conditions are immediate siblings
 - [ ] Optimize
-  - [ ] AST linking from parser and compiler
-  - [ ] Parsing files
+  - [x] Parsing files
   - [ ] Compiling files
+  - [ ] AST linking from parser and compiler
   - [ ] Utilities
-  - [ ] Nodes to dataclasses?
+  - [x] Nodes to dataclasses?
 - [ ] All utilities
   - [ ] unist
   - [ ] hast
@@ -29,6 +24,10 @@
     - [x] Correct ast conversion (compiling)
       - [x] From phml/html
       - [x] From json
+- [x] Component based system
+- [x] Layout for components
+  - [x] Can provide script, python, styles elements
+  - [x] Parent element or single element and then script, style, python, etc?
 - [x] re-write inspect to be external util function
   - [x] Pretty lines
   - [x] # children
@@ -110,9 +109,8 @@
 - [ ] ? menu-state: check the state of a menu element
 
 - [x] select: `querySelector`, `querySelectorAll`, and `matches`
-- [ ] sanitize: sanitize nodes
-- [ ] reading-time: estimate the reading time
-- [ ] to-text: inner-text of element - Rendered text
+- [x] sanitize: sanitize nodes
+- [ ] ? to-text: inner-text of element - Rendered text
 
 - [ ] ? to-markdown: Converts phml ast tree to markdown
 - [ ] ? from-markdown: Uses python markdown and gets ast from rendered markdown

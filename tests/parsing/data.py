@@ -144,7 +144,7 @@ dicts = {
         "type": "root",
         "position": None,
         "children": [
-            {"type": "doctype", "position": None, "dtype": "html"},
+            {"type": "doctype", "position": None, "lang": "html"},
             {
                 "type": "element",
                 "position": None,

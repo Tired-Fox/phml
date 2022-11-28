@@ -7,8 +7,6 @@ if TYPE_CHECKING:
     from .position import Position
     from .root import Root
     from .types import Properties
-    from .comment import Comment
-    from .text import Text
 
 class Element(Parent):
     """Element (Parent) represents an Element ([DOM]).
