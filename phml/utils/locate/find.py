@@ -3,7 +3,7 @@ from typing import Optional
 from phml.utils.validate import Test, test
 from phml.utils.travel import walk, path
 
-from phml.nodes import All_Nodes, Root, Element
+from phml.nodes import All_Nodes, Root, Element, AST
 
 __all__ = [
     "ancestor",
@@ -39,7 +39,7 @@ def ancestor(*nodes: All_Nodes) -> Optional[All_Nodes]:
     return total_path[-1] if len(total_path) > 0 else None
 
 
-def find(node: Root | Element, condition: Test) -> Optional[All_Nodes]:
+def find(node: Root | Element | AST, condition: Test) -> Optional[All_Nodes]:
     """Walk the nodes children and return the desired node.
 
     Returns the first node that matches the condition.
@@ -51,7 +51,9 @@ def find(node: Root | Element, condition: Test) -> Optional[All_Nodes]:
     Returns:
         Optional[All_Nodes]: Returns the found node or None if not found.
     """
-
+    if isinstance(node, AST):
+        node = node.tree
+        
     for n in walk(node):
         if test(n, condition):
             return n
@@ -59,7 +61,7 @@ def find(node: Root | Element, condition: Test) -> Optional[All_Nodes]:
     return None
 
 
-def find_all(node: Root | Element, condition: Test) -> list[All_Nodes]:
+def find_all(node: Root | Element | AST, condition: Test) -> list[All_Nodes]:
     """Find all nodes that match the condition.
 
     Args:
@@ -69,7 +71,7 @@ def find_all(node: Root | Element, condition: Test) -> list[All_Nodes]:
     Returns:
         list[All_Nodes]: List of found nodes. Empty if no nodes are found.
     """
-    if node.__class__.__name__ == "AST":
+    if isinstance(node, AST):
         node = node.tree
 
     results = []
@@ -80,10 +82,11 @@ def find_all(node: Root | Element, condition: Test) -> list[All_Nodes]:
 
 
 def find_after(
-    node: Root | Element,
+    node: Root | Element | AST,
     condition: Optional[Test] = None,
 ) -> Optional[All_Nodes]:
-    """Get the first sibling node.
+    """Get the first sibling node following the provided node that matches
+    the condition.
 
     Args:
         node (All_Nodes): Node to get sibling from.
@@ -93,21 +96,25 @@ def find_after(
         Optional[All_Nodes]: Returns the first sibling or None if there
         are no siblings.
     """
+    if isinstance(node, AST):
+        node = node.tree
 
     idx = node.parent.children.index(node)
     if len(node.parent.children) - 1 > idx:
         for el in node.parent.children[idx + 1 :]:
             if condition is not None:
-                return el if test(node, condition) else None
-            return el
+                if test(el, condition):
+                    return el
+            else:
+                return el
     return None
 
 
 def find_all_after(
-    node,
+    node: Element,
     condition: Optional[Test] = None,
 ) -> list[All_Nodes]:
-    """Get the all sibling nodes.
+    """Get all sibling nodes that match the condition.
 
     Args:
         node (All_Nodes): Node to get siblings from.
@@ -117,22 +124,22 @@ def find_all_after(
         list[All_Nodes]: Returns the all siblings that match the
         condition or an empty list if none were found.
     """
-
     idx = node.parent.children.index(node)
-
     matches = []
 
     if len(node.parent.children) - 1 > idx:
-        for el in node.parent.children[idx + 1 :]:
+        for el in node.parent.children[idx + 1:]:
             if condition is not None:
-                if test(node, condition):
+                if test(el, condition):
                     matches.append(el)
-            matches.append(el)
+            else:
+                matches.append(el)
+    
     return matches
 
 
 def find_before(
-    node,
+    node: Element,
     condition: Optional[Test] = None,
 ) -> Optional[All_Nodes]:
     """Find the first sibling node before the given node. If a condition is applied
@@ -146,17 +153,22 @@ def find_before(
         Optional[All_Nodes]: The first node before the given node
         or None if no prior siblings.
     """
+    if isinstance(node, AST):
+        node = node.tree
+        
     idx = node.parent.children.index(node)
     if idx > 0:
         for el in node.parent.children[idx - 1 :: -1]:
             if condition is not None:
-                return el if test(node, condition) else None
-            return el
+                if test(el, condition):
+                    return el
+            else:
+                return el
     return None
 
 
 def find_all_before(
-    node,
+    node: Element,
     condition: Optional[Test] = None,
 ) -> list[All_Nodes]:
     """Find all nodes that come before the given node.
@@ -169,22 +181,21 @@ def find_all_before(
         list[All_Nodes]: A list of nodes that come before the given node.
         Empty list if no nodes were found.
     """
-
     idx = node.parent.children.index(node)
-
     matches = []
 
-    if len(node.parent.children) - 1 > idx:
+    if idx > 0:
         for el in node.parent.children[:idx]:
             if condition is not None:
-                if test(node, condition):
+                if test(el, condition):
                     matches.append(el)
-            matches.append(el)
+            else:
+                matches.append(el)
     return matches
 
 
 def find_all_between(
-    parent,
+    parent: Root | Element | AST,
     start: Optional[int] = 0,
     end: Optional[int] = 0,
     condition: Optional[Test] = None,
@@ -203,15 +214,19 @@ def find_all_between(
     Returns:
         list[All_Nodes]: List of all matching nodes or an empty list if none were found.
     """
+    if isinstance(parent, AST):
+        parent = parent.tree
 
     if _range is not None:
         start = _range.start
         end = _range.stop
 
     results = []
-    for node in parent.children[start:end]:
-        if condition is not None:
-            if test(node, condition):
+    if start >= 0 and end <= len(parent.children) and start < end:
+        for node in parent.children[start:end]:
+            if condition is not None:
+                if test(node, condition):
+                    results.append(node)
+            else:
                 results.append(node)
-        else:
-            return node
+    return results

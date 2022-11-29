@@ -28,13 +28,14 @@ class Literal(Node):
         self.parent = parent
 
     def __eq__(self, obj) -> bool:
+        if obj is None:
+            return False
+        
         if self.type == obj.type:
             if self.value == obj.value:
                 return True
             else:
-                # print(f"`{self.value}` != `{obj.value}`: Values are not equal")
                 return False
-        # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be represented as {type(obj).__name__}")
         return False
 
     def __repr__(self) -> str:

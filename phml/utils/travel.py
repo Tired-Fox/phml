@@ -26,7 +26,7 @@ def path(node: All_Nodes) -> list[All_Nodes]:
     """
     ancestors = []
     while node.parent is not None:
-        ancestors.insert(0, node.parent)
+        ancestors = [node.parent, *ancestors]
         node = node.parent
 
     return ancestors
@@ -43,11 +43,10 @@ def walk(node: Root | Element) -> Iterator:
             for child in parent.children:
                 yield from get_children(child)
 
+    yield node
     if node.type in ["root", "element"]:
         for child in visit_children(node):
             yield from get_children(child)
-    else:
-        yield node
 
 
 def visit_children(parent: Root | Element) -> Iterator:

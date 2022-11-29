@@ -29,13 +29,15 @@ class DocType(Node):
     ):
         super().__init__(position)
         self.parent = parent
-        self.lang = lang
+        self.lang = lang or 'html'
 
     def __eq__(self, obj) -> bool:
+        if obj is None:
+            return False
+        
         if hasattr(obj, "type") and obj.type == self.type:
             if self.lang == obj.lang:
                 return True
-        # print(f"{self.__class__} != {obj.__class__}: {type(self).__name__} can not be equated to {type(obj).__name__}")
         return False
 
     def stringify(self, indent: int = 0) -> str:

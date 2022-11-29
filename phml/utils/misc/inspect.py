@@ -69,7 +69,7 @@ def signature(node: All_Nodes, indent: int = 2):
 
     # position of non generated nodes
     if node.position is not None:
-        sig += f" <{node.position}>"
+        sig += f" {node.position}"
 
     result = [sig]
 

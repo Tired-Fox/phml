@@ -222,7 +222,7 @@ class PHMLCore:
         Returns:
             str: The rendered content in the appropriate format.
         """
-        return self.compiler.compile(self.parser.ast, file_type=file_type, indent=indent, **kwargs)
+        return self.compiler.compile(self.parser.ast, to_format=file_type, indent=indent, **kwargs)
 
     def write(
         self,

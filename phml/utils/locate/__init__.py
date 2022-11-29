@@ -5,6 +5,7 @@ Collection of utilities centered around finding nodes in an ast.
 
 from .find import *
 from .select import *
+from .index import Index
 
 # __all__ = [
 #     "ancestor",

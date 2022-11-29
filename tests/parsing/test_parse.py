@@ -7,13 +7,17 @@ class TestParse:
     core = PHMLCore()
 
     def test_load_phml_file(self):
+        """Test the parsed ast of a phml file."""
+        
         self.parser.load("sample.phml")
         self.core.load("sample.phml")
-
+        
         assert self.parser.ast == asts["phml"]
         assert self.core.ast == asts["phml"]
 
     def test_load_json_file(self):
+        """Test the parsed ast of a json file."""
+        
         self.parser.load("sample.json")
         self.core.load("sample.json")
 
@@ -21,6 +25,8 @@ class TestParse:
         assert self.core.ast == asts["phml"]
 
     def test_load_html_file(self):
+        """Test the parsed ast of a html file."""
+        
         self.parser.load("sample.html")
         self.core.load("sample.html")
 
@@ -28,6 +34,8 @@ class TestParse:
         assert self.core.ast == asts["html"]
 
     def test_parse_phml_str(self):
+        """Test the parsed ast of a phml str."""
+        
         self.parser.parse(strings["phml"])
         self.core.parse(strings["phml"])
 
@@ -35,6 +43,8 @@ class TestParse:
         assert self.core.ast == asts["phml"]
 
     def test_parse_html_str(self):
+        """Test the parsed ast of a html str."""
+        
         self.parser.parse(strings["html"])
         self.core.parse(strings["html"])
 
@@ -42,8 +52,10 @@ class TestParse:
         assert self.core.ast == asts["html"]
 
     def test_parse_dict(self):
-        self.parser.parse(dicts["phml"])
-        self.core.parse(dicts["phml"])
+        """Test the parsed ast of a dict object."""
+        
+        self.parser.parse(dicts)
+        self.core.parse(dicts)
 
         assert self.parser.ast == asts["phml"]
         assert self.core.ast == asts["phml"]

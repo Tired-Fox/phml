@@ -91,7 +91,8 @@ def map_nodes(tree: Root | Element | AST, transform: Callable):
         tree = tree.tree
 
     for node in walk(tree):
-        node = transform(node)
+        if not isinstance(node, Root):
+            node = transform(node)
 
 
 def replace_node(

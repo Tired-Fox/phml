@@ -27,14 +27,15 @@ class Root(Parent):
         self.parent = None
 
     def __eq__(self, obj) -> bool:
+        if obj is None:
+            return False
+        
         if hasattr(obj, "type") and self.type == obj.type:
             for c, oc in zip(self.children, obj.children):
                 if c != oc:
-                    # print(f"{c} != {oc}: Children values are not equal")
                     return False
             return True
         else:
-            # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be equated to {type(obj).__name__}")
             return False
 
     def stringify(self) -> str:

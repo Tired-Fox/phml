@@ -34,7 +34,7 @@ class Text(Literal):
         Returns:
             str: Built html of text
         """
-        if not any(tag in self.get_ancestry() for tag in ["pre", "python", "script", "style"]):
+        if self.parent is None or not any(tag in self.get_ancestry() for tag in ["pre", "python", "script", "style"]):
             lines = [line.lstrip() for line in self.value.split("\n") if line.strip() != ""]
             for i, line in enumerate(lines):
                 lines[i] = (' ' * indent) + line
@@ -42,4 +42,4 @@ class Text(Literal):
         return self.value
 
     def __repr__(self) -> str:
-        return "literal.text()"
+        return f"literal.text('{self.value}')"

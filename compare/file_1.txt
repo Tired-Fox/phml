@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>sample title</title>
+    </head>
+    <body>
+        <!-- Text Comment -->
+        <h1>Hello World!</h1>
+        <input type="checkbox" checked />
+        <p>11/15/2022</p>
+        <ul id="python-loop">
+            <li>
+                <span>name: </span>
+                <span>Zachary</span>
+            </li>
+            <li>
+                <span>age: </span>
+                <span>22</span>
+            </li>
+            <li>
+                <span>type: </span>
+                <span>checkbox</span>
+            </li>
+        </ul>
+        <h4>The end</h4>
+    </body>
+</html>
+
+AST(
+    p(
+        p("doctype"),
+        p(
+            "html",
+            {"lang": "en"},
+            p(
+                "head",
+                p("meta", {"charset": "UTF-8"}),
+                p(
+                    "meta",
+                    {
+                        "http-equiv": "X-UA-Compatible",
+                        "content": "IE=edge",
+                    },
+                ),
+                p(
+                    "meta",
+                    {
+                        "name": "viewport",
+                        "content": "width=device-width, initial-scale=1.0",
+                    },
+                ),
+                p("title", 'sample title'),
+            ),
+            p(
+                "body",
+                p("<!-- Text Comment -->"),
+                p("h1", "Hello World!"),
+                p(
+                    "input",
+                    {
+                        "type": "checkbox",
+                        "checked": True,
+                    },
+                ),
+                p("p", "11/15/2022"),
+                p(
+                    "ul",
+                    {"id": "python-loop"},
+                    p(
+                        "li",
+                        p("span", "name: "),
+                        p("span", "Zachary"),
+                    ),
+                    p(
+                        "li",
+                        p("span", "age: "),
+                        p("span", "22"),
+                    ),
+                    p(
+                        "li",
+                        p("span", "type: "),
+                        p("span", "checkbox"),
+                    ),
+                ),
+                p("h4", "The end"),
+            ),
+        ),
+    )
+)

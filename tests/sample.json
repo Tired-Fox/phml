@@ -71,7 +71,8 @@
                 {
                   "type": "text",
                   "position": null,
-                  "value": "{title or \"\"}"
+                  "value": "{title or \"\"}",
+                  "num_lines": 1
                 }
               ]
             }
@@ -88,7 +89,8 @@
             {
               "type": "text",
               "position": null,
-              "value": "        date = \"11/15/2022\"\n        data = {\n            \"name\": \"Zachary\",\n            \"age\": \"22\",\n            \"type\": \"checkbox\"\n        }"
+              "value": "        date = \"11/15/2022\"\n        data = {\n            \"name\": \"Zachary\",\n            \"age\": \"22\",\n            \"type\": \"checkbox\"\n        }",
+              "num_lines": 6
             }
           ]
         },
@@ -116,7 +118,8 @@
                 {
                   "type": "text",
                   "position": null,
-                  "value": "Hello World!"
+                  "value": "Hello World!",
+                  "num_lines": 1
                 }
               ]
             },
@@ -145,7 +148,8 @@
                 {
                   "type": "text",
                   "position": null,
-                  "value": "{date}"
+                  "value": "{date}",
+                  "num_lines": 1
                 }
               ]
             },
@@ -162,7 +166,8 @@
                 {
                   "type": "text",
                   "position": null,
-                  "value": "{date[\"name\"]}"
+                  "value": "{date[\"name\"]}",
+                  "num_lines": 1
                 }
               ]
             },
@@ -179,7 +184,8 @@
                 {
                   "type": "text",
                   "position": null,
-                  "value": "Wonderful day today!"
+                  "value": "Wonderful day today!",
+                  "num_lines": 1
                 }
               ]
             },
@@ -214,7 +220,8 @@
                         {
                           "type": "text",
                           "position": null,
-                          "value": "{key}: "
+                          "value": "{key}: ",
+                          "num_lines": 1
                         }
                       ]
                     },
@@ -229,7 +236,8 @@
                         {
                           "type": "text",
                           "position": null,
-                          "value": "{value}"
+                          "value": "{value}",
+                          "num_lines": 1
                         }
                       ]
                     }
@@ -248,7 +256,8 @@
                 {
                   "type": "text",
                   "position": null,
-                  "value": "The end"
+                  "value": "The end",
+                  "num_lines": 1
                 }
               ]
             },
@@ -263,7 +272,8 @@
                 {
                   "type": "text",
                   "position": null,
-                  "value": "            from pprint import pprint\n\n            def print_data(data):\n                pprint(data)"
+                  "value": "            from pprint import pprint\n\n            def print_data(data):\n                pprint(data)",
+                  "num_lines": 3
                 }
               ]
             }

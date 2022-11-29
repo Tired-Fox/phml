@@ -37,10 +37,12 @@ def test(
     Returns:
         True if all tests pass.
     """
+    from phml.nodes import Element
+    
     if parent is not None:
         # If parent is given then index has to be also.
         #   Validate index is correct in parent.children
-        if index is None or parent.children[index] is not node:
+        if index is None or parent.children[index] != node:
             return False
 
     if _test is None:
@@ -54,6 +56,9 @@ def test(
     elif isinstance(_test, dict):
         # If dict validate all items with properties are the same
         # Either in attributes or in
+        if not isinstance(node, Element):
+            return False
+        
         for key, value in _test.items():
             if not hasattr(node, key) or value != getattr(node, key):
                 if not hasattr(node, "properties") or key not in node.properties or value != node.properties[key]:
@@ -66,8 +71,8 @@ def test(
                 if not test(node, t, index, parent):
                     return False
         return True
-    elif isinstance(test, Callable):
+    elif isinstance(_test, Callable):
         # If callable return result of collable after passing node, index, and parent
-        return _test(node, index, parent)
+        return _test(node, index, node.parent)
     else:
-        print("NOTHING TO SEE HERE")
+        print(f"NOTHING TO SEE HERE: {_test}")

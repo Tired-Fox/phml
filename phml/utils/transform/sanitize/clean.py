@@ -126,7 +126,4 @@ if __name__ == "__main__":
         p("blockquote", {"cite": "mailto:zboehm104@gmail.com"}),
     )
 
-    input(inspect(el))
-    print("\n\n")
     sanatize(el)
-    input(inspect(el))

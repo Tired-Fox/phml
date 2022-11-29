@@ -8,7 +8,7 @@ def p(
     selector: Optional[str] = None,
     *args: str | list | int | All_Nodes,
 ):
-    def __process_children(node, children: list[str | list | int | b | All_Nodes]):
+    def __process_children(node, children: list[str | list | int | All_Nodes]):
         for child in children:
             if isinstance(child, str):
                 node.children.append(Text(child, node))
@@ -29,9 +29,9 @@ def p(
                     else:
                         raise TypeError(f"Unkown type <{type(c).__name__}> in {child}: {c}")
 
-    if isinstance(selector, str) and selector.startswith("<!--") and selector.endswith("-->"):
-        return Comment(selector.lstrip("<!--").rstrip("-->"))
-    if selector is not None and (not isinstance(selector, str) or len(selector.split(" ")) > 1):
+    if isinstance(selector, str) and selector.startswith("<!--"):
+        return Comment(selector.replace("<!--", "").replace("-->", ""))
+    if selector is not None and (not isinstance(selector, str) or len(selector.replace("\n", " ").split(" ")) > 1):
         if isinstance(selector, str) and (len(selector.split(" ")) > 1 or selector.split("\n") )and len(args) == 0:
             return Text(selector)
         args = [selector, *args]
@@ -52,7 +52,13 @@ def p(
         node["tag"] = "div" if node["tag"] == "*" else node["tag"]
 
         if node["tag"].lower() == "doctype":
-            return DocType()
+            str_children = [child for child in children if isinstance(child, str)]
+            if len(str_children) > 0:
+                return DocType(str_children[0])
+            else:
+                return DocType()
+        elif node["tag"].lower() == "text":
+            return Text(" ".join([child for child in children if isinstance(child, str)]))
         else:
             properties = {}
             for prop in props:

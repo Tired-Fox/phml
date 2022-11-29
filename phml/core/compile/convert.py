@@ -6,16 +6,23 @@ from phml.virtual_python import VirtualPython
 from phml.utils import find_all, visit_children, remove_nodes
 from .util import replace_components, apply_conditions, apply_python
 
+
 def phml(ast: AST, indent: int = 0) -> str:
     """Compile a given phml ast to a phml string with a certain indent amount."""
     return __to_html(ast, indent)
 
-def html(ast: AST, components: Optional[dict[str, dict[str, list | All_Nodes]]] = None, indent: int = 0, **kwargs,) -> str:
+
+def html(
+    ast: AST,
+    components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+    indent: int = 0,
+    **kwargs,
+) -> str:
     """Compile a given phml ast to a html string with a certain indent amount.
-    
+
     Can provide components that replace certain elements in the ast tree along with additional
     kwargs that are exposed to executed python blocks.
-    
+
     Args:
         ast (AST): The phml ast to compile
         components (dict[str, dict[str, list | All_Nodes]] | None): key value pairs of element name
@@ -59,6 +66,7 @@ def html(ast: AST, components: Optional[dict[str, dict[str, list | All_Nodes]]] 
 
     return __to_html(src, indent)
 
+
 def json(ast: AST, indent: int = 0) -> str:
     """Compile a given phml ast to a json string with a certain indent amount."""
     from json import dumps
@@ -83,15 +91,16 @@ def json(ast: AST, indent: int = 0) -> str:
             for child in visit_children(node):
                 data["children"].append(compile_children(child))
 
-        # input(f"{data}\n\n")
         return data
 
     data = compile_children(ast.tree)
     return dumps(data, indent=indent)
 
+
 def markdown(ast: AST) -> str:
     """Compile a given phml ast to a markdown string with a certain indent amount."""
     raise NotImplementedError("Markdown is not supported.")
+
 
 def __to_html(ast: AST, offset: int = 0) -> str:
     def compile_children(node: All_Nodes, indent: int = 0) -> list[str]:
@@ -132,5 +141,5 @@ def __to_html(ast: AST, offset: int = 0) -> str:
         return data
 
     data = compile_children(ast.tree)
-    
+
     return "\n".join(data)

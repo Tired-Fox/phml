@@ -9,11 +9,8 @@ from typing import Callable
 from phml.utils.travel import walk, visit_children
 from phml.nodes import Root, Element, AST
 
-__all__ = [
-    "query",
-    "queryAll",
-    "matches"
-]
+__all__ = ["query", "queryAll", "matches"]
+
 
 def query(tree: AST | Root | Element, specifier: str) -> Element:
     """Same as javascripts querySelector. `#` indicates an id and `.`
@@ -40,14 +37,15 @@ def query(tree: AST | Root | Element, specifier: str) -> Element:
     """
     if isinstance(tree, AST):
         tree = tree.tree
-    
+
     rules = __parse_specifiers(specifier)
 
-    def all_nodes(node: Element, rules: list):
+    def all_nodes(node: Element, rules: list, include_self: bool = True):
         """Get all nodes starting with the current node."""
+
         result = None
         for n in walk(node):
-            if n.type == "element":
+            if n.type == "element" and (include_self or n != node):
                 result = branch(n, rules)
                 if result is not None:
                     break
@@ -93,6 +91,7 @@ def query(tree: AST | Root | Element, specifier: str) -> Element:
         """Based on the current rule, recursively check the nodes.
         If on the last rule then return the current valid node.
         """
+
         if len(rules) == 0:
             return node
         elif isinstance(rules[0], dict):
@@ -102,6 +101,8 @@ def query(tree: AST | Root | Element, specifier: str) -> Element:
                 else:
                     if isinstance(rules[1], dict):
                         return all_nodes(node, rules[1:])
+                    elif rules[1] == "*":
+                        return all_nodes(node, rules[2:], False)
                     else:
                         return branch(node, rules[1:])
             else:
@@ -143,14 +144,14 @@ def queryAll(tree: AST | Root | Element, specifier: str) -> list[Element]:
     """
     if isinstance(tree, AST):
         tree = tree.tree
-        
+
     rules = __parse_specifiers(specifier)
 
-    def all_nodes(node: Element, rules: list):
+    def all_nodes(node: Element, rules: list, include_self: bool = True):
         """Get all nodes starting with the current node."""
         results = []
         for n in walk(node):
-            if n.type == "element":
+            if n.type == "element" and (include_self or n != node):
                 result = branch(n, rules)
                 if result is not None:
                     results.extend(result)
@@ -205,6 +206,8 @@ def queryAll(tree: AST | Root | Element, specifier: str) -> list[Element]:
                 else:
                     if isinstance(rules[1], dict):
                         return all_nodes(node, rules[1:])
+                    elif rules[1] == "*":
+                        return all_nodes(node, rules[2:], False)
                     else:
                         return branch(node, rules[1:])
             else:
@@ -333,6 +336,8 @@ def is_equal(rule: dict, node: Element) -> bool:
                             validator=lambda x, y: y in x,
                         ):
                             return False
+                else:
+                    return True
             else:
                 return False
     return True
@@ -377,7 +382,7 @@ def __parse_specifiers(specifier: str) -> dict:
     """
     from re import compile
 
-    splitter = compile(r"([~>*+])|(([.#]?[a-zA-Z0-9_-]+)+((\[[^\[\]]+\]))*)|(\[[^\[\]]+\])+")
+    splitter = compile(r"([~>\*+])|(([.#]?[a-zA-Z0-9_-]+)+((\[[^\[\]]+\]))*)|(\[[^\[\]]+\])+")
 
     el_with_attr = compile(r"([.#]?[a-zA-Z0-9_-]+)+(\[[^\[\]]+\])*")
     el_only_attr = compile(r"((\[[^\[\]]+\]))+")
@@ -388,12 +393,11 @@ def __parse_specifiers(specifier: str) -> dict:
 
     tokens = []
     for token in splitter.finditer(specifier):
-
-        if token in ["*", ">", "+", "~"]:
+        if token.group() in ["*", ">", "+", "~"]:
             tokens.append(token.group())
         elif el_with_attr.match(token.group()):
             element = {
-                "tag": None,
+                "tag": "*",
                 "classList": [],
                 "id": None,
                 "attributes": [],
@@ -429,7 +433,7 @@ def __parse_specifiers(specifier: str) -> dict:
                                 f"There may only be one id per element specifier.\n{token.group()}"
                             )
                     else:
-                        element["tag"] = item.group(2)
+                        element["tag"] = item.group(2) or "*"
 
             tokens.append(element)
         elif el_only_attr.match(token.group()):

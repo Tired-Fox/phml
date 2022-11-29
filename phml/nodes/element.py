@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class Element(Parent):
     """Element (Parent) represents an Element ([DOM]).
 
-    A tagName field must be present. It represents the element’s local name ([DOM]).
+    A tagName field must be present. It represents the element's local name ([DOM]).
 
     The properties field represents information associated with the element.
     The value of the properties field implements the Properties interface.
@@ -64,23 +64,22 @@ class Element(Parent):
         self.locals = {}
 
     def __eq__(self, obj) -> bool:
+        if obj is None:
+            return False
+        
         if obj.type == self.type:
             if self.tag != obj.tag:
-                # print(f"{self.tag} != {obj.tag}: Tag values are not equal")
                 return False
             if self.startend != obj.startend:
-                # print(f"{self.openclose} != {obj.openclose}: openclose values are not equal")
                 return False
             if self.properties != obj.properties:
-                # print(f"{self.properties} != {obj.properties}: Properties values are not equal")
                 return False
+            
             for c, oc in zip(self.children, obj.children):
                 if c != oc:
-                    # print(f"{c} != {oc}: Children values are not equal")
                     return False
             return True
         else:
-            # print(f"{self.type} != {obj.type}: {type(self).__name__} can not be equated to {type(obj).__name__}")
             return False
 
     def start_tag(self) -> str:
@@ -99,8 +98,6 @@ class Element(Parent):
             if isinstance(self.properties[prop], bool) or self.properties[prop] in ["yes", "no"]:
                 if self.properties[prop] == "yes" or self.properties[prop]:
                     attributes.append(prop)
-                else:
-                    attributes.append(f'{prop}="no"')
             else:
                 attributes.append(f'{prop}="{self.properties[prop]}"')
         if len(attributes) > 0:
@@ -118,7 +115,7 @@ class Element(Parent):
         Returns:
             str: Built element end tag.
         """
-        return f"</{self.tag}>"
+        return f"</{self.tag}>" if not self.startend else None
 
     def __repr__(self) -> str:
         out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: {len(self.children)})"
