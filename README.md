@@ -7,7 +7,7 @@
 
 ## Overview
 
-The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language pulls directly from frameworks like VueJS. There is conditional rendering, components, python elements, inline/embedded python blocks, and much more. Now let’s dive into more about this language.
+The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language pulls directly from frameworks like VueJS. There is conditional rendering, components, python elements, inline/embedded python blocks, and much more. Now let's dive into more about this language.
 
 Let's start with the new `python` element. Python is a whitespace language. As such phml
 has the challenge of maintaining the indentation in an appropriate way. With phml, I have made the decision to allow you to have as much leading whitespace as you want as long as the indentation is consistent. This means that indentation is based on the first lines offset. Take this phml example:
@@ -95,7 +95,7 @@ The `for` and `:` in the for loops condition are optional. So you can combine `f
 
 Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in
 phml, you would inject python logic into an attribute similar to this: `src="{url('youtube')}"`. If you would like to make the whole attribute value a python expression you may prefix any attribute with a `py-` or `:`. This keeps the attribute name the same after the prefix, but tells
-the parser that the entire value should be processed as python. So the previous example can also be expressed as `py-src="URL('youtube')"` or `:src=”URL(‘youtube’)”`.
+the parser that the entire value should be processed as python. So the previous example can also be expressed as `py-src="URL('youtube')"` or `:src="URL('youtube')"`.
 
 This language also has the ability to convert back to html and json with converting to html having more features. Converting to json is just a json representation of a phml ast. However, converting to html is where the magic happens. The compiler executes python blocks, substitutes components, and processes conditions to create a final html string that is dynamic to its original ast. A user may pass additional kwargs to the compiler to expose additional data to the execution of python blocks. If you wish to compile to a non supported language the compiler can take a callable that returns the final string. It passes all the data; components, kwargs, ast, etc… So if a user wishes to extend the language thay may.
 
