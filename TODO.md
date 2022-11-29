@@ -1,14 +1,4 @@
 # TODO
-- [ ] Ensure python conditions are immediate siblings
-- [ ] Optimize
-  - [x] Parsing files
-  - [ ] Compiling files
-  - [ ] AST linking from parser and compiler
-  - [ ] Utilities
-  - [x] Nodes to dataclasses?
-- [ ] All utilities
-  - [ ] unist
-  - [ ] hast
 - [ ] Write Tests
   - [ ] Utils
     - [ ] find
@@ -24,6 +14,16 @@
     - [x] Correct ast conversion (compiling)
       - [x] From phml/html
       - [x] From json
+- [x] All utilities
+  - [x] unist
+  - [x] hast
+- [x] Ensure python conditions are immediate siblings
+- [x] Optimize
+  - [x] Parsing files
+  - [x] Compiling files
+  - [x] AST linking from parser and compiler
+  - [x] Nodes to dataclasses?
+  - [x] Utilities
 - [x] Component based system
 - [x] Layout for components
   - [x] Can provide script, python, styles elements

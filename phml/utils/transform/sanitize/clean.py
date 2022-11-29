@@ -1,5 +1,5 @@
 from typing import Optional
-from schema import Schema
+from .schema import Schema
 from phml.nodes import AST, Root, Element
 
 

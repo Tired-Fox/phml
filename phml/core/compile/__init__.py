@@ -11,6 +11,8 @@ from phml.utils import (
 
 from .convert import html, phml, json
 
+__all__ = ["Compiler"]
+
 
 class Compiler:
     """Used to compile phml into other formats. HTML, PHML,
@@ -103,7 +105,7 @@ class Compiler:
         """Execute compilation to a different format."""
 
         ast = ast or self.ast
-
+        
         if ast is None:
             raise Exception("Must provide an ast to compile.")
 

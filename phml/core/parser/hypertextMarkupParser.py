@@ -37,7 +37,7 @@ def build_position(
     indent: Optional[int] = None,
 ) -> Position:
     """Build a phml.node.Posiiton from two tuples."""
-    return Position(build_point(*start), build_point(*end), indent)
+    return Position(build_point(start), build_point(end), indent)
 
 
 def calc_end_of_tag(tag_text: str, cur_pos: tuple[int, int]) -> tuple[int, int]:
@@ -121,7 +121,7 @@ class HypertextMarkupParser(HTMLParser):
                         DocType(
                             lang=tokens[1],
                             parent=self.cur,
-                            position=build_point(self.getpos(), self.getpos()),
+                            position=build_position(self.getpos(), self.getpos()),
                         )
                     )
                 else:
@@ -129,7 +129,7 @@ class HypertextMarkupParser(HTMLParser):
                         DocType(
                             lang=None,
                             parent=self.cur,
-                            position=build_point(self.getpos(), self.getpos()),
+                            position=build_position(self.getpos(), self.getpos()),
                         )
                     )
             else:

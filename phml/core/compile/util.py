@@ -175,7 +175,19 @@ def process_conditions(tree: Root | Element, vp: VirtualPython, **kwargs):
     for child in visit_children(tree):
         if test(child, "element"):
             if len(py_conditions(child)) == 1:
-                conditions.append((py_conditions(child)[0], child))
+                if (
+                    py_conditions(child)[0] not in ["py-for", "py-if", f"{condition_prefix}for", f"{condition_prefix}if"]
+                ):
+                    idx = child.parent.children.index(child)
+                    previous = child.parent.children[idx-1] if idx > 0 else None
+                    prev_cond = py_conditions(previous) if previous is not None else None
+                    if prev_cond is not None and len(prev_cond) == 1 and prev_cond[0] in ["py-elif", "py-if", f"{condition_prefix}elif", f"{condition_prefix}if"]:
+                        conditions.append((py_conditions(child)[0], child))
+                    else:
+                        raise Exception(f"Condition statements that are not py-if or py-for must have py-if or py-elif\
+ as a prevous sibling.\n{child.start_tag()}{f' at {child.position}' or ''}")
+                else:
+                    conditions.append((py_conditions(child)[0], child))
             elif len(py_conditions(child)) > 1:
                 raise Exception(
                     f"There can only be one python condition statement at a time:\n{repr(child)}"
@@ -384,9 +396,9 @@ def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> li
     for_loop = f'''\
 new_children = []
 for {for_loop}:
-new_children.append(deepcopy(child))
-new_children[-1].locals = {{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}, **local_vals}}
-children = [*children[:insert], *new_children, *children[insert+1:]]\
+    new_children.append(deepcopy(child))
+    new_children[-1].locals = {{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}, **local_vals}}
+    children = [*children[:insert], *new_children, *children[insert+1:]]\
 '''
 
     # Prep the child to be used as a copy for new children

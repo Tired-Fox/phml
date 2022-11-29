@@ -4,7 +4,7 @@ from phml.nodes import AST, Root, Element, All_Nodes, Position
 from phml.virtual_python import VirtualPython
 
 from phml.utils import find_all, visit_children, remove_nodes
-from .compile import replace_components, apply_conditions, apply_python
+from .util import replace_components, apply_conditions, apply_python
 
 def phml(ast: AST, indent: int = 0) -> str:
     """Compile a given phml ast to a phml string with a certain indent amount."""
@@ -31,7 +31,7 @@ def html(ast: AST, components: Optional[dict[str, dict[str, list | All_Nodes]]] 
     #    - Remove when done
     vp = VirtualPython()
 
-    for pb in find_all(html, {"tag": "python"}):
+    for pb in find_all(src, {"tag": "python"}):
         if len(pb.children) == 1:
             if pb.children[0].type == "text":
                 vp += VirtualPython(pb.children[0].value)
