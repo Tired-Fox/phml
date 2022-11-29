@@ -51,7 +51,7 @@ def walk(node: Root | Element) -> Iterator:
 
 
 def visit_children(parent: Root | Element) -> Iterator:
-    """Traverse the children as an iterator."""
+    """Traverse the children of a Root or Element as an iterator."""
     for child in parent.children:
         yield child
 

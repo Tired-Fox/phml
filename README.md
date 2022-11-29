@@ -7,25 +7,10 @@
 
 ## Overview
 
-The idea behind phml is to replicate the functionality of some javascript
-frameworks like ReactJS, VueJS, AstroJS, etc... All of these frameworks
-allow the user to inject javascript in some way. Most of the time you can
-inject javascript data into html using brackets. A lot of the frameworks also
-have custom attributes on elements for conditional rendering.
-
-phml strives to do similar things, However, the nuance here
-is that phml uses python. There is a new html element that is reserved for phml.
-This element is the `<python>` element. It means to replicate the purpose of the
-`<script>` element. On top of this there are smaller blocks that use brackets
-that expect the expression to return some sort of value. Finally, there are custom
-attributes. `py-if`, `py-elif`, and `py-else` are reserved for conditional rendering.
-All attributes prefixed with `py-` will have their value evaluated as python. More details
-on each of these topics is described below.
+The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language pulls directly from frameworks like VueJS. There is conditional rendering, components, python elements, inline/embedded python blocks, and much more. Now let’s dive into more about this language.
 
 Let's start with the new `python` element. Python is a whitespace language. As such phml
-has the challenge of maintaining the indentation in a appropriate way. With this in phml,
-you can have as much leading whitespace as you want as long as the indentation is consistent.
-This means that indentation is based of the first lines offset. Take this phml example:
+has the challenge of maintaining the indentation in an appropriate way. With phml, I have made the decision to allow you to have as much leading whitespace as you want as long as the indentation is consistent. This means that indentation is based on the first lines offset. Take this phml example:
 
 ```python
 <python>
@@ -34,7 +19,7 @@ This means that indentation is based of the first lines offset. Take this phml e
 </python>
 ```
 
-This phml python block will adjust the offset so that the python is processed as this:
+This phml python block will adjust the offset so that the python is executed as seen below:
 
 ```python
 if True:
@@ -44,12 +29,11 @@ if True:
 So now we can write python code, now what? You can define functions and variables
 how you normally would and they are now available to the scope of the entire file.
 Take, for instance, the example from above, the one with `py-src="urls('youtube')"`.
-You can define the URLs function in the `python` element and it can be accessed in the `py-src`
-attribute. So the code would look like this:
+You can define the `URL` function in the `python` element and it can be accessed in an element. So the code would look like this:
 
 ```html
 <python>
-def urls(link: str) -> str:
+def URL(link: str) -> str:
     links = {
         "youtube": "https://youtube.com"
     }
@@ -61,46 +45,61 @@ def urls(link: str) -> str:
 
 ...
 
-<a py-href="urls('youtube')">Youtube</a>
+<a href="{URL('youtube')}">Youtube</a>
 ```
 
-phml treats `python` elements as their own python files. This is meant literally.
-phml creates a temporary python file with a unique name and imports everything from that file.
-With that in mind that means you have the full power of whatever version of python you are using.
-The phml parser has functionality to permanently write these python files out if you so desire.
+phml combines all `python` elements and treats them as a python file. All local variables and imports are parsed and stored so that they may be accessed later. With that in mind that means you have the full power of the python programming language.
 
-Next up is inline python blocks. These are represented with `{}`. Any text with this block or
-normal html attribute with the value containing it will process the text in-between the brackets as
-python. This is mostly useful when you want to inject some python processed or stored value
-into html. Assume that there is a variable defined in the `python` element called `message`
+Next up is inline python blocks. These are represented with `{}`. Any text in-between the brackets will be processed as python. This is mostly useful when you want to inject a value from python. Assume that there is a variable defined in the `python` element called `message`
 and it contains `Hello World!`. Now this variable can be used like this, `<p>{ message }</p>`,
-which renders to, `<p>Hello World!</p>`. Inline python blocks are only rendered in inside a Text
-element or inside an html attribute.
+which renders to, `<p>Hello World!</p>`.
+
+> Note:  Inline python blocks are only rendered in a Text element or inside an html attribute.
+
+Multiline blocks are a lot like inline python blocks, but they also have some differences.
+You can do whatever you like inside this block, however if you expect a value to come from the block you must have at least one local variable. The last local variable defined in this block is used at the result/value.
 
 Conditional Rendering with `py-if`, `py-elif`, and `py-else` is an extremely helpful tool in phml.
-`py-if` can be used alone and that the python inside it's value must be truthy for the element to be
-rendered. `py-elif` requires an element with a `py-if` or `py-elif` attribute immediately before it,
-and it's condition is rendered the same as `py-if` but only rendered if a `py-if` or `py-elif` first
+`py-if` can be used alone and that the python inside it's value must be truthy for the element to be rendered. `py-elif` requires an element with a `py-if` or `py-elif` attribute immediately before it, and it's condition is rendered the same as `py-if` but only rendered if a `py-if` or `py-elif` first
 fails. `py-else` requires there to be either a `py-if` or a `py-else` immediately before it. It only
-renders if the previous elements condition fails. If `py-elif` or `py-else` is on an element, but
-the previous element isn't a `py-if` or `py-elif` then it will be rendered as normal without the
-condition. Most importantly, the first element in a chain of conditions must be a `py-if`.
+renders if the previous element's condition fails. If `py-elif` or `py-else` is on an element, but
+the previous element isn't a `py-if` or `py-elif` then an exception will occur. Most importantly, the first element in a chain of conditions must be a `py-if`. For ease of use, instead of writing `py-if`, `py-elif`, or `py-else` can be written as `@if`, `@elif`, or `@else` respectively.
+
+Other than conditions, there is also a built in `py-for` attribute. Any element with py-for will take a python for-loop expression that will be applied to that element. So if you did something like this:
+
+```html
+<ul>
+    <li py-for='i in range(3)'>
+        <p>{i}</p>
+    </li>
+</ul>
+```
+
+The compiled html will be:
+
+```html
+<ul>
+    <li>
+        <p>1</p>
+    </li>
+    <li>
+        <p>2</p>
+    </li>
+    <li>
+        <p>3</p>
+    </li>
+</ul>
+```
+
+The `for` and `:` in the for loops condition are optional. So you can combine `for`, `i in range(10)`, and `:` or leave out `for` and `:` at your discretion. `py-for` can also be written as `@for`.
 
 Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in
-phml, you would inject python logic into an attribute similar to this: `src="{url('youtube')}"`.
-As a way to simplify the value and to make it obvious that the attribute is using python you can
-prefix any attribute with `py-`. This keeps the attribute name the same after the prefix, but tells
-the parser that the entire value should be processed as python. So the previous example can also be
-expressed as `py-src="url('youtube')"`.
+phml, you would inject python logic into an attribute similar to this: `src="{url('youtube')}"`. If you would like to make the whole attribute value a python expression you may prefix any attribute with a `py-` or `:`. This keeps the attribute name the same after the prefix, but tells
+the parser that the entire value should be processed as python. So the previous example can also be expressed as `py-src="URL('youtube')"` or `:src=”URL(‘youtube’)”`.
 
-PHML as a language is in early planning stages, but hopes to have a easy to use and well featured
-parser. With this the hope is that anyone using the parser will have full control over the generated
-phml ast. This also means that users may write extensions to add features to to manipulate the ast
-to fit their needs. On top of all that the parser will also have a render/convert functionality
-where the user may pass extensions, and additional kwargs. These kwargs are exposed while rendering
-the file to html. This means that the user can generate some other content from some other source
-and inject it into their document. A good example of this is using the `markdown` python library
-to render markdown to html, then to inject that into the renderer by passing it in as a kwarg.
+This language also has the ability to convert back to html and json with converting to html having more features. Converting to json is just a json representation of a phml ast. However, converting to html is where the magic happens. The compiler executes python blocks, substitutes components, and processes conditions to create a final html string that is dynamic to its original ast. A user may pass additional kwargs to the compiler to expose additional data to the execution of python blocks. If you wish to compile to a non supported language the compiler can take a callable that returns the final string. It passes all the data; components, kwargs, ast, etc… So if a user wishes to extend the language thay may.
+
+> :warning: This language is in early planning and development stages. All forms of feedback are encouraged.
 
 ## How to use
 
@@ -112,21 +111,22 @@ The current version is able to parse phml using an html parser. This creates a p
 
 PHML provides file type variables for better ease of use. The types include `HTML`, `PHML`, and `JSON`. They can be imported with `from phml import HTML, PHML, JSON`.
 
-First import the parser, `from phml import Parser`. Then you can do the following:
+First import the PHMLCore, `from phml import PHMLCore`. Then you can do the following:
 
 ```python
-parser = Parser()
-parser.parse("path/to/file.phml")
-print(parser.stringify())
+core = PHMLCore().load("path/to/file.phml")
+print(core.render())
 ```
 
-By default `Parser.stringify()` will return the `phml` string. If you want to get a `json` string you may pass the file type variable `JSON`.
-`Parser.stringify(JSON)`.
+By default `PHMLCore.render()` will return the `html` string. If you want to get a `json` string you may pass the file type variable `JSON`. `PHMLCore.render(file_type=JSON)`.
 
-If you want to write to a file you can call `parser.write("path/to/output/file.phml")`. Same with `stringify` it defaults to phml. You can change this the same way as `stringify`. `parser.write("path/to/otuput/file.json", JSON)`.
+If you want to write to a file you can call `core.write("path/to/output/file.phml")`. Same with `render` it defaults to html. You can change this the same way as `render`. `core.write("path/to/otuput/file.json", file_type=JSON)`.
 
-For both `stringify` and `write` you will first need to call `Parser.parse("path/to/source/file.phml")`. This parses the source file and stores the ast in the parser. `stringify` and `write` then use that ast to create the desired output.
+For both `render` and `write` you will first need to call `core.load("path/to/source/file.phml")`. This parses the source file and stores the ast in the parser. `render` and `write` then use that ast to create the desired output. Optionally if you already have
+a phml or html string or a properly formatted dict you can call `core.parse(data)` which will parse that information similar to `load`.
 
-`Parser.parse` and `Parser.write` return `self` which allows for method chaining. See the example in `example/` to see how this can be used.
+`core.render` and `core.write` return `self` which allows for method chaining. See the examples in `example/` to see how this can be used.
 
-Every time `Parser.parse` is called it will overwrite the ast.
+Every time `core.parse` or `core.load` is called it will overwrite the stored ast variable.
+
+For more information check out the [API Docs](http://127.0.0.1:5500/docs/phml.html)

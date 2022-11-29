@@ -1,3 +1,8 @@
+"""phml.utils.misc
+
+Helpful utilities for different tasks that doesn't have a place in the other categories.
+"""
+
 from phml.nodes import Root, Element
 from .classes import *
 from .heading import *

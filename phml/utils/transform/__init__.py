@@ -1,7 +1,7 @@
 """utils.transform
 
 A collection of utilities focused around transforming an
-ast or specific nodes.
+ast or a specific nodes.
 """
 
 from .transform import *
