@@ -129,4 +129,4 @@ a phml or html string or a properly formatted dict you can call `core.parse(data
 
 Every time `core.parse` or `core.load` is called it will overwrite the stored ast variable.
 
-For more information check out the [API Docs](http://127.0.0.1:5500/docs/phml.html)
+For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
