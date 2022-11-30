@@ -61,55 +61,67 @@
                     <h1 class="modulename">
 <a href="./../../phml.html">phml</a><wbr>.<a href="./../nodes.html">nodes</a><wbr>.AST    </h1>
 
-                
+                        <div class="docstring"><p>Basic node that holds a root node and has basic utilties.</p>
+
+<p>You can check the size of the tree, iterate over the tree, and directly access
+the children of the root node.</p>
+</div>
+
                         <input id="mod-AST-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
                         <label class="view-source-button" for="mod-AST-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AST&quot;</span><span class="p">]</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="c1"># pylint: disable=invalid-name</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">&quot;&quot;&quot;Basic node that holds a root node and has basic utilties.</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">You can check the size of the tree, iterate over the tree, and directly access</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">the children of the root node.</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="k">class</span> <span class="nc">AST</span><span class="p">:</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="sd">&quot;&quot;&quot;PHML ast.</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    Contains utility functions that can manipulate the ast.</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AST&quot;</span><span class="p">]</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tree</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The given tree/root node for AST must be of type `Root` or `Element`&quot;</span><span class="p">)</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">walk</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>        <span class="k">return</span> <span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">==</span> <span class="n">obj</span><span class="o">.</span><span class="n">tree</span><span class="p">:</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>                <span class="k">return</span> <span class="kc">True</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>        <span class="k">return</span> <span class="kc">False</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="nd">@cached_property</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="sd">&quot;&quot;&quot;Get the number of nodes in the ast tree.&quot;&quot;&quot;</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">size</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>        <span class="k">return</span> <span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="k">class</span> <span class="nc">AST</span><span class="p">:</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="sd">&quot;&quot;&quot;PHML ast.</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">    Contains utility functions that can manipulate the ast.</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tree</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The given tree/root node for AST must be of type `Root` or `Element`&quot;</span><span class="p">)</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">walk</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>        <span class="k">return</span> <span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">==</span> <span class="n">obj</span><span class="o">.</span><span class="n">tree</span><span class="p">:</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>                <span class="k">return</span> <span class="kc">True</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>        <span class="k">return</span> <span class="kc">False</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="nd">@property</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="sd">&quot;&quot;&quot;Get access to the ast roots children.</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">        Is none if there is no root.</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="nd">@cached_property</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="sd">&quot;&quot;&quot;Get the number of nodes in the ast tree.&quot;&quot;&quot;</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">size</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>        <span class="k">return</span> <span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    <span class="nd">@property</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="sd">&quot;&quot;&quot;Get access to the ast roots children.</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="sd">        Is none if there is no root.</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -125,42 +137,42 @@
 
     </div>
     <a class="headerlink" href="#AST"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AST-10"><a href="#AST-10"><span class="linenos">10</span></a><span class="k">class</span> <span class="nc">AST</span><span class="p">:</span>
-</span><span id="AST-11"><a href="#AST-11"><span class="linenos">11</span></a>    <span class="sd">&quot;&quot;&quot;PHML ast.</span>
-</span><span id="AST-12"><a href="#AST-12"><span class="linenos">12</span></a>
-</span><span id="AST-13"><a href="#AST-13"><span class="linenos">13</span></a><span class="sd">    Contains utility functions that can manipulate the ast.</span>
-</span><span id="AST-14"><a href="#AST-14"><span class="linenos">14</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="AST-15"><a href="#AST-15"><span class="linenos">15</span></a>
-</span><span id="AST-16"><a href="#AST-16"><span class="linenos">16</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
-</span><span id="AST-17"><a href="#AST-17"><span class="linenos">17</span></a>        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tree</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
-</span><span id="AST-18"><a href="#AST-18"><span class="linenos">18</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span>
-</span><span id="AST-19"><a href="#AST-19"><span class="linenos">19</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="AST-20"><a href="#AST-20"><span class="linenos">20</span></a>            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The given tree/root node for AST must be of type `Root` or `Element`&quot;</span><span class="p">)</span>
-</span><span id="AST-21"><a href="#AST-21"><span class="linenos">21</span></a>
-</span><span id="AST-22"><a href="#AST-22"><span class="linenos">22</span></a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="AST-23"><a href="#AST-23"><span class="linenos">23</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">walk</span>
-</span><span id="AST-24"><a href="#AST-24"><span class="linenos">24</span></a>
-</span><span id="AST-25"><a href="#AST-25"><span class="linenos">25</span></a>        <span class="k">return</span> <span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
-</span><span id="AST-26"><a href="#AST-26"><span class="linenos">26</span></a>
-</span><span id="AST-27"><a href="#AST-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="AST-28"><a href="#AST-28"><span class="linenos">28</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
-</span><span id="AST-29"><a href="#AST-29"><span class="linenos">29</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">==</span> <span class="n">obj</span><span class="o">.</span><span class="n">tree</span><span class="p">:</span>
-</span><span id="AST-30"><a href="#AST-30"><span class="linenos">30</span></a>                <span class="k">return</span> <span class="kc">True</span>
-</span><span id="AST-31"><a href="#AST-31"><span class="linenos">31</span></a>        <span class="k">return</span> <span class="kc">False</span>
-</span><span id="AST-32"><a href="#AST-32"><span class="linenos">32</span></a>
-</span><span id="AST-33"><a href="#AST-33"><span class="linenos">33</span></a>    <span class="nd">@cached_property</span>
-</span><span id="AST-34"><a href="#AST-34"><span class="linenos">34</span></a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="AST-35"><a href="#AST-35"><span class="linenos">35</span></a>        <span class="sd">&quot;&quot;&quot;Get the number of nodes in the ast tree.&quot;&quot;&quot;</span>
-</span><span id="AST-36"><a href="#AST-36"><span class="linenos">36</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">size</span>
-</span><span id="AST-37"><a href="#AST-37"><span class="linenos">37</span></a>
-</span><span id="AST-38"><a href="#AST-38"><span class="linenos">38</span></a>        <span class="k">return</span> <span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AST-17"><a href="#AST-17"><span class="linenos">17</span></a><span class="k">class</span> <span class="nc">AST</span><span class="p">:</span>
+</span><span id="AST-18"><a href="#AST-18"><span class="linenos">18</span></a>    <span class="sd">&quot;&quot;&quot;PHML ast.</span>
+</span><span id="AST-19"><a href="#AST-19"><span class="linenos">19</span></a>
+</span><span id="AST-20"><a href="#AST-20"><span class="linenos">20</span></a><span class="sd">    Contains utility functions that can manipulate the ast.</span>
+</span><span id="AST-21"><a href="#AST-21"><span class="linenos">21</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="AST-22"><a href="#AST-22"><span class="linenos">22</span></a>
+</span><span id="AST-23"><a href="#AST-23"><span class="linenos">23</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+</span><span id="AST-24"><a href="#AST-24"><span class="linenos">24</span></a>        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tree</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
+</span><span id="AST-25"><a href="#AST-25"><span class="linenos">25</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span>
+</span><span id="AST-26"><a href="#AST-26"><span class="linenos">26</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="AST-27"><a href="#AST-27"><span class="linenos">27</span></a>            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The given tree/root node for AST must be of type `Root` or `Element`&quot;</span><span class="p">)</span>
+</span><span id="AST-28"><a href="#AST-28"><span class="linenos">28</span></a>
+</span><span id="AST-29"><a href="#AST-29"><span class="linenos">29</span></a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="AST-30"><a href="#AST-30"><span class="linenos">30</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">walk</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+</span><span id="AST-31"><a href="#AST-31"><span class="linenos">31</span></a>
+</span><span id="AST-32"><a href="#AST-32"><span class="linenos">32</span></a>        <span class="k">return</span> <span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
+</span><span id="AST-33"><a href="#AST-33"><span class="linenos">33</span></a>
+</span><span id="AST-34"><a href="#AST-34"><span class="linenos">34</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="AST-35"><a href="#AST-35"><span class="linenos">35</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+</span><span id="AST-36"><a href="#AST-36"><span class="linenos">36</span></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">==</span> <span class="n">obj</span><span class="o">.</span><span class="n">tree</span><span class="p">:</span>
+</span><span id="AST-37"><a href="#AST-37"><span class="linenos">37</span></a>                <span class="k">return</span> <span class="kc">True</span>
+</span><span id="AST-38"><a href="#AST-38"><span class="linenos">38</span></a>        <span class="k">return</span> <span class="kc">False</span>
 </span><span id="AST-39"><a href="#AST-39"><span class="linenos">39</span></a>
-</span><span id="AST-40"><a href="#AST-40"><span class="linenos">40</span></a>    <span class="nd">@property</span>
-</span><span id="AST-41"><a href="#AST-41"><span class="linenos">41</span></a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-</span><span id="AST-42"><a href="#AST-42"><span class="linenos">42</span></a>        <span class="sd">&quot;&quot;&quot;Get access to the ast roots children.</span>
-</span><span id="AST-43"><a href="#AST-43"><span class="linenos">43</span></a><span class="sd">        Is none if there is no root.</span>
-</span><span id="AST-44"><a href="#AST-44"><span class="linenos">44</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="AST-45"><a href="#AST-45"><span class="linenos">45</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="AST-40"><a href="#AST-40"><span class="linenos">40</span></a>    <span class="nd">@cached_property</span>
+</span><span id="AST-41"><a href="#AST-41"><span class="linenos">41</span></a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="AST-42"><a href="#AST-42"><span class="linenos">42</span></a>        <span class="sd">&quot;&quot;&quot;Get the number of nodes in the ast tree.&quot;&quot;&quot;</span>
+</span><span id="AST-43"><a href="#AST-43"><span class="linenos">43</span></a>        <span class="kn">from</span> <span class="nn">phml.utils</span> <span class="kn">import</span> <span class="n">size</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+</span><span id="AST-44"><a href="#AST-44"><span class="linenos">44</span></a>
+</span><span id="AST-45"><a href="#AST-45"><span class="linenos">45</span></a>        <span class="k">return</span> <span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">)</span>
+</span><span id="AST-46"><a href="#AST-46"><span class="linenos">46</span></a>
+</span><span id="AST-47"><a href="#AST-47"><span class="linenos">47</span></a>    <span class="nd">@property</span>
+</span><span id="AST-48"><a href="#AST-48"><span class="linenos">48</span></a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+</span><span id="AST-49"><a href="#AST-49"><span class="linenos">49</span></a>        <span class="sd">&quot;&quot;&quot;Get access to the ast roots children.</span>
+</span><span id="AST-50"><a href="#AST-50"><span class="linenos">50</span></a><span class="sd">        Is none if there is no root.</span>
+</span><span id="AST-51"><a href="#AST-51"><span class="linenos">51</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="AST-52"><a href="#AST-52"><span class="linenos">52</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -180,11 +192,11 @@
 
     </div>
     <a class="headerlink" href="#AST.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="AST.__init__-16"><a href="#AST.__init__-16"><span class="linenos">16</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
-</span><span id="AST.__init__-17"><a href="#AST.__init__-17"><span class="linenos">17</span></a>        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tree</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
-</span><span id="AST.__init__-18"><a href="#AST.__init__-18"><span class="linenos">18</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span>
-</span><span id="AST.__init__-19"><a href="#AST.__init__-19"><span class="linenos">19</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="AST.__init__-20"><a href="#AST.__init__-20"><span class="linenos">20</span></a>            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The given tree/root node for AST must be of type `Root` or `Element`&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AST.__init__-23"><a href="#AST.__init__-23"><span class="linenos">23</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+</span><span id="AST.__init__-24"><a href="#AST.__init__-24"><span class="linenos">24</span></a>        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tree</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
+</span><span id="AST.__init__-25"><a href="#AST.__init__-25"><span class="linenos">25</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">tree</span>
+</span><span id="AST.__init__-26"><a href="#AST.__init__-26"><span class="linenos">26</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="AST.__init__-27"><a href="#AST.__init__-27"><span class="linenos">27</span></a>            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The given tree/root node for AST must be of type `Root` or `Element`&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 

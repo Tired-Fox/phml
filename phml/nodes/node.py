@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
@@ -6,7 +7,7 @@ if TYPE_CHECKING:
     from .position import Position
 
 
-class Node:
+class Node:  # pylint: disable=too-few-public-methods
     """All node values can be expressed in JSON as: string, number,
     object, array, true, false, or null. This means that the syntax tree should
     be able to be converted to and from JSON and produce the same tree.

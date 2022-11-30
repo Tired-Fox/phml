@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
     from .text import Text
 
 
-class Parent(Node):
+class Parent(Node):  # pylint: disable=too-few-public-methods
     """Parent (UnistParent) represents a node in hast containing other nodes (said to be children).
 
     Its content is limited to only other hast content.

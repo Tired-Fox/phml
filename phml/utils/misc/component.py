@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from pathlib import Path
 
 from phml.nodes import AST, Element
@@ -12,7 +13,7 @@ def tag_from_file(filename: str) -> str:
     * camel case - someFileName
     * pascal case - SomeFileName
     """
-    from re import finditer
+    from re import finditer  # pylint: disable=import-outside-toplevel
 
     tokens = []
     for token in finditer(r"(\b|[A-Z]|_)([a-z]+)", filename):
@@ -29,12 +30,13 @@ def filename_from_path(file: Path) -> str:
 
     if file.is_file():
         return file.name.replace(file.suffix, "")
-    else:
-        raise TypeError(f"Expected {type(Path)} not {type(file)}")
+
+    raise TypeError(f"Expected {type(Path)} not {type(file)}")
 
 
 def parse_component(ast: AST) -> dict[str, Element]:
-    from phml.utils import test, visit_children
+    """Helper function to parse the components elements."""
+    from phml.utils import test, visit_children  # pylint: disable=import-outside-toplevel
 
     result = {"python": [], "script": [], "style": [], "component": None}
     for node in visit_children(ast.tree):
@@ -50,8 +52,8 @@ def parse_component(ast: AST) -> dict[str, Element]:
             else:
                 raise Exception(
                     """\
-Components may only have one wrapping element. All other element in the root must be either a script,\
-style, or python tag.\
+Components may only have one wrapping element. All other element in the root must be either a \
+script, style, or python tag.\
 """
                 )
 

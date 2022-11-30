@@ -1,10 +1,13 @@
+# pylint: disable=missing-module-docstring
 from typing import Optional
 
 
 class Point:
     """Represents one place in a source file.
 
-    The line field (1-indexed integer) represents a line in a source file. The column field (1-indexed integer) represents a column in a source file. The offset field (0-indexed integer) represents a character in a source file.
+    The line field (1-indexed integer) represents a line in a source file. The column field
+    (1-indexed integer) represents a column in a source file. The offset field (0-indexed integer)
+    represents a character in a source file.
     """
 
     def __init__(self, line: int, column: int, offset: Optional[int] = None):
@@ -24,20 +27,12 @@ class Point:
         self.offset = offset
 
     def __eq__(self, obj) -> bool:
-        if isinstance(obj, self.__class__):
-            if self.line == obj.line:
-                if self.column == obj.column:
-                    return True
-                else:
-                    # print(f"{self.column} != {obj.column}: Columns are not equal")
-                    return False
-            else:
-                # print(f"{self.line} != {obj.line}: Lines are not equal")
-                return False
-        # print(
-        #     f"{type(self).__name__} != {type(obj).__name__}: Point can not be equated to {type(obj).__name__}"
-        # )
-        return False
+        return bool(
+            obj is not None
+            and isinstance(obj, self.__class__)
+            and self.line == obj.line
+            and self.column == obj.column
+        )
 
     def __repr__(self) -> str:
         return f"point(line: {self.line}, column: {self.column}, offset: {self.offset})"

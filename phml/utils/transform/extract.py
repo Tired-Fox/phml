@@ -1,4 +1,4 @@
-from phml.builder import p
+# pylint: disable=missing-module-docstring
 from phml.nodes import AST, All_Nodes, Comment, Element, Root, Text
 
 
@@ -19,10 +19,10 @@ def to_string(node: AST | All_Nodes) -> str:
     if isinstance(node, Text | Comment):
         return node.value
 
-    def concat_text(el: Element | Root) -> list[str]:
+    def concat_text(element: Element | Root) -> list[str]:
         result = []
 
-        for child in el.children:
+        for child in element.children:
             if isinstance(child, (Element, Root)):
                 result.extend(concat_text(child))
             elif isinstance(child, Text):

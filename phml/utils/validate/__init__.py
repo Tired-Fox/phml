@@ -1,6 +1,6 @@
 """utils.validate
 
-A collection of utilities centered around validating nodes, types, 
+A collection of utilities centered around validating nodes, types,
 values on nodes, and any other condition you want to apply to a node
 or ast.
 """

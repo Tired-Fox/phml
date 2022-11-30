@@ -1,22 +1,32 @@
+"""Helper method to parse a dict to a phml ast."""
+
 from phml.nodes import Comment, DocType, Element, Point, Position, Root, Text
+
+__all__ = ["json_to_ast"]
+
+
+def construct_node_type(node_type: str):
+    """Takes a node type and returns a base constructed instance of the node."""
+    if node_type == "root":
+        return Root()
+
+    if node_type == "element":
+        return Element()
+
+    if node_type == "doctype":
+        return DocType()
+
+    if node_type == "text":
+        return Text()
+
+    if node_type == "comment":
+        return Comment()
+
+    return None
 
 
 def json_to_ast(json_obj: dict):
     """Convert a json object to a string."""
-
-    def construct_node_type(t: str):
-        if t == "root":
-            return Root()
-        elif t == "element":
-            return Element()
-        elif t == "doctype":
-            return DocType()
-        elif t == "text":
-            return Text()
-        elif t == "comment":
-            return Comment()
-        else:
-            return None
 
     def recurse(obj: dict):
         """Recursivly construct ast from json."""
@@ -42,11 +52,10 @@ def json_to_ast(json_obj: dict):
                         obj["position"]["indent"],
                     )
                 return val
-            else:
-                raise Exception(f"Unkown node type <{obj['type']}>")
-        else:
-            raise Exception(
-                'Invalid json for phml. Every node must have a type. Nodes may only have the types; root, element, doctype, text, or comment'
-            )
+            raise Exception(f"Unkown node type <{obj['type']}>")
+        raise Exception(
+            'Invalid json for phml. Every node must have a type. Nodes may only have the types; \
+root, element, doctype, text, or comment'
+        )
 
     return recurse(json_obj)

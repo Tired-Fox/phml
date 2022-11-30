@@ -1,3 +1,8 @@
+"""phml.core.compile
+
+The heavy lifting module that compiles phml ast's to different string/file formats.
+"""
+
 from typing import Any, Callable, Optional
 
 from phml.core.file_types import HTML, JSON, PHML
@@ -83,7 +88,8 @@ class Compiler:
                     if isinstance(value, dict) and value["component"] == component:
                         self.components.pop(key, None)
                         break
-                    elif value == components:
+
+                    if value == components:
                         self.components.pop(key, None)
                         break
 
@@ -110,11 +116,14 @@ class Compiler:
 
         if to_format == PHML:
             return phml(ast, indent or 4)
-        elif to_format == HTML:
+
+        if to_format == HTML:
             return html(ast, self.components, indent or 4, **kwargs)
-        elif to_format == JSON:
+
+        if to_format == JSON:
             return json(ast, indent or 2)
-        elif handler is None:
+
+        if handler is None:
             raise Exception(f"Unkown format < { to_format } >")
-        else:
-            return handler(ast, indent)
+
+        return handler(ast, indent)

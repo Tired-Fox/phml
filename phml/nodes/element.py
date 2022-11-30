@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
@@ -5,7 +6,6 @@ from typing import TYPE_CHECKING, Optional
 from .parent import Parent
 
 if TYPE_CHECKING:
-    from .position import Position
     from .root import Root
     from .types import Properties
 
@@ -52,37 +52,28 @@ class Element(Parent):
     def __init__(
         self,
         tag: str = "element",
-        properties: Optional[Properties] = {},
+        properties: Optional[Properties] = None,
         parent: Optional[Element | Root] = None,
         startend: bool = False,
-        position: Optional[Position] = None,
-        children: Optional[list] = None,
+        **kwargs,
     ):
-        super().__init__(position, children)
-        self.properties = properties
+        super().__init__(**kwargs)
+        self.properties = properties or {}
         self.tag = tag
         self.startend = startend
         self.parent = parent
         self.locals = {}
 
     def __eq__(self, obj) -> bool:
-        if obj is None:
-            return False
-
-        if obj.type == self.type:
-            if self.tag != obj.tag:
-                return False
-            if self.startend != obj.startend:
-                return False
-            if self.properties != obj.properties:
-                return False
-
-            for c, oc in zip(self.children, obj.children):
-                if c != oc:
-                    return False
-            return True
-        else:
-            return False
+        return bool(
+            obj is not None
+            and isinstance(obj, Element)
+            and self.tag == obj.tag
+            and self.startend == obj.startend
+            and self.properties == obj.properties
+            and len(self.children) == len(obj.children)
+            and all(child == obj_child for child, obj_child in zip(self.children, obj.children))
+        )
 
     def start_tag(self) -> str:
         """Builds the open/start tag for the element.
@@ -120,5 +111,6 @@ class Element(Parent):
         return f"</{self.tag}>" if not self.startend else None
 
     def __repr__(self) -> str:
-        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: {len(self.children)})"
+        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: \
+{len(self.children)})"
         return out

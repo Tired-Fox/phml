@@ -1,4 +1,5 @@
-from typing import Iterator, Optional
+# pylint: disable=missing-module-docstring
+from typing import Optional
 
 from .element import Element
 from .node import Node
@@ -41,7 +42,7 @@ class DocType(Node):
                 return True
         return False
 
-    def stringify(self, indent: int = 0) -> str:
+    def stringify(self, indent: int = 0) -> str:  # pylint: disable=unused-argument
         """Build indented html string of html doctype element.
 
         Returns:

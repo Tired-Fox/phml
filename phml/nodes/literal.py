@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from typing import Optional
 
 from .element import Element
@@ -29,26 +30,26 @@ class Literal(Node):
         self.parent = parent
 
     def __eq__(self, obj) -> bool:
-        if obj is None:
-            return False
-
-        if self.type == obj.type:
-            if self.value == obj.value:
-                return True
-            else:
-                return False
-        return False
+        return bool(obj is not None and self.type == obj.type and self.value == obj.value)
 
     def __repr__(self) -> str:
         return f"{self.type}(value:{len(self.value)})"
 
     def get_ancestry(self) -> list[str]:
+        """Get the ancestry of the literal node.
+
+        Used to validate whether there is a `pre` element in the ancestry.
+        """
+
         def get_parent(parent) -> list[str]:
             result = []
+
             if parent is not None and hasattr(parent, "tag"):
                 result.append(parent.tag)
+
             if parent.parent is not None:
                 result.extend(get_parent(parent.parent))
+
             return result
 
         return get_parent(self.parent)

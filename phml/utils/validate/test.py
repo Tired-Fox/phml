@@ -1,9 +1,16 @@
+"""phml.utils.validate.test
+
+Logic that allows nodes to be tested against a series of conditions.
+"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable, Optional
 
+from phml.nodes import Element
+
 if TYPE_CHECKING:
-    from phml.nodes import All_Nodes, Element, Root
+    from phml.nodes import All_Nodes, Root
 
 Test = None | str | list | dict | Callable
 
@@ -38,7 +45,6 @@ def test(
     Returns:
         True if all tests pass.
     """
-    from phml.nodes import Element
 
     if parent is not None:
         # If parent is given then index has to be also.
@@ -46,38 +52,34 @@ def test(
         if index is None or parent.children[index] != node:
             return False
 
-    if _test is None:
-        if not isinstance(node, All_Nodes):
-            return False
-        else:
-            return True
-    elif isinstance(_test, str):
+    if isinstance(_test, str):
         # If string then validate that the type is the same
         return hasattr(node, "type") and node.type == _test
-    elif isinstance(_test, dict):
+
+    if isinstance(_test, dict):
         # If dict validate all items with properties are the same
         # Either in attributes or in
-        if not isinstance(node, Element):
-            return False
+        return bool(
+            isinstance(node, Element)
+            and all(
+                (hasattr(node, key) and value == getattr(node, key))
+                or (
+                    hasattr(node, "properties")
+                    and key in node.properties
+                    and value == node.properties[key]
+                )
+                for key, value in _test.items()
+            )
+        )
 
-        for key, value in _test.items():
-            if not hasattr(node, key) or value != getattr(node, key):
-                if (
-                    not hasattr(node, "properties")
-                    or key not in node.properties
-                    or value != node.properties[key]
-                ):
-                    return False
-        return True
-    elif isinstance(_test, list):
+    if isinstance(_test, list):
         # If list then recursively apply tests
-        for t in _test:
-            if isinstance(t, Test):
-                if not test(node, t, index, parent):
-                    return False
-        return True
-    elif isinstance(_test, Callable):
+        return bool(
+            all(isinstance(cond, Test) and test(node, cond, index, parent) for cond in _test)
+        )
+
+    if isinstance(_test, Callable):
         # If callable return result of collable after passing node, index, and parent
         return _test(node, index, node.parent)
-    else:
-        print(f"NOTHING TO SEE HERE: {_test}")
+
+    raise Exception("Invalid test condition")

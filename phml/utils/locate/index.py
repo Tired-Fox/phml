@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from typing import Callable, Optional
 
 from phml.nodes import AST, Element, Root
@@ -26,7 +27,7 @@ class Index:
             `test` (Test): The test to apply to each node. Only valid/passing nodes
             will be indexed
         """
-        from phml.utils import has_property, test, walk
+        from phml.utils import test, walk  # pylint: disable=import-outside-toplevel
 
         self.indexed_tree = {}
         self.key = key
@@ -35,34 +36,16 @@ class Index:
             if isinstance(node, Element):
                 if condition is not None:
                     if test(node, condition):
-                        if isinstance(key, str) and has_property(node, key):
-                            if node.properties[key] not in self.indexed_tree:
-                                self.indexed_tree[node.properties[key]] = []
-                            self.indexed_tree[node.properties[key]].append(node)
-                        elif isinstance(key, Callable):
-                            k = key(node)
-                            if k is not None:
-                                if k not in self.indexed_tree:
-                                    self.indexed_tree[k] = []
-                                self.indexed_tree[str(k)].append(node)
+                        self.add(node)
                 else:
-                    if isinstance(key, str) and has_property(node, key):
-                        if node.properties[key] not in self.indexed_tree:
-                            self.indexed_tree[node.properties[key]] = []
-                        self.indexed_tree[node.properties[key]].append(node)
-                    elif isinstance(key, Callable):
-                        k = key(node)
-                        if k is not None:
-                            if k not in self.indexed_tree:
-                                self.indexed_tree[k] = []
-                            self.indexed_tree[str(k)].append(node)
+                    self.add(node)
 
     def add(self, node: Element):
         """Adds element to indexed collection if not already there."""
 
         key = node.properties[self.key] if isinstance(self.key, str) else self.key(node)
         if key not in self.indexed_tree:
-            self.indexed_tree[key] = node
+            self.indexed_tree[key] = [node]
 
         if node not in self.indexed_tree[key]:
             self.indexed_tree[key].append(node)

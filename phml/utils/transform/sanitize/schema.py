@@ -1,3 +1,4 @@
+"""Defines the schema on how to sanitize the phml ast."""
 from dataclasses import dataclass, field
 
 
@@ -7,7 +8,7 @@ class Schema:
 
     `strip (list[str])`: The elements to strip from the tree.
     `protocols (dict[str, list])`: Collection of element name and allowed protocal value list
-    `tagNames (list[str])`: List of allowed tag names.
+    `tag_names (list[str])`: List of allowed tag names.
     `attributes (dict[str, list[str | list[str]]])`: Collection of element name and allowed property
     names.
     `required (dict[str, str | list[str]])`: Collection of element names and their required
@@ -33,7 +34,7 @@ class Schema:
             "longDesc": ['http', 'https'],
         }
     )
-    tagNames: list[str] = field(
+    tag_names: list[str] = field(
         default_factory=lambda: [
             'h1',
             'h2',

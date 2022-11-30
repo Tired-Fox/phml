@@ -1,3 +1,8 @@
+"""phml.utils.transform.transform
+
+Utility methods that revolve around transforming or manipulating the ast.
+"""
+
 from typing import Callable, Optional
 
 from phml.nodes import AST, All_Nodes, Element, Root
@@ -94,32 +99,34 @@ def map_nodes(tree: Root | Element | AST, transform: Callable):
 
 
 def replace_node(
-    node: Root | Element, condition: Test, replacement: Optional[All_Nodes | list[All_Nodes]]
+    start: Root | Element, condition: Test, replacement: Optional[All_Nodes | list[All_Nodes]]
 ):
     """Search for a specific node in the tree and replace it with either
     a node or list of nodes. If replacement is None the found node is just removed.
 
     Args:
-        node (Root | Element): The starting point.
+        start (Root | Element): The starting point.
         condition (test): Test condition to find the correct node.
         replacement (All_Nodes | list[All_Nodes] | None): What to replace the node with.
     """
-    for n in walk(node):
-        if test(n, condition):
-            if n.parent is not None:
-                idx = n.parent.children.index(n)
+    for node in walk(start):
+        if test(node, condition):
+            if node.parent is not None:
+                idx = node.parent.children.index(node)
                 if replacement is not None:
-                    n.parent.children = (
-                        n.parent.children[:idx] + replacement + n.parent.children[idx + 1 :]
+                    node.parent.children = (
+                        node.parent.children[:idx] + replacement + node.parent.children[idx + 1 :]
                         if isinstance(replacement, list)
-                        else n.parent.children[:idx] + [replacement] + n.parent.children[idx + 1 :]
+                        else node.parent.children[:idx]
+                        + [replacement]
+                        + node.parent.children[idx + 1 :]
                     )
                 else:
-                    n.parent.children.pop(idx)
+                    node.parent.children.pop(idx)
                 break
 
 
-def find_and_replace(node: Root | Element, *replacements: tuple[str, str | Callable]) -> int:
+def find_and_replace(start: Root | Element, *replacements: tuple[str, str | Callable]) -> int:
     """Takes a ast, root, or any node and replaces text in `text`
     nodes with matching replacements.
 
@@ -128,24 +135,28 @@ def find_and_replace(node: Root | Element, *replacements: tuple[str, str | Calla
     a string or a callable that returns a string or a new node. If
     a new node is returned then the text element will be split.
     """
-    from re import finditer
+    from re import finditer  # pylint: disable=import-outside-toplevel
 
-    for n in walk(node):
-        if n.type == "text":
+    for node in walk(start):
+        if node.type == "text":
             for replacement in replacements:
                 if isinstance(replacement[1], str):
-                    for match in finditer(replacement[0], n.value):
-                        n.value = n.value[: match.start()] + replacement[1] + n.value[match.end() :]
+                    for match in finditer(replacement[0], node.value):
+                        node.value = (
+                            node.value[: match.start()] + replacement[1] + node.value[match.end() :]
+                        )
                 else:
                     raise NotImplementedError(
                         "Callables are not yet supported for find_and_replace operations."
                     )
-                # TODO add ability to inject nodes in place of text replacement
+                # tada add ability to inject nodes in place of text replacement
                 # elif isinstance(replacement[1], Callable):
                 #     for match in finditer(replacement[0], n.value):
                 #         result = replacement[1](match.group())
                 #         if isinstance(result, str):
-                #             n.value = n.value[:match.start()] + replacement[1] + n.value[match.end():]
+                #             n.value = n.value[:match.start()]
+                #             + replacement[1]
+                #             + n.value[match.end():]
                 #         elif isinstance(result, All_Nodes):
                 #             pass
                 #         elif isinstance(result, list):
@@ -173,7 +184,7 @@ def modify_children(func):
     The wrapped function will be passed the child node,
     the index in the parents children, and the parent node
     """
-    from phml.utils import visit_children
+    from phml.utils import visit_children  # pylint: disable=import-outside-toplevel
 
     def inner(start: AST | Element | Root):
         if isinstance(start, AST):

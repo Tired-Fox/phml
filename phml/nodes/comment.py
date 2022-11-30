@@ -1,5 +1,4 @@
-from typing import Iterator
-
+# pylint: disable=missing-module-docstring
 from .literal import Literal
 
 

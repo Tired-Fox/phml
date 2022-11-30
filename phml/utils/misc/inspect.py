@@ -4,7 +4,8 @@ Logic to inspect any phml node. Outputs a tree representation
 of the node as a string.
 """
 
-from phml.builder import p
+from json import dumps
+
 from phml.nodes import AST, All_Nodes, Comment, Element, Root, Text
 
 __all__ = ["inspect", "normalize_indent"]
@@ -18,7 +19,7 @@ def inspect(start: AST | All_Nodes, indent: int = 2):
 
     def recursive_inspect(node: Element | Root, indent: int) -> list[str]:
         """Generate signature for node then for each child recursively."""
-        from phml.utils import visit_children
+        from phml.utils import visit_children  # pylint: disable=import-outside-toplevel
 
         results = [*signature(node)]
 
@@ -50,8 +51,8 @@ def inspect(start: AST | All_Nodes, indent: int = 2):
 
     if isinstance(start, (Element, Root)):
         return "\n".join(recursive_inspect(start, indent))
-    else:
-        return "\n".join(signature(start))
+
+    return "\n".join(signature(start))
 
 
 def signature(node: All_Nodes, indent: int = 2):
@@ -86,7 +87,6 @@ def signature(node: All_Nodes, indent: int = 2):
 
 def stringify_props(node: Element) -> list[str]:
     """Generate a list of lines from strigifying the nodes properties."""
-    from json import dumps
 
     if len(node.properties.keys()) > 0:
         lines = dumps(node.properties, indent=2).split("\n")

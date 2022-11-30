@@ -4,12 +4,13 @@ A collection of utilities around querying for specific
 types of data.
 """
 
+import re
 from typing import Callable
 
 from phml.nodes import AST, Element, Root
 from phml.utils.travel import visit_children, walk
 
-__all__ = ["query", "queryAll", "matches"]
+__all__ = ["query", "query_all", "matches", "parse_specifiers"]
 
 
 def query(tree: AST | Root | Element, specifier: str) -> Element:
@@ -35,35 +36,31 @@ def query(tree: AST | Root | Element, specifier: str) -> Element:
         Element | None: The first element matching the specifier or None if no element was
         found.
     """
-    if isinstance(tree, AST):
-        tree = tree.tree
 
-    rules = __parse_specifiers(specifier)
-
-    def all_nodes(node: Element, rules: list, include_self: bool = True):
+    def all_nodes(current: Element, rules: list, include_self: bool = True):
         """Get all nodes starting with the current node."""
 
         result = None
-        for n in walk(node):
-            if n.type == "element" and (include_self or n != node):
-                result = branch(n, rules)
+        for node in walk(current):
+            if node.type == "element" and (include_self or node != current):
+                result = branch(node, rules)
                 if result is not None:
                     break
         return result
 
-    def all_children(node: Element, rules: list):
+    def all_children(current: Element, rules: list):
         """Get all children of the curret node."""
         result = None
-        for n in visit_children(node):
-            if n.type == "element":
-                result = branch(n, rules)
+        for node in visit_children(current):
+            if node.type == "element":
+                result = branch(node, rules)
                 if result is not None:
                     break
         return result
 
     def first_sibling(node: Element, rules: list):
         """Get the first sibling following the node."""
-        if node.parent == None:
+        if node.parent is None:
             return None
 
         idx = node.parent.children.index(node)
@@ -72,54 +69,70 @@ def query(tree: AST | Root | Element, specifier: str) -> Element:
                 return branch(node.parent.children[idx + 1], rules)
         return None
 
-    def all_siblings(node: Element, rules: list):
+    def all_siblings(current: Element, rules: list):
         """Get all siblings after the current node."""
-        if node.parent == None:
+        if current.parent is None:
             return None
 
         result = None
-        idx = node.parent.children.index(node)
-        if idx + 1 < len(node.parent.children):
-            for n in range(idx + 1, len(node.parent.children)):
-                if node.parent.children[n].type == "element":
-                    result = branch(node.parent.children[n], rules)
+        idx = current.parent.children.index(current)
+        if idx + 1 < len(current.parent.children):
+            for node in range(idx + 1, len(current.parent.children)):
+                if current.parent.children[node].type == "element":
+                    result = branch(current.parent.children[node], rules)
                     if result is not None:
                         break
         return result
 
-    def branch(node: Element, rules: list):
+    def process_dict(rules: list, node: Element):
+        if is_equal(rules[0], node):
+            if len(rules) - 1 == 0:
+                return node
+
+            if isinstance(rules[1], dict) or rules[1] == "*":
+                return (
+                    all_nodes(node, rules[1:])
+                    if isinstance(rules[1], dict)
+                    else all_nodes(node, rules[2:], False)
+                )
+
+            return branch(node, rules[1:])
+        return None
+
+    def branch(node: Element, rules: list):  # pylint: disable=too-many-return-statements
         """Based on the current rule, recursively check the nodes.
         If on the last rule then return the current valid node.
         """
 
         if len(rules) == 0:
             return node
-        elif isinstance(rules[0], dict):
-            if is_equal(rules[0], node):
-                if len(rules) - 1 == 0:
-                    return node
-                else:
-                    if isinstance(rules[1], dict):
-                        return all_nodes(node, rules[1:])
-                    elif rules[1] == "*":
-                        return all_nodes(node, rules[2:], False)
-                    else:
-                        return branch(node, rules[1:])
-            else:
-                return None
-        elif rules[0] == "*":
+
+        if isinstance(rules[0], dict):
+            return process_dict(rules, node)
+
+        if rules[0] == "*":
             return all_nodes(node, rules[1:])
-        elif rules[0] == ">":
+
+        if rules[0] == ">":
             return all_children(node, rules[1:])
-        elif rules[0] == "+":
+
+        if rules[0] == "+":
             return first_sibling(node, rules[1:])
-        elif rules[0] == "~":
+
+        if rules[0] == "~":
             return all_siblings(node, rules[1:])
+
+        return None
+
+    if isinstance(tree, AST):
+        tree = tree.tree
+
+    rules = parse_specifiers(specifier)
 
     return all_nodes(tree, rules)
 
 
-def queryAll(tree: AST | Root | Element, specifier: str) -> list[Element]:
+def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
     """Same as javascripts querySelectorAll. `#` indicates an id and `.`
     indicates a class. If they are used alone they match anything.
     Any tag can be used by itself or with `#` and/or `.`. You may use
@@ -139,37 +152,33 @@ def queryAll(tree: AST | Root | Element, specifier: str) -> list[Element]:
     attribute `type="checked"` that has a parent `div` with the class `form-control`.
 
     Return:
-        list[Element] | None: The all elements matching the specifier or and empty list if no elements were
-        found.
+        list[Element] | None: The all elements matching the specifier or and empty list if no
+        elements were found.
     """
-    if isinstance(tree, AST):
-        tree = tree.tree
 
-    rules = __parse_specifiers(specifier)
-
-    def all_nodes(node: Element, rules: list, include_self: bool = True):
+    def all_nodes(current: Element, rules: list, include_self: bool = True):
         """Get all nodes starting with the current node."""
         results = []
-        for n in walk(node):
-            if n.type == "element" and (include_self or n != node):
-                result = branch(n, rules)
+        for node in walk(current):
+            if node.type == "element" and (include_self or node != current):
+                result = branch(node, rules)
                 if result is not None:
                     results.extend(result)
         return results
 
-    def all_children(node: Element, rules: list):
+    def all_children(current: Element, rules: list):
         """Get all children of the curret node."""
         results = []
-        for n in visit_children(node):
-            if n.type == "element":
-                result = branch(n, rules)
+        for node in visit_children(current):
+            if node.type == "element":
+                result = branch(node, rules)
                 if result is not None:
                     results.extend(result)
         return results
 
     def first_sibling(node: Element, rules: list):
         """Get the first sibling following the node."""
-        if node.parent == None:
+        if node.parent is None:
             return []
 
         idx = node.parent.children.index(node)
@@ -178,49 +187,65 @@ def queryAll(tree: AST | Root | Element, specifier: str) -> list[Element]:
                 return [*branch(node.parent.children[idx + 1], rules)]
         return []
 
-    def all_siblings(node: Element, rules: list):
+    def all_siblings(current: Element, rules: list):
         """Get all siblings after the current node."""
-        if node.parent == None:
+        if current.parent is None:
             return []
 
         results = []
-        idx = node.parent.children.index(node)
-        if idx + 1 < len(node.parent.children):
-            for n in range(idx + 1, len(node.parent.children)):
-                if node.parent.children[n].type == "element":
-                    result = branch(node.parent.children[n], rules)
+        idx = current.parent.children.index(current)
+        if idx + 1 < len(current.parent.children):
+            for node in range(idx + 1, len(current.parent.children)):
+                if current.parent.children[node].type == "element":
+                    result = branch(current.parent.children[node], rules)
                     if result is not None:
                         results.extend(result)
         return results
 
-    def branch(node: Element, rules: list):
+    def process_dict(rules: list, node: Element):
+        if is_equal(rules[0], node):
+            if len(rules) - 1 == 0:
+                return [node]
+
+            if isinstance(rules[1], dict) or rules[1] == "*":
+                return (
+                    all_nodes(node, rules[1:])
+                    if isinstance(rules[1], dict)
+                    else all_nodes(node, rules[2:], False)
+                )
+
+            return branch(node, rules[1:])
+        return None
+
+    def branch(node: Element, rules: list):  # pylint: disable=too-many-return-statements
         """Based on the current rule, recursively check the nodes.
         If on the last rule then return the current valid node.
         """
+
         if len(rules) == 0:
             return [node]
-        elif isinstance(rules[0], dict):
-            if is_equal(rules[0], node):
-                if len(rules) - 1 == 0:
-                    return [node]
-                else:
-                    if isinstance(rules[1], dict):
-                        return all_nodes(node, rules[1:])
-                    elif rules[1] == "*":
-                        return all_nodes(node, rules[2:], False)
-                    else:
-                        return branch(node, rules[1:])
-            else:
-                return None
-        elif rules[0] == "*":
+
+        if isinstance(rules[0], dict):
+            return process_dict(rules, node)
+
+        if rules[0] == "*":
             return all_nodes(node, rules[1:])
-        elif rules[0] == ">":
+
+        if rules[0] == ">":
             return all_children(node, rules[1:])
-        elif rules[0] == "+":
+
+        if rules[0] == "+":
             return first_sibling(node, rules[1:])
-        elif rules[0] == "~":
+
+        if rules[0] == "~":
             return all_siblings(node, rules[1:])
 
+        return None
+
+    if isinstance(tree, AST):
+        tree = tree.tree
+
+    rules = parse_specifiers(specifier)
     return all_nodes(tree, rules)
 
 
@@ -241,7 +266,7 @@ def matches(node: Element, specifier: str) -> bool:
     * `input[type="checkbox"]` matches the first `input` with the attribute `type="checkbox"`
     """
 
-    rules = __parse_specifiers(specifier)
+    rules = parse_specifiers(specifier)
 
     if len(rules) > 1:
         raise Exception(f"Complex specifier detected and is not allowed.\n{specifier}")
@@ -301,45 +326,47 @@ def is_equal(rule: dict, node: Element) -> bool:
 
     # Validate all attributes
     if len(rule["attributes"]) > 0:
-        for attr in rule["attributes"]:
-            if attr["name"] in node.properties.keys():
-                if attr["compare"] is not None:
-                    if attr["compare"] == "=":
-                        if attr["value"] != node.properties[attr["name"]]:
-                            return False
-                    elif attr["compare"] == "|":
+        return all(
+            attr["name"] in node.properties.keys()
+            and ((attr["compare"] is not None and __validate_attr(attr, node)) or True)
+            for attr in rule["attributes"]
+        )
 
-                        if not is_valid_attr(
-                            attr=node.properties[attr["name"]],
-                            sub=attr["value"],
-                            validator=lambda x, y: x == y or x.startswith(f"{y}-"),
-                        ):
-                            return False
-                    elif attr["compare"] == "^":
-                        if not is_valid_attr(
-                            attr=node.properties[attr["name"]],
-                            sub=attr["value"],
-                            validator=lambda x, y: x.startswith(y),
-                        ):
-                            return False
-                    elif attr["compare"] == "$":
-                        if not is_valid_attr(
-                            attr=node.properties[attr["name"]],
-                            sub=attr["value"],
-                            validator=lambda x, y: x.endswith(y),
-                        ):
-                            return False
-                    elif attr["compare"] in ["*", "~"]:
-                        if not is_valid_attr(
-                            attr=node.properties[attr["name"]],
-                            sub=attr["value"],
-                            validator=lambda x, y: y in x,
-                        ):
-                            return False
-                else:
-                    return True
-            else:
-                return False
+    return True
+
+
+def __validate_attr(attr: dict, node: Element):
+    if attr["compare"] == "=" and attr["value"] != node.properties[attr["name"]]:
+        return False
+
+    if attr["compare"] == "|":
+        return is_valid_attr(
+            attr=node.properties[attr["name"]],
+            sub=attr["value"],
+            validator=lambda x, y: x == y or x.startswith(f"{y}-"),
+        )
+
+    if attr["compare"] == "^":
+        return is_valid_attr(
+            attr=node.properties[attr["name"]],
+            sub=attr["value"],
+            validator=lambda x, y: x.startswith(y),
+        )
+
+    if attr["compare"] == "$":
+        return is_valid_attr(
+            attr=node.properties[attr["name"]],
+            sub=attr["value"],
+            validator=lambda x, y: x.endswith(y),
+        )
+
+    if attr["compare"] in ["*", "~"]:
+        return is_valid_attr(
+            attr=node.properties[attr["name"]],
+            sub=attr["value"],
+            validator=lambda x, y: y in x,
+        )
+
     return True
 
 
@@ -358,11 +385,85 @@ def is_valid_attr(attr: str, sub: str, validator: Callable) -> bool:
     if attr["name"] in list_attributes:
         compare_values = attr.split(" ")
 
-    if len([item for item in compare_values if validator(item, sub)]) == 0:
-        return False
+    return bool(len([item for item in compare_values if validator(item, sub)]) > 0)
 
 
-def __parse_specifiers(specifier: str) -> dict:
+def __parse_el_with_attribute(token: str) -> dict:
+    el_classid_from_attr = re.compile(r"([a-zA-Z0-9_#.-]+)((\[.*\])*)")
+    el_from_class_from_id = re.compile(r"(#|\.)?([a-zA-Z0-9_-]+)")
+    attr_compare_val = re.compile(r"\[([a-zA-Z0-9_-]+)([~|^$*]?=)?(\"[^\"]+\"|'[^']+'|[^'\"]+)?\]")
+
+    element = {
+        "tag": "*",
+        "classList": [],
+        "id": None,
+        "attributes": [],
+    }
+
+    res = el_classid_from_attr.match(token)
+
+    el_class_id, attrs = res.group(1), res.group(2)
+
+    if attrs not in ["", None]:
+        for attr in attr_compare_val.finditer(attrs):
+            name, compare, value = attr.groups()
+            if value is not None:
+                value = value.lstrip("'\"").rstrip("'\"")
+            element["attributes"].append(
+                {
+                    "name": name,
+                    "compare": compare,
+                    "value": value,
+                }
+            )
+
+    if el_class_id not in ["", None]:
+        for item in el_from_class_from_id.finditer(el_class_id):
+            if item.group(1) == ".":
+                if item.group(2) not in element["classList"]:
+                    element["classList"].append(item.group(2))
+            elif item.group(1) == "#":
+                if element["id"] is None:
+                    element["id"] = item.group(2)
+                else:
+                    raise Exception(
+                        f"There may only be one id per element specifier.\n{token.group()}"
+                    )
+            else:
+                element["tag"] = item.group(2) or "*"
+
+    return element
+
+
+def __parse_attr_only_element(token: str) -> dict:
+    attr_compare_val = re.compile(r"\[([a-zA-Z0-9_-]+)([~|^$*]?=)?(\"[^\"]+\"|'[^']+'|[^'\"]+)?\]")
+
+    element = {
+        "tag": None,
+        "classList": [],
+        "id": None,
+        "attributes": [],
+    }
+
+    element["tag"] = "*"
+
+    if token not in ["", None]:
+        for attr in attr_compare_val.finditer(token):
+            name, compare, value = attr.groups()
+            if value is not None:
+                value = value.lstrip("'\"").rstrip("'\"")
+            element["attributes"].append(
+                {
+                    "name": name,
+                    "compare": compare,
+                    "value": value,
+                }
+            )
+
+    return element
+
+
+def parse_specifiers(specifier: str) -> dict:
     """
     Rules:
     * `*` = any element
@@ -380,85 +481,19 @@ def __parse_specifiers(specifier: str) -> dict:
     * `node[attribute*=value]` = all elements with attribute containing value
 
     """
-    from re import compile
 
-    splitter = compile(r"([~>\*+])|(([.#]?[a-zA-Z0-9_-]+)+((\[[^\[\]]+\]))*)|(\[[^\[\]]+\])+")
+    splitter = re.compile(r"([~>\*+])|(([.#]?[a-zA-Z0-9_-]+)+((\[[^\[\]]+\]))*)|(\[[^\[\]]+\])+")
 
-    el_with_attr = compile(r"([.#]?[a-zA-Z0-9_-]+)+(\[[^\[\]]+\])*")
-    el_only_attr = compile(r"((\[[^\[\]]+\]))+")
-
-    el_classid_from_attr = compile(r"([a-zA-Z0-9_#.-]+)((\[.*\])*)")
-    el_from_class_from_id = compile(r"(#|\.)?([a-zA-Z0-9_-]+)")
-    attr_compare_val = compile(r"\[([a-zA-Z0-9_-]+)([~|^$*]?=)?(\"[^\"]+\"|'[^']+'|[^'\"]+)?\]")
+    el_only_attr = re.compile(r"((\[[^\[\]]+\]))+")
+    el_with_attr = re.compile(r"([.#]?[a-zA-Z0-9_-]+)+(\[[^\[\]]+\])*")
 
     tokens = []
     for token in splitter.finditer(specifier):
         if token.group() in ["*", ">", "+", "~"]:
             tokens.append(token.group())
         elif el_with_attr.match(token.group()):
-            element = {
-                "tag": "*",
-                "classList": [],
-                "id": None,
-                "attributes": [],
-            }
-
-            res = el_classid_from_attr.match(token.group())
-
-            el_class_id, attrs = res.group(1), res.group(2)
-
-            if attrs not in ["", None]:
-                for attr in attr_compare_val.finditer(attrs):
-                    name, compare, value = attr.groups()
-                    if value is not None:
-                        value = value.lstrip("'\"").rstrip("'\"")
-                    element["attributes"].append(
-                        {
-                            "name": name,
-                            "compare": compare,
-                            "value": value,
-                        }
-                    )
-
-            if el_class_id not in ["", None]:
-                for item in el_from_class_from_id.finditer(el_class_id):
-                    if item.group(1) == ".":
-                        if item.group(2) not in element["classList"]:
-                            element["classList"].append(item.group(2))
-                    elif item.group(1) == "#":
-                        if element["id"] is None:
-                            element["id"] = item.group(2)
-                        else:
-                            raise Exception(
-                                f"There may only be one id per element specifier.\n{token.group()}"
-                            )
-                    else:
-                        element["tag"] = item.group(2) or "*"
-
-            tokens.append(element)
+            tokens.append(__parse_el_with_attribute(token.group()))
         elif el_only_attr.match(token.group()):
-            element = {
-                "tag": None,
-                "classList": [],
-                "id": None,
-                "attributes": [],
-            }
-
-            element["tag"] = "*"
-
-            if token.group() not in ["", None]:
-                for attr in attr_compare_val.finditer(token.group()):
-                    name, compare, value = attr.groups()
-                    if value is not None:
-                        value = value.lstrip("'\"").rstrip("'\"")
-                    element["attributes"].append(
-                        {
-                            "name": name,
-                            "compare": compare,
-                            "value": value,
-                        }
-                    )
-
-            tokens.append(element)
+            tokens.append(__parse_attr_only_element(token.group()))
 
     return tokens

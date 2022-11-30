@@ -1,9 +1,15 @@
+"""phml.virtual_python
+
+Data strucutures to store the compiled locals and imports from
+python source code.
+"""
 from __future__ import annotations
 
 from ast import Assign, Name, parse, walk
+from re import finditer, sub
 from typing import Any, Optional
 
-from .ImportObjects import Import, ImportFrom
+from .import_objects import Import, ImportFrom
 
 __all__ = ["VirtualPython", "get_vp_result", "process_vp_blocks"]
 
@@ -24,7 +30,7 @@ class VirtualPython:
         self.locals = local_env or {}
 
         if self.content != "":
-            import ast
+            import ast  # pylint: disable=import-outside-toplevel
 
             self.__normalize_indent()
 
@@ -36,7 +42,7 @@ class VirtualPython:
                     self.imports.append(Import.from_node(node))
 
             # Retreive locals from content
-            exec(self.content, globals(), self.locals)
+            exec(self.content, globals(), self.locals)  # pylint: disable=exec-used
 
     def __normalize_indent(self):
         self.content = self.content.split("\n")
@@ -58,11 +64,16 @@ class VirtualPython:
 
 
 def parse_ast_assign(vals: list[Name | tuple[Name]]) -> list[str]:
+    """Parse an ast.Assign node."""
+
     values = vals[0]
     if isinstance(values, Name):
         return [values.id]
-    elif isinstance(values, tuple):
+
+    if isinstance(values, tuple):
         return [name.id for name in values]
+
+    return []
 
 
 def get_vp_result(expr: str, **kwargs) -> Any:
@@ -83,19 +94,24 @@ def get_vp_result(expr: str, **kwargs) -> Any:
     ]
 
     # For all variables used if they are not in kwargs then they == None
-    for uv in used_vars:
-        if uv not in kwargs:
-            kwargs[uv] = None
+    for var in used_vars:
+        if var not in kwargs:
+            kwargs[var] = None
 
-    if len(expr.split("\n")) > 1:
-        exec(expr, {}, kwargs)
-        return kwargs["result"] or kwargs["results"]
-    else:
-        try:
-            exec(f"phml_vp_result = {expr}", {}, kwargs)
-            return kwargs["phml_vp_result"]
-        except NameError as e:
-            print(e, expr, kwargs)
+    try:
+        if len(expr.split("\n")) > 1:
+            exec(expr, {}, kwargs)  # pylint: disable=exec-used
+            return kwargs["result"] or kwargs["results"]
+    except NameError as exception:
+        print(exception, expr, kwargs)
+        return None
+
+    try:
+        exec(f"phml_vp_result = {expr}", {}, kwargs)  # pylint: disable=exec-used
+        return kwargs["phml_vp_result"] if "phml_vp_result" in kwargs else None
+    except NameError as exception:
+        print(exception, expr, kwargs)
+        return None
 
 
 def extract_expressions(data: str) -> str:
@@ -107,65 +123,48 @@ def extract_expressions(data: str) -> str:
         phml python blocks/expressions are indicated
         with curly brackets, {}.
     """
-    from re import findall
 
-    expressions = findall(r"\{(.*)\}", data)
-    if expressions is not None:
-        for expression in expressions:
-            expression = expression.lstrip("{").rstrip("}")
-            expr = expression.split("\n")
-            if len(expr) > 1:
-                offset = len(expr[0]) - len(expr[0].lstrip())
-                lines = [line[offset:] for line in expr]
-                joiner = "\n"
-                expression = joiner.join(lines)
-            else:
-                expression = expr[0]
-    return expressions
+    results = []
+
+    for expression in finditer(r"\{(.*)\}", data):
+        expression = expression.group().lstrip("{").rstrip("}")
+        expression = expression.split("\n")
+        if len(expression) > 1:
+            offset = len(expression[0]) - len(expression[0].lstrip())
+            lines = [line[offset:] for line in expression]
+            results.append("\n".join(lines))
+        else:
+            results.append(expression[0])
+
+    return results
 
 
-def process_vp_blocks(line: str, vp: VirtualPython, **kwargs) -> str:
+def process_vp_blocks(pvb_value: str, virtual_python: VirtualPython, **kwargs) -> str:
     """Process a lines python blocks. Use the VirtualPython locals,
     and kwargs as local variables for each python block. Import
     VirtualPython imports in this methods scope.
 
     Args:
-        line (str): The line to process
-        **kwargs (Any): The extra data to pass to the exec function
+        value (str): The line to process.
+        virtual_python (VirtualPython): Parsed locals and imports from all python blocks.
+        **kwargs (Any): The extra data to pass to the exec function.
 
     Returns:
         str: The processed line as str.
     """
-    from re import sub
 
     # Bring vp imports into scope
-    for imp in vp.imports:
-        exec(str(imp))
+    for imp in virtual_python.imports:
+        exec(str(imp))  # pylint: disable=exec-used
 
-    expr = extract_expressions(line)
-    kwargs.update(vp.locals)
-    if expr is not None:
-        for e in expr:
-            result = get_vp_result(e, **kwargs)
+    expressions = extract_expressions(pvb_value)
+    kwargs.update(virtual_python.locals)
+    if expressions is not None:
+        for expr in expressions:
+            result = get_vp_result(expr, **kwargs)
             if isinstance(result, bool):
-                line = result  # sub(r"\{.*\}", "yes" if result else "no", line)
+                pvb_value = result
             else:
-                line = sub(r"\{.*\}", str(result), line)
+                pvb_value = sub(r"\{.*\}", str(result), pvb_value)
 
-    return line
-
-
-if __name__ == "__main__":
-    # Extra data to similuate extra info a user may pass
-    date = "11/14/2022"
-
-    with open("sample_python.txt", "r") as sample_python:
-        # Extract python and process as vp
-        vp = VirtualPython(sample_python.read())
-
-    # Read source file and export to output file
-    with open("sample.phml", "r", encoding="utf-8") as source_file:
-        with open("output.html", "+w", encoding="utf-8") as out_file:
-            # If line has a inline python block process it
-            for line in source_file.readlines():
-                out_file.write(process_vp_blocks(line, vp, date=date))
+    return pvb_value

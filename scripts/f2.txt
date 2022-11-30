@@ -1,0 +1,66 @@
+root [2]
+├0 doctype
+└1 element<html> [2]
+   │  properties: {
+   │    "lang": "en"
+   │  }
+   ├0 element<head> [4]
+   │  ├0 element<meta>
+   │  │  │  properties: {
+   │  │  │    "charset": "UTF-8"
+   │  │  │  }
+   │  ├1 element<meta>
+   │  │  │  properties: {
+   │  │  │    "http-equiv": "X-UA-Compatible",
+   │  │  │    "content": "IE=edge"
+   │  │  │  }
+   │  ├2 element<meta>
+   │  │  │  properties: {
+   │  │  │    "name": "viewport",
+   │  │  │    "content": "width=device-width, initial-scale=1.0"
+   │  │  │  }
+   │  └3 element<title> [1]
+   │     └0 text
+   │        │  "sample title"
+   └1 element<body> [6]
+      ├0 comment
+      │  │  " Text Comment "
+      ├1 element<h1> [1]
+      │  └0 text
+      │     │  "Hello World!"
+      ├2 element<input>
+      │  │  properties: {
+      │  │    "type": "checkbox",
+      │  │    "checked": true
+      │  │  }
+      ├3 element<p> [1]
+      │  └0 text
+      │     │  "11/15/2022"
+      ├4 element<ul> [3]
+      │  │  properties: {
+      │  │    "id": "python-loop"
+      │  │  }
+      │  ├0 element<li> [2]
+      │  │  ├0 element<span> [1]
+      │  │  │  └0 text
+      │  │  │     │  "name: "
+      │  │  └1 element<span> [1]
+      │  │     └0 text
+      │  │        │  "Zachary"
+      │  ├1 element<li> [2]
+      │  │  ├0 element<span> [1]
+      │  │  │  └0 text
+      │  │  │     │  "age: "
+      │  │  └1 element<span> [1]
+      │  │     └0 text
+      │  │        │  "22"
+      │  └2 element<li> [2]
+      │     ├0 element<span> [1]
+      │     │  └0 text
+      │     │     │  "type: "
+      │     └1 element<span> [1]
+      │        └0 text
+      │           │  "checkbox"
+      └5 element<h4> [1]
+         └0 text
+            │  "The end"

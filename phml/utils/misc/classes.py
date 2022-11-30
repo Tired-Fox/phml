@@ -12,7 +12,7 @@ from phml.nodes import Element
 __all__ = ["classnames", "ClassList"]
 
 
-def classnames(
+def classnames(  # pylint: disable=keyword-arg-before-vararg
     node: Optional[Element] = None, *conditionals: str | int | list | dict[str, bool]
 ) -> str:
     """Concat a bunch of class names. Can take a str as a class,
@@ -50,8 +50,9 @@ def classnames(
 
     if node is None:
         return " ".join(classes)
-    else:
-        node.properties["class"] = node.properties["class"] or "" + f" {' '.join(classes)}"
+
+    node.properties["class"] = node.properties["class"] or "" + f" {' '.join(classes)}"
+    return None
 
 
 class ClassList:
@@ -66,7 +67,7 @@ class ClassList:
 
     def contains(self, klass: str):
         """Check if `class` contains a certain class."""
-        from phml.utils import has_property
+        from phml.utils import has_property  # pylint: disable=import-outside-toplevel
 
         if has_property(self.node, "class"):
             return search(klass, self.node.properties["class"]) is not None

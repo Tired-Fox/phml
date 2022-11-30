@@ -1,4 +1,7 @@
+"""Helper methods for converting an ast to phml, html, and json."""
+
 from copy import deepcopy
+from json import dumps
 from typing import Optional
 
 from phml.nodes import AST, All_Nodes, Element, Position, Root
@@ -27,8 +30,8 @@ def html(
     Args:
         ast (AST): The phml ast to compile
         components (dict[str, dict[str, list | All_Nodes]] | None): key value pairs of element name
-        and the replacement mapping. The replacement mapping holds reference to a components python, script,
-        and style elements along with the root replacement node.
+        and the replacement mapping. The replacement mapping holds reference to a components python,
+        script, and style elements along with the root replacement node.
         indent (int): The offset amount to every indent
         **kwargs (Any): Additional information that will be exposed to executed python blocks.
     """
@@ -37,40 +40,39 @@ def html(
 
     # 1. Search for all python elements and get source info.
     #    - Remove when done
-    vp = VirtualPython()
+    virtual_python = VirtualPython()
 
-    for pb in find_all(src, {"tag": "python"}):
-        if len(pb.children) == 1:
-            if pb.children[0].type == "text":
-                vp += VirtualPython(pb.children[0].value)
+    for python_block in find_all(src, {"tag": "python"}):
+        if len(python_block.children) == 1:
+            if python_block.children[0].type == "text":
+                virtual_python += VirtualPython(python_block.children[0].value)
 
     remove_nodes(src, ["element", {"tag": "python"}])
 
     # 2. Replace specific element node with given replacement components
-    replace_components(src, components, vp, **kwargs)
+    replace_components(src, components, virtual_python, **kwargs)
 
-    for pb in find_all(src, {"tag": "python"}):
-        if len(pb.children) == 1:
-            if pb.children[0].type == "text":
-                vp += VirtualPython(pb.children[0].value)
+    for python_block in find_all(src, {"tag": "python"}):
+        if len(python_block.children) == 1:
+            if python_block.children[0].type == "text":
+                virtual_python += VirtualPython(python_block.children[0].value)
 
     remove_nodes(src, ["element", {"tag": "python"}])
 
     # 3. Search each element and find py-if, py-elif, py-else, and py-for
     #    - Execute those statements
 
-    apply_conditions(src, vp, **kwargs)
+    apply_conditions(src, virtual_python, **kwargs)
 
     # 4. Search for python blocks and process them.
 
-    apply_python(src, vp, **kwargs)
+    apply_python(src, virtual_python, **kwargs)
 
     return __to_html(src, indent)
 
 
 def json(ast: AST, indent: int = 0) -> str:
     """Compile a given phml ast to a json string with a certain indent amount."""
-    from json import dumps
 
     def compile_children(node: Root | Element) -> dict:
         data = {"type": node.type}
@@ -128,11 +130,11 @@ def __to_html(ast: AST, offset: int = 0) -> str:
                     )
                 else:
                     data.append(" " * indent + node.start_tag())
-                    for c in visit_children(node):
-                        if c.type == "element":
-                            data.extend(compile_children(c, indent + offset))
+                    for child in visit_children(node):
+                        if child.type == "element":
+                            data.extend(compile_children(child, indent + offset))
                         else:
-                            data.append(c.stringify(indent + offset))
+                            data.append(child.stringify(indent + offset))
                     data.append(" " * indent + node.end_tag())
         elif node.type == "root":
             for child in visit_children(node):

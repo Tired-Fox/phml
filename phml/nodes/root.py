@@ -1,15 +1,10 @@
+# pylint: disable=missing-module-docstring
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterator, Optional
+from typing import Optional
 
 from .parent import Parent
-
-if TYPE_CHECKING:
-    from .comment import Comment
-    from .doctype import DocType
-    from .element import Element
-    from .position import Position
-    from .text import Text
+from .position import Position
 
 
 class Root(Parent):
@@ -23,21 +18,17 @@ class Root(Parent):
         self,
         position: Optional[Position] = None,
         children: Optional[list] = None,
-    ):  # pylint: disable=useless-parent-delegation
+    ):
         super().__init__(position, children)
         self.parent = None
 
     def __eq__(self, obj) -> bool:
-        if obj is None:
-            return False
-
-        if hasattr(obj, "type") and self.type == obj.type:
-            for c, oc in zip(self.children, obj.children):
-                if c != oc:
-                    return False
-            return True
-        else:
-            return False
+        return bool(
+            obj is not None
+            and isinstance(obj, Root)
+            and len(self.children) == len(obj.children)
+            and all(child == obj_child for child, obj_child in zip(self.children, obj.children))
+        )
 
     def stringify(self) -> str:
         """Build indented html string of documents elements and their children.

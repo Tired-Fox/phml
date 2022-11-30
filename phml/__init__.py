@@ -1,9 +1,14 @@
 """Python Hypertext Markup Language (phml)
 
-The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language pulls directly from frameworks like VueJS. There is conditional rendering, components, python elements, inline/embedded python blocks, and much more. Now let's dive into more about this language.
+The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page
+generation with direct access to python. This language pulls directly from frameworks like VueJS.
+There is conditional rendering, components, python elements, inline/embedded python blocks, and much
+more. Now let's dive into more about this language.
 
 Let's start with the new `python` element. Python is a whitespace language. As such phml
-has the challenge of maintaining the indentation in an appropriate way. With phml, I have made the decision to allow you to have as much leading whitespace as you want as long as the indentation is consistent. This means that indentation is based on the first lines offset. Take this phml example:
+has the challenge of maintaining the indentation in an appropriate way. With phml, I have made the
+decision to allow you to have as much leading whitespace as you want as long as the indentation is
+consistent. This means that indentation is based on the first lines offset. Take this phml example:
 
 ```python
 <python>
@@ -22,7 +27,8 @@ if True:
 So now we can write python code, now what? You can define functions and variables
 how you normally would and they are now available to the scope of the entire file.
 Take, for instance, the example from above, the one with `py-src="urls('youtube')"`.
-You can define the `URL` function in the `python` element and it can be accessed in an element. So the code would look like this:
+You can define the `URL` function in the `python` element and it can be accessed in an element. So
+the code would look like this:
 
 ```html
 <python>
@@ -41,24 +47,37 @@ def URL(link: str) -> str:
 <a href="{URL('youtube')}">Youtube</a>
 ```
 
-phml combines all `python` elements and treats them as a python file. All local variables and imports are parsed and stored so that they may be accessed later. With that in mind that means you have the full power of the python programming language.
+phml combines all `python` elements and treats them as a python file. All local variables and
+imports are parsed and stored so that they may be accessed later. With that in mind that means you
+have the full power of the python programming language.
 
-Next up is inline python blocks. These are represented with `{}`. Any text in-between the brackets will be processed as python. This is mostly useful when you want to inject a value from python. Assume that there is a variable defined in the `python` element called `message`
+Next up is inline python blocks. These are represented with `{}`. Any text in-between the brackets
+will be processed as python. This is mostly useful when you want to inject a value from python.
+Assume that there is a variable defined in the `python` element called `message`
 and it contains `Hello World!`. Now this variable can be used like this, `<p>{ message }</p>`,
 which renders to, `<p>Hello World!</p>`.
 
 > Note:  Inline python blocks are only rendered in a Text element or inside an html attribute.
 
 Multiline blocks are a lot like inline python blocks, but they also have some differences.
-You can do whatever you like inside this block, however if you expect a value to come from the block you must have at least one local variable. The last local variable defined in this block is used at the result/value.
+You can do whatever you like inside this block, however if you expect a value to come from the block
+you must have at least one local variable. The last local variable defined in this block is used at
+the result/value.
 
 Conditional Rendering with `py-if`, `py-elif`, and `py-else` is an extremely helpful tool in phml.
-`py-if` can be used alone and that the python inside it's value must be truthy for the element to be rendered. `py-elif` requires an element with a `py-if` or `py-elif` attribute immediately before it, and it's condition is rendered the same as `py-if` but only rendered if a `py-if` or `py-elif` first
+`py-if` can be used alone and that the python inside it's value must be truthy for the element to be
+rendered. `py-elif` requires an element with a `py-if` or `py-elif` attribute immediately before
+it, and it's condition is rendered the same as `py-if` but only rendered if a `py-if` or `py-elif`
+first
 fails. `py-else` requires there to be either a `py-if` or a `py-else` immediately before it. It only
 renders if the previous element's condition fails. If `py-elif` or `py-else` is on an element, but
-the previous element isn't a `py-if` or `py-elif` then an exception will occur. Most importantly, the first element in a chain of conditions must be a `py-if`. For ease of use, instead of writing `py-if`, `py-elif`, or `py-else` can be written as `@if`, `@elif`, or `@else` respectively.
+the previous element isn't a `py-if` or `py-elif` then an exception will occur. Most importantly,
+the first element in a chain of conditions must be a `py-if`. For ease of use, instead of writing
+`py-if`, `py-elif`, or `py-else` can be written as `@if`, `@elif`, or `@else` respectively.
 
-Other than conditions, there is also a built in `py-for` attribute. Any element with py-for will take a python for-loop expression that will be applied to that element. So if you did something like this:
+Other than conditions, there is also a built in `py-for` attribute. Any element with py-for will
+take a python for-loop expression that will be applied to that element. So if you did something like
+this:
 
 ```html
 <ul>
@@ -84,15 +103,28 @@ The compiled html will be:
 </ul>
 ```
 
-The `for` and `:` in the for loops condition are optional. So you can combine `for`, `i in range(10)`, and `:` or leave out `for` and `:` at your discretion. `py-for` can also be written as `@for`.
+The `for` and `:` in the for loops condition are optional. So you can combine `for`,
+`i in range(10)`, and `:` or leave out `for` and `:` at your discretion. `py-for` can also be
+written as `@for`.
 
 Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in
-phml, you would inject python logic into an attribute similar to this: `src="{url('youtube')}"`. If you would like to make the whole attribute value a python expression you may prefix any attribute with a `py-` or `:`. This keeps the attribute name the same after the prefix, but tells
-the parser that the entire value should be processed as python. So the previous example can also be expressed as `py-src="URL('youtube')"` or `:src="URL('youtube')"`.
+phml, you would inject python logic into an attribute similar to this: `src="{url('youtube')}"`. If
+you would like to make the whole attribute value a python expression you may prefix any attribute
+with a `py-` or `:`. This keeps the attribute name the same after the prefix, but tells
+the parser that the entire value should be processed as python. So the previous example can also be
+expressed as `py-src="URL('youtube')"` or `:src="URL('youtube')"`.
 
-This language also has the ability to convert back to html and json with converting to html having more features. Converting to json is just a json representation of a phml ast. However, converting to html is where the magic happens. The compiler executes python blocks, substitutes components, and processes conditions to create a final html string that is dynamic to its original ast. A user may pass additional kwargs to the compiler to expose additional data to the execution of python blocks. If you wish to compile to a non supported language the compiler can take a callable that returns the final string. It passes all the data; components, kwargs, ast, etc… So if a user wishes to extend the language thay may.
+This language also has the ability to convert back to html and json with converting to html having
+more features. Converting to json is just a json representation of a phml ast. However, converting
+to html is where the magic happens. The compiler executes python blocks, substitutes components, and
+processes conditions to create a final html string that is dynamic to its original ast. A user may
+pass additional kwargs to the compiler to expose additional data to the execution of python blocks.
+If you wish to compile to a non supported language the compiler can take a callable that returns the
+final string. It passes all the data; components, kwargs, ast, etc… So if a user wishes to extend
+the language thay may.
 
-> :warning: This language is in early planning and development stages. All forms of feedback are encouraged.
+> :warning: This language is in early planning and development stages. All forms of feedback are
+encouraged.
 """
 
 from pathlib import Path
@@ -132,6 +164,7 @@ class PHMLCore:
 
     @property
     def ast(self) -> AST:
+        """Reference to the parser attributes ast value."""
         return self.parser.ast
 
     @ast.setter
@@ -171,7 +204,7 @@ class PHMLCore:
             name of the component and the the component. The name is used
             to replace a element with the tag==name.
         """
-        from phml.utils import filename_from_path
+        from phml.utils import filename_from_path  # pylint: disable=import-outside-toplevel
 
         for component in components:
             if isinstance(component, Path):

@@ -1,3 +1,10 @@
+# pylint: disable=invalid-name
+"""Basic node that holds a root node and has basic utilties.
+
+You can check the size of the tree, iterate over the tree, and directly access
+the children of the root node.
+"""
+
 from __future__ import annotations
 
 from functools import cached_property
@@ -19,7 +26,7 @@ class AST:
             raise TypeError("The given tree/root node for AST must be of type `Root` or `Element`")
 
     def __iter__(self) -> Iterator:
-        from phml.utils import walk
+        from phml.utils import walk  # pylint: disable=import-outside-toplevel
 
         return walk(self.tree)
 
@@ -32,7 +39,7 @@ class AST:
     @cached_property
     def size(self) -> int:
         """Get the number of nodes in the ast tree."""
-        from phml.utils import size
+        from phml.utils import size  # pylint: disable=import-outside-toplevel
 
         return size(self.tree)
 

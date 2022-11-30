@@ -1,3 +1,4 @@
+# pylint: skip-file
 '''Virtual Python
 
 This module serves to solve the problem of processing python
@@ -14,12 +15,12 @@ Here are examples of the python blocks:
 ```html
 <python>
     from datetime import datetime
-    
+
     current_time = datetime.now().strftime('%H:%M:%S')
 </python>
 ```
 
-2. Inline python block. Mainly used for retreiving values 
+2. Inline python block. Mainly used for retreiving values
 or creating conditions. The local variables in the blocks are given
 from the python elements and from kwargs passed to the parser
 
@@ -49,7 +50,7 @@ local variable similar to how Jupyter or the python in cli works.
 ```
 '''
 
-from .ImportObjects import Import, ImportFrom
+from .import_objects import Import, ImportFrom
 from .vp import VirtualPython, get_vp_result, process_vp_blocks
 
 __all__ = ["VirtualPython", "get_vp_result", "process_vp_blocks", "Import", "ImportFrom"]

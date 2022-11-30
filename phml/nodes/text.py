@@ -1,5 +1,5 @@
+# pylint: disable=missing-module-docstring
 from functools import cached_property
-from typing import Iterator
 
 from .literal import Literal
 

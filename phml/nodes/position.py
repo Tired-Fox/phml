@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
@@ -31,36 +32,13 @@ class Position:
 
         self.indent = indent
 
-    def as_dict(self) -> dict:
-        return {
-            "start": {
-                "line": self.start.line,
-                "column": self.start.column,
-                "offset": self.start.offset,
-            },
-            "end": {
-                "line": self.end.line,
-                "column": self.end.column,
-                "offset": self.end.offset,
-            },
-            "indent": self.indent,
-        }
-
     def __eq__(self, obj) -> bool:
-        if isinstance(obj, Position):
-            if self.start == obj.start:
-                if self.end == obj.end:
-                    return True
-                else:
-                    # print(f"{self.end} != {obj.end}: end values are not equal")
-                    return False
-            else:
-                # print(f"{self.start} != {obj.start}: start values are not equal")
-                return False
-        # print(
-        # f"{type(self).__name__} != {type(obj).__name__}: {type(self).__name__} can not be equated to {type(obj).__name__}"
-        # )
-        return False
+        return bool(
+            obj is not None
+            and isinstance(obj, Position)
+            and self.start == obj.start
+            and self.end == obj.end
+        )
 
     def __repr__(self) -> str:
         indent = f" ~ {self.indent}" if self.indent is not None else ""

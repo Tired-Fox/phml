@@ -63,7 +63,7 @@ def strip_and_count(data: str, cur_pos: tuple[int, int]) -> tuple[str, int, int]
     if len(data_lines) > 1:
 
         # remove leading blank lines
-        for idx in range(len(data_lines)):
+        for idx in range(0, len(data_lines)):  # pylint: disable=consider-using-enumerate
             if data_lines[idx].strip() != "":
                 data_lines = data_lines[idx:]
                 break
@@ -192,7 +192,8 @@ class HypertextMarkupParser(HTMLParser):
             self.cur_tags.pop(-1)
         else:
             raise Exception(
-                f"Mismatched tags <{self.cur.tag}> and </{tag}> at [{self.getpos()[0]}:{self.getpos()[1]}]"
+                f"Mismatched tags <{self.cur.tag}> and </{tag}> at \
+[{self.getpos()[0]}:{self.getpos()[1]}]"
             )
 
     def handle_data(self, data):

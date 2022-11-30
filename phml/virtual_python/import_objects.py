@@ -1,7 +1,10 @@
+"""Dataclasses to hold information about python imports."""
 from __future__ import annotations
 
 
 class PythonImport:
+    """Base class defining required methods of import dataclasses."""
+
     def __init__(self):
         ...
 
@@ -18,6 +21,7 @@ class Import(PythonImport):
     """
 
     def __init__(self, modules: list[str]):
+        super().__init__()
         self.modules = modules
 
     @classmethod
@@ -45,6 +49,7 @@ class ImportFrom(PythonImport):
     """
 
     def __init__(self, module: str, names: list[str]):
+        super().__init__()
         self.module = module
         self.names = names
 

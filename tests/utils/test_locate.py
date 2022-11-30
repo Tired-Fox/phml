@@ -183,10 +183,10 @@ class TestSelect:
         )
 
     def test_query_all(self):
-        assert matching_lists(queryAll(query_ast, "div"), find_all(query_ast, {"tag": "div"}))
+        assert matching_lists(query_all(query_ast, "div"), find_all(query_ast, {"tag": "div"}))
 
         assert matching_lists(
-            queryAll(query_ast, "div[id|=test]"),
+            query_all(query_ast, "div[id|=test]"),
             find_all(
                 query_ast,
                 lambda n, i, _: n.type == "element"
@@ -196,7 +196,7 @@ class TestSelect:
         )
 
         assert matching_lists(
-            queryAll(query_ast, "div > h1"),
+            query_all(query_ast, "div > h1"),
             find_all(
                 query_ast,
                 lambda n, i, pnt: n.type == "element"

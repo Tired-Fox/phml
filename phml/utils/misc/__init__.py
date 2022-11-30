@@ -21,7 +21,7 @@ from .inspect import *
 # ]
 
 
-def depth(el) -> int:
+def depth(node) -> int:
     """Get the depth in the tree for a given node.
 
     -1 means that you passed in the tree itself and you are at the
@@ -29,16 +29,16 @@ def depth(el) -> int:
     """
 
     level = -1
-    while el.parent is not None:
+    while node.parent is not None:
         level += 1
-        el = el.parent
+        node = node.parent
 
     return level
 
 
 def size(node: Root | Element) -> int:
     """Get the number of nodes recursively."""
-    from phml.utils import walk
+    from phml.utils import walk  # pylint: disable=import-outside-toplevel
 
     count = 0
 

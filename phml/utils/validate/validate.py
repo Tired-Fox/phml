@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 from re import match, split, sub
 
 from phml.nodes import All_Nodes, Comment, Element, Root, Text
@@ -22,32 +23,33 @@ def validate(node: All_Nodes) -> bool:
 
     if hasattr(node, "children"):
         if not hasattr(node, "type"):
-            raise AssertionError("Node should be have a type")
-        elif node.type not in ["root", "element"]:
+            raise AssertionError("Node should have a type")
+
+        if node.type not in ["root", "element"]:
             raise AssertionError(
                 "Node should have a type of 'root' or 'element' to contain the 'children' attribute"
             )
-        else:
-            for n in node.children:
-                if not isinstance(n, All_Nodes):
-                    raise AssertionError("Children must be a node type")
+
+        if not all(isinstance(child, All_Nodes) for child in node.children):
+            raise AssertionError("Children must be a node type")
+
     if hasattr(node, "properties"):
         if hasattr(node, type) and node.type != "element":
             raise AssertionError("Node must be of type 'element' to contain 'properties'")
-        else:
-            for prop in node.properties:
-                if not isinstance(node.properties[prop], (int, str)):
-                    raise AssertionError("Node 'properties' must be of type 'int' or 'str'")
-    if hasattr(node, "value"):
-        if not isinstance(node.value, str):
-            raise AssertionError("Node 'value' must be of type 'str'")
+
+        if not all(isinstance(node.properties[prop], (int, str)) for prop in node.properties):
+            raise AssertionError("Node 'properties' must be of type 'int' or 'str'")
+
+    if hasattr(node, "value") and not isinstance(node.value, str):
+        raise AssertionError("Node 'value' must be of type 'str'")
 
 
 def parent(node: Root | Element) -> bool:
     """Validate a parent node based on attributes and type."""
     if not hasattr(node, "children"):
         raise AssertionError("Parent nodes should have the 'children' attribute")
-    elif node.type == "element" and not hasattr(node, "properties"):
+
+    if node.type == "element" and not hasattr(node, "properties"):
         raise AssertionError("Parent element node shoudl have the 'properties' element.")
 
 
@@ -122,7 +124,8 @@ def is_css_style(node) -> bool:
 def is_javascript(node) -> bool:
     """Check if an element is a javascript `script` element.
 
-    Returns `true` if `node` is a `<script>` element that has a valid JavaScript `type`, has no `type` and a valid JavaScript `language`, or has neither.
+    Returns `true` if `node` is a `<script>` element that has a valid JavaScript `type`, has no
+    `type` and a valid JavaScript `language`, or has neither.
     """
     return is_element(node, "script") and (
         (
@@ -150,14 +153,16 @@ def is_element(node, *conditions: str | list) -> bool:
     if node.type != "element":
         return False
 
-    for condition in conditions:
-        if isinstance(condition, str) and node.tag == condition:
-            return True
-        elif isinstance(condition, list):
-            for c in condition:
-                if node.tag == c:
-                    return True
-        return False
+    return bool(
+        node.type == "element"
+        and all(
+            bool(
+                (isinstance(condition, str) and node.tag == condition)
+                or (isinstance(condition, list) and all(node.tag == nested for nested in condition))
+            )
+            for condition in conditions
+        )
+    )
 
 
 def is_event_handler(attribute: str) -> bool:
@@ -228,27 +233,33 @@ def is_interactive(node: Element) -> bool:
 
     if is_element(node, "a"):
         return has_property(node, "href")
-    elif is_element(node, "input"):
+
+    if is_element(node, "input"):
         return has_property(node, "type") and node.properties["type"].lower() != "hidden"
-    elif is_element(node, "button", "details", "embed", "iframe", "img"):
+
+    if is_element(node, "button", "details", "embed", "iframe", "img"):
         return has_property(node, "usemap")
-    elif is_element(node, "audio", "label", "select", "text", "area", "video"):
+
+    if is_element(node, "audio", "label", "select", "text", "area", "video"):
         return has_property(node, "controls")
+
+    return False
 
 
 def is_phrasing(node: Element) -> bool:
     """Check if a node is phrasing text according to
     https://html.spec.whatwg.org/#phrasing-content-2.
 
-    Phrasing content is the text of the document, as well as elements that mark up that text at the intra-paragraph level. Runs of phrasing content form paragraphs.
+    Phrasing content is the text of the document, as well as elements that mark up that text at the
+    intra-paragraph level. Runs of phrasing content form paragraphs.
 
     * area (if it is a descendant of a map element)
     * link (if it is allowed in the body)
     * meta (if the itemprop attribute is present)
-    * map, mark, math, audio, b, bdi, bdo, br, button, canvas, cite, code, data, datalist, del, dfn, em, embed,
-     i, iframe, img, input, ins, kbd, label, a, abbr, meter, noscript, object, output, picture,
-     progress, q, ruby, s, samp, script, select, slot, small, span, strong, sub, sup, svg, template,
-     textarea, time, u, var, video, wbr, text (true)
+    * map, mark, math, audio, b, bdi, bdo, br, button, canvas, cite, code, data, datalist, del, dfn,
+     em, embed, i, iframe, img, input, ins, kbd, label, a, abbr, meter, noscript, object, output,
+     picture, progress, q, ruby, s, samp, script, select, slot, small, span, strong, sub, sup, svg,
+     template, textarea, time, u, var, video, wbr, text (true)
 
     Returns:
         True if the element is phrasing text
@@ -256,11 +267,14 @@ def is_phrasing(node: Element) -> bool:
 
     if isinstance(node, Text):
         return True
-    elif is_element(node, "area"):
+
+    if is_element(node, "area"):
         return node.parent is not None and is_element(node.parent, "map")
-    elif is_element(node, "meta"):
+
+    if is_element(node, "meta"):
         return has_property(node, "itemprop")
-    elif is_element(node, "link"):
+
+    if is_element(node, "link"):
         body_ok = [
             "dns-prefetch",
             "modulepreload",
@@ -272,16 +286,15 @@ def is_phrasing(node: Element) -> bool:
             "stylesheet",
         ]
 
-        if has_property(node, "itemprop"):
-            return True
-        elif has_property(node, "rel"):
-            tokens = node.properties["rel"].split(" ")
-            for token in tokens:
-                if token.strip() not in body_ok:
-                    return False
-            return True
-        return False
-    elif is_element(
+        return bool(
+            has_property(node, "itemprop")
+            or (
+                has_property(node, "rel")
+                and all(token.strip() in body_ok for token in node.properties["rel"].split(" "))
+            )
+        )
+
+    if is_element(
         "node",
         "map",
         "mark",
@@ -338,3 +351,5 @@ def is_phrasing(node: Element) -> bool:
         "wbr",
     ):
         return True
+
+    return False

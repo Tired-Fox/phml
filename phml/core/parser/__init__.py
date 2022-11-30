@@ -12,7 +12,7 @@ from typing import Callable, Optional
 
 from phml.nodes import AST, Root
 
-from .hypertextMarkupParser import HypertextMarkupParser
+from .hypertext_markup_parser import HypertextMarkupParser
 from .json import json_to_ast
 
 __all__ = ["Parser"]
@@ -72,12 +72,13 @@ class Parser:
                     if len(self.phml_parser.cur_tags) > 0:
                         last = self.phml_parser.cur_tags[-1].position
                         raise Exception(
-                            f"Unbalanced tags in source file '{path}' at [{last.start.line}:{last.start.column}]"
+                            f"Unbalanced tags in source file '{path}' at \
+[{last.start.line}:{last.start.column}]"
                         )
                     self.ast = AST(self.phml_parser.cur)
-                except Exception as e:
+                except Exception as exception:
                     self.ast = None
-                    raise Exception(f"'{path}': {e}")
+                    raise Exception(f"'{path}': {exception}") from exception
         else:
             self.ast = handler(src)
 
@@ -109,9 +110,12 @@ class Parser:
                             f"Unbalanced tags in source at [{last.start.line}:{last.start.column}]"
                         )
                     self.ast = AST(self.phml_parser.cur)
-                except Exception as e:
+                except Exception as exception:
                     self.ast = None
-                    raise Exception(f"{data[:6] + '...' if len(data) > 6 else data}: {e}")
+                    raise Exception(
+                        f"{data[:6] + '...' if len(data) > 6 else data}\
+: {exception}"
+                    ) from exception
         else:
             self.ast = handler(data)
 

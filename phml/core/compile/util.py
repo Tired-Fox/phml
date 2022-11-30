@@ -1,30 +1,34 @@
+"""Helper methods for processing dynamic python attributes and blocks."""
+
 from __future__ import annotations
 
 from copy import deepcopy
 from re import match, search, sub
 from typing import Optional
 
-from phml.nodes import *
-from phml.utils import path, replace_node, test, visit_children
+from phml.nodes import AST, All_Nodes, Element, Root
+from phml.utils import find, path, replace_node, test, visit_children
 from phml.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
-condition_prefix = "@"
+CONDITION_PREFIX = "@"
 
 # ? Change prefix char for python attributes here
-python_attr_prefix = ":"
+ATTR_PREFIX = ":"
 
 
 def replace_components(
-    node: Root | Element | AST, components: dict[str, All_Nodes], vp: VirtualPython, **kwargs
+    node: Root | Element | AST,
+    components: dict[str, All_Nodes],
+    virtual_python: VirtualPython,
+    **kwargs,
 ):
     """Replace all nodes in the tree with matching components.
 
     Args:
         node (Root | Element | AST): The starting point.
-        vp (VirtualPython): Temp
+        virtual_python (VirtualPython): Temp
     """
-    from phml.utils import find
 
     if isinstance(node, AST):
         node = node.tree
@@ -34,12 +38,14 @@ def replace_components(
         while curr_node is not None:
             new_props = {}
             for prop in curr_node.properties:
-                if prop.startswith((python_attr_prefix, "py-")):
-                    new_props[prop.lstrip(python_attr_prefix).lstrip("py-")] = get_vp_result(
-                        curr_node.properties[prop], **vp.locals, **kwargs
+                if prop.startswith((ATTR_PREFIX, "py-")):
+                    new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_vp_result(
+                        curr_node.properties[prop], **virtual_python.locals, **kwargs
                     )
                 elif match(r".*\{.*\}.*", str(curr_node.properties[prop])) is not None:
-                    new_props[prop] = process_vp_blocks(curr_node.properties[prop], vp, **kwargs)
+                    new_props[prop] = process_vp_blocks(
+                        curr_node.properties[prop], virtual_python, **kwargs
+                    )
                 else:
                     new_props[prop] = curr_node.properties[prop]
 
@@ -76,95 +82,111 @@ def __has_py_condition(node: Element) -> Optional[tuple[str, str]]:
         "py-if",
         "py-elif",
         "py-else",
-        f"{condition_prefix}if",
-        f"{condition_prefix}elif",
-        f"{condition_prefix}else",
-        f"{condition_prefix}for",
+        f"{CONDITION_PREFIX}if",
+        f"{CONDITION_PREFIX}elif",
+        f"{CONDITION_PREFIX}else",
+        f"{CONDITION_PREFIX}for",
     ]:
         if cond in node.properties.keys():
             return (cond, node.properties[cond])
     return None
 
 
-def apply_conditions(node: Root | Element | AST, vp: VirtualPython, **kwargs):
+def apply_conditions(node: Root | Element | AST, virtual_python: VirtualPython, **kwargs):
     """Applys all `py-if`, `py-elif`, `py-else`, and `py-for` to the node
     recursively.
 
     Args:
         node (Root | Element): The node to recursively apply `py-` attributes too.
-        vp (VirtualPython): All of the data from the python elements.
+        virtual_python (VirtualPython): All of the data from the python elements.
     """
 
     if isinstance(node, AST):
         node = node.tree
 
-    process_conditions(node, vp, **kwargs)
+    process_conditions(node, virtual_python, **kwargs)
     for child in node.children:
         if isinstance(child, (Root, Element)):
-            apply_conditions(child, vp, **kwargs)
+            apply_conditions(child, virtual_python, **kwargs)
 
 
-def apply_python(node: Root | Element | AST, vp: VirtualPython, **kwargs):
+def apply_python(
+    current: Root | Element | AST,
+    virtual_python: VirtualPython,
+    **kwargs,
+):
     """Recursively travers the node and search for python blocks. When found
     process them and apply the results.
 
     Args:
-        node (Root | Element): The node to traverse
-        vp (VirtualPython): The python elements data
+        current (Root | Element): The node to traverse
+        virtual_python (VirtualPython): The python elements data
     """
 
-    if isinstance(node, AST):
-        node = node.tree
+    if isinstance(current, AST):
+        current = current.tree
 
-    def process_children(n: Root | Element, local_env: dict):
+    def process_children(node: Root | Element, local_env: dict):
 
-        for child in n.children:
+        for child in node.children:
             if test(child, "element"):
                 if "children" in child.locals.keys():
                     replace_node(child, ["element", {"tag": "slot"}], child.locals["children"])
 
-                le = {**local_env}
-                le.update(child.locals)
+                local_vars = {**local_env}
+                local_vars.update(child.locals)
                 new_props = {}
+
                 for prop in child.properties:
-                    if prop.startswith((python_attr_prefix, "py-")):
-                        new_props[prop.lstrip(python_attr_prefix).lstrip("py-")] = get_vp_result(
-                            child.properties[prop], **le, **vp.locals
+                    if prop.startswith((ATTR_PREFIX, "py-")):
+                        new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_vp_result(
+                            child.properties[prop], **local_vars, **virtual_python.locals
                         )
                     elif match(r".*\{.*\}.*", str(child.properties[prop])) is not None:
-                        new_props[prop] = process_vp_blocks(child.properties[prop], vp, **le)
+                        new_props[prop] = process_vp_blocks(
+                            child.properties[prop], virtual_python, **local_vars
+                        )
                     else:
                         new_props[prop] = child.properties[prop]
 
                 child.properties = new_props
-                process_children(child, {**le})
+                process_children(child, {**local_vars})
             elif (
                 test(child, "text")
                 and child.parent.tag not in ["script", "style"]
                 and search(r".*\{.*\}.*", child.value) is not None
             ):
-                child.value = process_vp_blocks(child.value, vp, **local_env)
+                child.value = process_vp_blocks(child.value, virtual_python, **local_env)
 
-    process_children(node, {**kwargs})
+    process_children(current, {**kwargs})
 
 
-def process_conditions(tree: Root | Element, vp: VirtualPython, **kwargs):
-    def py_conditions(node) -> bool:
-        return [
-            k
-            for k in node.properties.keys()
-            if k
-            in [
-                "py-for",
-                "py-if",
-                "py-elif",
-                "py-else",
-                f"{condition_prefix}if",
-                f"{condition_prefix}elif",
-                f"{condition_prefix}else",
-                f"{condition_prefix}for",
-            ]
+def py_conditions(node: Element) -> bool:
+    """Return all python condition attributes on an element."""
+    return [
+        k
+        for k in node.properties.keys()
+        if k
+        in [
+            "py-for",
+            "py-if",
+            "py-elif",
+            "py-else",
+            f"{CONDITION_PREFIX}if",
+            f"{CONDITION_PREFIX}elif",
+            f"{CONDITION_PREFIX}else",
+            f"{CONDITION_PREFIX}for",
         ]
+    ]
+
+
+def process_conditions(tree: Root | Element, virtual_python: VirtualPython, **kwargs):
+    """Process all python condition attributes in the phml tree.
+
+    Args:
+        tree (Root | Element): The tree to process conditions on.
+        virtual_python (VirtualPython): The collection of information from the python blocks.
+    """
 
     conditions = []
     for child in visit_children(tree):
@@ -173,8 +195,8 @@ def process_conditions(tree: Root | Element, vp: VirtualPython, **kwargs):
                 if py_conditions(child)[0] not in [
                     "py-for",
                     "py-if",
-                    f"{condition_prefix}for",
-                    f"{condition_prefix}if",
+                    f"{CONDITION_PREFIX}for",
+                    f"{CONDITION_PREFIX}if",
                 ]:
                     idx = child.parent.children.index(child)
                     previous = child.parent.children[idx - 1] if idx > 0 else None
@@ -183,13 +205,13 @@ def process_conditions(tree: Root | Element, vp: VirtualPython, **kwargs):
                         prev_cond is not None
                         and len(prev_cond) == 1
                         and prev_cond[0]
-                        in ["py-elif", "py-if", f"{condition_prefix}elif", f"{condition_prefix}if"]
+                        in ["py-elif", "py-if", f"{CONDITION_PREFIX}elif", f"{CONDITION_PREFIX}if"]
                     ):
                         conditions.append((py_conditions(child)[0], child))
                     else:
                         raise Exception(
-                            f"Condition statements that are not py-if or py-for must have py-if or py-elif\
- as a prevous sibling.\n{child.start_tag()}{f' at {child.position}' or ''}"
+                            f"Condition statements that are not py-if or py-for must have py-if or\
+ py-elif as a prevous sibling.\n{child.start_tag()}{f' at {child.position}' or ''}"
                         )
                 else:
                     conditions.append((py_conditions(child)[0], child))
@@ -198,10 +220,30 @@ def process_conditions(tree: Root | Element, vp: VirtualPython, **kwargs):
                     f"There can only be one python condition statement at a time:\n{repr(child)}"
                 )
 
-    tree.children = execute_conditions(conditions, tree.children, vp, **kwargs)
+    tree.children = execute_conditions(conditions, tree.children, virtual_python, **kwargs)
 
 
-def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **kwargs) -> list:
+def execute_conditions(
+    cond: list[tuple],
+    children: list,
+    virtual_python: VirtualPython,
+    **kwargs,
+) -> list:
+    """Execute all the conditions. If the condition is a `for` then generate more nodes.
+    All other conditions determine if the node stays or is removed.
+
+    Args:
+        cond (list[tuple]): The list of conditions to apply. Holds tuples of (condition, node).
+        children (list): List of current nodes children.
+        virtual_python (VirtualPython): The collection of information from the python blocks.
+
+    Raises:
+        Exception: An unkown conditional attribute is being parsed.
+        Exception: Condition requirements are not met.
+
+    Returns:
+        list: The newly generated/modified list of children.
+    """
 
     valid_prev = {
         "py-for": [
@@ -209,54 +251,54 @@ def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **k
             "py-elif",
             "py-else",
             "py-for",
-            f"{condition_prefix}if",
-            f"{condition_prefix}elif",
-            f"{condition_prefix}else",
-            f"{condition_prefix}for",
+            f"{CONDITION_PREFIX}if",
+            f"{CONDITION_PREFIX}elif",
+            f"{CONDITION_PREFIX}else",
+            f"{CONDITION_PREFIX}for",
         ],
         "py-if": [
             "py-if",
             "py-elif",
             "py-else",
             "py-for",
-            f"{condition_prefix}if",
-            f"{condition_prefix}elif",
-            f"{condition_prefix}else",
-            f"{condition_prefix}for",
+            f"{CONDITION_PREFIX}if",
+            f"{CONDITION_PREFIX}elif",
+            f"{CONDITION_PREFIX}else",
+            f"{CONDITION_PREFIX}for",
         ],
-        "py-elif": ["py-if", "py-elif", f"{condition_prefix}if", f"{condition_prefix}elif"],
-        "py-else": ["py-if", "py-elif", f"{condition_prefix}if", f"{condition_prefix}elif"],
-        f"{condition_prefix}for": [
+        "py-elif": ["py-if", "py-elif", f"{CONDITION_PREFIX}if", f"{CONDITION_PREFIX}elif"],
+        "py-else": ["py-if", "py-elif", f"{CONDITION_PREFIX}if", f"{CONDITION_PREFIX}elif"],
+        f"{CONDITION_PREFIX}for": [
             "py-if",
             "py-elif",
             "py-else",
             "py-for",
-            f"{condition_prefix}if",
-            f"{condition_prefix}elif",
-            f"{condition_prefix}else",
-            f"{condition_prefix}for",
+            f"{CONDITION_PREFIX}if",
+            f"{CONDITION_PREFIX}elif",
+            f"{CONDITION_PREFIX}else",
+            f"{CONDITION_PREFIX}for",
         ],
-        f"{condition_prefix}if": [
+        f"{CONDITION_PREFIX}if": [
             "py-if",
             "py-elif",
             "py-else",
             "py-for",
-            f"{condition_prefix}if",
-            f"{condition_prefix}elif",
-            f"{condition_prefix}else",
-            f"{condition_prefix}for",
+            f"{CONDITION_PREFIX}if",
+            f"{CONDITION_PREFIX}elif",
+            f"{CONDITION_PREFIX}else",
+            f"{CONDITION_PREFIX}for",
         ],
-        f"{condition_prefix}elif": [
+        f"{CONDITION_PREFIX}elif": [
             "py-if",
             "py-elif",
-            f"{condition_prefix}if",
-            f"{condition_prefix}elif",
+            f"{CONDITION_PREFIX}if",
+            f"{CONDITION_PREFIX}elif",
         ],
-        f"{condition_prefix}else": [
+        f"{CONDITION_PREFIX}else": [
             "py-if",
             "py-elif",
-            f"{condition_prefix}if",
-            f"{condition_prefix}elif",
+            f"{CONDITION_PREFIX}if",
+            f"{CONDITION_PREFIX}elif",
         ],
     }
 
@@ -264,85 +306,61 @@ def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **k
     first_cond = False
 
     # Previous condition that was run and whether it was successful.
-    previous = (f"{condition_prefix}for", True)
+    previous = (f"{CONDITION_PREFIX}for", True)
 
     # Add the python blocks locals to kwargs dict
-    kwargs.update(vp.locals)
+    kwargs.update(virtual_python.locals)
 
     # Bring python blocks imports into scope
-    for imp in vp.imports:
-        exec(str(imp))
+    for imp in virtual_python.imports:
+        exec(str(imp))  # pylint: disable=exec-used
 
     # For each element with a python condition
     for condition, child in cond:
-        if condition in ["py-for", f"{condition_prefix}for"]:
+        if condition in ["py-for", f"{CONDITION_PREFIX}for"]:
 
             children = run_py_for(condition, child, children, **kwargs)
 
-            previous = (f"{condition_prefix}for", False)
+            previous = (f"{CONDITION_PREFIX}for", False)
 
             # End any condition branch
             first_cond = False
 
-        elif condition in ["py-if", f"{condition_prefix}if"]:
-
-            clocals = build_locals(child, **kwargs)
-            result = get_vp_result(
-                sub(r"\{|\}", "", child.properties[condition].strip()), **clocals
-            )
-
-            if result:
-                del child.properties[condition]
-                previous = (f"{condition_prefix}if", True)
-            else:
-                # Condition failed so remove element
-                children.remove(child)
-                previous = (f"{condition_prefix}if", False)
+        elif condition in ["py-if", f"{CONDITION_PREFIX}if"]:
+            previous = run_py_if(child, condition, children, **kwargs)
 
             # Start of condition branch
             first_cond = True
 
-        elif condition in ["py-elif", f"{condition_prefix}elif"]:
-            clocals = build_locals(child, **kwargs)
+        elif condition in ["py-elif", f"{CONDITION_PREFIX}elif"]:
+            # Can only exist if previous condition in branch failed
+            previous = run_py_elif(
+                child,
+                children,
+                condition,
+                {
+                    "previous": previous,
+                    "valid_prev": valid_prev,
+                    "first_cond": first_cond,
+                },
+                **kwargs,
+            )
+        elif condition in ["py-else", f"{CONDITION_PREFIX}else"]:
 
             # Can only exist if previous condition in branch failed
-            if previous[0] in valid_prev[condition] and first_cond:
-                if not previous[1]:
-                    result = get_vp_result(
-                        sub(r"\{|\}", "", child.properties[condition].strip()), **clocals
-                    )
-                    if result:
-                        del child.properties[condition]
-                        previous = (f"{condition_prefix}elif", True)
-                    else:
+            previous = run_py_else(
+                child,
+                children,
+                condition,
+                {
+                    "previous": previous,
+                    "valid_prev": valid_prev,
+                    "first_cond": first_cond,
+                },
+            )
 
-                        # Condition failed so remove element
-                        children.remove(child)
-                        previous = (f"{condition_prefix}elif", False)
-                else:
-                    children.remove(child)
-            else:
-                raise Exception(
-                    f"py-elif must follow a py-if. It may follow a py-elif if the first condition was a py-if.\n{child}"
-                )
-        elif condition in ["py-else", f"{condition_prefix}else"]:
-
-            # Can only exist if previous condition in branch failed
-            if previous[0] in valid_prev[condition] and first_cond:
-                if not previous[1]:
-                    del child.properties[condition]
-                    previous = (f"{condition_prefix}else", True)
-                else:
-
-                    # Condition failed so remove element
-                    children.remove(child)
-
-                # End of condition branch
-                first_cond = False
-            else:
-                raise Exception(
-                    f"py-else must follow a py-if. It may follow a py-elif if the first condition was a py-if.\n{child.parent.type}.{child.tag} at {child.position}"
-                )
+            # End any condition branch
+            first_cond = False
         else:
             raise Exception(f"Unkown condition property: {condition}")
 
@@ -363,6 +381,72 @@ def build_locals(child, **kwargs) -> dict:
 
     clocals.update(child.locals)
     return clocals
+
+
+def run_py_if(child: Element, condition: str, children: list, **kwargs):
+    """Run the logic for manipulating the children on a `if` condition."""
+
+    clocals = build_locals(child, **kwargs)
+    result = get_vp_result(sub(r"\{|\}", "", child.properties[condition].strip()), **clocals)
+
+    if result:
+        del child.properties[condition]
+        return (f"{CONDITION_PREFIX}if", True)
+
+    # Condition failed so remove element
+    children.remove(child)
+    return (f"{CONDITION_PREFIX}if", False)
+
+
+def run_py_elif(
+    child: Element,
+    children: list,
+    condition: str,
+    variables: dict,
+    **kwargs,
+):
+    """Run the logic for manipulating the children on a `elif` condition."""
+
+    clocals = build_locals(child, **kwargs)
+
+    if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
+        if not variables["previous"][1]:
+            result = get_vp_result(
+                sub(r"\{|\}", "", child.properties[condition].strip()), **clocals
+            )
+            if result:
+                del child.properties[condition]
+                return (f"{CONDITION_PREFIX}elif", True)
+
+            # Condition failed so remove element
+            children.remove(child)
+            return (f"{CONDITION_PREFIX}elif", False)
+
+        children.remove(child)
+        return variables["previous"]
+
+    raise Exception(
+        f"py-elif must follow a py-if. It may follow a py-elif if the first condition\
+was a py-if.\n{child}"
+    )
+
+
+def run_py_else(child: Element, children: list, condition: str, variables: dict):
+    """Run the logic for manipulating the children on a `else` condition."""
+
+    if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
+        if not variables["previous"][1]:
+            del child.properties[condition]
+            return (f"{CONDITION_PREFIX}else", True)
+
+        # Condition failed so remove element
+        children.remove(child)
+        return (f"{CONDITION_PREFIX}else", False)
+
+    raise Exception(
+        f"py-else must follow a py-if. It may follow a py-elif if the first condition\
+was a py-if.\n{child.parent.type}.{child.tag} at {child.position}"
+    )
 
 
 def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> list:
@@ -423,7 +507,7 @@ for {for_loop}:
     }
 
     # Execute dynamic for loop
-    exec(
+    exec(  # pylint: disable=exec-used
         for_loop,
         {**globals()},
         local_env,
