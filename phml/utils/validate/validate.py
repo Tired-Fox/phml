@@ -1,6 +1,6 @@
 from re import match, split, sub
 
-from phml.nodes import All_Nodes, Root, Element, Text, Comment
+from phml.nodes import All_Nodes, Comment, Element, Root, Text
 
 __all__ = [
     "validate",

@@ -1,11 +1,9 @@
 from typing import Callable, Optional
 
-from phml.nodes import Element, Root, AST, All_Nodes
-
-from phml.utils.validate.test import Test, test
-from phml.utils.travel import walk
+from phml.nodes import AST, All_Nodes, Element, Root
 from phml.utils.misc import heading_rank
-
+from phml.utils.travel import walk
+from phml.utils.validate.test import Test, test
 
 __all__ = [
     "filter_nodes",

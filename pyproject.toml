@@ -14,7 +14,7 @@ authors = [
 classifiers = [
 
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dependencies = ["teddecor>=1.0.2"]
 
 [project.optional-dependencies]

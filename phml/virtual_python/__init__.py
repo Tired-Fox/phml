@@ -49,13 +49,7 @@ local variable similar to how Jupyter or the python in cli works.
 ```
 '''
 
-from .vp import VirtualPython, get_vp_result, process_vp_blocks
 from .ImportObjects import Import, ImportFrom
+from .vp import VirtualPython, get_vp_result, process_vp_blocks
 
-__all__ = [
-    "VirtualPython",
-    "get_vp_result",
-    "process_vp_blocks",
-    "Import",
-    "ImportFrom"
-]
+__all__ = ["VirtualPython", "get_vp_result", "process_vp_blocks", "Import", "ImportFrom"]

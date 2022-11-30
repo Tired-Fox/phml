@@ -1,9 +1,8 @@
 from typing import Optional
 
+from phml.nodes import AST, All_Nodes, Element, Root
+from phml.utils.travel import path, walk
 from phml.utils.validate import Test, test
-from phml.utils.travel import walk, path
-
-from phml.nodes import All_Nodes, Root, Element, AST
 
 __all__ = [
     "ancestor",
@@ -13,8 +12,9 @@ __all__ = [
     "find_all_after",
     "find_all_before",
     "find_before",
-    "find_all_between"
+    "find_all_between",
 ]
+
 
 def ancestor(*nodes: All_Nodes) -> Optional[All_Nodes]:
     """Get the common ancestor between two nodes.
@@ -53,7 +53,7 @@ def find(node: Root | Element | AST, condition: Test) -> Optional[All_Nodes]:
     """
     if isinstance(node, AST):
         node = node.tree
-        
+
     for n in walk(node):
         if test(n, condition):
             return n
@@ -128,13 +128,13 @@ def find_all_after(
     matches = []
 
     if len(node.parent.children) - 1 > idx:
-        for el in node.parent.children[idx + 1:]:
+        for el in node.parent.children[idx + 1 :]:
             if condition is not None:
                 if test(el, condition):
                     matches.append(el)
             else:
                 matches.append(el)
-    
+
     return matches
 
 
@@ -155,7 +155,7 @@ def find_before(
     """
     if isinstance(node, AST):
         node = node.tree
-        
+
     idx = node.parent.children.index(node)
     if idx > 0:
         for el in node.parent.children[idx - 1 :: -1]:

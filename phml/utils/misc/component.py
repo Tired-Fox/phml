@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from phml.nodes import AST, Element
 
 __all__ = ["tag_from_file", "filename_from_path", "parse_component"]
@@ -33,7 +34,7 @@ def filename_from_path(file: Path) -> str:
 
 
 def parse_component(ast: AST) -> dict[str, Element]:
-    from phml.utils import visit_children, test
+    from phml.utils import test, visit_children
 
     result = {"python": [], "script": [], "style": [], "component": None}
     for node in visit_children(ast.tree):

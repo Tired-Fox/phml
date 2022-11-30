@@ -1,6 +1,8 @@
 from typing import Callable, Optional
-from phml.nodes import AST, Root, Element
+
+from phml.nodes import AST, Element, Root
 from phml.utils.validate.test import Test
+
 
 class Index:
     """Uses the given key or key generator and creates a mutable dict of key value pairs
@@ -24,7 +26,7 @@ class Index:
             `test` (Test): The test to apply to each node. Only valid/passing nodes
             will be indexed
         """
-        from phml.utils import walk, has_property, test
+        from phml.utils import has_property, test, walk
 
         self.indexed_tree = {}
         self.key = key

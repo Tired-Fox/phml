@@ -3,7 +3,7 @@
 from html.parser import HTMLParser
 from typing import Optional
 
-from phml.nodes import Element, Root, DocType, Properties, Text, Comment, Position, Point
+from phml.nodes import Comment, DocType, Element, Point, Position, Properties, Root, Text
 
 self_closing_tags = [
     "area",
@@ -102,7 +102,7 @@ class HypertextMarkupParser(HTMLParser):
 
     cur: Root | Element
     """The current parent element in the recursion."""
-    
+
     cur_tags: list
     """Stack of all open tags. Used for balancing tags."""
 

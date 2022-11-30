@@ -1,16 +1,11 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from re import sub, match, search
+from re import match, search, sub
 from typing import Optional
 
 from phml.nodes import *
-from phml.utils import (
-    path,
-    visit_children,
-    replace_node,
-    test,
-)
+from phml.utils import path, replace_node, test, visit_children
 from phml.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
@@ -175,17 +170,27 @@ def process_conditions(tree: Root | Element, vp: VirtualPython, **kwargs):
     for child in visit_children(tree):
         if test(child, "element"):
             if len(py_conditions(child)) == 1:
-                if (
-                    py_conditions(child)[0] not in ["py-for", "py-if", f"{condition_prefix}for", f"{condition_prefix}if"]
-                ):
+                if py_conditions(child)[0] not in [
+                    "py-for",
+                    "py-if",
+                    f"{condition_prefix}for",
+                    f"{condition_prefix}if",
+                ]:
                     idx = child.parent.children.index(child)
-                    previous = child.parent.children[idx-1] if idx > 0 else None
+                    previous = child.parent.children[idx - 1] if idx > 0 else None
                     prev_cond = py_conditions(previous) if previous is not None else None
-                    if prev_cond is not None and len(prev_cond) == 1 and prev_cond[0] in ["py-elif", "py-if", f"{condition_prefix}elif", f"{condition_prefix}if"]:
+                    if (
+                        prev_cond is not None
+                        and len(prev_cond) == 1
+                        and prev_cond[0]
+                        in ["py-elif", "py-if", f"{condition_prefix}elif", f"{condition_prefix}if"]
+                    ):
                         conditions.append((py_conditions(child)[0], child))
                     else:
-                        raise Exception(f"Condition statements that are not py-if or py-for must have py-if or py-elif\
- as a prevous sibling.\n{child.start_tag()}{f' at {child.position}' or ''}")
+                        raise Exception(
+                            f"Condition statements that are not py-if or py-for must have py-if or py-elif\
+ as a prevous sibling.\n{child.start_tag()}{f' at {child.position}' or ''}"
+                        )
                 else:
                     conditions.append((py_conditions(child)[0], child))
             elif len(py_conditions(child)) > 1:
@@ -293,7 +298,7 @@ def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **k
                 # Condition failed so remove element
                 children.remove(child)
                 previous = (f"{condition_prefix}if", False)
-                
+
             # Start of condition branch
             first_cond = True
 
@@ -310,7 +315,7 @@ def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **k
                         del child.properties[condition]
                         previous = (f"{condition_prefix}elif", True)
                     else:
-                        
+
                         # Condition failed so remove element
                         children.remove(child)
                         previous = (f"{condition_prefix}elif", False)
@@ -321,17 +326,17 @@ def execute_conditions(cond: list[tuple], children: list, vp: VirtualPython, **k
                     f"py-elif must follow a py-if. It may follow a py-elif if the first condition was a py-if.\n{child}"
                 )
         elif condition in ["py-else", f"{condition_prefix}else"]:
-            
+
             # Can only exist if previous condition in branch failed
             if previous[0] in valid_prev[condition] and first_cond:
                 if not previous[1]:
                     del child.properties[condition]
                     previous = (f"{condition_prefix}else", True)
                 else:
-                    
+
                     # Condition failed so remove element
                     children.remove(child)
-                    
+
                 # End of condition branch
                 first_cond = False
             else:
@@ -350,7 +355,7 @@ def build_locals(child, **kwargs) -> dict:
     """
 
     clocals = {**kwargs}
-    
+
     # Inherit locals from top down
     for parent in path(child):
         if parent.type == "element":

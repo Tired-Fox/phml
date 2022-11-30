@@ -1,4 +1,4 @@
-from phml.nodes import Root, Element, DocType, Text, Comment, Point, Position
+from phml.nodes import Comment, DocType, Element, Point, Position, Root, Text
 
 
 def json_to_ast(json_obj: dict):

@@ -77,21 +77,21 @@
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span> <span class="nn">phml.utils.validate</span> <span class="kn">import</span> <span class="n">Test</span><span class="p">,</span> <span class="n">test</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">from</span> <span class="nn">phml.utils.travel</span> <span class="kn">import</span> <span class="n">walk</span><span class="p">,</span> <span class="n">path</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">from</span> <span class="nn">phml.nodes</span> <span class="kn">import</span> <span class="n">All_Nodes</span><span class="p">,</span> <span class="n">Root</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">AST</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>    <span class="s2">&quot;ancestor&quot;</span><span class="p">,</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a>    <span class="s2">&quot;find&quot;</span><span class="p">,</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>    <span class="s2">&quot;find_all&quot;</span><span class="p">,</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>    <span class="s2">&quot;find_after&quot;</span><span class="p">,</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>    <span class="s2">&quot;find_all_after&quot;</span><span class="p">,</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>    <span class="s2">&quot;find_all_before&quot;</span><span class="p">,</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>    <span class="s2">&quot;find_before&quot;</span><span class="p">,</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>    <span class="s2">&quot;find_all_between&quot;</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="p">]</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span> <span class="nn">phml.nodes</span> <span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">All_Nodes</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Root</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">from</span> <span class="nn">phml.utils.travel</span> <span class="kn">import</span> <span class="n">path</span><span class="p">,</span> <span class="n">walk</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span> <span class="nn">phml.utils.validate</span> <span class="kn">import</span> <span class="n">Test</span><span class="p">,</span> <span class="n">test</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>    <span class="s2">&quot;ancestor&quot;</span><span class="p">,</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>    <span class="s2">&quot;find&quot;</span><span class="p">,</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a>    <span class="s2">&quot;find_all&quot;</span><span class="p">,</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>    <span class="s2">&quot;find_after&quot;</span><span class="p">,</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>    <span class="s2">&quot;find_all_after&quot;</span><span class="p">,</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>    <span class="s2">&quot;find_all_before&quot;</span><span class="p">,</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>    <span class="s2">&quot;find_before&quot;</span><span class="p">,</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>    <span class="s2">&quot;find_all_between&quot;</span><span class="p">,</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="p">]</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>
 </span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>
 </span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a><span class="k">def</span> <span class="nf">ancestor</span><span class="p">(</span><span class="o">*</span><span class="n">nodes</span><span class="p">:</span> <span class="n">All_Nodes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">All_Nodes</span><span class="p">]:</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>    <span class="sd">&quot;&quot;&quot;Get the common ancestor between two nodes.</span>
@@ -130,7 +130,7 @@
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">AST</span><span class="p">):</span>
 </span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">tree</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>        
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="k">if</span> <span class="n">test</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">condition</span><span class="p">):</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>            <span class="k">return</span> <span class="n">n</span>
@@ -205,13 +205,13 @@
 </span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>
 </span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">idx</span><span class="p">:</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]:</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>
 </span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>            <span class="k">if</span> <span class="n">condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>                <span class="k">if</span> <span class="n">test</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">condition</span><span class="p">):</span>
 </span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>                    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
 </span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>            <span class="k">else</span><span class="p">:</span>
 </span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>                <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>    
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>
 </span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>    <span class="k">return</span> <span class="n">matches</span>
 </span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>
 </span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>
@@ -232,7 +232,7 @@
 </span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">AST</span><span class="p">):</span>
 </span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">tree</span>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>        
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>
 </span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>    <span class="n">idx</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 </span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>    <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 </span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">::</span> <span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
@@ -391,7 +391,7 @@
 </span><span id="find-54"><a href="#find-54"><span class="linenos">54</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="find-55"><a href="#find-55"><span class="linenos">55</span></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">AST</span><span class="p">):</span>
 </span><span id="find-56"><a href="#find-56"><span class="linenos">56</span></a>        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">tree</span>
-</span><span id="find-57"><a href="#find-57"><span class="linenos">57</span></a>        
+</span><span id="find-57"><a href="#find-57"><span class="linenos">57</span></a>
 </span><span id="find-58"><a href="#find-58"><span class="linenos">58</span></a>    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
 </span><span id="find-59"><a href="#find-59"><span class="linenos">59</span></a>        <span class="k">if</span> <span class="n">test</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">condition</span><span class="p">):</span>
 </span><span id="find-60"><a href="#find-60"><span class="linenos">60</span></a>            <span class="k">return</span> <span class="n">n</span>
@@ -560,13 +560,13 @@ the condition.</p>
 </span><span id="find_all_after-129"><a href="#find_all_after-129"><span class="linenos">129</span></a>    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="find_all_after-130"><a href="#find_all_after-130"><span class="linenos">130</span></a>
 </span><span id="find_all_after-131"><a href="#find_all_after-131"><span class="linenos">131</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">idx</span><span class="p">:</span>
-</span><span id="find_all_after-132"><a href="#find_all_after-132"><span class="linenos">132</span></a>        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]:</span>
+</span><span id="find_all_after-132"><a href="#find_all_after-132"><span class="linenos">132</span></a>        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>
 </span><span id="find_all_after-133"><a href="#find_all_after-133"><span class="linenos">133</span></a>            <span class="k">if</span> <span class="n">condition</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="find_all_after-134"><a href="#find_all_after-134"><span class="linenos">134</span></a>                <span class="k">if</span> <span class="n">test</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">condition</span><span class="p">):</span>
 </span><span id="find_all_after-135"><a href="#find_all_after-135"><span class="linenos">135</span></a>                    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
 </span><span id="find_all_after-136"><a href="#find_all_after-136"><span class="linenos">136</span></a>            <span class="k">else</span><span class="p">:</span>
 </span><span id="find_all_after-137"><a href="#find_all_after-137"><span class="linenos">137</span></a>                <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
-</span><span id="find_all_after-138"><a href="#find_all_after-138"><span class="linenos">138</span></a>    
+</span><span id="find_all_after-138"><a href="#find_all_after-138"><span class="linenos">138</span></a>
 </span><span id="find_all_after-139"><a href="#find_all_after-139"><span class="linenos">139</span></a>    <span class="k">return</span> <span class="n">matches</span>
 </span></pre></div>
 
@@ -676,7 +676,7 @@ the condition.</p>
 </span><span id="find_before-156"><a href="#find_before-156"><span class="linenos">156</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="find_before-157"><a href="#find_before-157"><span class="linenos">157</span></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">AST</span><span class="p">):</span>
 </span><span id="find_before-158"><a href="#find_before-158"><span class="linenos">158</span></a>        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">tree</span>
-</span><span id="find_before-159"><a href="#find_before-159"><span class="linenos">159</span></a>        
+</span><span id="find_before-159"><a href="#find_before-159"><span class="linenos">159</span></a>
 </span><span id="find_before-160"><a href="#find_before-160"><span class="linenos">160</span></a>    <span class="n">idx</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 </span><span id="find_before-161"><a href="#find_before-161"><span class="linenos">161</span></a>    <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 </span><span id="find_before-162"><a href="#find_before-162"><span class="linenos">162</span></a>        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">::</span> <span class="o">-</span><span class="mi">1</span><span class="p">]:</span>

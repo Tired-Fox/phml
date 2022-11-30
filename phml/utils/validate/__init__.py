@@ -5,7 +5,7 @@ values on nodes, and any other condition you want to apply to a node
 or ast.
 """
 
-from .test import test, Test
+from .test import Test, test
 from .validate import *
 
 # __all__ = [

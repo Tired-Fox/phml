@@ -3,11 +3,12 @@
 Helpful utilities for different tasks that doesn't have a place in the other categories.
 """
 
-from phml.nodes import Root, Element
+from phml.nodes import Element, Root
+
 from .classes import *
+from .component import *
 from .heading import *
 from .inspect import *
-from .component import *
 
 # __all__ = [
 #     "depth",

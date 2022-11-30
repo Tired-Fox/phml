@@ -1,6 +1,8 @@
 from typing import Optional
+
+from phml.nodes import AST, Element, Root
+
 from .schema import Schema
-from phml.nodes import AST, Root, Element
 
 
 def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
@@ -22,7 +24,7 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
         schema (Optional[Schema], optional): User defined schema. Defaults to github schema.
     """
 
-    from phml.utils import remove_nodes, is_element, test
+    from phml.utils import is_element, remove_nodes, test
 
     if isinstance(tree, AST):
         src = tree.tree

@@ -1,10 +1,11 @@
 from copy import deepcopy
 from typing import Optional
-from phml.nodes import AST, Root, Element, All_Nodes, Position
+
+from phml.nodes import AST, All_Nodes, Element, Position, Root
+from phml.utils import find_all, remove_nodes, visit_children
 from phml.virtual_python import VirtualPython
 
-from phml.utils import find_all, visit_children, remove_nodes
-from .util import replace_components, apply_conditions, apply_python
+from .util import apply_conditions, apply_python, replace_components
 
 
 def phml(ast: AST, indent: int = 0) -> str:

@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
+
 from .node import Node
 
 if TYPE_CHECKING:
-    from .position import Position
-    from .element import Element
-    from .doctype import DocType
     from .comment import Comment
+    from .doctype import DocType
+    from .element import Element
+    from .position import Position
     from .text import Text
 
 

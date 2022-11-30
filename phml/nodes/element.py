@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
+
 from .parent import Parent
 
 if TYPE_CHECKING:
     from .position import Position
     from .root import Root
     from .types import Properties
+
 
 class Element(Parent):
     """Element (Parent) represents an Element ([DOM]).
@@ -66,7 +68,7 @@ class Element(Parent):
     def __eq__(self, obj) -> bool:
         if obj is None:
             return False
-        
+
         if obj.type == self.type:
             if self.tag != obj.tag:
                 return False
@@ -74,7 +76,7 @@ class Element(Parent):
                 return False
             if self.properties != obj.properties:
                 return False
-            
+
             for c, oc in zip(self.children, obj.children):
                 if c != oc:
                     return False

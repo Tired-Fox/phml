@@ -1,11 +1,6 @@
 """File types for phml parsing logic."""
 
-__all__ = [
-    "HTML",
-    "PHML",
-    "JSON",
-    "Markdown"
-]
+__all__ = ["HTML", "PHML", "JSON", "Markdown"]
 
 HTML: str = "html"
 PHML: str = "phml"

@@ -1,5 +1,5 @@
-from phml.nodes import All_Nodes, Root, Element, Text, AST, Comment
 from phml.builder import p
+from phml.nodes import AST, All_Nodes, Comment, Element, Root, Text
 
 
 def to_string(node: AST | All_Nodes) -> str:

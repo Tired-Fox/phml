@@ -1,7 +1,8 @@
 from typing import Optional
+
+from .element import Element
 from .node import Node
 from .position import Position
-from .element import Element
 from .root import Root
 
 
@@ -30,7 +31,7 @@ class Literal(Node):
     def __eq__(self, obj) -> bool:
         if obj is None:
             return False
-        
+
         if self.type == obj.type:
             if self.value == obj.value:
                 return True
@@ -40,7 +41,7 @@ class Literal(Node):
 
     def __repr__(self) -> str:
         return f"{self.type}(value:{len(self.value)})"
-    
+
     def get_ancestry(self) -> list[str]:
         def get_parent(parent) -> list[str]:
             result = []
@@ -49,5 +50,5 @@ class Literal(Node):
             if parent.parent is not None:
                 result.extend(get_parent(parent.parent))
             return result
-        
+
         return get_parent(self.parent)

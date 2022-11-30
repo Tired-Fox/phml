@@ -1,4 +1,5 @@
 from typing import Iterator
+
 from .literal import Literal
 
 
@@ -21,7 +22,7 @@ class Comment(Literal):
         if len(lines) > 1:
             start = f"{' ' * indent}<!--{lines[0]}"
             end = f"{' ' * indent}{lines[-1]}-->"
-            for i in range(1, len(lines)-1):
+            for i in range(1, len(lines) - 1):
                 lines[i] = (' ' * indent) + lines[i].strip()
             lines = [start, *lines[1:-1], end]
             return "\n".join(lines)

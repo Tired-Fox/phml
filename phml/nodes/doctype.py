@@ -1,8 +1,9 @@
-from typing import Optional, Iterator
-from .node import Node
-from .root import Root
+from typing import Iterator, Optional
+
 from .element import Element
+from .node import Node
 from .position import Position
+from .root import Root
 
 
 class DocType(Node):
@@ -34,7 +35,7 @@ class DocType(Node):
     def __eq__(self, obj) -> bool:
         if obj is None:
             return False
-        
+
         if hasattr(obj, "type") and obj.type == self.type:
             if self.lang == obj.lang:
                 return True

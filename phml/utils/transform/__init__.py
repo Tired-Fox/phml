@@ -4,8 +4,8 @@ A collection of utilities focused around transforming an
 ast or a specific nodes.
 """
 
-from .transform import *
 from .sanitize import *
+from .transform import *
 
 # __all__ = [
 #     "filter_nodes",

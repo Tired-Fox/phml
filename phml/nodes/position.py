@@ -30,7 +30,7 @@ class Position:
             raise IndexError(f"Position.indent value must be >= 0 or None but was {indent}")
 
         self.indent = indent
-        
+
     def as_dict(self) -> dict:
         return {
             "start": {
@@ -43,7 +43,7 @@ class Position:
                 "column": self.end.column,
                 "offset": self.end.offset,
             },
-            "indent": self.indent
+            "indent": self.indent,
         }
 
     def __eq__(self, obj) -> bool:
@@ -58,7 +58,7 @@ class Position:
                 # print(f"{self.start} != {obj.start}: start values are not equal")
                 return False
         # print(
-            # f"{type(self).__name__} != {type(obj).__name__}: {type(self).__name__} can not be equated to {type(obj).__name__}"
+        # f"{type(self).__name__} != {type(obj).__name__}: {type(self).__name__} can not be equated to {type(obj).__name__}"
         # )
         return False
 

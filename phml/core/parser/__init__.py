@@ -6,14 +6,14 @@ along with json.
 Exposes phml.core.parser.Parser which handles all parsing functionality.
 """
 
+from json import loads
 from pathlib import Path
 from typing import Callable, Optional
-from json import loads
 
 from phml.nodes import AST, Root
+
 from .hypertextMarkupParser import HypertextMarkupParser
 from .json import json_to_ast
-
 
 __all__ = ["Parser"]
 

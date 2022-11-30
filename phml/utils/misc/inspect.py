@@ -4,13 +4,11 @@ Logic to inspect any phml node. Outputs a tree representation
 of the node as a string.
 """
 
-from phml.nodes import All_Nodes, AST, Element, Root, Text, Comment
 from phml.builder import p
+from phml.nodes import AST, All_Nodes, Comment, Element, Root, Text
 
-__all__ = [
-    "inspect",
-    "normalize_indent"
-]
+__all__ = ["inspect", "normalize_indent"]
+
 
 def inspect(start: AST | All_Nodes, indent: int = 2):
     """Recursively inspect the passed node or ast."""

@@ -4,17 +4,17 @@ A collection of utilities that don't fit in with finding, selecting, testing,
 transforming, traveling, or validating nodes.
 """
 
-from re import sub, search, split
+from re import search, split, sub
 from typing import Optional
 
 from phml.nodes import Element
 
-__all__ = [
-    "classnames",
-    "ClassList"
-]
+__all__ = ["classnames", "ClassList"]
 
-def classnames(node: Optional[Element] =None, *conditionals: str | int | list | dict[str, bool]) -> str:
+
+def classnames(
+    node: Optional[Element] = None, *conditionals: str | int | list | dict[str, bool]
+) -> str:
     """Concat a bunch of class names. Can take a str as a class,
     int which is cast to a str to be a class, a dict of conditional classes,
     and a list of all the previous conditions including itself.
@@ -67,7 +67,7 @@ class ClassList:
     def contains(self, klass: str):
         """Check if `class` contains a certain class."""
         from phml.utils import has_property
-    
+
         if has_property(self.node, "class"):
             return search(klass, self.node.properties["class"]) is not None
         return False
@@ -80,18 +80,14 @@ class ClassList:
                 sub(f"\b{klass}\b", "", self.node.properties["class"])
                 sub(r" +", " ", self.node.properties["class"])
             else:
-                self.node.properties["class"] = (
-                    self.node.properties["class"].strip() + f" {klass}"
-                )
+                self.node.properties["class"] = self.node.properties["class"].strip() + f" {klass}"
 
     def add(self, *klasses: str):
         """Add one or more classes to `class`."""
 
         for klass in klasses:
             if search(f"\b{klass}\b", self.node.properties["class"]) is None:
-                self.node.properties["class"] = (
-                    self.node.properties["class"].strip() + f" {klass}"
-                )
+                self.node.properties["class"] = self.node.properties["class"].strip() + f" {klass}"
 
     def replace(self, old_klass: str, new_klass: str):
         """Replace a certain class in `class` with

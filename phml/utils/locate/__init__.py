@@ -4,8 +4,8 @@ Collection of utilities centered around finding nodes in an ast.
 """
 
 from .find import *
-from .select import *
 from .index import Index
+from .select import *
 
 # __all__ = [
 #     "ancestor",

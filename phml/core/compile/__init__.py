@@ -1,15 +1,10 @@
 from typing import Any, Callable, Optional
 
-from phml.nodes import All_Nodes, AST, DocType
-from phml.core.file_types import HTML, PHML, JSON
-from phml.utils import (
-    parse_component,
-    tag_from_file,
-    visit_children,
-    test,
-)
+from phml.core.file_types import HTML, JSON, PHML
+from phml.nodes import AST, All_Nodes, DocType
+from phml.utils import parse_component, tag_from_file, test, visit_children
 
-from .convert import html, phml, json
+from .convert import html, json, phml
 
 __all__ = ["Compiler"]
 
@@ -105,7 +100,7 @@ class Compiler:
         """Execute compilation to a different format."""
 
         ast = ast or self.ast
-        
+
         if ast is None:
             raise Exception("Must provide an ast to compile.")
 

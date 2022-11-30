@@ -22,6 +22,7 @@ def test_builder_types():
     # Doctype
     assert p("doctype", "xhtml") == DocType("xhtml")
     assert p("doctype") == DocType()
+    assert False
 
 
 def test_builder_nesting():

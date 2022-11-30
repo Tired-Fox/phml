@@ -6,8 +6,8 @@ types of data.
 
 from typing import Callable
 
-from phml.utils.travel import walk, visit_children
-from phml.nodes import Root, Element, AST
+from phml.nodes import AST, Element, Root
+from phml.utils.travel import visit_children, walk
 
 __all__ = ["query", "queryAll", "matches"]
 

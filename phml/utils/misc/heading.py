@@ -1,9 +1,9 @@
 from re import match
+
 from phml.nodes import Element
 
-__all__ = [
-    "heading_rank"
-]
+__all__ = ["heading_rank"]
+
 
 def heading_rank(node: Element) -> int:
     """Get the rank of the heading element.

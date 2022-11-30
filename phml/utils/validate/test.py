@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, Optional
 
 if TYPE_CHECKING:
-    from phml.nodes import All_Nodes, Root, Element
+    from phml.nodes import All_Nodes, Element, Root
 
 Test = None | str | list | dict | Callable
+
 
 def test(
     node: All_Nodes,
@@ -23,7 +24,7 @@ def test(
         - `Callable`: Passes the given function the node and it's index, if provided,
         and checks if the callable returned true.
         - `list[Test]`: Apply all the rules above for each Test in the list.
-        
+
     If the `parent` arg is passed so should the `index` arg.
 
     Args:
@@ -38,7 +39,7 @@ def test(
         True if all tests pass.
     """
     from phml.nodes import Element
-    
+
     if parent is not None:
         # If parent is given then index has to be also.
         #   Validate index is correct in parent.children
@@ -58,10 +59,14 @@ def test(
         # Either in attributes or in
         if not isinstance(node, Element):
             return False
-        
+
         for key, value in _test.items():
             if not hasattr(node, key) or value != getattr(node, key):
-                if not hasattr(node, "properties") or key not in node.properties or value != node.properties[key]:
+                if (
+                    not hasattr(node, "properties")
+                    or key not in node.properties
+                    or value != node.properties[key]
+                ):
                     return False
         return True
     elif isinstance(_test, list):

@@ -95,8 +95,8 @@ This language also has the ability to convert back to html and json with convert
 > :warning: This language is in early planning and development stages. All forms of feedback are encouraged.
 """
 
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
 from . import builder, core, nodes, utils, virtual_python
 from .core import Compiler, Parser, file_types
@@ -104,6 +104,7 @@ from .nodes import AST, All_Nodes
 
 __version__ = "0.1.0"
 __all__ = [
+    "PHMLCore",
     "Compiler",
     "Parser",
     "file_types",

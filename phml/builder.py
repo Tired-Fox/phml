@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import Optional
 
 from phml.nodes import *
@@ -31,8 +32,14 @@ def p(
 
     if isinstance(selector, str) and selector.startswith("<!--"):
         return Comment(selector.replace("<!--", "").replace("-->", ""))
-    if selector is not None and (not isinstance(selector, str) or len(selector.replace("\n", " ").split(" ")) > 1):
-        if isinstance(selector, str) and (len(selector.split(" ")) > 1 or selector.split("\n") )and len(args) == 0:
+    if selector is not None and (
+        not isinstance(selector, str) or len(selector.replace("\n", " ").split(" ")) > 1
+    ):
+        if (
+            isinstance(selector, str)
+            and (len(selector.split(" ")) > 1 or selector.split("\n"))
+            and len(args) == 0
+        ):
             return Text(selector)
         args = [selector, *args]
         selector = None

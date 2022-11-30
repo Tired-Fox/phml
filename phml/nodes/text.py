@@ -1,6 +1,8 @@
 from functools import cached_property
 from typing import Iterator
+
 from .literal import Literal
+
 
 class Text(Literal):
     """Text (Literal) represents a Text ([DOM]).
@@ -34,7 +36,9 @@ class Text(Literal):
         Returns:
             str: Built html of text
         """
-        if self.parent is None or not any(tag in self.get_ancestry() for tag in ["pre", "python", "script", "style"]):
+        if self.parent is None or not any(
+            tag in self.get_ancestry() for tag in ["pre", "python", "script", "style"]
+        ):
             lines = [line.lstrip() for line in self.value.split("\n") if line.strip() != ""]
             for i, line in enumerate(lines):
                 lines[i] = (' ' * indent) + line
