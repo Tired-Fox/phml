@@ -16,7 +16,7 @@ type:
 	mypy $(PROJECT)
 
 test:
-	pytest --cov=phml tests/
+	pytest --cov="./phml" tests/
 
 cover:
 	coverage html
