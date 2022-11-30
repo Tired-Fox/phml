@@ -83,7 +83,7 @@ def write_version_badge(output_file: str) -> None:
 
     from phml import __version__ as version
 
-    link = f"https://img.shields.io/badge/version-{version}-blue"
+    link = f"https://img.shields.io/badge/version-{version}-9cf"
 
     with open(output_file, "wb") as output:
         data = requests.get(link).content
