@@ -1,10 +1,10 @@
-[![tired-fox - phml](https://img.shields.io/static/v1?label=tired-fox&message=phml&color=brightgreen&logo=github)](https://github.com/tired-fox/phml "Go to GitHub repo")
+![version](assets/badges/version.svg) [![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Tired-Fox/phml/blob/main/LICENSE) [![tired-fox - phml](https://img.shields.io/static/v1?label=tired-fox&message=phml&color=blue&logo=github)](https://github.com/tired-fox/phml "Go to GitHub repo")
 [![stars - phml](https://img.shields.io/github/stars/tired-fox/phml?style=social)](https://github.com/tired-fox/phml)
 [![forks - phml](https://img.shields.io/github/forks/tired-fox/phml?style=social)](https://github.com/tired-fox/phml)
 
 # Python Hypertext Markup Language (phml)
 
-![version](assets/badges/version.svg) [![GitHub release](https://img.shields.io/github/release/tired-fox/phml?include_prereleases=&sort=semver&color=brightgreen)](https://github.com/tired-fox/phml/releases/) [![License](https://img.shields.io/badge/License-MIT-brightgreen)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/tired-fox/phml?include_prereleases=&sort=semver&color=brightgreen)](https://github.com/tired-fox/phml/releases/) 
 [![issues - phml](https://img.shields.io/github/issues/tired-fox/phml)](https://github.com/tired-fox/phml/issues) ![quality](assets/badges/quality.svg) ![testing](assets/badges/testing.svg) ![test coverage](assets/badges/test_cov.svg)
 
 **TOC**

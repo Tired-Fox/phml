@@ -83,7 +83,7 @@ def write_version_badge(output_file: str) -> None:
 
     from phml import __version__ as version
 
-    link = f"https://img.shields.io/badge/version-{version}-bright_green"
+    link = f"https://img.shields.io/badge/version-{version}-blue"
 
     with open(output_file, "wb") as output:
         data = requests.get(link).content
@@ -130,8 +130,8 @@ def write_test_badges(command: str, test_output: str, test_cov_output: str):
 def main() -> None:
     """Main method"""
 
-    # write_quality_badge("pylint phml", "assets/badges/quality.svg")
-    # write_version_badge("assets/badges/version.svg")
+    write_quality_badge("pylint phml", "assets/badges/quality.svg")
+    write_version_badge("assets/badges/version.svg")
     write_test_badges("make test", "assets/badges/testing.svg", "assets/badges/test_cov.svg")
 
 
