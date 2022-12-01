@@ -24,7 +24,7 @@ cover:
 test-cov:
 	make test cover
 
-docs:
+build_docs:
 	pdoc $(PROJECT) -d google -o docs/
 
 build:

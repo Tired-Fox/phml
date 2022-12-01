@@ -4,7 +4,7 @@
 
 # Python Hypertext Markup Language (phml)
 
-[![GitHub release](https://img.shields.io/github/release/tired-fox/phml?include_prereleases=&sort=semver&color=brightgreen)](https://github.com/tired-fox/phml/releases/) 
+[![Deploy Docs](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml) [![GitHub release](https://img.shields.io/github/release/tired-fox/phml?include_prereleases=&sort=semver&color=brightgreen)](https://github.com/tired-fox/phml/releases/) 
 [![issues - phml](https://img.shields.io/github/issues/tired-fox/phml)](https://github.com/tired-fox/phml/issues) ![quality](assets/badges/quality.svg) ![testing](assets/badges/testing.svg) ![test coverage](assets/badges/test_cov.svg)
 
 **TOC**
