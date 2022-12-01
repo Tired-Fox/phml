@@ -134,7 +134,7 @@ from . import builder, core, nodes, utils, virtual_python
 from .core import Compiler, Parser, file_types
 from .nodes import AST, All_Nodes
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = [
     "PHMLCore",
     "Compiler",

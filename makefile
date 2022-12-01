@@ -26,3 +26,13 @@ test-cov:
 
 docs:
 	pdoc $(PROJECT) -d google -o docs/
+
+build:
+	python3 scripts/make_badges.py
+	python3 -m build
+
+deploy:
+	python3 -m twine upload --repository pypi dist/*
+
+build_deploy:
+	make build deploy
