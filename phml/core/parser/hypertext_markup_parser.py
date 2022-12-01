@@ -184,9 +184,6 @@ class HypertextMarkupParser(HTMLParser):
 
     def handle_endtag(self, tag):
         if tag == self.cur_tags[-1].tag:
-            if len(self.cur.children) == 0:
-                self.cur.startend = True
-
             self.cur.position.end = build_point(self.getpos())
             self.cur = self.cur.parent
             self.cur_tags.pop(-1)

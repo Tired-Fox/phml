@@ -485,9 +485,10 @@ def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> li
     for_loop = f'''\
 new_children = []
 for {for_loop}:
-    new_children.append(deepcopy(child))
-    new_children[-1].locals = {{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}, **local_vals}}
-    children = [*children[:insert], *new_children, *children[insert+1:]]\
+    new_child = deepcopy(child)
+    new_child.locals = {{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}, **local_vals}}
+    children = [*children[:insert], new_child, *children[insert+1:]]
+    insert += 1\
 '''
 
     # Prep the child to be used as a copy for new children
