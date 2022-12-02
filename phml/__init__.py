@@ -161,6 +161,10 @@ class PHMLCore:
     """Instance of a [Parser][phml.parser.Parser]."""
     compiler: Compiler
     """Instance of a [Compiler][phml.compile.Compiler]."""
+    scopes: Optional[list[str]]
+    """List of paths from cwd to auto add to python path. This helps with
+    importing inside of phml files.
+    """
 
     @property
     def ast(self) -> AST:
@@ -173,10 +177,17 @@ class PHMLCore:
 
     def __init__(
         self,
+        scopes: Optional[list[str]] = None,
         components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
     ):
+        import sys  # pylint: disable=import-outside-toplevel
+
         self.parser = Parser()
         self.compiler = Compiler(components=components)
+
+        scopes = scopes or []
+        for scope in scopes:
+            sys.path.insert(0, scope)
 
     def add(
         self,
