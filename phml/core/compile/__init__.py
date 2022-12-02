@@ -101,6 +101,7 @@ class Compiler:
         to_format: str = HTML,
         indent: Optional[int] = None,
         handler: Optional[Callable] = None,
+        scopes: Optional[list[str]] = None,
         **kwargs: Any,
     ) -> str:
         """Execute compilation to a different format."""
@@ -113,6 +114,12 @@ class Compiler:
         doctypes = [dt for dt in visit_children(ast.tree) if test(dt, "doctype")]
         if len(doctypes) == 0:
             ast.tree.children.insert(0, DocType(parent=ast.tree))
+
+        if scopes is not None:
+            from sys import path  # pylint: disable=import-outside-toplevel
+
+            for scope in scopes:
+                path.insert(0, scope)
 
         if to_format == PHML:
             return phml(ast, indent or 4)

@@ -180,14 +180,9 @@ class PHMLCore:
         scopes: Optional[list[str]] = None,
         components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
     ):
-        import sys  # pylint: disable=import-outside-toplevel
-
         self.parser = Parser()
         self.compiler = Compiler(components=components)
-
-        scopes = scopes or []
-        for scope in scopes:
-            sys.path.insert(0, scope)
+        self.scopes = scopes or []
 
     def add(
         self,
@@ -254,7 +249,11 @@ class PHMLCore:
         return self
 
     def render(
-        self, file_type: str = file_types.HTML, indent: Optional[int] = None, **kwargs
+        self,
+        file_type: str = file_types.HTML,
+        indent: Optional[int] = None,
+        scopes: Optional[list[str]] = None,
+        **kwargs,
     ) -> str:
         """Render the parsed ast to a different format. Defaults to rendering to html.
 
@@ -267,13 +266,26 @@ class PHMLCore:
         Returns:
             str: The rendered content in the appropriate format.
         """
-        return self.compiler.compile(self.parser.ast, to_format=file_type, indent=indent, **kwargs)
+
+        scopes = scopes or []
+        for scope in self.scopes:
+            if scope not in scopes:
+                scopes.append(scope)
+
+        return self.compiler.compile(
+            self.parser.ast,
+            to_format=file_type,
+            indent=indent,
+            scopes=scopes,
+            **kwargs,
+        )
 
     def write(
         self,
         dest: str | Path,
         file_type: str = file_types.HTML,
         indent: Optional[int] = None,
+        scopes: Optional[list[str]] = None,
         **kwargs,
     ):
         """Renders the parsed ast to a different format, then writes
@@ -288,6 +300,9 @@ class PHMLCore:
             kwargs: Any additional data to pass to the compiler that will be exposed to the
             phml files.
         """
+
         with open(dest, "+w", encoding="utf-8") as dest_file:
-            dest_file.write(self.render(file_type=file_type, indent=indent, **kwargs))
+            dest_file.write(
+                self.render(file_type=file_type, indent=indent, scopes=scopes, **kwargs)
+            )
         return self
