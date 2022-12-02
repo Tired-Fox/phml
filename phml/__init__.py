@@ -267,7 +267,7 @@ class PHMLCore:
             str: The rendered content in the appropriate format.
         """
 
-        scopes = scopes or []
+        scopes = scopes or ["./"]
         for scope in self.scopes:
             if scope not in scopes:
                 scopes.append(scope)

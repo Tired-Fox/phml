@@ -115,6 +115,7 @@ class Compiler:
         if len(doctypes) == 0:
             ast.tree.children.insert(0, DocType(parent=ast.tree))
 
+        scopes = scopes or ["./"]
         if scopes is not None:
             from sys import path  # pylint: disable=import-outside-toplevel
 
