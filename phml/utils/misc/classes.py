@@ -7,7 +7,7 @@ transforming, traveling, or validating nodes.
 from re import search, split, sub
 from typing import Optional
 
-from phml.nodes import Element
+from phml.nodes import Element, All_Nodes
 
 __all__ = ["classnames", "ClassList"]
 
@@ -20,10 +20,11 @@ def classnames(  # pylint: disable=keyword-arg-before-vararg
     and a list of all the previous conditions including itself.
 
     Examples:
-    * `classnames(node, 'flex')` yields `'flex'`
-    * `classnames(node, 13)` yields `'13'`
-    * `classnames(node, {'shadow': True, 'border': 0})` yields `'shadow'`
-    * `classnames(node, 'a', 13, {'b': True}, ['c', {'d': False}])` yields `'a b c'`
+        Assume that the current class on node is `bold`
+    * `classnames(node, 'flex')` yields `'bold flex'`
+    * `classnames(node, 13)` yields `'bold 13'`
+    * `classnames(node, {'shadow': True, 'border': 0})` yields `'bold shadow'`
+    * `classnames('a', 13, {'b': True}, ['c', {'d': False}])` yields `'a b c'`
 
     Args:
         node (Element | None): Node to apply the classes too. If no node is given
@@ -32,26 +33,54 @@ def classnames(  # pylint: disable=keyword-arg-before-vararg
     Returns:
         str: The concat string of classes after processing.
     """
+    if not isinstance(node, All_Nodes):
+        conditionals = [node, *conditionals]
+        node = None
+    elif not isinstance(node, Element):
+        raise TypeError(f"Node must be an element")
 
-    classes = []
+    if node is not None:
+        if "class" in node.properties:
+            classes = sub(r" +", " ", node.properties["class"]).split(" ")
+        else:
+            node.properties["class"] = ""
+            classes = []
+    else:
+        classes = []
+
     for condition in conditionals:
         if isinstance(condition, str):
-            classes.extend(split(r" ", sub(r" +", "", condition.strip())))
+            classes.extend(
+                [
+                    klass
+                    for klass in split(r" ", sub(r" +", "", condition.strip()))
+                    if klass not in classes
+                ]
+            )
         elif isinstance(condition, int):
-            classes.append(str(condition))
+            if str(condition) not in classes:
+                classes.append(str(condition))
         elif isinstance(condition, dict):
             for key, value in condition.items():
                 if value:
-                    classes.extend(split(r" ", sub(r" +", "", key.strip())))
+                    classes.extend(
+                        [
+                            klass
+                            for klass in split(r" ", sub(r" +", "", key.strip()))
+                            if klass not in classes
+                        ]
+                    )
         elif isinstance(condition, list):
-            classes.extend(classnames(*condition).split(" "))
+            classes.extend(
+                [klass for klass in classnames(*condition).split(" ") if klass not in classes]
+            )
         else:
             raise TypeError(f"Unkown conditional statement: {condition}")
 
     if node is None:
         return " ".join(classes)
 
-    node.properties["class"] = node.properties["class"] or "" + f" {' '.join(classes)}"
+    node.properties["class"] = " ".join(classes)
     return None
 
 
@@ -64,45 +93,58 @@ class ClassList:
 
     def __init__(self, node: Element):
         self.node = node
+        self.classes = node.properties["class"].split(" ") if "class" in node.properties else []
 
     def contains(self, klass: str):
         """Check if `class` contains a certain class."""
-        from phml.utils import has_property  # pylint: disable=import-outside-toplevel
 
-        if has_property(self.node, "class"):
-            return search(klass, self.node.properties["class"]) is not None
-        return False
+        return klass.strip().replace(" ", "-") in self.classes
 
     def toggle(self, *klasses: str):
         """Toggle a class in `class`."""
 
         for klass in klasses:
-            if search(f"\b{klass}\b", self.node.properties["class"]) is not None:
-                sub(f"\b{klass}\b", "", self.node.properties["class"])
-                sub(r" +", " ", self.node.properties["class"])
+            if klass.strip().replace(" ", "-") in self.classes:
+                self.classes.remove(klass.strip().replace(" ", "-"))
             else:
-                self.node.properties["class"] = self.node.properties["class"].strip() + f" {klass}"
+                self.classes.append(klass.strip().replace(" ", "-"))
+                
+        self.node.properties["class"] = self.class_list()
 
     def add(self, *klasses: str):
         """Add one or more classes to `class`."""
 
         for klass in klasses:
-            if search(f"\b{klass}\b", self.node.properties["class"]) is None:
-                self.node.properties["class"] = self.node.properties["class"].strip() + f" {klass}"
+            if klass not in self.classes:
+                self.classes.append(klass.strip().replace(" ", "-"))
+        
+        self.node.properties["class"] = self.class_list()
 
-    def replace(self, old_klass: str, new_klass: str):
+    def replace(self, old_class: str, new_class: str):
         """Replace a certain class in `class` with
         another class.
         """
 
-        if search(f"\b{old_klass}\b", self.node.properties["class"]) is not None:
-            sub(f"\b{old_klass}\b", f"\b{new_klass}\b", self.node.properties["class"])
-            sub(r" +", " ", self.node.properties["class"])
+        old_class = old_class.strip().replace(" ", "-")
+        new_class = new_class.strip().replace(" ", "-")
+
+        if old_class in self.classes:
+            idx = self.classes.index(old_class)
+            self.classes[idx] = new_class
+            self.node.properties["class"] = self.class_list()
 
     def remove(self, *klasses: str):
         """Remove one or more classes from `class`."""
 
         for klass in klasses:
-            if search(f"\b{klass}\b", self.node.properties["class"]) is not None:
-                sub(f"\b{klass}\b", "", self.node.properties["class"])
-                sub(r" +", " ", self.node.properties["class"])
+            if klass in self.classes:
+                self.classes.remove(klass)
+            
+        if len(self.classes) == 0:
+            self.node.properties.pop("class", None)
+        else:
+            self.node.properties["class"] = self.class_list()
+            
+    def class_list(self) -> str:
+        """Return the formatted string of classes."""
+        return ' '.join(self.classes)

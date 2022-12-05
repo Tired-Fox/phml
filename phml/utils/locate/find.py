@@ -47,7 +47,7 @@ def ancestor(*nodes: All_Nodes) -> Optional[All_Nodes]:
     return total_path[-1] if len(total_path) > 0 else None
 
 
-def find(start: Root | Element | AST, condition: Test) -> Optional[All_Nodes]:
+def find(start: Root | Element | AST, condition: Test, strict: bool = True) -> Optional[All_Nodes]:
     """Walk the nodes children and return the desired node.
 
     Returns the first node that matches the condition.
@@ -63,13 +63,13 @@ def find(start: Root | Element | AST, condition: Test) -> Optional[All_Nodes]:
         start = start.tree
 
     for node in walk(start):
-        if test(node, condition):
+        if test(node, condition, strict=strict):
             return node
 
     return None
 
 
-def find_all(start: Root | Element | AST, condition: Test) -> list[All_Nodes]:
+def find_all(start: Root | Element | AST, condition: Test, strict: bool = True) -> list[All_Nodes]:
     """Find all nodes that match the condition.
 
     Args:
@@ -84,7 +84,7 @@ def find_all(start: Root | Element | AST, condition: Test) -> list[All_Nodes]:
 
     results = []
     for node in walk(start):
-        if test(node, condition):
+        if test(node, condition, strict=strict):
             results.append(node)
     return results
 
@@ -92,6 +92,7 @@ def find_all(start: Root | Element | AST, condition: Test) -> list[All_Nodes]:
 def find_after(
     start: Root | Element | AST,
     condition: Optional[Test] = None,
+    strict: bool = True,
 ) -> Optional[All_Nodes]:
     """Get the first sibling node following the provided node that matches
     the condition.
@@ -111,7 +112,7 @@ def find_after(
     if len(start.parent.children) - 1 > idx:
         for node in start.parent.children[idx + 1 :]:
             if condition is not None:
-                if test(node, condition):
+                if test(node, condition, strict=strict):
                     return node
             else:
                 return node
@@ -121,6 +122,7 @@ def find_after(
 def find_all_after(
     start: Element,
     condition: Optional[Test] = None,
+    strict: bool = True,
 ) -> list[All_Nodes]:
     """Get all sibling nodes that match the condition.
 
@@ -138,7 +140,7 @@ def find_all_after(
     if len(start.parent.children) - 1 > idx:
         for node in start.parent.children[idx + 1 :]:
             if condition is not None:
-                if test(node, condition):
+                if test(node, condition, strict=strict):
                     matches.append(node)
             else:
                 matches.append(node)
@@ -149,6 +151,7 @@ def find_all_after(
 def find_before(
     start: Element,
     condition: Optional[Test] = None,
+    strict: bool = True,
 ) -> Optional[All_Nodes]:
     """Find the first sibling node before the given node. If a condition is applied
     then it will be the first sibling node that passes that condition.
@@ -168,7 +171,7 @@ def find_before(
     if idx > 0:
         for node in start.parent.children[idx - 1 :: -1]:
             if condition is not None:
-                if test(node, condition):
+                if test(node, condition, strict=strict):
                     return node
             else:
                 return node
@@ -178,6 +181,7 @@ def find_before(
 def find_all_before(
     start: Element,
     condition: Optional[Test] = None,
+    strict: bool = True,
 ) -> list[All_Nodes]:
     """Find all nodes that come before the given node.
 
@@ -195,7 +199,7 @@ def find_all_before(
     if idx > 0:
         for node in start.parent.children[:idx]:
             if condition is not None:
-                if test(node, condition):
+                if test(node, condition, strict=strict):
                     matches.append(node)
             else:
                 matches.append(node)
@@ -208,6 +212,7 @@ def find_all_between(
     end: Optional[int] = 0,
     condition: Optional[Test] = None,
     _range: Optional[slice] = None,
+    strict: bool = True,
 ) -> list[All_Nodes]:
     """Find all sibling nodes in parent that meet the provided condition from start index
     to end index.
@@ -234,7 +239,7 @@ def find_all_between(
     if start in range(0, end) and end in range(start, len(parent.children) + 1):
         for node in parent.children[start:end]:
             if condition is not None:
-                if test(node, condition):
+                if test(node, condition, strict=strict):
                     results.append(node)
             else:
                 results.append(node)

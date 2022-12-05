@@ -202,7 +202,7 @@ class TestSelect:
                 lambda n, i, pnt: n.type == "element"
                 and n.tag == "h1"
                 and pnt.type == "element"
-                and pnt.tag == "div"
+                and pnt.tag == "div",
             ),
         )
 
@@ -210,8 +210,151 @@ class TestSelect:
 class TestIndex:
     """Test the phml.utils.locate.index.Index class."""
 
-    # Generation
-    # getting
-    # adding
-    # removing
-    # mapping
+    def test_index_constructor(self):
+        iast = AST(
+            p(
+                p("doctype", "html"),
+                p(
+                    "html",
+                    p("head"),
+                    p(
+                        "body",
+                        p("div", {"id": "test-1"}, "test 1"),
+                        p("div", {"id": "test-2"}, "test 2"),
+                        p("div", {"id": "test-3"}, "test 3"),
+                    ),
+                ),
+            )
+        )
+
+        # Basic indexing
+        indexed_ast = Index("id", iast, {"tag": "div"})
+        assert indexed_ast.indexed_tree == {
+            "test-1": [p("div", {"id": "test-1"}, "test 1")],
+            "test-2": [p("div", {"id": "test-2"}, "test 2")],
+            "test-3": [p("div", {"id": "test-3"}, "test 3")],
+        }
+
+        # Validate extended dict functions
+        assert list(indexed_ast.keys()) == ["test-1", "test-2", "test-3"]
+        assert list(indexed_ast.values()) == [
+            [p("div", {"id": "test-1"}, "test 1")],
+            [p("div", {"id": "test-2"}, "test 2")],
+            [p("div", {"id": "test-3"}, "test 3")],
+        ]
+
+        assert list(indexed_ast.items()) == [
+            ("test-1", [p("div", {"id": "test-1"}, "test 1")]),
+            ("test-2", [p("div", {"id": "test-2"}, "test 2")]),
+            ("test-3", [p("div", {"id": "test-3"}, "test 3")]),
+        ]
+
+        assert "test-1" in indexed_ast
+
+        # Validate with Callable key
+        indexed_ast = Index(Index.key_by_tag, iast)
+        assert indexed_ast.indexed_tree == {
+            "html": [
+                p(
+                    "html",
+                    p("head"),
+                    p(
+                        "body",
+                        p("div", {"id": "test-1"}, "test 1"),
+                        p("div", {"id": "test-2"}, "test 2"),
+                        p("div", {"id": "test-3"}, "test 3"),
+                    ),
+                ),
+            ],
+            "head": [p("head")],
+            "body": [
+                p(
+                    "body",
+                    p("div", {"id": "test-1"}, "test 1"),
+                    p("div", {"id": "test-2"}, "test 2"),
+                    p("div", {"id": "test-3"}, "test 3"),
+                ),
+            ],
+            "div": [
+                p("div", {"id": "test-1"}, "test 1"),
+                p("div", {"id": "test-2"}, "test 2"),
+                p("div", {"id": "test-3"}, "test 3"),
+            ],
+        }
+
+    def test_index_get(self):
+        iast = AST(
+            p(
+                p("doctype", "html"),
+                p(
+                    "html",
+                    p("head"),
+                    p(
+                        "body",
+                        p("div", {"id": "test-1"}, "test 1"),
+                        p("div", {"id": "test-2"}, "test 2"),
+                        p("div", {"id": "test-3"}, "test 3"),
+                    ),
+                ),
+            )
+        )
+
+        indexed_ast = Index(Index.key_by_tag, iast)
+
+        assert indexed_ast.get("head") == [p("head")]
+        assert indexed_ast.get("div") == [
+            p("div", {"id": "test-1"}, "test 1"),
+            p("div", {"id": "test-2"}, "test 2"),
+            p("div", {"id": "test-3"}, "test 3"),
+        ]
+
+    def test_index_add(self):
+        iast = AST(
+            p(
+                p("doctype", "html"),
+                p(
+                    "html",
+                    p("head"),
+                    p(
+                        "body",
+                        p("div", {"id": "test-1"}, "test 1"),
+                        p("div", {"id": "test-2"}, "test 2"),
+                        p("div", {"id": "test-3"}, "test 3"),
+                    ),
+                ),
+            )
+        )
+
+        indexed_ast = Index(Index.key_by_tag, iast)
+        indexed_ast.add(p("head", p("meta")))
+
+        assert indexed_ast.get("head") == [p("head"), p("head", p("meta"))]
+
+    def test_index_remove(self):
+        iast = AST(
+            p(
+                p("doctype", "html"),
+                p(
+                    "html",
+                    p("head", p("meta")),
+                    p(
+                        "body",
+                        p("div", {"id": "test-1"}, "test 1"),
+                        p("div", {"id": "test-2"}, "test 2"),
+                        p("div", {"id": "test-3"}, "test 3"),
+                    ),
+                ),
+            )
+        )
+
+        indexed_ast = Index(Index.key_by_tag, iast)
+        indexed_ast.remove(p("div", {"id": "test-3"}, "test 3"))
+
+        assert indexed_ast.get("div") == [
+            p("div", {"id": "test-1"}, "test 1"),
+            p("div", {"id": "test-2"}, "test 2"),
+        ]
+
+        assert "meta" in indexed_ast
+        indexed_ast.remove(p("meta"))
+        assert "meta" not in indexed_ast

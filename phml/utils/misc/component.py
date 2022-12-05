@@ -6,7 +6,7 @@ from phml.nodes import AST, Element
 __all__ = ["tag_from_file", "filename_from_path", "parse_component"]
 
 
-def tag_from_file(filename: str) -> str:
+def tag_from_file(filename: str | Path) -> str:
     """Generates a tag name some-tag-name from a filename.
     Assumes filenames of:
     * snakecase - some_file_name
@@ -15,11 +15,20 @@ def tag_from_file(filename: str) -> str:
     """
     from re import finditer  # pylint: disable=import-outside-toplevel
 
+    if isinstance(filename, Path):
+        if filename.is_file():
+            filename = filename.name.replace(filename.suffix, "")
+        else:
+            raise TypeError("If filename is a path it must also be a valid file.")
+
     tokens = []
-    for token in finditer(r"(\b|[A-Z]|_)([a-z]+)", filename):
-        first, rest = token.groups()
-        if first.isupper():
+    for token in finditer(r"(\b|[A-Z]|_|-)([a-z]+)|([A-Z]+)(?=[^a-z])", filename):
+        first, rest, cap = token.groups()
+
+        if  first is not None and first.isupper():
             rest = first + rest
+        elif cap is not None and cap.isupper():
+            rest = cap
         tokens.append(rest.lower())
 
     return "-".join(tokens)

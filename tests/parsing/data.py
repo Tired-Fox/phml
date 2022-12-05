@@ -140,289 +140,264 @@ asts = {
 }
 
 dicts = {
-  "type": "root",
-  "position": None,
-  "children": [
-    {
-      "type": "doctype",
-      "position": None,
-      "lang": "html"
-    },
-    {
-      "type": "element",
-      "position": None,
-      "properties": {
-        "lang": "en"
-      },
-      "tag": "html",
-      "startend": False,
-      "locals": {},
-      "children": [
+    "type": "root",
+    "position": None,
+    "children": [
+        {"type": "doctype", "position": None, "lang": "html"},
         {
-          "type": "element",
-          "position": None,
-          "properties": {},
-          "tag": "head",
-          "startend": False,
-          "locals": {},
-          "children": [
-            {
-              "type": "element",
-              "position": None,
-              "properties": {
-                "charset": "UTF-8"
-              },
-              "tag": "meta",
-              "startend": True,
-              "locals": {},
-              "children": []
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {
-                "http-equiv": "X-UA-Compatible",
-                "content": "IE=edge"
-              },
-              "tag": "meta",
-              "startend": True,
-              "locals": {},
-              "children": []
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {
-                "name": "viewport",
-                "content": "width=device-width, initial-scale=1.0"
-              },
-              "tag": "meta",
-              "startend": True,
-              "locals": {},
-              "children": []
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {},
-              "tag": "title",
-              "startend": False,
-              "locals": {},
-              "children": [
+            "type": "element",
+            "position": None,
+            "properties": {"lang": "en"},
+            "tag": "html",
+            "startend": False,
+            "locals": {},
+            "children": [
                 {
-                  "type": "text",
-                  "position": None,
-                  "value": "{title or \"\"}",
-                  "num_lines": 1
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "element",
-          "position": None,
-          "properties": {},
-          "tag": "python",
-          "startend": False,
-          "locals": {},
-          "children": [
-            {
-              "type": "text",
-              "position": None,
-              "value": "        date = \"11/15/2022\"\n        data = {\n            \"name\": \"Zachary\",\n            \"age\": \"22\",\n            \"type\": \"checkbox\"\n        }",
-              "num_lines": 6
-            }
-          ]
-        },
-        {
-          "type": "element",
-          "position": None,
-          "properties": {},
-          "tag": "body",
-          "startend": False,
-          "locals": {},
-          "children": [
-            {
-              "type": "comment",
-              "position": None,
-              "value": " Text Comment "
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {},
-              "tag": "h1",
-              "startend": False,
-              "locals": {},
-              "children": [
-                {
-                  "type": "text",
-                  "position": None,
-                  "value": "Hello World!",
-                  "num_lines": 1
-                }
-              ]
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {
-                "py-type": "data['type']",
-                "checked": "{date == '11/15/2022'}"
-              },
-              "tag": "input",
-              "startend": True,
-              "locals": {},
-              "children": []
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {
-                "py-if": "date == '11/15/2022'"
-              },
-              "tag": "p",
-              "startend": False,
-              "locals": {},
-              "children": [
-                {
-                  "type": "text",
-                  "position": None,
-                  "value": "{date}",
-                  "num_lines": 1
-                }
-              ]
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {
-                "py-elif": "data['name'] == 'Zachary'"
-              },
-              "tag": "p",
-              "startend": False,
-              "locals": {},
-              "children": [
-                {
-                  "type": "text",
-                  "position": None,
-                  "value": "{date[\"name\"]}",
-                  "num_lines": 1
-                }
-              ]
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {
-                "py-else": True
-              },
-              "tag": "p",
-              "startend": False,
-              "locals": {},
-              "children": [
-                {
-                  "type": "text",
-                  "position": None,
-                  "value": "Wonderful day today!",
-                  "num_lines": 1
-                }
-              ]
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {
-                "id": "python-loop"
-              },
-              "tag": "ul",
-              "startend": False,
-              "locals": {},
-              "children": [
-                {
-                  "type": "element",
-                  "position": None,
-                  "properties": {
-                    "py-for": "key, value in data.items()"
-                  },
-                  "tag": "li",
-                  "startend": False,
-                  "locals": {},
-                  "children": [
-                    {
-                      "type": "element",
-                      "position": None,
-                      "properties": {},
-                      "tag": "span",
-                      "startend": False,
-                      "locals": {},
-                      "children": [
+                    "type": "element",
+                    "position": None,
+                    "properties": {},
+                    "tag": "head",
+                    "startend": False,
+                    "locals": {},
+                    "children": [
                         {
-                          "type": "text",
-                          "position": None,
-                          "value": "{key}: ",
-                          "num_lines": 1
-                        }
-                      ]
-                    },
-                    {
-                      "type": "element",
-                      "position": None,
-                      "properties": {},
-                      "tag": "span",
-                      "startend": False,
-                      "locals": {},
-                      "children": [
+                            "type": "element",
+                            "position": None,
+                            "properties": {"charset": "UTF-8"},
+                            "tag": "meta",
+                            "startend": True,
+                            "locals": {},
+                            "children": [],
+                        },
                         {
-                          "type": "text",
-                          "position": None,
-                          "value": "{value}",
-                          "num_lines": 1
+                            "type": "element",
+                            "position": None,
+                            "properties": {"http-equiv": "X-UA-Compatible", "content": "IE=edge"},
+                            "tag": "meta",
+                            "startend": True,
+                            "locals": {},
+                            "children": [],
+                        },
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {
+                                "name": "viewport",
+                                "content": "width=device-width, initial-scale=1.0",
+                            },
+                            "tag": "meta",
+                            "startend": True,
+                            "locals": {},
+                            "children": [],
+                        },
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {},
+                            "tag": "title",
+                            "startend": False,
+                            "locals": {},
+                            "children": [
+                                {
+                                    "type": "text",
+                                    "position": None,
+                                    "value": "{title or \"\"}",
+                                    "num_lines": 1,
+                                }
+                            ],
+                        },
+                    ],
+                },
+                {
+                    "type": "element",
+                    "position": None,
+                    "properties": {},
+                    "tag": "python",
+                    "startend": False,
+                    "locals": {},
+                    "children": [
+                        {
+                            "type": "text",
+                            "position": None,
+                            "value": "        date = \"11/15/2022\"\n        data = {\n            \"name\": \"Zachary\",\n            \"age\": \"22\",\n            \"type\": \"checkbox\"\n        }",
+                            "num_lines": 6,
                         }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {},
-              "tag": "h4",
-              "startend": False,
-              "locals": {},
-              "children": [
+                    ],
+                },
                 {
-                  "type": "text",
-                  "position": None,
-                  "value": "The end",
-                  "num_lines": 1
-                }
-              ]
-            },
-            {
-              "type": "element",
-              "position": None,
-              "properties": {},
-              "tag": "python",
-              "startend": False,
-              "locals": {},
-              "children": [
-                {
-                  "type": "text",
-                  "position": None,
-                  "value": "            from pprint import pprint\n\n            def print_data(data):\n                pprint(data)",
-                  "num_lines": 3
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
+                    "type": "element",
+                    "position": None,
+                    "properties": {},
+                    "tag": "body",
+                    "startend": False,
+                    "locals": {},
+                    "children": [
+                        {"type": "comment", "position": None, "value": " Text Comment "},
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {},
+                            "tag": "h1",
+                            "startend": False,
+                            "locals": {},
+                            "children": [
+                                {
+                                    "type": "text",
+                                    "position": None,
+                                    "value": "Hello World!",
+                                    "num_lines": 1,
+                                }
+                            ],
+                        },
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {
+                                "py-type": "data['type']",
+                                "checked": "{date == '11/15/2022'}",
+                            },
+                            "tag": "input",
+                            "startend": True,
+                            "locals": {},
+                            "children": [],
+                        },
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {"py-if": "date == '11/15/2022'"},
+                            "tag": "p",
+                            "startend": False,
+                            "locals": {},
+                            "children": [
+                                {
+                                    "type": "text",
+                                    "position": None,
+                                    "value": "{date}",
+                                    "num_lines": 1,
+                                }
+                            ],
+                        },
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {"py-elif": "data['name'] == 'Zachary'"},
+                            "tag": "p",
+                            "startend": False,
+                            "locals": {},
+                            "children": [
+                                {
+                                    "type": "text",
+                                    "position": None,
+                                    "value": "{date[\"name\"]}",
+                                    "num_lines": 1,
+                                }
+                            ],
+                        },
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {"py-else": True},
+                            "tag": "p",
+                            "startend": False,
+                            "locals": {},
+                            "children": [
+                                {
+                                    "type": "text",
+                                    "position": None,
+                                    "value": "Wonderful day today!",
+                                    "num_lines": 1,
+                                }
+                            ],
+                        },
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {"id": "python-loop"},
+                            "tag": "ul",
+                            "startend": False,
+                            "locals": {},
+                            "children": [
+                                {
+                                    "type": "element",
+                                    "position": None,
+                                    "properties": {"py-for": "key, value in data.items()"},
+                                    "tag": "li",
+                                    "startend": False,
+                                    "locals": {},
+                                    "children": [
+                                        {
+                                            "type": "element",
+                                            "position": None,
+                                            "properties": {},
+                                            "tag": "span",
+                                            "startend": False,
+                                            "locals": {},
+                                            "children": [
+                                                {
+                                                    "type": "text",
+                                                    "position": None,
+                                                    "value": "{key}: ",
+                                                    "num_lines": 1,
+                                                }
+                                            ],
+                                        },
+                                        {
+                                            "type": "element",
+                                            "position": None,
+                                            "properties": {},
+                                            "tag": "span",
+                                            "startend": False,
+                                            "locals": {},
+                                            "children": [
+                                                {
+                                                    "type": "text",
+                                                    "position": None,
+                                                    "value": "{value}",
+                                                    "num_lines": 1,
+                                                }
+                                            ],
+                                        },
+                                    ],
+                                }
+                            ],
+                        },
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {},
+                            "tag": "h4",
+                            "startend": False,
+                            "locals": {},
+                            "children": [
+                                {
+                                    "type": "text",
+                                    "position": None,
+                                    "value": "The end",
+                                    "num_lines": 1,
+                                }
+                            ],
+                        },
+                        {
+                            "type": "element",
+                            "position": None,
+                            "properties": {},
+                            "tag": "python",
+                            "startend": False,
+                            "locals": {},
+                            "children": [
+                                {
+                                    "type": "text",
+                                    "position": None,
+                                    "value": "            from pprint import pprint\n\n            def print_data(data):\n                pprint(data)",
+                                    "num_lines": 3,
+                                }
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
 }
 
 strings = {
@@ -503,14 +478,13 @@ strings = {
 if __name__ == "__main__":
     from phml import PHMLCore
     from phml.core.file_types import PHML, JSON
-    
+
     core = PHMLCore()
     core.ast = asts["phml"]
-    
+
     # write to expected files
     (
-        core
-        .write(dest="../sample.html", title="sample title")
+        core.write(dest="../sample.html", title="sample title")
         .write(dest="../sample.phml", file_type=PHML, title="sample title")
         .write("../sample.json", file_type=JSON, title="sample title")
     )

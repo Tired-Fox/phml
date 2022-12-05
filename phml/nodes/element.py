@@ -111,6 +111,6 @@ class Element(Parent):
         return f"</{self.tag}>" if not self.startend else None
 
     def __repr__(self) -> str:
-        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, children: \
-{len(self.children)})"
+        out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, \
+startend: {self.startend}, children: {len(self.children)})"
         return out

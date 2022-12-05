@@ -20,6 +20,7 @@ def test(
     _test: Test,
     index: Optional[int] = None,
     parent: Optional[Root | Element] = None,
+    strict: bool = True,
 ) -> bool:
     """Test if a node passes the given test(s).
 
@@ -74,8 +75,13 @@ def test(
 
     if isinstance(_test, list):
         # If list then recursively apply tests
+        if strict:
+            return bool(
+                all(isinstance(cond, Test) and test(node, cond, index, parent) for cond in _test)
+            )
+            
         return bool(
-            all(isinstance(cond, Test) and test(node, cond, index, parent) for cond in _test)
+            any(isinstance(cond, Test) and test(node, cond, index, parent) for cond in _test)
         )
 
     if isinstance(_test, Callable):

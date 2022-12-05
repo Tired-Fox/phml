@@ -20,10 +20,14 @@ __all__ = [
 ]
 
 
-def filter_nodes(tree: Root | Element | AST, condition: Test):
+def filter_nodes(
+    tree: Root | Element | AST,
+    condition: Test,
+    strict: bool = True,
+):
     """Take a given tree and filter the nodes with the condition.
     Only nodes passing the condition stay. If the parent node fails,
-    then all children are removed.
+    all children are moved up in scope. Depth first
 
     Same as remove_nodes but keeps the nodes that match.
 
@@ -39,15 +43,32 @@ def filter_nodes(tree: Root | Element | AST, condition: Test):
         tree = tree.tree
 
     def filter_children(node):
-        node.children = [n for n in node.children if test(n, condition)]
-        for child in node.children:
+        children = []
+        for i, child in enumerate(node.children):
             if child.type in ["root", "element"]:
-                filter_children(child)
+                node.children[i] = filter_children(node.children[i])
+                if not test(child, condition, strict=strict):
+                    for c in range(len(child.children)):
+                        child.children[c].parent == node
+                    children.extend(node.children[i].children)
+                else:
+                    children.append(node.children[i])
+            elif test(child, condition, strict=strict):
+                children.append(node.children[i])
+        
+        node.children = children
+        if len(node.children) == 0 and isinstance(node, Element):
+            node.startend = True
+        return node
 
     filter_children(tree)
 
 
-def remove_nodes(tree: Root | Element | AST, condition: Test):
+def remove_nodes(
+    tree: Root | Element | AST,
+    condition: Test,
+    strict: bool = True,
+):
     """Take a given tree and remove the nodes that match the condition.
     If a parent node is removed so is all the children.
 
@@ -61,10 +82,13 @@ def remove_nodes(tree: Root | Element | AST, condition: Test):
         tree = tree.tree
 
     def filter_children(node):
-        node.children = [n for n in node.children if not test(n, condition)]
+        node.children = [n for n in node.children if not test(n, condition, strict=strict)]
         for child in node.children:
             if child.type in ["root", "element"]:
                 filter_children(child)
+
+        if len(node.children) == 0 and isinstance(node, Element):
+            node.startend = True
 
     filter_children(tree)
 
@@ -93,13 +117,19 @@ def map_nodes(tree: Root | Element | AST, transform: Callable):
     if tree.__class__.__name__ == "AST":
         tree = tree.tree
 
-    for node in walk(tree):
-        if not isinstance(node, Root):
-            node = transform(node)
+    def recursive_map(node):
+        for i, child in enumerate(node.children):
+            if isinstance(child, Element):
+                recursive_map(node.children[i])
+                node.children[i] = transform(child)
+            else:
+                node.children[i] = transform(child)
+                
 
+    recursive_map(tree)
 
 def replace_node(
-    start: Root | Element, condition: Test, replacement: Optional[All_Nodes | list[All_Nodes]]
+    start: Root | Element, condition: Test, replacement: Optional[All_Nodes | list[All_Nodes]], strict: bool = True
 ):
     """Search for a specific node in the tree and replace it with either
     a node or list of nodes. If replacement is None the found node is just removed.
@@ -110,7 +140,7 @@ def replace_node(
         replacement (All_Nodes | list[All_Nodes] | None): What to replace the node with.
     """
     for node in walk(start):
-        if test(node, condition):
+        if test(node, condition, strict=strict):
             if node.parent is not None:
                 idx = node.parent.children.index(node)
                 if replacement is not None:
@@ -123,7 +153,6 @@ def replace_node(
                     )
                 else:
                     node.parent.children.pop(idx)
-                break
 
 
 def find_and_replace(start: Root | Element, *replacements: tuple[str, str | Callable]) -> int:

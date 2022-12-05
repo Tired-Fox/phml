@@ -60,7 +60,7 @@ def signature(node: All_Nodes, indent: int = 2):
     sig = f"{node.type}"
     # element node's tag
     if isinstance(node, Element):
-        sig += f"<{node.tag}>"
+        sig += f"<{node.tag}{'/' if node.startend else ''}>"
 
     # count of children in parent node
     if isinstance(node, (Element, Root)) and len(node.children) > 0:

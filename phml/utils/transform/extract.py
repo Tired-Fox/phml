@@ -1,6 +1,9 @@
 # pylint: disable=missing-module-docstring
 from phml.nodes import AST, All_Nodes, Comment, Element, Root, Text
 
+__all__ = [
+    "to_string"
+]
 
 def to_string(node: AST | All_Nodes) -> str:
     """Get the raw text content of the element. Works similar to
@@ -31,6 +34,6 @@ def to_string(node: AST | All_Nodes) -> str:
 
     if isinstance(node, Root | Element):
         # Recursive concat
-        return "".join(concat_text(node))
+        return " ".join(concat_text(node))
 
     return None

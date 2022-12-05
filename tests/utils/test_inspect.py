@@ -57,7 +57,7 @@ def test_multiline_literal_node():
 with_props = {
     "el": p("div", {"id": "test", "hidden": True}),
     "expected": """\
-element<div>
+element<div/>
 │  properties: {
 │    "id": \"test\",
 │    "hidden": true

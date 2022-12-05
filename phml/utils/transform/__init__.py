@@ -6,6 +6,7 @@ ast or a specific nodes.
 
 from .sanitize import *
 from .transform import *
+from .extract import *
 
 # __all__ = [
 #     "filter_nodes",
