@@ -21,44 +21,44 @@ class TestClasses:
         underline, color = True, False
 
         classnames(div, ["red", "bold", {"underline": underline, "orange": color}])
-        assert div.properties["class"] == "bold red underline"
+        assert div["class"] == "bold red underline"
 
     # classList
     def test_ClassList(self):
         node = p("div", {"class": "bold"})
         cl = ClassList(node)
 
-        assert "red" not in node.properties["class"] and not cl.contains("red")
+        assert "red" not in node["class"] and not cl.contains("red")
         cl.add("red", "underline")
         assert (
-            "red" in node.properties["class"]
-            and "underline" in node.properties["class"]
+            "red" in node["class"]
+            and "underline" in node["class"]
             and cl.contains("red")
             and cl.contains("underline")
         )
 
         cl.toggle("red", "underline")
         assert (
-            "red" not in node.properties["class"]
-            and "underline" not in node.properties["class"]
+            "red" not in node["class"]
+            and "underline" not in node["class"]
             and not cl.contains("red")
             and not cl.contains("underline")
         )
         cl.toggle("red", "underline")
         assert (
-            "red" in node.properties["class"]
+            "red" in node["class"]
             and cl.contains("red")
-            and "underline" in node.properties["class"]
+            and "underline" in node["class"]
             and cl.contains("underline")
         )
 
         cl.replace("underline", "shadow")
-        assert "shadow" in node.properties["class"] and cl.contains("shadow")
+        assert "shadow" in node["class"] and cl.contains("shadow")
 
         cl.remove("red", "shadow")
         assert (
-            "red" not in node.properties["class"]
-            and "shadow" not in node.properties["class"]
+            "red" not in node["class"]
+            and "shadow" not in node["class"]
             and not cl.contains("red")
             and not cl.contains("shadow")
         )
@@ -117,5 +117,5 @@ class TestHeading:
 
     with raises(TypeError, match=r"(Node must be a heading\. Was a [a-zA-Z_.]+)"):
         heading_rank(not_heading)
-    with raises(TypeError, match=r"(Node must be an element\. Was a [a-zA-Z_.]+)"):
+    with raises(TypeError, match=r"Node must be an element."):
         heading_rank(non_element)

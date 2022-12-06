@@ -64,6 +64,19 @@ class Element(Parent):
         self.parent = parent
         self.locals = {}
 
+    def __getitem__(self, index: str) -> str:
+        return self.properties[index]
+
+    def __setitem__(self, index: str, value: str):
+        if not isinstance(index, str) or not isinstance(value, (str, bool)):
+            raise TypeError("Index must be a str and value must be either str or bool.")
+
+        self.properties[index] = value
+
+    def __delitem__(self, index: str):
+        if index in self.properties:
+            self.properties.pop(index, None)
+
     def __eq__(self, obj) -> bool:
         return bool(
             obj is not None
@@ -88,11 +101,11 @@ class Element(Parent):
 
         attributes = []
         for prop in self.properties:
-            if isinstance(self.properties[prop], bool) or self.properties[prop] in ["yes", "no"]:
-                if self.properties[prop] == "yes" or self.properties[prop]:
+            if isinstance(self[prop], bool) or self[prop] in ["yes", "no"]:
+                if self[prop] == "yes" or self[prop]:
                     attributes.append(prop)
             else:
-                attributes.append(f'{prop}="{self.properties[prop]}"')
+                attributes.append(f'{prop}="{self[prop]}"')
         if len(attributes) > 0:
             attributes = " " + " ".join(attributes)
         else:

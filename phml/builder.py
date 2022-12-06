@@ -16,7 +16,7 @@ def __process_children(node, children: list[str | list | int | All_Nodes]):
     for child in children:
         if isinstance(child, str):
             node.children.append(Text(child, node))
-        elif isinstance(child, int):
+        elif isinstance(child, (float, int)):
             node.children.append(Text(str(child), node))
         elif isinstance(child, All_Nodes):
             child.parent = node
@@ -25,7 +25,7 @@ def __process_children(node, children: list[str | list | int | All_Nodes]):
             for nested_child in child:
                 if isinstance(nested_child, str):
                     node.children.append(Text(nested_child, node))
-                elif isinstance(nested_child, int):
+                elif isinstance(nested_child, (float, int)):
                     node.children.append(Text(str(nested_child), node))
                 elif isinstance(nested_child, All_Nodes):
                     nested_child.parent = node
@@ -68,7 +68,6 @@ def p(  # pylint: disable=[invalid-name,keyword-arg-before-vararg]
 
             children = [child for child in args if isinstance(child, (str, list, int, All_Nodes))]
             return parse_root(children)
-
         return parse_node(selector, props, children)
 
     return parse_root(children)
@@ -87,10 +86,8 @@ def parse_node(selector: str, props: dict, children: list):
     from phml.utils import parse_specifiers  # pylint: disable=import-outside-toplevel
 
     node = parse_specifiers(selector)
-    if len(node) > 1:
-        raise Exception("Selector can not be a complex selector")
     if not isinstance(node[0], dict) or len(node[0]["attributes"]) > 0:
-        raise EncodingWarning("Selector must be of the format `tag?[#id][.classes...]`")
+        raise TypeError("Selector must be of the format `tag?[#id]?[.classes...]?`")
 
     node = node[0]
 
@@ -103,14 +100,16 @@ def parse_node(selector: str, props: dict, children: list):
         return DocType()
 
     if node["tag"].lower() == "text":
-        return Text(" ".join([child for child in children if isinstance(child, str)]))
+        return Text(
+            " ".join([str(child) for child in children if isinstance(child, (str, int, float))])
+        )
 
     properties = {}
     for prop in props:
         properties.update(prop)
 
     if len(node["classList"]) > 0:
-        properties["class"] = properties["class"] or ""
+        properties["class"] = "" if "class" not in properties else properties["class"]
         properties["class"] += " ".join(node["classList"])
     if node["id"] is not None:
         properties["id"] = node["id"]

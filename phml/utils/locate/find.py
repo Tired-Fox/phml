@@ -7,7 +7,7 @@ from typing import Optional
 
 from phml.nodes import AST, All_Nodes, Element, Root
 from phml.utils.travel import path, walk
-from phml.utils.validate import Test, test
+from phml.utils.validate import Test, check
 
 __all__ = [
     "ancestor",
@@ -63,7 +63,7 @@ def find(start: Root | Element | AST, condition: Test, strict: bool = True) -> O
         start = start.tree
 
     for node in walk(start):
-        if test(node, condition, strict=strict):
+        if check(node, condition, strict=strict):
             return node
 
     return None
@@ -84,7 +84,7 @@ def find_all(start: Root | Element | AST, condition: Test, strict: bool = True) 
 
     results = []
     for node in walk(start):
-        if test(node, condition, strict=strict):
+        if check(node, condition, strict=strict):
             results.append(node)
     return results
 
@@ -112,7 +112,7 @@ def find_after(
     if len(start.parent.children) - 1 > idx:
         for node in start.parent.children[idx + 1 :]:
             if condition is not None:
-                if test(node, condition, strict=strict):
+                if check(node, condition, strict=strict):
                     return node
             else:
                 return node
@@ -140,7 +140,7 @@ def find_all_after(
     if len(start.parent.children) - 1 > idx:
         for node in start.parent.children[idx + 1 :]:
             if condition is not None:
-                if test(node, condition, strict=strict):
+                if check(node, condition, strict=strict):
                     matches.append(node)
             else:
                 matches.append(node)
@@ -171,7 +171,7 @@ def find_before(
     if idx > 0:
         for node in start.parent.children[idx - 1 :: -1]:
             if condition is not None:
-                if test(node, condition, strict=strict):
+                if check(node, condition, strict=strict):
                     return node
             else:
                 return node
@@ -199,7 +199,7 @@ def find_all_before(
     if idx > 0:
         for node in start.parent.children[:idx]:
             if condition is not None:
-                if test(node, condition, strict=strict):
+                if check(node, condition, strict=strict):
                     matches.append(node)
             else:
                 matches.append(node)
@@ -239,7 +239,7 @@ def find_all_between(
     if start in range(0, end) and end in range(start, len(parent.children) + 1):
         for node in parent.children[start:end]:
             if condition is not None:
-                if test(node, condition, strict=strict):
+                if check(node, condition, strict=strict):
                     results.append(node)
             else:
                 results.append(node)

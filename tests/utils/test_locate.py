@@ -191,7 +191,7 @@ class TestSelect:
                 query_ast,
                 lambda n, i, _: n.type == "element"
                 and "id" in n.properties
-                and (n.properties["id"] == "test" or n.properties["id"].startswith("test-")),
+                and (n["id"] == "test" or n["id"].startswith("test-")),
             ),
         )
 

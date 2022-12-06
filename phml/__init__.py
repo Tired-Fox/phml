@@ -128,13 +128,13 @@ encouraged.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from . import builder, core, nodes, utils, virtual_python
 from .core import Compiler, Parser, file_types
 from .nodes import AST, All_Nodes
 
-__version__ = "0.1.1"
+__version__ = "1.0.0"
 __all__ = [
     "PHMLCore",
     "Compiler",
@@ -214,10 +214,12 @@ class PHMLCore:
 
         for component in components:
             if isinstance(component, Path):
+                from phml.utils import parse_component  # pylint: disable=import-outside-toplevel
+
                 self.parser.load(component)
-                self.compiler.add((filename_from_path(component), self.parser.ast))
-            else:
-                self.compiler.add(component)
+                self.compiler.add((filename_from_path(component), parse_component(self.parser.ast)))
+            elif isinstance(component, dict):
+                self.compiler.add(*[(key, value) for key, value in component.items()])
         return self
 
     def remove(self, *components: str | All_Nodes):
@@ -230,22 +232,22 @@ class PHMLCore:
         self.compiler.remove(*components)
         return self
 
-    def load(self, path: str | Path):
+    def load(self, path: str | Path, handler: Optional[Callable] = None):
         """Load a source files data and parse it to phml.
 
         Args:
             path (str | Path): The path to the source file.
         """
-        self.parser.load(path)
+        self.parser.load(path, handler)
         return self
 
-    def parse(self, data: str | dict):
+    def parse(self, data: str | dict, handler: Optional[Callable] = None):
         """Parse a str or dict object into phml.
 
         Args:
             data (str | dict): Object to parse to phml
         """
-        self.parser.parse(data)
+        self.parser.parse(data, handler)
         return self
 
     def render(

@@ -1,7 +1,7 @@
 # pylint: disable=missing-module-docstring
 from re import match, split, sub
 
-from phml.nodes import All_Nodes, Comment, Element, Root, Text
+from phml.nodes import All_Nodes, Comment, Element, Literal, Parent, Root, Text
 
 __all__ = [
     "validate",
@@ -34,31 +34,42 @@ def validate(node: All_Nodes) -> bool:
             raise AssertionError("Children must be a node type")
 
     if hasattr(node, "properties"):
-        if hasattr(node, type) and node.type != "element":
+        if hasattr(node, "type") and node.type != "element":
             raise AssertionError("Node must be of type 'element' to contain 'properties'")
 
-        if not all(isinstance(node.properties[prop], (int, str)) for prop in node.properties):
+        if not all(isinstance(node[prop], (int, str)) for prop in node.properties):
             raise AssertionError("Node 'properties' must be of type 'int' or 'str'")
 
     if hasattr(node, "value") and not isinstance(node.value, str):
         raise AssertionError("Node 'value' must be of type 'str'")
 
+    return True
+
 
 def parent(node: Root | Element) -> bool:
     """Validate a parent node based on attributes and type."""
-    if not hasattr(node, "children"):
+    if not issubclass(type(node), Parent):
+        raise AssertionError(
+            "Node must inherit from 'Parent'. 'Root' and 'Element' are most common."
+        )
+
+    if not hasattr(node, "children") or node.children is None:
         raise AssertionError("Parent nodes should have the 'children' attribute")
 
-    if node.type == "element" and not hasattr(node, "properties"):
+    if node.type == "element" and (not hasattr(node, "properties") or node.properties is None):
         raise AssertionError("Parent element node shoudl have the 'properties' element.")
 
 
 def literal(node: Text | Comment) -> bool:
     """Validate a literal node based on attributes."""
 
-    if hasattr(node, "value"):
-        if not isinstance(node, str):
-            raise AssertionError("Literal nodes 'value' type should be 'str'")
+    if not issubclass(type(node), Literal):
+        raise AssertionError(
+            "Node must inherit from 'Literal'. 'Text' and 'Comment' are most common."
+        )
+
+    if not hasattr(node, "value") or not isinstance(node.value, str):
+        raise AssertionError("Literal nodes 'value' type should be 'str'")
 
 
 def generated(node: All_Nodes) -> bool:
@@ -71,13 +82,17 @@ def generated(node: All_Nodes) -> bool:
     Returns:
         bool: Whether a node has a position or not.
     """
-    return hasattr(node, "position") and node.position is not None
+    return not hasattr(node, "position") or node.position is None
 
 
 def is_heading(node) -> bool:
     """Check if an element is a heading."""
 
-    return node.type == "element" and match(r"h[1-6]", node.tag) is not None
+    if node.type == "element":
+        if match(r"h[1-6]", node.tag) is not None:
+            return True
+        return False
+    raise TypeError("Node must be an element.")
 
 
 def is_css_link(node) -> bool:
@@ -93,14 +108,11 @@ def is_css_link(node) -> bool:
         is_element(node, "link")
         # Must have a rel list with stylesheet
         and has_property(node, "rel")
-        and "stylesheet" in split(r" ", sub(r" +", " ", node.properties["rel"]))
+        and "stylesheet" in split(r" ", sub(r" +", " ", node["rel"]))
         and (
             # Can have a `type` of `text/css` or empty or no `type`
             not has_property(node, "type")
-            or (
-                has_property(node, "type")
-                and (node.properties["type"] == "text/css" or node.properties["type"] == "")
-            )
+            or (has_property(node, "type") and (node["type"] == "text/css" or node["type"] == ""))
         )
     )
 
@@ -114,10 +126,7 @@ def is_css_style(node) -> bool:
 
     return is_element(node, "style") and (
         not has_property(node, "type")
-        or (
-            has_property(node, "type")
-            and (node.properties["type"] == "" or node.properties["type"] == "text/css")
-        )
+        or (has_property(node, "type") and (node["type"] == "" or node["type"] == "text/css"))
     )
 
 
@@ -130,12 +139,12 @@ def is_javascript(node) -> bool:
     return is_element(node, "script") and (
         (
             has_property(node, "type")
-            and node.properties["type"] in ["text/ecmascript", "text/javascript"]
+            and node["type"] in ["text/ecmascript", "text/javascript"]
             and not has_property(node, "language")
         )
         or (
             has_property(node, "language")
-            and node.properties["language"] in ["ecmascript", "javascript"]
+            and node["language"] in ["ecmascript", "javascript"]
             and not has_property(node, "type")
         )
         or (not has_property(node, "type") and not has_property(node, "language"))
@@ -145,20 +154,17 @@ def is_javascript(node) -> bool:
 def is_element(node, *conditions: str | list) -> bool:
     """Checks if the given node is a certain element.
 
-    When providing an str it will check that the elements tag matches.
+    When providing a str it will check that the elements tag matches.
     If a list is provided it checks that one of the conditions in the list
     passes.
     """
 
-    if node.type != "element":
-        return False
-
     return bool(
         node.type == "element"
-        and all(
+        and any(
             bool(
                 (isinstance(condition, str) and node.tag == condition)
-                or (isinstance(condition, list) and all(node.tag == nested for nested in condition))
+                or (isinstance(condition, list) and any(node.tag == nested for nested in condition))
             )
             for condition in conditions
         )
@@ -177,7 +183,8 @@ def has_property(node, attribute: str) -> bool:
     if node.type == "element":
         if attribute in node.properties:
             return True
-    return False
+        return False
+    raise TypeError("Node must be an element.")
 
 
 def is_embedded(node: Element) -> bool:
@@ -235,7 +242,7 @@ def is_interactive(node: Element) -> bool:
         return has_property(node, "href")
 
     if is_element(node, "input"):
-        return has_property(node, "type") and node.properties["type"].lower() != "hidden"
+        return has_property(node, "type") and node["type"].lower() != "hidden"
 
     if is_element(node, "button", "details", "embed", "iframe", "img"):
         return has_property(node, "usemap")
@@ -290,7 +297,7 @@ def is_phrasing(node: Element) -> bool:
             has_property(node, "itemprop")
             or (
                 has_property(node, "rel")
-                and all(token.strip() in body_ok for token in node.properties["rel"].split(" "))
+                and all(token.strip() in body_ok for token in node["rel"].split(" "))
             )
         )
 

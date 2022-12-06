@@ -26,7 +26,11 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
         schema (Optional[Schema], optional): User defined schema. Defaults to github schema.
     """
 
-    from phml.utils import is_element, remove_nodes, test  # pylint: disable=import-outside-toplevel
+    from phml.utils import (  # pylint: disable=import-outside-toplevel
+        check,
+        is_element,
+        remove_nodes,
+    )
 
     if isinstance(tree, AST):
         src = tree.tree
@@ -39,9 +43,9 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
     def recurse_check_tag(node: Root | Element):
         pop_els = []
         for idx, child in enumerate(node.children):
-            if test(child, "element") and not is_element(child, schema.tag_names):
+            if check(child, "element") and not is_element(child, schema.tag_names):
                 pop_els.append(child)
-            elif test(node.children[idx], "element"):
+            elif check(node.children[idx], "element"):
                 recurse_check_tag(node.children[idx])
 
         for element in pop_els:
@@ -51,12 +55,12 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
         pop_els = []
         for idx, child in enumerate(node.children):
             if (
-                test(child, "element")
+                check(child, "element")
                 and child.tag in schema.ancestors.keys()
                 and child.parent.tag not in schema.ancestors[child.tag]
             ):
                 pop_els.append(child)
-            elif test(node.children[idx], "element"):
+            elif check(node.children[idx], "element"):
                 recurse_check_ancestor(node.children[idx])
 
         for element in pop_els:
@@ -97,7 +101,7 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
 
     def recurse_check_attributes(node: Root | Element):
         for idx, child in enumerate(node.children):
-            if test(child, "element") and child.tag in schema.attributes.keys():
+            if check(child, "element") and child.tag in schema.attributes.keys():
                 valid_attrs = build_valid_attributes(schema.attributes[child.tag])
 
                 pop_attrs = build_remove_attr_list(
@@ -107,17 +111,17 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
                 for attribute in pop_attrs:
                     node.children[idx].properties.pop(attribute, None)
 
-            elif test(node.children[idx], "element"):
+            elif check(node.children[idx], "element"):
                 recurse_check_attributes(node.children[idx])
 
     def recurse_check_required(node: Root | Element):
         for idx, child in enumerate(node.children):
-            if test(child, "element") and child.tag in schema.required.keys():
+            if check(child, "element") and child.tag in schema.required.keys():
                 for attr, value in schema.required[child.tag].items():
                     if attr not in child.properties:
-                        node.children[idx].properties[attr] = value
+                        node.children[idx][attr] = value
 
-            elif test(node.children[idx], "element"):
+            elif check(node.children[idx], "element"):
                 recurse_check_required(node.children[idx])
 
     def check_protocols(value: str, protocols: list[str]):

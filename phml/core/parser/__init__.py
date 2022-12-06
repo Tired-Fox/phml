@@ -55,6 +55,8 @@ class Parser:
             parser to parse to a phml.AST. Must take a string and return a phml.AST.
         """
 
+        self.phml_parser.cur_tags = []
+
         with open(path, "r", encoding="utf-8") as source:
             src = source.read()
 
@@ -72,13 +74,13 @@ class Parser:
                     if len(self.phml_parser.cur_tags) > 0:
                         last = self.phml_parser.cur_tags[-1].position
                         raise Exception(
-                            f"Unbalanced tags in source file '{path}' at \
+                            f"Unbalanced tags in source file '{path.as_posix()}' at \
 [{last.start.line}:{last.start.column}]"
                         )
                     self.ast = AST(self.phml_parser.cur)
                 except Exception as exception:
                     self.ast = None
-                    raise Exception(f"'{path}': {exception}") from exception
+                    raise Exception(f"'{path.as_posix()}': {exception}") from exception
         else:
             self.ast = handler(src)
 
@@ -95,6 +97,9 @@ class Parser:
             handler (Callable | None): A function to call instead of the built in
             parser to parse to a phml.AST. Must take a string and return a phml.AST.
         """
+
+        self.phml_parser.cur_tags = []
+
         if handler is None:
             if isinstance(data, dict):
                 self.ast = AST(json_to_ast(data))

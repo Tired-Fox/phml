@@ -30,7 +30,7 @@ class Root(Parent):
             and all(child == obj_child for child, obj_child in zip(self.children, obj.children))
         )
 
-    def stringify(self) -> str:
+    def stringify(self, indent: int = 0) -> str:
         """Build indented html string of documents elements and their children.
 
         Returns:

@@ -7,7 +7,7 @@ from re import match, search, sub
 from typing import Optional
 
 from phml.nodes import AST, All_Nodes, Element, Root
-from phml.utils import find, path, replace_node, test, visit_children
+from phml.utils import check, find, path, replace_node, visit_children
 from phml.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
@@ -37,17 +37,27 @@ def replace_components(
         curr_node = find(node, ["element", {"tag": name}])
         while curr_node is not None:
             new_props = {}
+
+            # Retain conditional properties
+            conditions = py_conditions(curr_node)
+            if len(conditions) > 0:
+                for condition in conditions:
+                    new_props[condition] = curr_node[condition]
+
             for prop in curr_node.properties:
-                if prop.startswith((ATTR_PREFIX, "py-")):
-                    new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_vp_result(
-                        curr_node.properties[prop], **virtual_python.locals, **kwargs
-                    )
-                elif match(r".*\{.*\}.*", str(curr_node.properties[prop])) is not None:
-                    new_props[prop] = process_vp_blocks(
-                        curr_node.properties[prop], virtual_python, **kwargs
-                    )
-                else:
-                    new_props[prop] = curr_node.properties[prop]
+                if prop not in conditions:
+                    if prop.startswith((ATTR_PREFIX, "py-")):
+                        local_env = {**kwargs}
+                        local_env.update(virtual_python.locals)
+                        new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_vp_result(
+                            curr_node[prop], **local_env
+                        )
+                    elif match(r".*\{.*\}.*", str(curr_node[prop])) is not None:
+                        new_props[prop] = process_vp_blocks(
+                            curr_node[prop], virtual_python, **kwargs
+                        )
+                    else:
+                        new_props[prop] = curr_node[prop]
 
             props = new_props
             props["children"] = curr_node.children
@@ -55,12 +65,6 @@ def replace_components(
             rnode = deepcopy(value["component"])
             rnode.locals.update(props)
             rnode.parent = curr_node.parent
-
-            # Retain conditional properties
-            condition = __has_py_condition(curr_node)
-            if condition is not None:
-                rnode.properties[condition[0]] = condition[1]
-                rnode.locals.pop(condition[0], None)
 
             idx = curr_node.parent.children.index(curr_node)
             curr_node.parent.children = (
@@ -76,20 +80,20 @@ def replace_components(
             curr_node = find(node, ["element", {"tag": name}])
 
 
-def __has_py_condition(node: Element) -> Optional[tuple[str, str]]:
-    for cond in [
-        "py-for",
-        "py-if",
-        "py-elif",
-        "py-else",
-        f"{CONDITION_PREFIX}if",
-        f"{CONDITION_PREFIX}elif",
-        f"{CONDITION_PREFIX}else",
-        f"{CONDITION_PREFIX}for",
-    ]:
-        if cond in node.properties.keys():
-            return (cond, node.properties[cond])
-    return None
+# def __has_py_condition(node: Element) -> Optional[tuple[str, str]]:
+#     for cond in [
+#         "py-for",
+#         "py-if",
+#         "py-elif",
+#         "py-else",
+#         f"{CONDITION_PREFIX}if",
+#         f"{CONDITION_PREFIX}elif",
+#         f"{CONDITION_PREFIX}else",
+#         f"{CONDITION_PREFIX}for",
+#     ]:
+#         if cond in node.properties.keys():
+#             return (cond, node[cond])
+#     return None
 
 
 def apply_conditions(node: Root | Element | AST, virtual_python: VirtualPython, **kwargs):
@@ -129,7 +133,7 @@ def apply_python(
     def process_children(node: Root | Element, local_env: dict):
 
         for child in node.children:
-            if test(child, "element"):
+            if check(child, "element"):
                 if "children" in child.locals.keys():
                     replace_node(child, ["element", {"tag": "slot"}], child.locals["children"])
 
@@ -139,20 +143,22 @@ def apply_python(
 
                 for prop in child.properties:
                     if prop.startswith((ATTR_PREFIX, "py-")):
+                        local_env = {**virtual_python.locals}
+                        local_env.update(local_vars)
                         new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_vp_result(
-                            child.properties[prop], **local_vars, **virtual_python.locals
+                            child[prop], **local_env
                         )
-                    elif match(r".*\{.*\}.*", str(child.properties[prop])) is not None:
+                    elif match(r".*\{.*\}.*", str(child[prop])) is not None:
                         new_props[prop] = process_vp_blocks(
-                            child.properties[prop], virtual_python, **local_vars
+                            child[prop], virtual_python, **local_vars
                         )
                     else:
-                        new_props[prop] = child.properties[prop]
+                        new_props[prop] = child[prop]
 
                 child.properties = new_props
                 process_children(child, {**local_vars})
             elif (
-                test(child, "text")
+                check(child, "text")
                 and child.parent.tag not in ["script", "style"]
                 and search(r".*\{.*\}.*", child.value) is not None
             ):
@@ -190,7 +196,7 @@ def process_conditions(tree: Root | Element, virtual_python: VirtualPython, **kw
 
     conditions = []
     for child in visit_children(tree):
-        if test(child, "element"):
+        if check(child, "element"):
             if len(py_conditions(child)) == 1:
                 if py_conditions(child)[0] not in [
                     "py-for",
@@ -200,7 +206,11 @@ def process_conditions(tree: Root | Element, virtual_python: VirtualPython, **kw
                 ]:
                     idx = child.parent.children.index(child)
                     previous = child.parent.children[idx - 1] if idx > 0 else None
-                    prev_cond = py_conditions(previous) if previous is not None else None
+                    prev_cond = (
+                        py_conditions(previous)
+                        if previous is not None and isinstance(previous, Element)
+                        else None
+                    )
                     if (
                         prev_cond is not None
                         and len(prev_cond) == 1
@@ -361,8 +371,6 @@ def execute_conditions(
 
             # End any condition branch
             first_cond = False
-        else:
-            raise Exception(f"Unkown condition property: {condition}")
 
     return children
 
@@ -387,13 +395,13 @@ def run_py_if(child: Element, condition: str, children: list, **kwargs):
     """Run the logic for manipulating the children on a `if` condition."""
 
     clocals = build_locals(child, **kwargs)
-    result = get_vp_result(sub(r"\{|\}", "", child.properties[condition].strip()), **clocals)
+    result = get_vp_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
 
     if result:
-        del child.properties[condition]
+        del child[condition]
         return (f"{CONDITION_PREFIX}if", True)
 
-    # Condition failed so remove element
+    # Condition failed, so remove the node
     children.remove(child)
     return (f"{CONDITION_PREFIX}if", False)
 
@@ -411,11 +419,9 @@ def run_py_elif(
 
     if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
         if not variables["previous"][1]:
-            result = get_vp_result(
-                sub(r"\{|\}", "", child.properties[condition].strip()), **clocals
-            )
+            result = get_vp_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
             if result:
-                del child.properties[condition]
+                del child[condition]
                 return (f"{CONDITION_PREFIX}elif", True)
 
             # Condition failed so remove element
@@ -425,28 +431,18 @@ def run_py_elif(
         children.remove(child)
         return variables["previous"]
 
-    raise Exception(
-        f"py-elif must follow a py-if. It may follow a py-elif if the first condition\
-was a py-if.\n{child}"
-    )
-
 
 def run_py_else(child: Element, children: list, condition: str, variables: dict):
     """Run the logic for manipulating the children on a `else` condition."""
 
     if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
         if not variables["previous"][1]:
-            del child.properties[condition]
+            del child[condition]
             return (f"{CONDITION_PREFIX}else", True)
 
         # Condition failed so remove element
         children.remove(child)
         return (f"{CONDITION_PREFIX}else", False)
-
-    raise Exception(
-        f"py-else must follow a py-if. It may follow a py-elif if the first condition\
-was a py-if.\n{child.parent.type}.{child.tag} at {child.position}"
-    )
 
 
 def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> list:
@@ -459,7 +455,7 @@ def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> li
     clocals = build_locals(child)
 
     # Format for loop condition
-    for_loop = sub(r"for |:", "", child.properties[condition]).strip()
+    for_loop = sub(r"for |:", "", child[condition]).strip()
 
     # Get local var names from for loop condition
     new_locals = [
@@ -494,7 +490,7 @@ for {for_loop}:
     # Prep the child to be used as a copy for new children
 
     # Delete the py-for condition from child's props
-    del child.properties[condition]
+    del child[condition]
     # Set the position to None since the copies are generated
     child.position = None
 

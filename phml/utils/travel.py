@@ -67,5 +67,5 @@ def visit_all_after(start: All_Nodes) -> Iterator:
     parent = start.parent
     idx = parent.children.index(start)
     if idx < len(parent.children) - 1:
-        for child in parent.children[idx+1:]:
+        for child in parent.children[idx + 1 :]:
             yield from get_children(child)

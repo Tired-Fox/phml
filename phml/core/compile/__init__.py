@@ -7,7 +7,7 @@ from typing import Any, Callable, Optional
 
 from phml.core.file_types import HTML, JSON, PHML
 from phml.nodes import AST, All_Nodes, DocType
-from phml.utils import parse_component, tag_from_file, test, visit_children
+from phml.utils import check, parse_component, tag_from_file, valid_component_dict, visit_children
 
 from .convert import html, json, phml
 
@@ -58,13 +58,15 @@ class Compiler:
             if isinstance(component, dict):
                 for key, value in component.items():
                     if isinstance(value, AST):
+                        # TODO Coverage
                         self.components[tag_from_file(key)] = parse_component(value)
-                    else:
+                    elif isinstance(value, dict) and valid_component_dict(value):
                         self.components[tag_from_file(key)] = value
             elif isinstance(component, tuple):
-                if isinstance(component[1], AST):
+                if isinstance(component[0], str) and isinstance(component[1], AST):
+                    # TODO Coverage
                     self.components[tag_from_file(component[0])] = parse_component(component[1])
-                else:
+                elif isinstance(component[0], str) and valid_component_dict(component[1]):
                     self.components[tag_from_file(component[0])] = component[1]
 
         return self
@@ -84,12 +86,8 @@ class Compiler:
                 else:
                     raise KeyError(f"Invalid component name {component}")
             elif isinstance(component, All_Nodes):
-                for key, value in self.components:
+                for key, value in self.components.items():
                     if isinstance(value, dict) and value["component"] == component:
-                        self.components.pop(key, None)
-                        break
-
-                    if value == components:
                         self.components.pop(key, None)
                         break
 
@@ -111,7 +109,7 @@ class Compiler:
         if ast is None:
             raise Exception("Must provide an ast to compile.")
 
-        doctypes = [dt for dt in visit_children(ast.tree) if test(dt, "doctype")]
+        doctypes = [dt for dt in visit_children(ast.tree) if check(dt, "doctype")]
         if len(doctypes) == 0:
             ast.tree.children.insert(0, DocType(parent=ast.tree))
 

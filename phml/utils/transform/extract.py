@@ -1,9 +1,8 @@
 # pylint: disable=missing-module-docstring
 from phml.nodes import AST, All_Nodes, Comment, Element, Root, Text
 
-__all__ = [
-    "to_string"
-]
+__all__ = ["to_string"]
+
 
 def to_string(node: AST | All_Nodes) -> str:
     """Get the raw text content of the element. Works similar to

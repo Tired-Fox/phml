@@ -2,7 +2,7 @@
 from typing import Callable, Optional
 
 from phml.nodes import AST, Element, Root
-from phml.utils.validate.test import Test
+from phml.utils.validate.check import Test
 
 
 class Index:
@@ -27,7 +27,7 @@ class Index:
             `test` (Test): The test to apply to each node. Only valid/passing nodes
             will be indexed
         """
-        from phml.utils import test, walk  # pylint: disable=import-outside-toplevel
+        from phml.utils import check, walk  # pylint: disable=import-outside-toplevel
 
         if isinstance(start, AST):
             start = start.tree
@@ -38,7 +38,7 @@ class Index:
         for node in walk(start):
             if isinstance(node, Element):
                 if condition is not None:
-                    if test(node, condition):
+                    if check(node, condition):
                         self.add(node)
                 else:
                     self.add(node)
@@ -61,7 +61,7 @@ class Index:
     def add(self, node: Element):
         """Adds element to indexed collection if not already there."""
 
-        key = node.properties[self.key] if isinstance(self.key, str) else self.key(node)
+        key = node[self.key] if isinstance(self.key, str) else self.key(node)
         if key not in self.indexed_tree:
             self.indexed_tree[key] = [node]
 
@@ -71,7 +71,7 @@ class Index:
     def remove(self, node: Element):
         """Removes element from indexed collection if there."""
 
-        key = node.properties[self.key] if isinstance(self.key, str) else self.key(node)
+        key = node[self.key] if isinstance(self.key, str) else self.key(node)
         if key in self.indexed_tree and node in self.indexed_tree[key]:
             self.indexed_tree[key].remove(node)
             if len(self.indexed_tree[key]) == 0:
@@ -90,5 +90,4 @@ class Index:
 
         if isinstance(node, Element):
             return node.tag
-        else:
-            return node.type
+        return node.type

@@ -315,13 +315,13 @@ def is_equal(rule: dict, node: Element) -> bool:
         return False
 
     # Validate id
-    if rule["id"] is not None and rule["id"] != node.properties["id"]:
+    if rule["id"] is not None and rule["id"] != node["id"]:
         return False
 
     # Validate class list
     if len(rule["classList"]) > 0:
         for klass in rule["classList"]:
-            if "class" not in node.properties or klass not in node.properties["class"].split(" "):
+            if "class" not in node.properties or klass not in node["class"].split(" "):
                 return False
 
     # Validate all attributes
@@ -336,33 +336,33 @@ def is_equal(rule: dict, node: Element) -> bool:
 
 
 def __validate_attr(attr: dict, node: Element):
-    if attr["compare"] == "=" and attr["value"] != node.properties[attr["name"]]:
+    if attr["compare"] == "=" and attr["value"] != node[attr["name"]]:
         return False
 
     if attr["compare"] == "|":
         return is_valid_attr(
-            attr=node.properties[attr["name"]],
+            attr=node[attr["name"]],
             sub=attr["value"],
             validator=lambda x, y: x == y or x.startswith(f"{y}-"),
         )
 
     if attr["compare"] == "^":
         return is_valid_attr(
-            attr=node.properties[attr["name"]],
+            attr=node[attr["name"]],
             sub=attr["value"],
             validator=lambda x, y: x.startswith(y),
         )
 
     if attr["compare"] == "$":
         return is_valid_attr(
-            attr=node.properties[attr["name"]],
+            attr=node[attr["name"]],
             sub=attr["value"],
             validator=lambda x, y: x.endswith(y),
         )
 
     if attr["compare"] in ["*", "~"]:
         return is_valid_attr(
-            attr=node.properties[attr["name"]],
+            attr=node[attr["name"]],
             sub=attr["value"],
             validator=lambda x, y: y in x,
         )

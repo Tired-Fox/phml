@@ -77,7 +77,7 @@ def json(ast: AST, indent: int = 0) -> str:
     def compile_children(node: Root | Element) -> dict:
         data = {"type": node.type}
 
-        if data["type"] == "root":
+        if node.type == "root":
             if node.parent is not None:
                 raise Exception("Root nodes must only occur as the root of an ast/tree.")
 
@@ -98,11 +98,6 @@ def json(ast: AST, indent: int = 0) -> str:
 
     data = compile_children(ast.tree)
     return dumps(data, indent=indent)
-
-
-def markdown(ast: AST) -> str:
-    """Compile a given phml ast to a markdown string with a certain indent amount."""
-    raise NotImplementedError("Markdown is not supported.")
 
 
 def __to_html(ast: AST, offset: int = 0) -> str:

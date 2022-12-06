@@ -4,10 +4,10 @@ A collection of utilities that don't fit in with finding, selecting, testing,
 transforming, traveling, or validating nodes.
 """
 
-from re import search, split, sub
+from re import split, sub
 from typing import Optional
 
-from phml.nodes import Element, All_Nodes
+from phml.nodes import All_Nodes, Element
 
 __all__ = ["classnames", "ClassList"]
 
@@ -33,20 +33,10 @@ def classnames(  # pylint: disable=keyword-arg-before-vararg
     Returns:
         str: The concat string of classes after processing.
     """
-    if not isinstance(node, All_Nodes):
-        conditionals = [node, *conditionals]
-        node = None
-    elif not isinstance(node, Element):
-        raise TypeError(f"Node must be an element")
 
-    if node is not None:
-        if "class" in node.properties:
-            classes = sub(r" +", " ", node.properties["class"]).split(" ")
-        else:
-            node.properties["class"] = ""
-            classes = []
-    else:
-        classes = []
+    node, conditionals = validate_node(node, conditionals)
+
+    classes = init_classes(node)
 
     for condition in conditionals:
         if isinstance(condition, str):
@@ -57,9 +47,8 @@ def classnames(  # pylint: disable=keyword-arg-before-vararg
                     if klass not in classes
                 ]
             )
-        elif isinstance(condition, int):
-            if str(condition) not in classes:
-                classes.append(str(condition))
+        elif isinstance(condition, int) and str(condition) not in classes:
+            classes.append(str(condition))
         elif isinstance(condition, dict):
             for key, value in condition.items():
                 if value:
@@ -80,7 +69,7 @@ def classnames(  # pylint: disable=keyword-arg-before-vararg
     if node is None:
         return " ".join(classes)
 
-    node.properties["class"] = " ".join(classes)
+    node["class"] = " ".join(classes)
     return None
 
 
@@ -93,7 +82,7 @@ class ClassList:
 
     def __init__(self, node: Element):
         self.node = node
-        self.classes = node.properties["class"].split(" ") if "class" in node.properties else []
+        self.classes = node["class"].split(" ") if "class" in node.properties else []
 
     def contains(self, klass: str):
         """Check if `class` contains a certain class."""
@@ -108,8 +97,8 @@ class ClassList:
                 self.classes.remove(klass.strip().replace(" ", "-"))
             else:
                 self.classes.append(klass.strip().replace(" ", "-"))
-                
-        self.node.properties["class"] = self.class_list()
+
+        self.node["class"] = self.class_list()
 
     def add(self, *klasses: str):
         """Add one or more classes to `class`."""
@@ -117,8 +106,8 @@ class ClassList:
         for klass in klasses:
             if klass not in self.classes:
                 self.classes.append(klass.strip().replace(" ", "-"))
-        
-        self.node.properties["class"] = self.class_list()
+
+        self.node["class"] = self.class_list()
 
     def replace(self, old_class: str, new_class: str):
         """Replace a certain class in `class` with
@@ -131,7 +120,7 @@ class ClassList:
         if old_class in self.classes:
             idx = self.classes.index(old_class)
             self.classes[idx] = new_class
-            self.node.properties["class"] = self.class_list()
+            self.node["class"] = self.class_list()
 
     def remove(self, *klasses: str):
         """Remove one or more classes from `class`."""
@@ -139,12 +128,35 @@ class ClassList:
         for klass in klasses:
             if klass in self.classes:
                 self.classes.remove(klass)
-            
+
         if len(self.classes) == 0:
             self.node.properties.pop("class", None)
         else:
-            self.node.properties["class"] = self.class_list()
-            
+            self.node["class"] = self.class_list()
+
     def class_list(self) -> str:
         """Return the formatted string of classes."""
         return ' '.join(self.classes)
+
+
+def validate_node(node, conditionals: list) -> bool:
+    """Validate a node is a node and that it is an element."""
+    if not isinstance(node, All_Nodes):
+        return None, [node, *conditionals]
+
+    if not isinstance(node, Element):
+        raise TypeError("Node must be an element")
+
+    return node, conditionals
+
+
+def init_classes(node) -> list[str]:
+    """Get the list of classes from an element."""
+    if node is not None:
+        if "class" in node.properties:
+            return sub(r" +", " ", node["class"]).split(" ")
+
+        node["class"] = ""
+        return []
+
+    return []

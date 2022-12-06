@@ -18,7 +18,4 @@ def heading_rank(node: Element) -> int:
         rank = match(r"h([1-6])", node.tag).group(1)
         return int(rank)
 
-    if isinstance(node, Element):
-        raise TypeError(f"Node must be a heading. Was a {node.type}.{node.tag}")
-    else:
-        raise TypeError(f"Node must be an element. Was a {node.type}")
+    raise TypeError(f"Node must be a heading. Was a {node.type}.{node.tag}")

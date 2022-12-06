@@ -8,7 +8,7 @@ from typing import Callable, Optional
 from phml.nodes import AST, All_Nodes, Element, Root
 from phml.utils.misc import heading_rank
 from phml.utils.travel import walk
-from phml.utils.validate.test import Test, test
+from phml.utils.validate.check import Test, check
 
 __all__ = [
     "filter_nodes",
@@ -47,15 +47,15 @@ def filter_nodes(
         for i, child in enumerate(node.children):
             if child.type in ["root", "element"]:
                 node.children[i] = filter_children(node.children[i])
-                if not test(child, condition, strict=strict):
-                    for c in range(len(child.children)):
-                        child.children[c].parent == node
+                if not check(child, condition, strict=strict):
+                    for idx, _ in enumerate(child.children):
+                        child.children[idx].parent = node
                     children.extend(node.children[i].children)
                 else:
                     children.append(node.children[i])
-            elif test(child, condition, strict=strict):
+            elif check(child, condition, strict=strict):
                 children.append(node.children[i])
-        
+
         node.children = children
         if len(node.children) == 0 and isinstance(node, Element):
             node.startend = True
@@ -82,7 +82,7 @@ def remove_nodes(
         tree = tree.tree
 
     def filter_children(node):
-        node.children = [n for n in node.children if not test(n, condition, strict=strict)]
+        node.children = [n for n in node.children if not check(n, condition, strict=strict)]
         for child in node.children:
             if child.type in ["root", "element"]:
                 filter_children(child)
@@ -124,12 +124,15 @@ def map_nodes(tree: Root | Element | AST, transform: Callable):
                 node.children[i] = transform(child)
             else:
                 node.children[i] = transform(child)
-                
 
     recursive_map(tree)
 
+
 def replace_node(
-    start: Root | Element, condition: Test, replacement: Optional[All_Nodes | list[All_Nodes]], strict: bool = True
+    start: Root | Element,
+    condition: Test,
+    replacement: Optional[All_Nodes | list[All_Nodes]],
+    strict: bool = True,
 ):
     """Search for a specific node in the tree and replace it with either
     a node or list of nodes. If replacement is None the found node is just removed.
@@ -140,7 +143,7 @@ def replace_node(
         replacement (All_Nodes | list[All_Nodes] | None): What to replace the node with.
     """
     for node in walk(start):
-        if test(node, condition, strict=strict):
+        if check(node, condition, strict=strict):
             if node.parent is not None:
                 idx = node.parent.children.index(node)
                 if replacement is not None:

@@ -32,9 +32,6 @@ class Literal(Node):
     def __eq__(self, obj) -> bool:
         return bool(obj is not None and self.type == obj.type and self.value == obj.value)
 
-    def __repr__(self) -> str:
-        return f"{self.type}(value:{len(self.value)})"
-
     def get_ancestry(self) -> list[str]:
         """Get the ancestry of the literal node.
 

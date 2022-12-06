@@ -40,6 +40,17 @@ class Position:
             and self.end == obj.end
         )
 
+    def as_dict(self) -> dict:
+        return {
+            "start": {
+                "line": self.start.line,
+                "column": self.start.column,
+                "offset": self.start.offset,
+            },
+            "end": {"line": self.end.line, "column": self.end.column, "offset": self.end.offset},
+            "indent": self.indent,
+        }
+
     def __repr__(self) -> str:
         indent = f" ~ {self.indent}" if self.indent is not None else ""
         return f"<{self.start}-{self.end}{indent}>"

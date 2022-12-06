@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 Test = None | str | list | dict | Callable
 
 
-def test(
+def check(
     node: All_Nodes,
     _test: Test,
     index: Optional[int] = None,
@@ -64,11 +64,7 @@ def test(
             isinstance(node, Element)
             and all(
                 (hasattr(node, key) and value == getattr(node, key))
-                or (
-                    hasattr(node, "properties")
-                    and key in node.properties
-                    and value == node.properties[key]
-                )
+                or (hasattr(node, "properties") and key in node.properties and value == node[key])
                 for key, value in _test.items()
             )
         )
@@ -77,11 +73,11 @@ def test(
         # If list then recursively apply tests
         if strict:
             return bool(
-                all(isinstance(cond, Test) and test(node, cond, index, parent) for cond in _test)
+                all(isinstance(cond, Test) and check(node, cond, index, parent) for cond in _test)
             )
-            
+
         return bool(
-            any(isinstance(cond, Test) and test(node, cond, index, parent) for cond in _test)
+            any(isinstance(cond, Test) and check(node, cond, index, parent) for cond in _test)
         )
 
     if isinstance(_test, Callable):

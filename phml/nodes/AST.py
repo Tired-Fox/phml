@@ -20,7 +20,7 @@ class AST:
     """
 
     def __init__(self, tree):
-        if hasattr(tree, "type") and tree.type in ["root", "element"]:
+        if tree is not None and hasattr(tree, "type") and tree.type in ["root", "element"]:
             self.tree = tree
         else:
             raise TypeError("The given tree/root node for AST must be of type `Root` or `Element`")
