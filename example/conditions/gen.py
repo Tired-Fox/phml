@@ -8,6 +8,11 @@ if __name__ == "__main__":
     for file in Path("./").glob("**/*.phml"):
         core.load(file)
         if file.name == "if.phml":
-            core.write("site/index.html")
+            core.write(
+                "site/index.html", escaped=" <,>, and & are automatically escaped for security."
+            )
         else:
-            core.write("site/" + filename_from_path(file) + ".html")
+            core.write(
+                "site/" + filename_from_path(file) + ".html",
+                escaped=" <,>, and & are automatically escaped for security.",
+            )

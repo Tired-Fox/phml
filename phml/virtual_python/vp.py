@@ -8,6 +8,7 @@ from __future__ import annotations
 import ast
 from re import finditer, sub
 from typing import Any, Optional
+from html import escape
 
 from .built_in import built_in_funcs
 from .import_objects import Import, ImportFrom
@@ -109,6 +110,8 @@ def get_vp_result(expr: str, **kwargs) -> Any:
         for var in used_vars:
             if var not in kwargs:
                 kwargs[var] = None
+        
+        escape_args(kwargs)
 
         source = compile(f"{expr}\n", f"{expr}", "exec")
         exec(source, globals(), kwargs)  # pylint: disable=exec-used
@@ -120,10 +123,16 @@ def get_vp_result(expr: str, **kwargs) -> Any:
         if var not in kwargs:
             kwargs[var] = None
 
+    escape_args(kwargs)
+
     source = compile(f"phml_vp_result = {expr}", expr, "exec")
     exec(source, globals(), kwargs)  # pylint: disable=exec-used
     return kwargs["phml_vp_result"] if "phml_vp_result" in kwargs else None
 
+def escape_args(args: dict) -> dict:
+    for key in args:
+        if isinstance(args[key], str):
+            args[key] = escape(args[key])
 
 def extract_expressions(data: str) -> str:
     """Extract a phml python expr from a string.
