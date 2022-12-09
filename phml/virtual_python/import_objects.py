@@ -2,16 +2,10 @@
 from __future__ import annotations
 
 
-class PythonImport:
+class PythonImport:  # pylint: disable=too-few-public-methods
     """Base class defining required methods of import dataclasses."""
 
     def __init__(self):
-        ...
-
-    def __str__(self) -> str:
-        ...
-
-    def __repr__(self) -> str:
         ...
 
 
@@ -37,7 +31,7 @@ class Import(PythonImport):
         return Import([alias.name for alias in imp.names])
 
     def __repr__(self) -> str:
-        return f"Import(modules=[{', '.join(self.modules)}]"
+        return f"Import(modules=[{', '.join(self.modules)}])"
 
     def __str__(self) -> str:
         return f"import {', '.join(self.modules)}"
@@ -66,7 +60,7 @@ class ImportFrom(PythonImport):
         return ImportFrom(imp.module, [alias.name for alias in imp.names])
 
     def __repr__(self) -> str:
-        return f"ImportFrom(module={self.module}, names=[{', '.join(self.names)}])"
+        return f"ImportFrom(module='{self.module}', names=[{', '.join(self.names)}])"
 
     def __str__(self) -> str:
         return f"from {self.module} import {', '.join(self.names)}"

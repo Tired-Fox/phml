@@ -128,26 +128,17 @@ encouraged.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
-from . import builder, core, nodes, utils, virtual_python
 from .core import Compiler, Parser, file_types
+from .locate import *
+from .misc import *
 from .nodes import AST, All_Nodes
+from .transform import *
+from .travel import *
+from .validate import *
 
-__version__ = "0.1.1"
-__all__ = [
-    "PHMLCore",
-    "Compiler",
-    "Parser",
-    "file_types",
-    "AST",
-    "core",
-    "nodes",
-    "utils",
-    "virtual_python",
-    "file_types",
-    "builder",
-]
+__version__ = "1.0.1"
 
 
 class PHMLCore:
@@ -161,6 +152,10 @@ class PHMLCore:
     """Instance of a [Parser][phml.parser.Parser]."""
     compiler: Compiler
     """Instance of a [Compiler][phml.compile.Compiler]."""
+    scopes: Optional[list[str]]
+    """List of paths from cwd to auto add to python path. This helps with
+    importing inside of phml files.
+    """
 
     @property
     def ast(self) -> AST:
@@ -173,10 +168,12 @@ class PHMLCore:
 
     def __init__(
         self,
+        scopes: Optional[list[str]] = None,
         components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
     ):
         self.parser = Parser()
         self.compiler = Compiler(components=components)
+        self.scopes = scopes or []
 
     def add(
         self,
@@ -204,14 +201,13 @@ class PHMLCore:
             name of the component and the the component. The name is used
             to replace a element with the tag==name.
         """
-        from phml.utils import filename_from_path  # pylint: disable=import-outside-toplevel
 
         for component in components:
             if isinstance(component, Path):
                 self.parser.load(component)
-                self.compiler.add((filename_from_path(component), self.parser.ast))
-            else:
-                self.compiler.add(component)
+                self.compiler.add((filename_from_path(component), parse_component(self.parser.ast)))
+            elif isinstance(component, dict):
+                self.compiler.add(*list(component.items()))
         return self
 
     def remove(self, *components: str | All_Nodes):
@@ -224,26 +220,30 @@ class PHMLCore:
         self.compiler.remove(*components)
         return self
 
-    def load(self, path: str | Path):
+    def load(self, file_path: str | Path, handler: Optional[Callable] = None):
         """Load a source files data and parse it to phml.
 
         Args:
-            path (str | Path): The path to the source file.
+            file_path (str | Path): The file path to the source file.
         """
-        self.parser.load(path)
+        self.parser.load(file_path, handler)
         return self
 
-    def parse(self, data: str | dict):
+    def parse(self, data: str | dict, handler: Optional[Callable] = None):
         """Parse a str or dict object into phml.
 
         Args:
             data (str | dict): Object to parse to phml
         """
-        self.parser.parse(data)
+        self.parser.parse(data, handler)
         return self
 
     def render(
-        self, file_type: str = file_types.HTML, indent: Optional[int] = None, **kwargs
+        self,
+        file_type: str = file_types.HTML,
+        indent: Optional[int] = None,
+        scopes: Optional[list[str]] = None,
+        **kwargs,
     ) -> str:
         """Render the parsed ast to a different format. Defaults to rendering to html.
 
@@ -256,13 +256,26 @@ class PHMLCore:
         Returns:
             str: The rendered content in the appropriate format.
         """
-        return self.compiler.compile(self.parser.ast, to_format=file_type, indent=indent, **kwargs)
+
+        scopes = scopes or ["./"]
+        for scope in self.scopes:
+            if scope not in scopes:
+                scopes.append(scope)
+
+        return self.compiler.compile(
+            self.parser.ast,
+            to_format=file_type,
+            indent=indent,
+            scopes=scopes,
+            **kwargs,
+        )
 
     def write(
         self,
         dest: str | Path,
         file_type: str = file_types.HTML,
         indent: Optional[int] = None,
+        scopes: Optional[list[str]] = None,
         **kwargs,
     ):
         """Renders the parsed ast to a different format, then writes
@@ -277,6 +290,9 @@ class PHMLCore:
             kwargs: Any additional data to pass to the compiler that will be exposed to the
             phml files.
         """
+
         with open(dest, "+w", encoding="utf-8") as dest_file:
-            dest_file.write(self.render(file_type=file_type, indent=indent, **kwargs))
+            dest_file.write(
+                self.render(file_type=file_type, indent=indent, scopes=scopes, **kwargs)
+            )
         return self

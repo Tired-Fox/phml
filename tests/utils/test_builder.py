@@ -1,5 +1,11 @@
 from phml.builder import p
 from phml.nodes import *
+from pytest import raises
+import re
+
+
+class Invalid:
+    pass
 
 
 def test_builder_types():
@@ -8,6 +14,16 @@ def test_builder_types():
 
     # Element node - self closing
     assert p("div") == Element("div", startend=True)
+
+    assert p("text", 3) == Text("3")
+
+    assert p("div", 3) == Element("div", children=[Text("3")])
+    assert p("div", ["Some Text", 3.4, p("text", "Element")]) == Element(
+        "div", children=[Text("Some Text"), Text("3.4"), Text("Element")]
+    )
+
+    with raises(TypeError, match=r"Unkown type <.+> in .+: .+"):
+        p("div", [Invalid()])
 
     # Element node with properties - self closing
     assert p("div", {"id": "test"}) == Element("div", {"id": "test"}, startend=True)
@@ -22,6 +38,15 @@ def test_builder_types():
     # Doctype
     assert p("doctype", "xhtml") == DocType("xhtml")
     assert p("doctype") == DocType()
+
+    with raises(
+        Exception, match=re.escape("Selector must be of the format `tag?[#id]?[.classes...]?`")
+    ):
+        p(">")
+
+    assert p("div.red.underline#test") == Element(
+        "div", {"class": "red underline", "id": "test"}, startend=True
+    )
 
 
 def test_builder_nesting():

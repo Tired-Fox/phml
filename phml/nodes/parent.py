@@ -1,4 +1,3 @@
-# pylint: disable=missing-module-docstring
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
@@ -24,6 +23,13 @@ class Parent(Node):  # pylint: disable=too-few-public-methods
 
         if children is not None:
             for child in children:
-                child.parent = self
+                if hasattr(child, "type") and child.type in [
+                    "element",
+                    "text",
+                    "doctype",
+                    "root",
+                    "comment",
+                ]:
+                    child.parent = self
 
         self.children: list[Element | DocType | Comment | Text] = children or []

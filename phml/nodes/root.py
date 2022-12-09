@@ -1,4 +1,3 @@
-# pylint: disable=missing-module-docstring
 from __future__ import annotations
 
 from typing import Optional
@@ -29,16 +28,6 @@ class Root(Parent):
             and len(self.children) == len(obj.children)
             and all(child == obj_child for child, obj_child in zip(self.children, obj.children))
         )
-
-    def stringify(self) -> str:
-        """Build indented html string of documents elements and their children.
-
-        Returns:
-            str: Built html of document
-        """
-        out = []
-        out.extend([child.stringify() for child in self.children])
-        return "\n".join(out)
 
     def __repr__(self) -> str:
         return f"root [{len(self.children)}]"

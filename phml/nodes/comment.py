@@ -1,4 +1,3 @@
-# pylint: disable=missing-module-docstring
 from .literal import Literal
 
 
@@ -17,10 +16,10 @@ class Comment(Literal):
         Returns:
             str: Built html of comment
         """
-        lines = [line.lstrip() for line in self.value.split("\n") if line.strip() != ""]
+        lines = [line for line in self.value.split("\n") if line.strip() != ""]
         if len(lines) > 1:
-            start = f"{' ' * indent}<!--{lines[0]}"
-            end = f"{' ' * indent}{lines[-1]}-->"
+            start = f"{' ' * indent}<!--{lines[0].rstrip()}"
+            end = f"{' ' * indent}{lines[-1].lstrip()}-->"
             for i in range(1, len(lines) - 1):
                 lines[i] = (' ' * indent) + lines[i].strip()
             lines = [start, *lines[1:-1], end]

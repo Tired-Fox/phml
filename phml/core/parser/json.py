@@ -47,8 +47,8 @@ def json_to_ast(json_obj: dict):
                     start = obj["position"]["start"]
                     end = obj["position"]["end"]
                     val.position = Position(
-                        Point(start["line"], start["col"], start["offset"]),
-                        Point(end["line"], end["col"], end["offset"]),
+                        Point(start["line"], start["column"], start["offset"]),
+                        Point(end["line"], end["column"], end["offset"]),
                         obj["position"]["indent"],
                     )
                 return val

@@ -89,8 +89,6 @@ def strip_and_count(data: str, cur_pos: tuple[int, int]) -> tuple[str, int, int]
         # Is not a blank line
         if data_lines[0].replace("\n", " ").strip() != "":
             data_lines = data_lines[0]
-        else:
-            data_lines = ""
 
     return data_lines, cur_pos[0] + lines, cols
 
@@ -124,19 +122,8 @@ class HypertextMarkupParser(HTMLParser):
                             position=build_position(self.getpos(), self.getpos()),
                         )
                     )
-                else:
-                    self.cur.children.append(
-                        DocType(
-                            lang=None,
-                            parent=self.cur,
-                            position=build_position(self.getpos(), self.getpos()),
-                        )
-                    )
             else:
                 raise Exception("<!doctype> must be in the root!")
-
-    def handle_pi(self, data: str) -> None:
-        print("Encountered a processing instruction tag:", data)
 
     def handle_starttag(self, tag, attrs):
 
@@ -184,9 +171,6 @@ class HypertextMarkupParser(HTMLParser):
 
     def handle_endtag(self, tag):
         if tag == self.cur_tags[-1].tag:
-            if len(self.cur.children) == 0:
-                self.cur.startend = True
-
             self.cur.position.end = build_point(self.getpos())
             self.cur = self.cur.parent
             self.cur_tags.pop(-1)

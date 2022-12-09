@@ -1,0 +1,6 @@
+<python>
+    message = "Hello World"
+</python>
+<div @if="message == 'Hello World'" title="{message}" py-aria-label="message">
+    {message}
+</div>

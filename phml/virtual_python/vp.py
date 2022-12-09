@@ -5,10 +5,11 @@ python source code.
 """
 from __future__ import annotations
 
-from ast import Assign, Name, parse, walk
+import ast
 from re import finditer, sub
 from typing import Any, Optional
 
+from .built_in import built_in_funcs
 from .import_objects import Import, ImportFrom
 
 __all__ = ["VirtualPython", "get_vp_result", "process_vp_blocks"]
@@ -30,8 +31,6 @@ class VirtualPython:
         self.locals = local_env or {}
 
         if self.content != "":
-            import ast  # pylint: disable=import-outside-toplevel
-
             self.__normalize_indent()
 
             # Extract imports from content
@@ -63,11 +62,11 @@ class VirtualPython:
         return f"VP(imports: {len(self.imports)}, locals: {len(self.locals.keys())})"
 
 
-def parse_ast_assign(vals: list[Name | tuple[Name]]) -> list[str]:
+def parse_ast_assign(vals: list[ast.Name | tuple[ast.Name]]) -> list[str]:
     """Parse an ast.Assign node."""
 
     values = vals[0]
-    if isinstance(values, Name):
+    if isinstance(values, ast.Name):
         return [values.id]
 
     if isinstance(values, tuple):
@@ -82,36 +81,48 @@ def get_vp_result(expr: str, **kwargs) -> Any:
 
     This will collect the result of the expression and return it.
     """
-    # Find all assigned vars in expression
-    avars = []
-    for assign in walk(parse(expr)):
-        if isinstance(assign, Assign):
-            avars.extend(parse_ast_assign(assign.targets))
+    from phml.utils import (  # pylint: disable=import-outside-toplevel,unused-import
+        ClassList,
+        blank,
+        classnames,
+    )
 
-    # Find all variables being used that are not are not assigned
-    used_vars = [
-        name.id for name in walk(parse(expr)) if isinstance(name, Name) and name.id not in avars
-    ]
+    kwargs.update({"classnames": classnames, "blank": blank})
+
+    if len(expr.split("\n")) > 1:
+        # Find all assigned vars in expression
+        avars = []
+        assignment = None
+        for assign in ast.walk(ast.parse(expr)):
+            if isinstance(assign, ast.Assign):
+                assignment = parse_ast_assign(assign.targets)
+                avars.extend(parse_ast_assign(assign.targets))
+
+        # Find all variables being used that are not are not assigned
+        used_vars = [
+            name.id
+            for name in ast.walk(ast.parse(expr))
+            if isinstance(name, ast.Name) and name.id not in avars and name.id not in built_in_funcs
+        ]
+
+        # For all variables used if they are not in kwargs then they == None
+        for var in used_vars:
+            if var not in kwargs:
+                kwargs[var] = None
+
+        source = compile(f"{expr}\n", f"{expr}", "exec")
+        exec(source, globals(), kwargs)  # pylint: disable=exec-used
+        # Get the last assignment and use it as the result
+        return kwargs[assignment[-1]]
 
     # For all variables used if they are not in kwargs then they == None
-    for var in used_vars:
+    for var in [name.id for name in ast.walk(ast.parse(expr)) if isinstance(name, ast.Name)]:
         if var not in kwargs:
             kwargs[var] = None
 
-    try:
-        if len(expr.split("\n")) > 1:
-            exec(expr, {}, kwargs)  # pylint: disable=exec-used
-            return kwargs["result"] or kwargs["results"]
-    except NameError as exception:
-        print(exception, expr, kwargs)
-        return None
-
-    try:
-        exec(f"phml_vp_result = {expr}", {}, kwargs)  # pylint: disable=exec-used
-        return kwargs["phml_vp_result"] if "phml_vp_result" in kwargs else None
-    except NameError as exception:
-        print(exception, expr, kwargs)
-        return None
+    source = compile(f"phml_vp_result = {expr}", expr, "exec")
+    exec(source, globals(), kwargs)  # pylint: disable=exec-used
+    return kwargs["phml_vp_result"] if "phml_vp_result" in kwargs else None
 
 
 def extract_expressions(data: str) -> str:
@@ -123,14 +134,14 @@ def extract_expressions(data: str) -> str:
         phml python blocks/expressions are indicated
         with curly brackets, {}.
     """
-
     results = []
 
-    for expression in finditer(r"\{(.*)\}", data):
+    for expression in finditer(r"\{[^}]+\}", data):
         expression = expression.group().lstrip("{").rstrip("}")
-        expression = expression.split("\n")
+        expression = [expr for expr in expression.split("\n") if expr.strip() != ""]
         if len(expression) > 1:
             offset = len(expression[0]) - len(expression[0].lstrip())
+            input([line[offset:] for line in expression])
             lines = [line[offset:] for line in expression]
             results.append("\n".join(lines))
         else:
@@ -165,6 +176,6 @@ def process_vp_blocks(pvb_value: str, virtual_python: VirtualPython, **kwargs) -
             if isinstance(result, bool):
                 pvb_value = result
             else:
-                pvb_value = sub(r"\{.*\}", str(result), pvb_value)
+                pvb_value = sub(r"\{[^}]+\}", str(result), pvb_value, 1)
 
     return pvb_value
