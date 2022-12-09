@@ -1,4 +1,3 @@
-# pylint: disable=missing-module-docstring
 from re import match
 from typing import Optional
 
@@ -26,11 +25,7 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
         schema (Optional[Schema], optional): User defined schema. Defaults to github schema.
     """
 
-    from phml.utils import (  # pylint: disable=import-outside-toplevel
-        check,
-        is_element,
-        remove_nodes,
-    )
+    from phml import check, is_element, remove_nodes  # pylint: disable=import-outside-toplevel
 
     if isinstance(tree, AST):
         src = tree.tree
@@ -57,7 +52,10 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
             if (
                 check(child, "element")
                 and child.tag in schema.ancestors.keys()
-                and child.parent.tag not in schema.ancestors[child.tag]
+                and (
+                    check(child.parent, "root")
+                    or child.parent.tag not in schema.ancestors[child.tag]
+                )
             ):
                 pop_els.append(child)
             elif check(node.children[idx], "element"):
@@ -77,46 +75,53 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
             )
         return valid_attrs
 
-    def build_remove_attr_list(properties: dict, attributes: dict, valid_attrs: list):
+    def build_remove_attr_list(properties: dict, attributes: dict, valid_attributes: list):
         """Build the list of attributes to remove from a dict of attributes."""
         result = []
         for attribute in properties:
-            if attribute not in valid_attrs:
+            if attribute not in valid_attributes:
                 result.append(attribute)
             else:
                 for attr in attributes:
-                    if bool(
-                        (isinstance(attr, str) and attr != attribute)
-                        or (attr[0] == attribute and properties[attribute] not in attr[1:])
-                        or (
+                    if isinstance(attr, list) and attr[0] == attribute and len(attr) > 1:
+                        if not all(val == properties[attribute] for val in attr[1:]) or (
                             attribute in schema.protocols
                             and not check_protocols(
                                 properties[attribute], schema.protocols[attribute]
                             )
-                        )
+                        ):
+                            result.append(attribute)
+                            break
+                    elif (
+                        attr == attribute
+                        and attr in schema.protocols
+                        and not check_protocols(properties[attribute], schema.protocols[attribute])
                     ):
                         result.append(attribute)
+                        break
 
         return result
 
     def recurse_check_attributes(node: Root | Element):
         for idx, child in enumerate(node.children):
-            if check(child, "element") and child.tag in schema.attributes.keys():
-                valid_attrs = build_valid_attributes(schema.attributes[child.tag])
+            if check(child, "element"):
+                if child.tag in schema.attributes:
+                    valid_attributes = build_valid_attributes(schema.attributes[child.tag])
 
-                pop_attrs = build_remove_attr_list(
-                    node.children[idx].properties, schema.attributes[child.tag], valid_attrs
-                )
+                    pop_attrs = build_remove_attr_list(
+                        node.children[idx].properties,
+                        schema.attributes[child.tag],
+                        valid_attributes,
+                    )
 
-                for attribute in pop_attrs:
-                    node.children[idx].properties.pop(attribute, None)
+                    for attribute in pop_attrs:
+                        node.children[idx].properties.pop(attribute, None)
 
-            elif check(node.children[idx], "element"):
                 recurse_check_attributes(node.children[idx])
 
     def recurse_check_required(node: Root | Element):
         for idx, child in enumerate(node.children):
-            if check(child, "element") and child.tag in schema.required.keys():
+            if check(child, "element") and child.tag in schema.required:
                 for attr, value in schema.required[child.tag].items():
                     if attr not in child.properties:
                         node.children[idx][attr] = value

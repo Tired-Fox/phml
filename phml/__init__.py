@@ -130,24 +130,15 @@ encouraged.
 from pathlib import Path
 from typing import Callable, Optional
 
-from . import builder, core, nodes, utils, virtual_python
 from .core import Compiler, Parser, file_types
+from .locate import *
+from .misc import *
 from .nodes import AST, All_Nodes
+from .transform import *
+from .travel import *
+from .validate import *
 
 __version__ = "1.0.0"
-__all__ = [
-    "PHMLCore",
-    "Compiler",
-    "Parser",
-    "file_types",
-    "AST",
-    "core",
-    "nodes",
-    "utils",
-    "virtual_python",
-    "file_types",
-    "builder",
-]
 
 
 class PHMLCore:
@@ -210,16 +201,13 @@ class PHMLCore:
             name of the component and the the component. The name is used
             to replace a element with the tag==name.
         """
-        from phml.utils import filename_from_path  # pylint: disable=import-outside-toplevel
 
         for component in components:
             if isinstance(component, Path):
-                from phml.utils import parse_component  # pylint: disable=import-outside-toplevel
-
                 self.parser.load(component)
                 self.compiler.add((filename_from_path(component), parse_component(self.parser.ast)))
             elif isinstance(component, dict):
-                self.compiler.add(*[(key, value) for key, value in component.items()])
+                self.compiler.add(*list(component.items()))
         return self
 
     def remove(self, *components: str | All_Nodes):
@@ -232,13 +220,13 @@ class PHMLCore:
         self.compiler.remove(*components)
         return self
 
-    def load(self, path: str | Path, handler: Optional[Callable] = None):
+    def load(self, file_path: str | Path, handler: Optional[Callable] = None):
         """Load a source files data and parse it to phml.
 
         Args:
-            path (str | Path): The path to the source file.
+            file_path (str | Path): The file path to the source file.
         """
-        self.parser.load(path, handler)
+        self.parser.load(file_path, handler)
         return self
 
     def parse(self, data: str | dict, handler: Optional[Callable] = None):

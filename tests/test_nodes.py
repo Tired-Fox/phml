@@ -6,6 +6,17 @@ def test_point():
     point = Point(1, 3)
     assert point.line == 1 and point.column == 3 and point.offset == None
 
+    with raises(IndexError, match="Point.line must be >= 0 but was .+"):
+        Point(-1, 0)
+
+    with raises(IndexError, match="Point.column must be >= 0 but was .+"):
+        Point(0, -1)
+
+    with raises(IndexError, match="Point.offset must be >= 0 or None but was .+"):
+        Point(0, 0, -1)
+
+    assert Point(1, 3) == Point(1, 3)
+    assert repr(Point(1,3)) == "point(line: 1, column: 3, offset: None)"
 
 def test_position():
     position = Position(Point(1, 2), Point(3, 4))
@@ -15,6 +26,10 @@ def test_position():
         and position.indent is None
     )
 
+    with raises(IndexError, match="Position.indent value must be >= 0 or None but was .+"):
+        Position(Point(1, 2), Point(3, 4), -1)
+        
+    assert Position(Point(1, 2), Point(3, 4)) == Position(Point(1, 2), Point(3, 4))
 
 def test_ast():
     with raises(
@@ -46,6 +61,7 @@ def test_ast():
 def test_root():
     root = Root()
     assert root.parent is None and root.position is None and len(root.children) == 0
+    assert repr(root) == "root [0]"
 
 
 def test_element():
@@ -72,7 +88,7 @@ def test_element():
 
     del element["type"]
     assert "type" not in element.properties
-    
+
     with raises(TypeError, match="Index must be a str and value must be either str or bool."):
         element[3] = "The"
     with raises(TypeError, match="Index must be a str and value must be either str or bool."):
@@ -84,9 +100,9 @@ def test_doctype():
     assert doctype.parent is None and doctype.position is None and doctype.lang == "html"
 
     assert doctype.stringify() == "<!DOCTYPE html>"
-    
+
     assert not doctype == None
-    
+
     assert repr(doctype) == "node.doctype(html)"
 
 
@@ -96,6 +112,7 @@ def test_text():
 
     text = Text("Sample")
     assert text.stringify() == "Sample" and text.stringify(2) == "  Sample"
+    assert repr(text) == "literal.text('Sample')"
 
     raw = """\
 multiline

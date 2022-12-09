@@ -99,8 +99,13 @@ def parse_node(selector: str, props: dict, children: list):
             return DocType(str_children[0])
         return DocType()
 
-    if node["tag"].lower() == "text":
+    if node["tag"].lower().strip() == "text":
         return Text(
+            " ".join([str(child) for child in children if isinstance(child, (str, int, float))])
+        )
+
+    if node["tag"].lower().strip() == "comment":
+        return Comment(
             " ".join([str(child) for child in children if isinstance(child, (str, int, float))])
         )
 

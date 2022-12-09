@@ -1,7 +1,9 @@
 from phml.nodes import AST, Element
 from phml.builder import p
 
-from phml.utils.locate import *
+from phml.locate import *
+from pytest import raises
+from re import escape
 
 ast: AST = AST(
     p(
@@ -95,6 +97,7 @@ class TestFind:
             ast, {"id": "test-1"}
         )
         assert find_after(find(ast, {"id": "test"})) == find(ast, {"id": "test-1"})
+        assert find_after(AST(p())) is None
 
     def test_find_all_after(self):
         start = find(ast, {"id": "test"})
@@ -123,12 +126,18 @@ class TestFind:
 
         start = find(ast, {"id": "test-2"})
         assert find_before(start) == find(ast, {"id": "test-1"})
+        assert find_before(AST(p())) is None
 
     def test_find_all_before(self):
         start = find(ast, {"id": "test-2"})
 
         assert matching_lists(
             find_all_before(start),
+            [find(el, {"id": "test"}), find(el, {"id": "test-1"})],
+        )
+
+        assert matching_lists(
+            find_all_before(start, {"tag": "div"}),
             [find(el, {"id": "test"}), find(el, {"id": "test-1"})],
         )
 
@@ -145,6 +154,15 @@ class TestFind:
             [],
         )
 
+        assert matching_lists(
+            find_all_between(parent, _range=slice(0, len(parent.children))),
+            [
+                p("div", {"id": "test"}, p("h1", "Hello World!")),
+                p("div", {"id": "test-1"}),
+                p("div", {"id": "test-2"}),
+            ],
+        )
+
         parent = find(el, {"tag": "html"})
 
         assert matching_lists(
@@ -155,6 +173,11 @@ class TestFind:
         assert matching_lists(
             find_all_between(parent, start=0, end=len(parent.children), condition={"id": "fail"}),
             [],
+        )
+
+        assert matching_lists(
+            find_all_between(AST(p(p("doctype"), p("html"))), start=0, end=2),
+            [p("doctype"), p("html")],
         )
 
 
@@ -170,6 +193,11 @@ class TestSelect:
         assert matches(find(query_ast, {"id": "test"}), "#test.shadow[title$=queries]")
         assert matches(find(query_ast, {"id": "test"}), "div#test.red[title*='sting que']")
         assert matches(find(query_ast, {"id": "test-1"}), "#test-1[id|=test]")
+        
+        with raises(Exception, match="Complex specifier detected and is not allowed.\n.+"):
+            matches(find(query_ast, {"id": "test-1"}), "#test-1 > .shadow")
+        with raises(Exception, match=escape("Specifier must only include tag name, classes, id, and or attribute specfiers.\nExample: `li.red#sample[class^='form-'][title~='sample']`")):
+            matches(find(query_ast, {"id": "test-1"}), "~")
 
     def test_query(self):
         assert query(query_ast, "div#test > h1") == find(query_ast, {"tag": "h1"})
@@ -181,6 +209,19 @@ class TestSelect:
         assert query(query_ast, "div#test-1 > * h1 > span + input#in[type=checkbox]") == find(
             query_ast, {"tag": "input"}
         )
+        assert query(query_ast, "div.black[id^=test]") is None
+        assert query(query_ast, "div[id=dog]") is None
+        assert query(query_ast, "div[class=shadow]") == find(query_ast, {"tag": "div", "class": "shadow red"})
+        assert query(query_ast, "div#test-2 + div") is None
+        assert query(p("div"), "+") is None
+        assert query(p("div"), "~") is None
+        assert query(AST(p(p("div"))), "div") == p("div")
+        
+        with raises(Exception, match="There may only be one id per element specifier.\n.+"):
+            query(query_ast, "div#test#shadow")
+            
+        
+        assert query(query_ast, "[id^=invalid]") is None
 
     def test_query_all(self):
         assert matching_lists(query_all(query_ast, "div"), find_all(query_ast, {"tag": "div"}))
@@ -194,6 +235,8 @@ class TestSelect:
                 and (n["id"] == "test" or n["id"].startswith("test-")),
             ),
         )
+        
+        assert query_all(AST(p(p("div"))), "* > map") == []
 
         assert matching_lists(
             query_all(query_ast, "div > h1"),
@@ -205,6 +248,40 @@ class TestSelect:
                 and pnt.tag == "div",
             ),
         )
+
+        assert matching_lists(
+            query_all(query_ast, "div + div h1"),
+            find_all(
+                query_ast,
+                lambda n, i, pnt: n.type == "element"
+                and n.tag == "h1"
+                and len(n.children) == 2
+                and pnt.type == "element"
+                and pnt.tag == "div",
+            ),
+        )
+
+        assert query_all(p("div"), "+") == []
+        assert query_all(p("div"), "~") == []
+
+        assert query_all(query_ast, "div ~ div > h1") == []
+        assert query_all(query_ast, "div ~ div >") == [
+            p(
+                "div",
+                p("h1", p("span", "Hello World"), p("input", {"id": "in", "type": "checkbox"})),
+            )
+        ]
+
+        assert query_all(query_ast, "div *") == [
+            p("h1", "Hello World!"),
+            p(
+                "div",
+                p("h1", p("span", "Hello World"), p("input", {"id": "in", "type": "checkbox"})),
+            ),
+            p("h1", p("span", "Hello World"), p("input", {"id": "in", "type": "checkbox"})),
+            p("span", "Hello World"),
+            p("input", {"id": "in", "type": "checkbox"}),
+        ]
 
 
 class TestIndex:

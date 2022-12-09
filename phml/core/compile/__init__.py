@@ -58,13 +58,11 @@ class Compiler:
             if isinstance(component, dict):
                 for key, value in component.items():
                     if isinstance(value, AST):
-                        # TODO Coverage
                         self.components[tag_from_file(key)] = parse_component(value)
                     elif isinstance(value, dict) and valid_component_dict(value):
                         self.components[tag_from_file(key)] = value
             elif isinstance(component, tuple):
                 if isinstance(component[0], str) and isinstance(component[1], AST):
-                    # TODO Coverage
                     self.components[tag_from_file(component[0])] = parse_component(component[1])
                 elif isinstance(component[0], str) and valid_component_dict(component[1]):
                     self.components[tag_from_file(component[0])] = component[1]

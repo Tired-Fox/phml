@@ -1,4 +1,4 @@
-from phml.utils.travel import *
+from phml.travel.travel import *
 from phml.builder import p
 
 

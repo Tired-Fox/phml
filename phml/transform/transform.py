@@ -5,10 +5,10 @@ Utility methods that revolve around transforming or manipulating the ast.
 
 from typing import Callable, Optional
 
+from phml.misc import heading_rank
 from phml.nodes import AST, All_Nodes, Element, Root
-from phml.utils.misc import heading_rank
-from phml.utils.travel import walk
-from phml.utils.validate.check import Test, check
+from phml.travel.travel import walk
+from phml.validate.check import Test, check
 
 __all__ = [
     "filter_nodes",
@@ -17,6 +17,7 @@ __all__ = [
     "find_and_replace",
     "shift_heading",
     "replace_node",
+    "modify_children",
 ]
 
 
@@ -147,7 +148,8 @@ def replace_node(
             if node.parent is not None:
                 idx = node.parent.children.index(node)
                 if replacement is not None:
-                    node.parent.children = (
+                    parent = node.parent
+                    parent.children = (
                         node.parent.children[:idx] + replacement + node.parent.children[idx + 1 :]
                         if isinstance(replacement, list)
                         else node.parent.children[:idx]
@@ -155,7 +157,10 @@ def replace_node(
                         + node.parent.children[idx + 1 :]
                     )
                 else:
-                    node.parent.children.pop(idx)
+                    parent = node.parent
+                    parent.children.pop(idx)
+                    if len(parent.children) == 0 and isinstance(parent, Element):
+                        parent.startend = True
 
 
 def find_and_replace(start: Root | Element, *replacements: tuple[str, str | Callable]) -> int:
@@ -177,22 +182,6 @@ def find_and_replace(start: Root | Element, *replacements: tuple[str, str | Call
                         node.value = (
                             node.value[: match.start()] + replacement[1] + node.value[match.end() :]
                         )
-                else:
-                    raise NotImplementedError(
-                        "Callables are not yet supported for find_and_replace operations."
-                    )
-                # tada add ability to inject nodes in place of text replacement
-                # elif isinstance(replacement[1], Callable):
-                #     for match in finditer(replacement[0], n.value):
-                #         result = replacement[1](match.group())
-                #         if isinstance(result, str):
-                #             n.value = n.value[:match.start()]
-                #             + replacement[1]
-                #             + n.value[match.end():]
-                #         elif isinstance(result, All_Nodes):
-                #             pass
-                #         elif isinstance(result, list):
-                #             pass
 
 
 def shift_heading(node: Element, amount: int):
@@ -216,7 +205,7 @@ def modify_children(func):
     The wrapped function will be passed the child node,
     the index in the parents children, and the parent node
     """
-    from phml.utils import visit_children  # pylint: disable=import-outside-toplevel
+    from phml import visit_children  # pylint: disable=import-outside-toplevel
 
     def inner(start: AST | Element | Root):
         if isinstance(start, AST):

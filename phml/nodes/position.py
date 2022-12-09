@@ -1,4 +1,3 @@
-# pylint: disable=missing-module-docstring
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
@@ -41,6 +40,7 @@ class Position:
         )
 
     def as_dict(self) -> dict:
+        """Convert the position object to a dict."""
         return {
             "start": {
                 "line": self.start.line,

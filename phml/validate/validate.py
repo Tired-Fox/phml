@@ -1,4 +1,3 @@
-# pylint: disable=missing-module-docstring
 from re import match, split, sub
 
 from phml.nodes import All_Nodes, Comment, Element, Literal, Parent, Root, Text
@@ -14,6 +13,9 @@ __all__ = [
     "is_css_style",
     "is_javascript",
     "is_element",
+    "is_embedded",
+    "is_interactive",
+    "is_phrasing",
     "is_event_handler",
 ]
 
@@ -244,11 +246,14 @@ def is_interactive(node: Element) -> bool:
     if is_element(node, "input"):
         return has_property(node, "type") and node["type"].lower() != "hidden"
 
-    if is_element(node, "button", "details", "embed", "iframe", "img"):
-        return has_property(node, "usemap")
+    if is_element(node, "img"):
+        return has_property(node, "usemap") and node["usemap"]
 
-    if is_element(node, "audio", "label", "select", "text", "area", "video"):
+    if is_element(node, "video"):
         return has_property(node, "controls")
+
+    if is_element(node, "button", "details", "embed", "iframe", "label", "select", "textarea"):
+        return True
 
     return False
 
@@ -302,6 +307,7 @@ def is_phrasing(node: Element) -> bool:
         )
 
     if is_element(
+        node,
         "node",
         "map",
         "mark",

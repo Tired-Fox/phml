@@ -1,4 +1,3 @@
-# pylint: disable=missing-module-docstring
 from phml.nodes import AST, All_Nodes, Comment, Element, Root, Text
 
 __all__ = ["to_string"]

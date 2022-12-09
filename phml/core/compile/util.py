@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from copy import deepcopy
 from re import match, search, sub
-from typing import Optional
 
 from phml.nodes import AST, All_Nodes, Element, Root
 from phml.utils import check, find, path, replace_node, visit_children
@@ -424,12 +423,8 @@ def run_py_elif(
                 del child[condition]
                 return (f"{CONDITION_PREFIX}elif", True)
 
-            # Condition failed so remove element
-            children.remove(child)
-            return (f"{CONDITION_PREFIX}elif", False)
-
-        children.remove(child)
-        return variables["previous"]
+    children.remove(child)
+    return variables["previous"]
 
 
 def run_py_else(child: Element, children: list, condition: str, variables: dict):
@@ -440,9 +435,9 @@ def run_py_else(child: Element, children: list, condition: str, variables: dict)
             del child[condition]
             return (f"{CONDITION_PREFIX}else", True)
 
-        # Condition failed so remove element
-        children.remove(child)
-        return (f"{CONDITION_PREFIX}else", False)
+    # Condition failed so remove element
+    children.remove(child)
+    return (f"{CONDITION_PREFIX}else", False)
 
 
 def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> list:

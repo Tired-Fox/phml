@@ -12,7 +12,7 @@ def heading_rank(node: Element) -> int:
     Example:
         `h2` yields `2`
     """
-    from phml.utils import is_heading  # pylint: disable=import-outside-toplevel
+    from phml import is_heading  # pylint: disable=import-outside-toplevel
 
     if is_heading(node):
         rank = match(r"h([1-6])", node.tag).group(1)

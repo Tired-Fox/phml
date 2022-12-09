@@ -1,6 +1,6 @@
 from phml.builder import p
-from phml.nodes import Text, Element, Position, Point
-from phml.utils import inspect
+from phml.nodes import AST, Text, Element, Position, Point
+from phml import inspect
 
 with_position = {
     "el": Element(
@@ -14,6 +14,10 @@ element<div> [1] <1:2-3:4 ~ 3>
    │  "Test"\
 ''',
 }
+
+def test_with_ast():
+    assert inspect(AST(p())) == "root"
+    assert inspect(AST(p(p("div", p("div"))))) == "root [1]\n└0 element<div> [1]\n   └0 element<div/>"
 
 def test_with_position():
     assert inspect(with_position["el"]) == with_position["expected"]

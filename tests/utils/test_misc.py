@@ -1,8 +1,13 @@
 from pytest import raises
 
-from phml.utils.misc import *
+from phml.misc import *
 from phml.builder import p
 from phml.nodes import AST
+
+
+def test_depth():
+    node = p(p("div", p("h1", "Hello World!")))
+    assert depth(node.children[0].children[0]) == 1
 
 
 class TestClasses:
@@ -20,8 +25,18 @@ class TestClasses:
         div = p("div", {"class": "bold"})
         underline, color = True, False
 
-        classnames(div, ["red", "bold", {"underline": underline, "orange": color}])
-        assert div["class"] == "bold red underline"
+        classnames(div, ["red", "bold", 3, {"underline": underline, "orange": color}])
+        assert div["class"] == "bold red 3 underline"
+
+        with raises(TypeError, match="Unkown conditional statement: .+"):
+            classnames(3.4)
+
+        with raises(TypeError, match="Node must be an element"):
+            classnames(p(), "red")
+
+        del div["class"]
+        classnames(div, ["red"])
+        assert "red" in div["class"]
 
     # classList
     def test_ClassList(self):
@@ -62,6 +77,9 @@ class TestClasses:
             and not cl.contains("red")
             and not cl.contains("shadow")
         )
+        cl = ClassList(p("div", {"class": "bold"}))
+        cl.remove("bold")
+        assert "class" not in cl.node.properties
 
 
 class TestComponent:
@@ -75,10 +93,15 @@ class TestComponent:
         assert tag_from_file("test-misc") == "test-misc"
         assert tag_from_file("TestMisCATime") == "test-mis-ca-time"
 
+        with raises(TypeError, match="If filename is a path it must also be a valid file\\."):
+            tag_from_file(Path("invalid/file.phml"))
+
     def test_filename_from_path(self):
         from pathlib import Path
 
         assert filename_from_path(Path("tests/utils/test_misc.py")) == "test_misc"
+        with raises(TypeError, match="Path must also be a valid file."):
+            filename_from_path(Path("invalid/file.py"))
 
     def test_parse_ast(self):
         bast = AST(
@@ -88,18 +111,27 @@ class TestComponent:
             )
         )
 
-        cast = AST(p(p("python", "underline = True"), p("div", p("h1", "Hello World!"))))
-
         with raises(Exception):
             parse_component(bast)
 
         with raises(Exception, match="Must have at least one element in a component."):
             parse_component(AST(p(p("python", "color = False"))))
 
+        cast = AST(
+            p(
+                p("python", "underline = True"),
+                p(
+                    "div",
+                    p("h1", "Hello World!"),
+                ),
+                p("script"),
+                p("style"),
+            )
+        )
         assert parse_component(cast) == {
             "python": [p("python", "underline = True")],
-            "script": [],
-            "style": [],
+            "script": [p("script")],
+            "style": [p("style")],
             "component": p("div", p("h1", "Hello World!")),
         }
 

@@ -50,7 +50,12 @@ def check(
     if parent is not None:
         # If parent is given then index has to be also.
         #   Validate index is correct in parent.children
-        if index is None or parent.children[index] != node:
+        if (
+            index is None
+            or len(parent.children) == 0
+            or index >= len(parent.children)
+            or parent.children[index] != node
+        ):
             return False
 
     if isinstance(_test, str):

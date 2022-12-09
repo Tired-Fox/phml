@@ -8,7 +8,7 @@ import re
 from typing import Callable
 
 from phml.nodes import AST, Element, Root
-from phml.utils.travel import visit_children, walk
+from phml.travel.travel import visit_children, walk
 
 __all__ = ["query", "query_all", "matches", "parse_specifiers"]
 
@@ -161,9 +161,7 @@ def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
         results = []
         for node in walk(current):
             if node.type == "element" and (include_self or node != current):
-                result = branch(node, rules)
-                if result is not None:
-                    results.extend(result)
+                results.extend(branch(node, rules))
         return results
 
     def all_children(current: Element, rules: list):
@@ -171,9 +169,7 @@ def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
         results = []
         for node in visit_children(current):
             if node.type == "element":
-                result = branch(node, rules)
-                if result is not None:
-                    results.extend(result)
+                results.extend(branch(node, rules))
         return results
 
     def first_sibling(node: Element, rules: list):
@@ -184,7 +180,8 @@ def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
         idx = node.parent.children.index(node)
         if idx + 1 < len(node.parent.children):
             if node.parent.children[idx + 1].type == "element":
-                return [*branch(node.parent.children[idx + 1], rules)]
+                result = branch(node.parent.children[idx + 1], rules)
+                return result
         return []
 
     def all_siblings(current: Element, rules: list):
@@ -197,9 +194,7 @@ def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
         if idx + 1 < len(current.parent.children):
             for node in range(idx + 1, len(current.parent.children)):
                 if current.parent.children[node].type == "element":
-                    result = branch(current.parent.children[node], rules)
-                    if result is not None:
-                        results.extend(result)
+                    results.extend(branch(current.parent.children[node], rules))
         return results
 
     def process_dict(rules: list, node: Element):
@@ -215,7 +210,7 @@ def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
                 )
 
             return branch(node, rules[1:])
-        return None
+        return []
 
     def branch(node: Element, rules: list):  # pylint: disable=too-many-return-statements
         """Based on the current rule, recursively check the nodes.
@@ -246,7 +241,8 @@ def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
         tree = tree.tree
 
     rules = parse_specifiers(specifier)
-    return all_nodes(tree, rules)
+    result = all_nodes(tree, rules)
+    return [result[i] for i in range(len(result)) if i == result.index(result[i])]
 
 
 def matches(node: Element, specifier: str) -> bool:
@@ -315,7 +311,7 @@ def is_equal(rule: dict, node: Element) -> bool:
         return False
 
     # Validate id
-    if rule["id"] is not None and rule["id"] != node["id"]:
+    if rule["id"] is not None and ("id" not in node.properties or rule["id"] != node["id"]):
         return False
 
     # Validate class list
@@ -328,7 +324,7 @@ def is_equal(rule: dict, node: Element) -> bool:
     if len(rule["attributes"]) > 0:
         return all(
             attr["name"] in node.properties.keys()
-            and ((attr["compare"] is not None and __validate_attr(attr, node)) or True)
+            and ((attr["compare"] is not None and __validate_attr(attr, node)))
             for attr in rule["attributes"]
         )
 
@@ -336,41 +332,50 @@ def is_equal(rule: dict, node: Element) -> bool:
 
 
 def __validate_attr(attr: dict, node: Element):
-    if attr["compare"] == "=" and attr["value"] != node[attr["name"]]:
-        return False
-
-    if attr["compare"] == "|":
+    if attr["compare"] == "=":
         return is_valid_attr(
             attr=node[attr["name"]],
             sub=attr["value"],
+            name=attr["name"],
+            validator=lambda x, y: x == y,
+        )
+
+    if attr["compare"] == "|=":
+        return is_valid_attr(
+            attr=node[attr["name"]],
+            sub=attr["value"],
+            name=attr["name"],
             validator=lambda x, y: x == y or x.startswith(f"{y}-"),
         )
 
-    if attr["compare"] == "^":
+    if attr["compare"] == "^=":
         return is_valid_attr(
             attr=node[attr["name"]],
             sub=attr["value"],
+            name=attr["name"],
             validator=lambda x, y: x.startswith(y),
         )
 
-    if attr["compare"] == "$":
+    if attr["compare"] == "$=":
         return is_valid_attr(
             attr=node[attr["name"]],
             sub=attr["value"],
+            name=attr["name"],
             validator=lambda x, y: x.endswith(y),
         )
 
-    if attr["compare"] in ["*", "~"]:
+    if attr["compare"] in ["*=", "~="]:
         return is_valid_attr(
             attr=node[attr["name"]],
             sub=attr["value"],
+            name=attr["name"],
             validator=lambda x, y: y in x,
         )
 
     return True
 
 
-def is_valid_attr(attr: str, sub: str, validator: Callable) -> bool:
+def is_valid_attr(attr: str, sub: str, name: str, validator: Callable) -> bool:
     """Validate an attribute value with a given string and a validator callable.
     If classlist, create list with attribute value seperated on spaces. Otherwise,
     the list will only have the attribute value. For each item in the list, check
@@ -382,7 +387,7 @@ def is_valid_attr(attr: str, sub: str, validator: Callable) -> bool:
     list_attributes = ["class"]
 
     compare_values = [attr]
-    if attr["name"] in list_attributes:
+    if name in list_attributes:
         compare_values = attr.split(" ")
 
     return bool(len([item for item in compare_values if validator(item, sub)]) > 0)
@@ -426,9 +431,7 @@ def __parse_el_with_attribute(token: str) -> dict:
                 if element["id"] is None:
                     element["id"] = item.group(2)
                 else:
-                    raise Exception(
-                        f"There may only be one id per element specifier.\n{token.group()}"
-                    )
+                    raise Exception(f"There may only be one id per element specifier.\n{token}")
             else:
                 element["tag"] = item.group(2) or "*"
 

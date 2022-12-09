@@ -6,8 +6,8 @@ Collection of utility methods to find one or many of a specific node.
 from typing import Optional
 
 from phml.nodes import AST, All_Nodes, Element, Root
-from phml.utils.travel import path, walk
-from phml.utils.validate import Test, check
+from phml.travel.travel import path, walk
+from phml.validate import Test, check
 
 __all__ = [
     "ancestor",
@@ -90,7 +90,7 @@ def find_all(start: Root | Element | AST, condition: Test, strict: bool = True) 
 
 
 def find_after(
-    start: Root | Element | AST,
+    start: All_Nodes,
     condition: Optional[Test] = None,
     strict: bool = True,
 ) -> Optional[All_Nodes]:
@@ -105,17 +105,16 @@ def find_after(
         Optional[All_Nodes]: Returns the first sibling or None if there
         are no siblings.
     """
-    if isinstance(start, AST):
-        start = start.tree
 
-    idx = start.parent.children.index(start)
-    if len(start.parent.children) - 1 > idx:
-        for node in start.parent.children[idx + 1 :]:
-            if condition is not None:
-                if check(node, condition, strict=strict):
+    if not isinstance(start, (AST, Root)):
+        idx = start.parent.children.index(start)
+        if len(start.parent.children) - 1 > idx:
+            for node in start.parent.children[idx + 1 :]:
+                if condition is not None:
+                    if check(node, condition, strict=strict):
+                        return node
+                else:
                     return node
-            else:
-                return node
     return None
 
 
@@ -149,7 +148,7 @@ def find_all_after(
 
 
 def find_before(
-    start: Element,
+    start: All_Nodes,
     condition: Optional[Test] = None,
     strict: bool = True,
 ) -> Optional[All_Nodes]:
@@ -164,17 +163,16 @@ def find_before(
         Optional[All_Nodes]: The first node before the given node
         or None if no prior siblings.
     """
-    if isinstance(start, AST):
-        start = start.tree
 
-    idx = start.parent.children.index(start)
-    if idx > 0:
-        for node in start.parent.children[idx - 1 :: -1]:
-            if condition is not None:
-                if check(node, condition, strict=strict):
+    if not isinstance(start, (AST, Root)):
+        idx = start.parent.children.index(start)
+        if idx > 0:
+            for node in start.parent.children[idx - 1 :: -1]:
+                if condition is not None:
+                    if check(node, condition, strict=strict):
+                        return node
+                else:
                     return node
-            else:
-                return node
     return None
 
 

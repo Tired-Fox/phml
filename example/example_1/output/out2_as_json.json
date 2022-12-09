@@ -1,4 +1,122 @@
-<!DOCTYPE html>
-<title>Hello!</title>
-<h1 id="world">World!</h1>
-    <!--after-->
+{
+  "type": "root",
+  "position": null,
+  "children": [
+    {
+      "type": "doctype",
+      "position": {
+        "start": {
+          "line": 1,
+          "column": 0,
+          "offset": null
+        },
+        "end": {
+          "line": 1,
+          "column": 0,
+          "offset": null
+        },
+        "indent": null
+      },
+      "lang": "html"
+    },
+    {
+      "type": "element",
+      "position": {
+        "start": {
+          "line": 2,
+          "column": 0,
+          "offset": null
+        },
+        "end": {
+          "line": 2,
+          "column": 13,
+          "offset": null
+        },
+        "indent": null
+      },
+      "properties": {},
+      "tag": "title",
+      "startend": false,
+      "locals": {},
+      "children": [
+        {
+          "type": "text",
+          "position": {
+            "start": {
+              "line": 2,
+              "column": 7,
+              "offset": null
+            },
+            "end": {
+              "line": 2,
+              "column": 13,
+              "offset": null
+            },
+            "indent": null
+          },
+          "value": "Hello!",
+          "num_lines": 1
+        }
+      ]
+    },
+    {
+      "type": "element",
+      "position": {
+        "start": {
+          "line": 3,
+          "column": 0,
+          "offset": null
+        },
+        "end": {
+          "line": 3,
+          "column": 21,
+          "offset": null
+        },
+        "indent": null
+      },
+      "properties": {
+        "id": "world"
+      },
+      "tag": "h1",
+      "startend": false,
+      "locals": {},
+      "children": [
+        {
+          "type": "text",
+          "position": {
+            "start": {
+              "line": 3,
+              "column": 15,
+              "offset": null
+            },
+            "end": {
+              "line": 3,
+              "column": 21,
+              "offset": null
+            },
+            "indent": null
+          },
+          "value": "World!",
+          "num_lines": 1
+        }
+      ]
+    },
+    {
+      "type": "comment",
+      "position": {
+        "start": {
+          "line": 4,
+          "column": 4,
+          "offset": null
+        },
+        "end": {
+          "line": 4,
+          "column": 16,
+          "offset": null
+        },
+        "indent": null
+      },
+      "value": "after"
+    }
+  ]
+}

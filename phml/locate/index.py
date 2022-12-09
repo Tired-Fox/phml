@@ -1,8 +1,7 @@
-# pylint: disable=missing-module-docstring
 from typing import Callable, Optional
 
 from phml.nodes import AST, Element, Root
-from phml.utils.validate.check import Test
+from phml.validate.check import Test
 
 
 class Index:
@@ -27,7 +26,7 @@ class Index:
             `test` (Test): The test to apply to each node. Only valid/passing nodes
             will be indexed
         """
-        from phml.utils import check, walk  # pylint: disable=import-outside-toplevel
+        from phml import check, walk  # pylint: disable=import-outside-toplevel
 
         if isinstance(start, AST):
             start = start.tree
@@ -84,10 +83,8 @@ class Index:
     # Built in key functions
 
     @classmethod
-    def key_by_tag(cls, node) -> str:
+    def key_by_tag(cls, node: Element) -> str:
         """Builds the key from an elements tag. If the node is not an element
         then the node's type is returned."""
 
-        if isinstance(node, Element):
-            return node.tag
-        return node.type
+        return node.tag

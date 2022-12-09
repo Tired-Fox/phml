@@ -144,7 +144,7 @@ class TestParse:
         with raises(Exception, match=r"Unkown node type <.+>"):
             self.core.parse(invalid_type)
 
-        with raises(Exception, match="Invalid json for phml\. Every node must have a type\. Nodes may only have the types; root, element, doctype, text, or comment"):
+        with raises(Exception, match="Invalid json for phml\\. Every node must have a type\\. Nodes may only have the types; root, element, doctype, text, or comment"):
             self.core.parse(no_type)
 
     def test_add_components(self):
@@ -173,3 +173,7 @@ class TestParse:
         self.core = PHMLCore(["../dir/"], {"test-cmpt": parse_component(cmpt)})
         assert self.core.scopes == ["../dir/"]
         assert "test-cmpt" in self.core.compiler.components
+        
+    def test_imports(self):
+        self.core.ast = AST(p(p("python", "import pprint\nfrom time import time")))
+        assert self.core.render() == "<!DOCTYPE html>"

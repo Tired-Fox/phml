@@ -1,4 +1,3 @@
-# pylint: disable=missing-module-docstring
 from pathlib import Path
 
 from phml.nodes import AST, All_Nodes, Element
@@ -45,10 +44,11 @@ def filename_from_path(file: Path) -> str:
     if file.is_file():
         return file.name.replace(file.suffix, "")
 
-    raise TypeError(f"Expected {type(Path)} not {type(file)}")
+    raise TypeError("Path must also be a valid file.")
 
 
 def valid_component_dict(cmpt: dict) -> bool:
+    """Check if a component dict is valid."""
     return bool(
         ("python" in cmpt and isinstance(cmpt["python"], list))
         and ("script" in cmpt and isinstance(cmpt["script"], list))
@@ -59,15 +59,20 @@ def valid_component_dict(cmpt: dict) -> bool:
 
 def parse_component(ast: AST) -> dict[str, Element]:
     """Helper function to parse the components elements."""
-    from phml.utils import check, visit_children  # pylint: disable=import-outside-toplevel
+    from phml import (  # pylint: disable=import-outside-toplevel
+        check,
+        is_css_style,
+        is_javascript,
+        visit_children,
+    )
 
     result = {"python": [], "script": [], "style": [], "component": None}
     for node in visit_children(ast.tree):
         if check(node, ["element", {"tag": "python"}]):
             result["python"].append(node)
-        elif check(node, ["element", {"tag": "script"}]):
+        elif check(node, ["element", {"tag": "script"}]) and is_javascript(node):
             result["script"].append(node)
-        elif check(node, ["element", {"tag": "style"}]):
+        elif check(node, ["element", {"tag": "style"}]) and is_css_style(node):
             result["style"].append(node)
         elif check(node, "element"):
             if result["component"] is None:
