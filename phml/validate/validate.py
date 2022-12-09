@@ -1,4 +1,5 @@
 from re import match, split, sub
+from typing import Any
 
 from phml.nodes import All_Nodes, Comment, Element, Literal, Parent, Root, Text
 
@@ -17,6 +18,7 @@ __all__ = [
     "is_interactive",
     "is_phrasing",
     "is_event_handler",
+    "blank",
 ]
 
 
@@ -364,5 +366,26 @@ def is_phrasing(node: Element) -> bool:
         "wbr",
     ):
         return True
+
+    return False
+
+
+def blank(value: Any) -> bool:
+    """Takes any value type and returns whether it is blank/None.
+    For strings if the value is stripped and is equal to '' then it is blank.
+    Otherwise if len > 0 and is not None then not blank.
+
+    Args:
+        value (Any): The value to check if it is blank.
+
+    Returns:
+        bool: True if value is blank
+    """
+
+    if value is not None:
+        if isinstance(value, str):
+            value = value.strip()
+
+        return len(value) == 0
 
     return False

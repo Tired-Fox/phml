@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
+        <title>PHML Conditions</title>
+    </head>
+    <python>
+        alert = "This is an if condition."
+    </python>
+
+    <body>
+        <h2>PHML conditional elements</h2>
+        <div class="container">
+            <h4>If conditions.</h4>
+            <p>This first page will show a basic example of using a built in phml helper method <code>blank()</code></p>
+            <p>It closely resembles the Java function <code>isBlank()</code></p>
+            <p>If everything went well you will see a section of text below here that is dynamic text
+                that was inserted with a conditional.
+            </p>
+            <div @if="not blank(alert)" class="w-fit mt-2 if-alert">
+                {alert}
+            </div>
+        
+            <div class="flex justify-between">
+                <a href="else.html"><h5>← Else Condition</h5></a>
+                
+                <a href="elif.html"><h5>Elif Condition →</h5></a>
+            </div>
+        </div>
+    </body>
+
+</html>

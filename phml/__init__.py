@@ -138,7 +138,7 @@ from .transform import *
 from .travel import *
 from .validate import *
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 class PHMLCore:

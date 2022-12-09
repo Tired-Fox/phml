@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 
-class PythonImport: # pylint: disable=too-few-public-methods
+class PythonImport:  # pylint: disable=too-few-public-methods
     """Base class defining required methods of import dataclasses."""
 
     def __init__(self):

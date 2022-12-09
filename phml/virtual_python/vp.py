@@ -5,7 +5,7 @@ python source code.
 """
 from __future__ import annotations
 
-from ast import Assign, Name, parse, walk
+import ast
 from re import finditer, sub
 from typing import Any, Optional
 
@@ -31,8 +31,6 @@ class VirtualPython:
         self.locals = local_env or {}
 
         if self.content != "":
-            import ast  # pylint: disable=import-outside-toplevel
-
             self.__normalize_indent()
 
             # Extract imports from content
@@ -64,11 +62,11 @@ class VirtualPython:
         return f"VP(imports: {len(self.imports)}, locals: {len(self.locals.keys())})"
 
 
-def parse_ast_assign(vals: list[Name | tuple[Name]]) -> list[str]:
+def parse_ast_assign(vals: list[ast.Name | tuple[ast.Name]]) -> list[str]:
     """Parse an ast.Assign node."""
 
     values = vals[0]
-    if isinstance(values, Name):
+    if isinstance(values, ast.Name):
         return [values.id]
 
     if isinstance(values, tuple):
@@ -83,21 +81,28 @@ def get_vp_result(expr: str, **kwargs) -> Any:
 
     This will collect the result of the expression and return it.
     """
+    from phml.utils import (  # pylint: disable=import-outside-toplevel,unused-import
+        ClassList,
+        blank,
+        classnames,
+    )
+
+    kwargs.update({"classnames": classnames, "blank": blank})
 
     if len(expr.split("\n")) > 1:
         # Find all assigned vars in expression
         avars = []
         assignment = None
-        for assign in walk(parse(expr)):
-            if isinstance(assign, Assign):
+        for assign in ast.walk(ast.parse(expr)):
+            if isinstance(assign, ast.Assign):
                 assignment = parse_ast_assign(assign.targets)
                 avars.extend(parse_ast_assign(assign.targets))
 
         # Find all variables being used that are not are not assigned
         used_vars = [
             name.id
-            for name in walk(parse(expr))
-            if isinstance(name, Name) and name.id not in avars and name.id not in built_in_funcs
+            for name in ast.walk(ast.parse(expr))
+            if isinstance(name, ast.Name) and name.id not in avars and name.id not in built_in_funcs
         ]
 
         # For all variables used if they are not in kwargs then they == None
@@ -111,7 +116,7 @@ def get_vp_result(expr: str, **kwargs) -> Any:
         return kwargs[assignment[-1]]
 
     # For all variables used if they are not in kwargs then they == None
-    for var in [name.id for name in walk(parse(expr)) if isinstance(name, Name)]:
+    for var in [name.id for name in ast.walk(ast.parse(expr)) if isinstance(name, ast.Name)]:
         if var not in kwargs:
             kwargs[var] = None
 
