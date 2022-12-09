@@ -101,43 +101,53 @@ def json(ast: AST, indent: int = 0) -> str:
 
 
 def __to_html(ast: AST, offset: int = 0) -> str:
+    def one_line(node, indent: int = 0) -> str:
+        return "".join(
+            [
+                " " * indent + node.start_tag(),
+                node.children[0].stringify(
+                    indent + offset if node.children[0].num_lines > 1 else 0
+                ),
+                node.end_tag(),
+            ]
+        )
+
+    def many_children(node, indent: int = 0) -> list:
+        lines = []
+        for child in visit_children(node):
+            if child.type == "element":
+                lines.extend(compile_children(child, indent + offset))
+            else:
+                lines.append(child.stringify(indent + offset))
+        return lines
+
+    def construct_element(node, indent: int = 0) -> list:
+        lines = []
+        if (
+            len(node.children) == 1
+            and node.children[0].type == "text"
+            and node.children[0].num_lines == 1
+        ):
+            lines.append(one_line(node, indent))
+        else:
+            lines.append(" " * indent + node.start_tag())
+            lines.extend(many_children(node, indent))
+            lines.append(" " * indent + node.end_tag())
+        return lines
+
     def compile_children(node: All_Nodes, indent: int = 0) -> list[str]:
-        data = []
+        lines = []
         if node.type == "element":
             if node.startend:
-                data.append(" " * indent + node.start_tag())
+                lines.append(" " * indent + node.start_tag())
             else:
-                if (
-                    len(node.children) == 1
-                    and node.children[0].type == "text"
-                    and node.children[0].num_lines == 1
-                ):
-                    data.append(
-                        "".join(
-                            [
-                                " " * indent + node.start_tag(),
-                                node.children[0].stringify(
-                                    indent + offset if node.children[0].num_lines > 1 else 0
-                                ),
-                                node.end_tag(),
-                            ]
-                        )
-                    )
-                else:
-                    data.append(" " * indent + node.start_tag())
-                    for child in visit_children(node):
-                        if child.type == "element":
-                            data.extend(compile_children(child, indent + offset))
-                        else:
-                            data.append(child.stringify(indent + offset))
-                    data.append(" " * indent + node.end_tag())
+                lines.extend(construct_element(node, indent))
         elif node.type == "root":
             for child in visit_children(node):
-                data.extend(compile_children(child))
+                lines.extend(compile_children(child))
         else:
-            data.append(node.stringify(indent + offset))
-        return data
+            lines.append(node.stringify(indent + offset))
+        return lines
 
-    data = compile_children(ast.tree)
-
-    return "\n".join(data)
+    lines = compile_children(ast.tree)
+    return "\n".join(lines)

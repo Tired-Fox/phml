@@ -26,18 +26,25 @@ self_closing_tags = [
 ]
 
 
-def build_point(pos: tuple[int, int], offset: Optional[int] = None) -> Point:
-    """Build a phml.node.Point from a tuple."""
-    return Point(pos[0], pos[1], offset)
+def strip_blank_lines(data_lines: list[str]) -> list[str]:
+    """Strip the blank lines at the start and end of a list."""
+    # remove leading blank lines
+    for idx in range(0, len(data_lines)):  # pylint: disable=consider-using-enumerate
+        if data_lines[idx].strip() != "":
+            data_lines = data_lines[idx:]
+            break
+        if idx == len(data_lines) - 1:
+            data_lines = []
+            break
 
+    # Remove trailing blank lines
+    if len(data_lines) > 0:
+        for idx in range(len(data_lines) - 1, 0, -1):
+            if data_lines[idx].replace("\n", " ").strip() != "":
+                data_lines = data_lines[: idx + 1]
+                break
 
-def build_position(
-    start: tuple[int, int, Optional[int]],
-    end: tuple[int, int, Optional[int]],
-    indent: Optional[int] = None,
-) -> Position:
-    """Build a phml.node.Posiiton from two tuples."""
-    return Position(build_point(start), build_point(end), indent)
+    return data_lines
 
 
 def calc_end_of_tag(tag_text: str, cur_pos: tuple[int, int]) -> tuple[int, int]:
@@ -62,21 +69,7 @@ def strip_and_count(data: str, cur_pos: tuple[int, int]) -> tuple[str, int, int]
     # If multiline data block
     if len(data_lines) > 1:
 
-        # remove leading blank lines
-        for idx in range(0, len(data_lines)):  # pylint: disable=consider-using-enumerate
-            if data_lines[idx].strip() != "":
-                data_lines = data_lines[idx:]
-                break
-            if idx == len(data_lines) - 1:
-                data_lines = []
-                break
-
-        # Remove trailing blank lines
-        if len(data_lines) > 0:
-            for idx in range(len(data_lines) - 1, 0, -1):
-                if data_lines[idx].replace("\n", " ").strip() != "":
-                    data_lines = data_lines[: idx + 1]
-                    break
+        data_lines = strip_blank_lines(data_lines)
 
         if len(data_lines) > 0:
             # Get the line and col of the final position
@@ -111,15 +104,15 @@ class HypertextMarkupParser(HTMLParser):
         self.cur_tags = []
 
     def handle_decl(self, decl: str) -> None:
-        if decl.split(" ")[0].lower() == "doctype":
-            tokens = decl.split(" ")
+        tokens = decl.split(" ")
+        if tokens[0].lower() == "doctype":
             if self.cur.type == "root":
                 if len(tokens) > 1:
                     self.cur.children.append(
                         DocType(
                             lang=tokens[1],
                             parent=self.cur,
-                            position=build_position(self.getpos(), self.getpos()),
+                            position=Position(self.getpos(), self.getpos()),
                         )
                     )
             else:
@@ -129,85 +122,96 @@ class HypertextMarkupParser(HTMLParser):
 
         properties: Properties = {}
 
+        # Build properties/attributes
         for attr in attrs:
             if attr[1] is not None:
                 properties[attr[0]] = attr[1] if attr[1] != "no" else False
             else:
                 properties[attr[0]] = True
 
+        # Add new element to current elements children
         self.cur.children.append(Element(tag=tag, properties=properties, parent=self.cur))
 
+        # Self closing tags are marked as such
         if tag in self_closing_tags:
             self.cur.children[-1].startend = True
 
-            self.cur.children[-1].position = build_position(
+            self.cur.children[-1].position = Position(
                 self.getpos(), calc_end_of_tag(self.get_starttag_text(), self.getpos())
             )
         else:
+            # New element is now the current node
             self.cur = self.cur.children[-1]
+            # Elements tag is added to tag stack for balancing
             self.cur_tags.append(self.cur)
-            self.cur.position = build_position(self.getpos(), (0, 0))
+            # Elements start position is added
+            self.cur.position = Position(self.getpos(), (0, 0))
 
     def handle_startendtag(self, tag, attrs):
         properties: Properties = {}
 
+        # Build properties/attributes for element
         for attr in attrs:
             if attr[1] is not None:
                 properties[attr[0]] = attr[1] if attr[1] != "no" else False
             else:
                 properties[attr[0]] = True
 
+        # Add new element to current elements children
         self.cur.children.append(
             Element(
                 tag=tag,
                 properties=properties,
                 parent=self.cur,
                 startend=True,
-                position=build_position(
+                position=Position(
                     self.getpos(), calc_end_of_tag(self.get_starttag_text(), self.getpos())
                 ),
             )
         )
 
     def handle_endtag(self, tag):
+        # Tag was closed validate the balancing and matches
         if tag == self.cur_tags[-1].tag:
-            self.cur.position.end = build_point(self.getpos())
+            # Tags are balanced so add end point to position
+            #  and make the parent the new current element
+            self.cur.position.end = Point(*self.getpos())
             self.cur = self.cur.parent
             self.cur_tags.pop(-1)
         else:
+            # Tags are not balanced, raise a new error
             raise Exception(
                 f"Mismatched tags <{self.cur.tag}> and </{tag}> at \
 [{self.getpos()[0]}:{self.getpos()[1]}]"
             )
 
     def handle_data(self, data):
-
+        # Raw data, most likely text nodes
+        # Strip extra blank lines and count the lines and columns
         data, eline, ecol = strip_and_count(data, self.getpos())
 
+        # If the data is not empty after stripping blank lines add a new text
+        #  node to current elements children
         if data not in [[], "", None]:
             self.cur.children.append(
-                Text(
-                    data,
-                    self.cur,
-                    position=build_position(self.getpos(), (eline, ecol)),
-                )
+                Text(data, self.cur, position=Position(self.getpos(), (eline, ecol)))
             )
 
     def handle_comment(self, data: str) -> None:
+        # Strip extra blank lines and count the lines and columns
         data, eline, ecol = strip_and_count(data, self.getpos())
 
+        # If end line is the same as current line then add 7 to column num for `<!--` and `-->` syntax
         if eline == self.getpos()[0]:
             ecol += 7
         else:
+            # Otherwise just add 3 for the `-->` syntax
             ecol += 3
 
         self.cur.children.append(
             Comment(
                 value=data,
                 parent=self.cur,
-                position=build_position(
-                    self.getpos(),
-                    (eline, ecol),
-                ),
+                position=Position(self.getpos(), (eline, ecol)),
             )
         )

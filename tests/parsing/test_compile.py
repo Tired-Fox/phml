@@ -1,5 +1,5 @@
 from data import asts, strings, dicts
-from phml import PHMLCore, Compiler, file_types
+from phml import PHMLCore, Compiler, Formats
 from phml.nodes import AST, Element, Point, Position
 from phml.builder import p
 from phml.utils import parse_component
@@ -20,14 +20,14 @@ class TestCompile:
 
         compare = [
             line
-            for line in self.compiler.compile(asts["phml"], file_types.PHML).split("\n")
+            for line in self.compiler.compile(asts["phml"], Formats.PHML).split("\n")
             if line not in strings["phml"].split("\n")
         ]
         assert len(compare) == 0
 
         compare = [
             line
-            for line in self.core.render(file_types.PHML).split("\n")
+            for line in self.core.render(Formats.PHML).split("\n")
             if line not in strings["phml"].split("\n")
         ]
         assert len(compare) == 0
@@ -41,8 +41,8 @@ class TestCompile:
 
         self.core.ast = asts["phml"]
 
-        assert loads(self.compiler.compile(asts["phml"], file_types.JSON)) == dicts
-        assert loads(self.core.render(file_types.JSON)) == dicts
+        assert loads(self.compiler.compile(asts["phml"], Formats.JSON)) == dicts
+        assert loads(self.core.render(Formats.JSON)) == dicts
 
         with raises(Exception, match="Root nodes must only occur as the root of an ast/tree."):
             self.compiler.compile(
@@ -55,7 +55,7 @@ class TestCompile:
                         )
                     )
                 ),
-                to_format=file_types.JSON,
+                to_format=Formats.JSON,
             )
 
     def test_compile_to_html_str(self):
@@ -85,7 +85,7 @@ class TestCompile:
         self.core.ast = asts["phml"]
 
         file = tmp_path / "core.txt"
-        self.core.write(file, file_type=file_types.PHML)
+        self.core.write(file, file_type=Formats.PHML)
 
         compare = [
             line for line in file.read_text().split("\n") if line not in strings["phml"].split("\n")
@@ -152,7 +152,7 @@ class TestCompile:
         self.core.ast = asts["phml"]
 
         file = tmp_path / "temp.txt"
-        self.core.write(file, file_type=file_types.JSON, title="sample title")
+        self.core.write(file, file_type=Formats.JSON, title="sample title")
 
         assert loads(file.read_text()) == dicts
 

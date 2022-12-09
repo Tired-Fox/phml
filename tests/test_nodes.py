@@ -30,6 +30,7 @@ def test_position():
         Position(Point(1, 2), Point(3, 4), -1)
         
     assert Position(Point(1, 2), Point(3, 4)) == Position(Point(1, 2), Point(3, 4))
+    assert Position(Point(1, 2), Point(3, 4)) == Position((1, 2), (3, 4))
 
 def test_ast():
     with raises(

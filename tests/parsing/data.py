@@ -477,7 +477,7 @@ strings = {
 
 if __name__ == "__main__":
     from phml import PHMLCore
-    from phml.core.file_types import PHML, JSON
+    from phml.valid_file_types import Formats
 
     core = PHMLCore()
     core.ast = asts["phml"]
@@ -485,6 +485,6 @@ if __name__ == "__main__":
     # write to expected files
     (
         core.write(dest="../sample.html", title="sample title")
-        .write(dest="../sample.phml", file_type=PHML, title="sample title")
-        .write("../sample.json", file_type=JSON, title="sample title")
+        .write(dest="../sample.phml", file_type=Formats.PHML, title="sample title")
+        .write("../sample.json", file_type=Formats.JSON, title="sample title")
     )

@@ -5,7 +5,7 @@ The heavy lifting module that compiles phml ast's to different string/file forma
 
 from typing import Any, Callable, Optional
 
-from phml.core.file_types import HTML, JSON, PHML
+from phml.valid_file_types import Formats
 from phml.nodes import AST, All_Nodes, DocType
 from phml.utils import check, parse_component, tag_from_file, valid_component_dict, visit_children
 
@@ -94,7 +94,7 @@ class Compiler:
     def compile(
         self,
         ast: Optional[AST] = None,
-        to_format: str = HTML,
+        to_format: str = Formats.HTML,
         indent: Optional[int] = None,
         handler: Optional[Callable] = None,
         scopes: Optional[list[str]] = None,
@@ -118,13 +118,13 @@ class Compiler:
             for scope in scopes:
                 path.insert(0, scope)
 
-        if to_format == PHML:
+        if to_format == Formats.PHML:
             return phml(ast, indent or 4)
 
-        if to_format == HTML:
+        if to_format == Formats.HTML:
             return html(ast, self.components, indent or 4, **kwargs)
 
-        if to_format == JSON:
+        if to_format == Formats.JSON:
             return json(ast, indent or 2)
 
         if handler is None:

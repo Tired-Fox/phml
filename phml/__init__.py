@@ -130,7 +130,8 @@ encouraged.
 from pathlib import Path
 from typing import Callable, Optional
 
-from .core import Compiler, Parser, file_types
+from .core import Compiler, Parser
+from .valid_file_types import Formats
 from .locate import *
 from .misc import *
 from .nodes import AST, All_Nodes
@@ -240,7 +241,7 @@ class PHMLCore:
 
     def render(
         self,
-        file_type: str = file_types.HTML,
+        file_type: str = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
         **kwargs,
@@ -273,7 +274,7 @@ class PHMLCore:
     def write(
         self,
         dest: str | Path,
-        file_type: str = file_types.HTML,
+        file_type: str = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
         **kwargs,

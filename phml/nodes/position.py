@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
-
-if TYPE_CHECKING:
-    from .point import Point
+from typing import TYPE_CHECKING, Optional, overload
+from .point import Point
 
 
 class Position:
@@ -22,9 +20,41 @@ class Position:
     information.
     """
 
-    def __init__(self, start: Point, end: Point, indent: Optional[int] = None):
-        self.start = start
-        self.end = end
+    @overload
+    def __init__(
+        self,
+        start: tuple[int, int, int | None],
+        end: tuple[int, int, int | None],
+        indent: Optional[int] = None,
+    ):
+        """
+        Args:
+            start (tuple[int, int, int  |  None]): Tuple representing the line, column, and optional
+            offset of the start point.
+            end (tuple[int, int, int  |  None]): Tuple representing the line, column, and optional
+            offset of the end point.
+            indent (Optional[int], optional): The indent amount for the start of the position.
+        """
+        ...
+
+    def __init__(self, start: Point, end: Point, indent: Optional[int] = None, *args, **kwargs):
+        """
+        Args:
+            start (Point): Starting point of the position.
+            end (Point): End point of the position.
+            indent (int | None): The indent amount for the start of the position.
+        """
+
+        self.start = (
+            Point(start[0], start[1], start[2] if len(start) == 3 else None)
+            if isinstance(start, tuple)
+            else start
+        )
+        self.end = (
+            Point(end[0], end[1], end[2] if len(end) == 3 else None)
+            if isinstance(end, tuple)
+            else end
+        )
 
         if indent is not None and indent < 0:
             raise IndexError(f"Position.indent value must be >= 0 or None but was {indent}")
