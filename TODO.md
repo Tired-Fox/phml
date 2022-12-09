@@ -13,5 +13,7 @@
 - [ ] Ability to use flask???
   - Adapt flask to work with phml or think about new project?
 - [ ] Refine component system
-- [ ] XML support
-- [ ] Markdown Support
+
+- [ ] More formats
+  - XML support
+  - Markdown Support
