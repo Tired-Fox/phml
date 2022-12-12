@@ -15,7 +15,7 @@ classifiers = [
 
 ]
 requires-python = ">=3.10"
-dependencies = ["teddecor>=1.0.2"]
+dependencies = ["teddecor>=1.0.2", "defusedxml"]
 
 [project.optional-dependencies]
 tests = [

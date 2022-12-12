@@ -15,6 +15,14 @@ class Format:
     """
 
     @classmethod
+    def suffix(cls) -> str:
+        """The prefered extension/suffix for the file format."""
+
+        if isinstance(cls.extension, list):
+            return f".{cls.extension[0]}"
+        return f".{cls.extension}"
+
+    @classmethod
     def is_format(cls, _extension: str) -> bool:
         """Determine if an extension is of the current format."""
 

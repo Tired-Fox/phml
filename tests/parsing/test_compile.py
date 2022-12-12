@@ -23,14 +23,14 @@ class TestCompile:
                 strings["phml"].split("\n"),
             )
         )
-        
+
         with raises(Exception, match="Must provide an ast to compile"):
             self.compiler.compile()
-            
+
         self.phml.ast = asts["phml"]
         self.phml.scopes = ["../"]
         assert self.phml.ast == asts["phml"]
-        
+
         assert all(
             L1 == L2
             for L1, L2 in zip(
@@ -38,9 +38,20 @@ class TestCompile:
                 strings["phml"].split("\n"),
             )
         )
-        
+
         tmp_file = tmp_path / "output.phml"
         self.phml.write(tmp_file, file_type=Formats.PHML, title="sample title")
+        assert all(
+            L1 == L2
+            for L1, L2 in zip(
+                tmp_file.read_text().split("\n"),
+                strings["phml"].split("\n"),
+            )
+        )
+
+        tmp_file = tmp_path / "output"
+        self.phml.write(tmp_file, file_type=Formats.PHML, title="sample title")
+        tmp_file = tmp_path / "output.phml"
         assert all(
             L1 == L2
             for L1, L2 in zip(
@@ -105,7 +116,7 @@ class TestCompile:
         assert "component" not in self.compiler.components
         self.compiler.remove("cmpt")
         assert "cmpt" not in self.compiler.components
-        
+
         self.phml.remove(p("div", "Hello World!"))
         assert "cmpt" not in self.phml.compiler.components
         self.phml.remove("component")

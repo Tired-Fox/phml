@@ -160,6 +160,10 @@ class PHML:
             kwargs: Any additional data to pass to the compiler that will be exposed to the
             phml files.
         """
+        dest = Path(dest)
+
+        if dest.suffix == "":
+            dest = dest.with_suffix(file_type.suffix())
 
         with open(dest, "+w", encoding="utf-8") as dest_file:
             dest_file.write(
