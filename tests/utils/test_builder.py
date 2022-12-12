@@ -1,5 +1,5 @@
 from phml.builder import p
-from phml.nodes import *
+from phml.core.nodes import *
 from pytest import raises
 import re
 

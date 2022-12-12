@@ -1,8 +1,8 @@
 from pytest import raises
 
-from phml.misc import *
+from phml.utilities.misc import *
 from phml.builder import p
-from phml.nodes import AST
+from phml.core.nodes import AST
 
 
 def test_depth():
@@ -11,7 +11,7 @@ def test_depth():
 
 
 class TestClasses:
-    """Test the phml.utils.misc.classes module."""
+    """Test the phml.utilities.misc.classes module."""
 
     # classnames
     def test_classnames(self):
@@ -83,7 +83,7 @@ class TestClasses:
 
 
 class TestComponent:
-    """Test the phml.utils.misc.component module."""
+    """Test the phml.utilities.misc.component module."""
 
     def test_tag_from_file(self):
         from pathlib import Path
@@ -137,7 +137,7 @@ class TestComponent:
 
 
 class TestHeading:
-    """Test the phml.utils.misc.heading module."""
+    """Test the phml.utilities.misc.heading module."""
 
     heading_1 = p("h1", "Hello World")
     heading_2 = p("h2", "Hello World")

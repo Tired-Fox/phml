@@ -1,9 +1,8 @@
 """Pythonic Hypertext Markup Language (phml) parser."""
 
 from html.parser import HTMLParser
-from typing import Optional
 
-from phml.nodes import Comment, DocType, Element, Point, Position, Properties, Root, Text
+from phml.core.nodes import Comment, DocType, Element, Point, Position, Properties, Root, Text
 
 self_closing_tags = [
     "area",
@@ -201,7 +200,8 @@ class HypertextMarkupParser(HTMLParser):
         # Strip extra blank lines and count the lines and columns
         data, eline, ecol = strip_and_count(data, self.getpos())
 
-        # If end line is the same as current line then add 7 to column num for `<!--` and `-->` syntax
+        # If end line is the same as current line then add 7 to
+        # column num for `<!--` and `-->` syntax
         if eline == self.getpos()[0]:
             ecol += 7
         else:

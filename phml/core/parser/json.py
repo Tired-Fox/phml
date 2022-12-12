@@ -1,6 +1,6 @@
 """Helper method to parse a dict to a phml ast."""
 
-from phml.nodes import Comment, DocType, Element, Position, Root, Text
+from phml.core.nodes import Comment, DocType, Element, Position, Root, Text
 
 __all__ = ["json_to_ast"]
 
@@ -64,14 +64,14 @@ def __construct_tree(obj: dict):
     """Recursivly construct ast from json."""
     if 'type' not in obj:
         raise Exception(
-        'Invalid json for phml. Every node must have a type. Nodes may only have the types; \
+            'Invalid json for phml. Every node must have a type. Nodes may only have the types; \
 root, element, doctype, text, or comment'
-    )
+        )
 
     val = __construct_node_type(obj['type'])
     if val is None:
         raise Exception(f"Unkown node type <{obj['type']}>")
-    
+
     return __construct_node(val, obj)
 
 

@@ -2,8 +2,8 @@
 # get_vp_result
 # process_vp_blocks
 
-from phml.virtual_python.import_objects import ImportFrom, Import
-from phml.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
+from phml.core.virtual_python.import_objects import ImportFrom, Import
+from phml.core.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
 
 
 def test_import_objects():

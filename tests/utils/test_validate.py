@@ -1,7 +1,7 @@
 from pytest import raises
 
-from phml.validate import *
-from phml.nodes import Element, Position, Point
+from phml.utilities.validate import *
+from phml.core.nodes import Element, Position, Point
 from phml.builder import p
 
 # test

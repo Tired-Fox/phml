@@ -1,5 +1,5 @@
 from phml.builder import p
-from phml.nodes import AST, Text, Element, Position, Point
+from phml.core.nodes import AST, Text, Element, Position, Point
 from phml import inspect
 
 with_position = {

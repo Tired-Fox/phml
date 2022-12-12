@@ -1,4 +1,4 @@
-from phml.nodes import *
+from phml.core.nodes import *
 from pytest import raises
 
 

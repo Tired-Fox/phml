@@ -1,22 +1,21 @@
 from data import asts, strings, dicts
-from phml import PHMLCore, Compiler, Formats
-from phml.nodes import AST, Element, Point, Position
+from phml import PHML, Compiler, Formats
+from phml.core.nodes import AST, Element, Point, Position
 from phml.builder import p
-from phml.utils import parse_component
+from phml.utilities import parse_component
 from pytest import raises
-import re
 
 
 class TestCompile:
     compiler = Compiler()
-    core = PHMLCore()
+    phml = PHML()
 
     def test_compile_to_phml_str(self):
         """Test the compiled phml strings from both
-        phml.core.Compiler and phml.PHMLCOre.
+        phml.core.Compiler and phml.PHML.
         """
 
-        self.core.ast = asts["phml"]
+        self.phml.ast = asts["phml"]
 
         compare = [
             line
@@ -27,22 +26,22 @@ class TestCompile:
 
         compare = [
             line
-            for line in self.core.render(Formats.PHML).split("\n")
+            for line in self.phml.render(Formats.PHML).split("\n")
             if line not in strings["phml"].split("\n")
         ]
         assert len(compare) == 0
 
     def test_compile_to_json_str(self):
         """Test the compiled json strings from both
-        phml.core.Compiler and phml.PHMLCOre.
+        phml.core.Compiler and phml.PHML.
         """
 
         from json import loads
 
-        self.core.ast = asts["phml"]
+        self.phml.ast = asts["phml"]
 
         assert loads(self.compiler.compile(asts["phml"], Formats.JSON)) == dicts
-        assert loads(self.core.render(Formats.JSON)) == dicts
+        assert loads(self.phml.render(Formats.JSON)) == dicts
 
         with raises(Exception, match="Root nodes must only occur as the root of an ast/tree."):
             self.compiler.compile(
@@ -60,10 +59,10 @@ class TestCompile:
 
     def test_compile_to_html_str(self):
         """Test the compiled html strings from both
-        phml.core.Compiler and phml.PHMLCOre.
+        phml.core.Compiler and phml.PHML.
         """
 
-        self.core.ast = asts["phml"]
+        self.phml.ast = asts["phml"]
 
         compare = [
             line
@@ -74,18 +73,18 @@ class TestCompile:
 
         compare = [
             line
-            for line in self.core.render(title="sample title").split("\n")
+            for line in self.phml.render(title="sample title").split("\n")
             if line not in strings["html"].split("\n")
         ]
         assert len(compare) == 0
 
     def test_compile_to_phml_file(self, tmp_path):
-        """Test the compiled phml file written by phml.PHMLCore."""
+        """Test the compiled phml file written by phml.PHML."""
 
-        self.core.ast = asts["phml"]
+        self.phml.ast = asts["phml"]
 
         file = tmp_path / "core.txt"
-        self.core.write(file, file_type=Formats.PHML)
+        self.phml.write(file, file_type=Formats.PHML)
 
         compare = [
             line for line in file.read_text().split("\n") if line not in strings["phml"].split("\n")
@@ -93,12 +92,12 @@ class TestCompile:
         assert len(compare) == 0
 
     def test_compile_to_html_file(self, tmp_path):
-        """Test the compiled html file written by phml.PHMLCore."""
+        """Test the compiled html file written by phml.PHML."""
 
-        self.core.ast = asts["phml"]
+        self.phml.ast = asts["phml"]
 
         file = tmp_path / "temp.txt"
-        self.core.write(file, title="sample title")
+        self.phml.write(file, title="sample title")
 
         compare = [
             line for line in file.read_text().split("\n") if line not in strings["html"].split("\n")
@@ -106,53 +105,53 @@ class TestCompile:
         assert len(compare) == 0
 
         # Exceptions
-        self.core.ast = AST(p(p("div", {"@else": "True"})))
+        self.phml.ast = AST(p(p("div", {"@else": "True"})))
         with raises(
             Exception,
             match=r"Condition statements that are not py-if or py-for must have py-if or py-elif as a prevous sibling.\n.+",
         ):
-            self.core.render()
+            self.phml.render()
 
-        self.core.ast = AST(p(p("div", {"@else": "True", "@elif": "False"})))
+        self.phml.ast = AST(p(p("div", {"@else": "True", "@elif": "False"})))
         with raises(
             Exception, match=r"There can only be one python condition statement at a time:\n.+"
         ):
-            self.core.render()
+            self.phml.render()
 
-        self.core.ast = AST(p(p("div", {"@if": "False"})))
-        assert self.core.render() == "<!DOCTYPE html>"
+        self.phml.ast = AST(p(p("div", {"@if": "False"})))
+        assert self.phml.render() == "<!DOCTYPE html>"
 
-        self.core.ast = AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "True"})))
-        assert self.core.render() == "<!DOCTYPE html>\n<div />"
+        self.phml.ast = AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "True"})))
+        assert self.phml.render() == "<!DOCTYPE html>\n<div />"
 
-        self.core.ast = AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "False"})))
-        assert self.core.render() == "<!DOCTYPE html>"
+        self.phml.ast = AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "False"})))
+        assert self.phml.render() == "<!DOCTYPE html>"
 
-        self.core.ast = AST(p(p("div", {"@for": "i in range(1)"}), p("div", {"@elif": "False"})))
+        self.phml.ast = AST(p(p("div", {"@for": "i in range(1)"}), p("div", {"@elif": "False"})))
         with raises(
             Exception,
             match=r"Condition statements that are not py-if or py-for must have py-if or py-elif as a prevous sibling.+",
         ):
-            self.core.render()
+            self.phml.render()
 
-        self.core.ast = AST(p(p("div", {"@if": "False"}), p("div", {"@else": True})))
-        assert self.core.render() == "<!DOCTYPE html>\n<div />"
+        self.phml.ast = AST(p(p("div", {"@if": "False"}), p("div", {"@else": True})))
+        assert self.phml.render() == "<!DOCTYPE html>\n<div />"
 
-        self.core.ast = AST(p(p("div", {"@for": "i in range(1)"}), p("div", {"@else": True})))
+        self.phml.ast = AST(p(p("div", {"@for": "i in range(1)"}), p("div", {"@else": True})))
         with raises(
             Exception,
             match=r"Condition statements that are not py-if or py-for must have py-if or py-elif as a prevous sibling.+",
         ):
-            self.core.render()
+            self.phml.render()
 
     def test_compile_to_json_file(self, tmp_path):
-        """Test the compiled json file written by phml.PHMLCore."""
+        """Test the compiled json file written by phml.PHML."""
         from json import loads
 
-        self.core.ast = asts["phml"]
+        self.phml.ast = asts["phml"]
 
         file = tmp_path / "temp.txt"
-        self.core.write(file, file_type=Formats.JSON, title="sample title")
+        self.phml.write(file, file_type=Formats.JSON, title="sample title")
 
         assert loads(file.read_text()) == dicts
 
@@ -193,10 +192,10 @@ class TestCompile:
         assert "component" not in self.compiler.components
 
     def test_scopes(self, tmp_path):
-        self.core.scopes = ["../dir/"]
-        self.core.render(scopes=["./"])
+        self.phml.scopes = ["../dir/"]
+        self.phml.render(scopes=["./"])
         file = tmp_path / "temp.txt"
-        self.core.write(file, scopes=["./"])
+        self.phml.write(file, scopes=["./"])
 
     def test_compiler_no_ast_or_doctype(self):
         self.compiler.ast = None

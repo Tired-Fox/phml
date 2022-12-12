@@ -27,8 +27,11 @@ test-cov:
 build_docs:
 	pdoc $(PROJECT) -d google -o docs/
 
-build:
+badges:
 	python3 scripts/make_badges.py
+
+build:
+	make badges
 	python3 -m build
 
 deploy:

@@ -1,7 +1,7 @@
-from phml.nodes import AST, Element
+from phml.core.nodes import AST, Element
 from phml.builder import p
 
-from phml.locate import *
+from phml.utilities.locate import *
 from pytest import raises
 from re import escape
 
@@ -47,7 +47,7 @@ def matching_lists(list1, list2):
 
 
 class TestFind:
-    """Test the phml.utils.locate.find module."""
+    """Test the phml.utilities.locate.find module."""
 
     # "find",
     def test_find(self):
@@ -182,7 +182,7 @@ class TestFind:
 
 
 class TestSelect:
-    """Test the phml.utils.locate.select module."""
+    """Test the phml.utilities.locate.select module."""
 
     # matches
     def test_matches(self):
@@ -285,7 +285,7 @@ class TestSelect:
 
 
 class TestIndex:
-    """Test the phml.utils.locate.index.Index class."""
+    """Test the phml.utilities.locate.index.Index class."""
 
     def test_index_constructor(self):
         iast = AST(

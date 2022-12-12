@@ -10,7 +10,7 @@ from json import loads
 from pathlib import Path
 from typing import Callable, Optional
 
-from phml.nodes import AST, Root
+from phml.core.nodes import AST, Root
 
 from .hypertext_markup_parser import HypertextMarkupParser
 from .json import json_to_ast
