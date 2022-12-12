@@ -137,6 +137,19 @@ asts = {
             ),
         )
     ),
+    "xml": AST(
+        p(
+            p(
+                "urlset",
+                {"xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9"},
+                p(
+                    "url",
+                    p("loc", "https://www.example.com/foo.html"),
+                    p("lastmod", "2022-06-04"),
+                ),
+            ),
+        )
+    ),
 }
 
 dicts = {
@@ -202,7 +215,6 @@ dicts = {
                                     "type": "text",
                                     "position": None,
                                     "value": "{title or \"\"}",
-                                    "num_lines": 1,
                                 }
                             ],
                         },
@@ -219,8 +231,7 @@ dicts = {
                         {
                             "type": "text",
                             "position": None,
-                            "value": "        date = \"11/15/2022\"\n        data = {\n            \"name\": \"Zachary\",\n            \"age\": \"22\",\n            \"type\": \"checkbox\"\n        }",
-                            "num_lines": 6,
+                            "value": "        date = \"11/15/2022\"\n        data = {\n            \"name\": \"Zachary\",\n            \"age\": \"22\",\n            \"type\": \"checkbox\"\n        }"
                         }
                     ],
                 },
@@ -244,8 +255,7 @@ dicts = {
                                 {
                                     "type": "text",
                                     "position": None,
-                                    "value": "Hello World!",
-                                    "num_lines": 1,
+                                    "value": "Hello World!"
                                 }
                             ],
                         },
@@ -272,8 +282,7 @@ dicts = {
                                 {
                                     "type": "text",
                                     "position": None,
-                                    "value": "{date}",
-                                    "num_lines": 1,
+                                    "value": "{date}"
                                 }
                             ],
                         },
@@ -288,8 +297,7 @@ dicts = {
                                 {
                                     "type": "text",
                                     "position": None,
-                                    "value": "{date[\"name\"]}",
-                                    "num_lines": 1,
+                                    "value": "{date[\"name\"]}"
                                 }
                             ],
                         },
@@ -304,8 +312,7 @@ dicts = {
                                 {
                                     "type": "text",
                                     "position": None,
-                                    "value": "Wonderful day today!",
-                                    "num_lines": 1,
+                                    "value": "Wonderful day today!"
                                 }
                             ],
                         },
@@ -336,8 +343,7 @@ dicts = {
                                                 {
                                                     "type": "text",
                                                     "position": None,
-                                                    "value": "{key}: ",
-                                                    "num_lines": 1,
+                                                    "value": "{key}: "
                                                 }
                                             ],
                                         },
@@ -352,8 +358,7 @@ dicts = {
                                                 {
                                                     "type": "text",
                                                     "position": None,
-                                                    "value": "{value}",
-                                                    "num_lines": 1,
+                                                    "value": "{value}"
                                                 }
                                             ],
                                         },
@@ -372,8 +377,7 @@ dicts = {
                                 {
                                     "type": "text",
                                     "position": None,
-                                    "value": "The end",
-                                    "num_lines": 1,
+                                    "value": "The end"
                                 }
                             ],
                         },
@@ -388,8 +392,7 @@ dicts = {
                                 {
                                     "type": "text",
                                     "position": None,
-                                    "value": "            from pprint import pprint\n\n            def print_data(data):\n                pprint(data)",
-                                    "num_lines": 3,
+                                    "value": "            from pprint import pprint\n\n            def print_data(data):\n                pprint(data)"
                                 }
                             ],
                         },
@@ -472,6 +475,15 @@ strings = {
         <h4>The end</h4>
     </body>
 </html>\
+""",
+    "xml": """\
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.example.com/foo.html</loc>
+    <lastmod>2022-06-04</lastmod>
+  </url>
+</urlset>\
 """,
 }
 

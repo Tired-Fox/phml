@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from .element import Element
     from .position import Position
     from .text import Text
+    from . import All_Nodes
 
 
 class Parent(Node):  # pylint: disable=too-few-public-methods
@@ -33,3 +34,17 @@ class Parent(Node):  # pylint: disable=too-few-public-methods
                     child.parent = self
 
         self.children: list[Element | DocType | Comment | Text] = children or []
+
+    def append(self, node: All_Nodes):
+        """Add a node to the nested children of the current parent node."""
+        node.parent = self
+        self.children.append(node)
+
+    def insert(self, index: int, node: All_Nodes):
+        """Insert a node into a specific position in the current parent node's children."""
+        node.parent = self
+        self.children.insert(index, node)
+
+    def remove(self, node: All_Nodes):
+        """Remove a specific node from the current parent node's children."""
+        self.children.remove(node)

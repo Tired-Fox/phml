@@ -1,16 +1,30 @@
 from data import asts, strings, dicts
-from phml import PHML, Compiler, Formats
+from phml import PHML, Compiler, Formats, Format
+from phml.core.compiler import ToML
 from phml.core.nodes import AST, Element, Point, Position
 from phml.builder import p
 from phml.utilities import parse_component
 from pytest import raises
 
 
+def to_ml():
+    with raises(
+        Exception,
+        match="Converting to a file format requires that an ast is provided",
+    ):
+        ToML().compile()
+
+    with raises(
+        Exception,
+        match="Doctypes must be in the root of the file/tree",
+    ):
+        ToML().compile(AST(p(p("div", p("doctype")))))
+        
 class TestCompile:
     compiler = Compiler()
     phml = PHML()
 
-    def test_compile_to_phml_str(self):
+    def compile_to_phml_str(self):
         """Test the compiled phml strings from both
         phml.core.Compiler and phml.PHML.
         """
@@ -31,67 +45,7 @@ class TestCompile:
         ]
         assert len(compare) == 0
 
-    def test_compile_to_json_str(self):
-        """Test the compiled json strings from both
-        phml.core.Compiler and phml.PHML.
-        """
-
-        from json import loads
-
-        self.phml.ast = asts["phml"]
-
-        assert loads(self.compiler.compile(asts["phml"], Formats.JSON)) == dicts
-        assert loads(self.phml.render(Formats.JSON)) == dicts
-
-        with raises(Exception, match="Root nodes must only occur as the root of an ast/tree."):
-            self.compiler.compile(
-                ast=AST(
-                    p(
-                        p(
-                            "div",
-                            Element("div", Position(Point(0, 1), Point(2, 3))),
-                            p(),
-                        )
-                    )
-                ),
-                to_format=Formats.JSON,
-            )
-
-    def test_compile_to_html_str(self):
-        """Test the compiled html strings from both
-        phml.core.Compiler and phml.PHML.
-        """
-
-        self.phml.ast = asts["phml"]
-
-        compare = [
-            line
-            for line in self.compiler.compile(asts["phml"], title="sample title").split("\n")
-            if line not in strings["html"].split("\n")
-        ]
-        assert len(compare) == 0
-
-        compare = [
-            line
-            for line in self.phml.render(title="sample title").split("\n")
-            if line not in strings["html"].split("\n")
-        ]
-        assert len(compare) == 0
-
-    def test_compile_to_phml_file(self, tmp_path):
-        """Test the compiled phml file written by phml.PHML."""
-
-        self.phml.ast = asts["phml"]
-
-        file = tmp_path / "core.txt"
-        self.phml.write(file, file_type=Formats.PHML)
-
-        compare = [
-            line for line in file.read_text().split("\n") if line not in strings["phml"].split("\n")
-        ]
-        assert len(compare) == 0
-
-    def test_compile_to_html_file(self, tmp_path):
+    def compile_to_html_file(self, tmp_path):
         """Test the compiled html file written by phml.PHML."""
 
         self.phml.ast = asts["phml"]
@@ -144,18 +98,7 @@ class TestCompile:
         ):
             self.phml.render()
 
-    def test_compile_to_json_file(self, tmp_path):
-        """Test the compiled json file written by phml.PHML."""
-        from json import loads
-
-        self.phml.ast = asts["phml"]
-
-        file = tmp_path / "temp.txt"
-        self.phml.write(file, file_type=Formats.JSON, title="sample title")
-
-        assert loads(file.read_text()) == dicts
-
-    def test_add_component(self):
+    def add_component(self):
         cmpt = AST(
             p(
                 p(
@@ -171,7 +114,21 @@ class TestCompile:
             )
         )
         ast = AST(
-            p(p("main", p("cmpt", {"@if": "True", ":title": "'Today'", "message": "{'Today'}", "data-info": "info"}, "Sunny Day")))
+            p(
+                p(
+                    "main",
+                    p(
+                        "cmpt",
+                        {
+                            "@if": "True",
+                            ":title": "'Today'",
+                            "message": "{'Today'}",
+                            "data-info": "info",
+                        },
+                        "Sunny Day",
+                    ),
+                )
+            )
         )
 
         self.compiler.add({"component": cmpt}, ("cmpt", cmpt))
@@ -181,7 +138,7 @@ class TestCompile:
         assert "cmpt" in self.compiler.components
         self.compiler.compile(ast=ast)
 
-    def test_remove_component(self):
+    def remove_component(self):
         cmpt = AST(p(p("div", "Hello World!")))
         self.compiler.add({"component": cmpt}, ("cmpt", cmpt))
 
@@ -191,22 +148,18 @@ class TestCompile:
         self.compiler.remove(p("div", "Hello World!"))
         assert "component" not in self.compiler.components
 
-    def test_scopes(self, tmp_path):
+    def scopes(self, tmp_path):
+        self.phml.ast = AST(p(p("div")))
         self.phml.scopes = ["../dir/"]
         self.phml.render(scopes=["./"])
         file = tmp_path / "temp.txt"
         self.phml.write(file, scopes=["./"])
 
-    def test_compiler_no_ast_or_doctype(self):
+    def compiler_no_ast_or_doctype(self):
         self.compiler.ast = None
         with raises(Exception, match="Must provide an ast to compile."):
             self.compiler.compile()
 
-        self.compiler.ast = AST(p(p("html")))
-        with raises(Exception, match=r"Unkown format < .+ >"):
-            self.compiler.compile(to_format="markdown")
-
-        def handler(*args, **kwargs):
-            return "# Markdown String"
-
-        assert self.compiler.compile(to_format="markdown", handler=handler) == "# Markdown String"
+        self.compiler.ast = AST(p(p("h1", "Markdown String")))
+        with raises(Exception, match="Base class Format's compile method should never be called"):
+            self.compiler.compile(to_format=Format)

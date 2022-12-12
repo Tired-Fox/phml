@@ -105,17 +105,13 @@ class HypertextMarkupParser(HTMLParser):
     def handle_decl(self, decl: str) -> None:
         tokens = decl.split(" ")
         if tokens[0].lower() == "doctype":
-            if self.cur.type == "root":
-                if len(tokens) > 1:
-                    self.cur.children.append(
-                        DocType(
-                            lang=tokens[1],
-                            parent=self.cur,
-                            position=Position(self.getpos(), self.getpos()),
-                        )
-                    )
-            else:
-                raise Exception("<!doctype> must be in the root!")
+            self.cur.children.append(
+                DocType(
+                    lang=tokens[1] if len(tokens) > 1 else "html",
+                    parent=self.cur,
+                    position=Position(self.getpos(), self.getpos()),
+                )
+            )
 
     def handle_starttag(self, tag, attrs):
 

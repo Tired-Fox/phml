@@ -34,6 +34,7 @@ def test_builder_types():
 
     # Comment node
     assert p("<!--Comment-->") == Comment("Comment")
+    assert p("comment", "test") == Comment("test")
 
     # Doctype
     assert p("doctype", "xhtml") == DocType("xhtml")

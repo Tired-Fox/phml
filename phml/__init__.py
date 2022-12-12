@@ -130,7 +130,7 @@ encouraged.
 from pathlib import Path
 from typing import Callable, Optional
 
-from .core import AST, PHML, All_Nodes, Compiler, Formats, Parser
+from .core import AST, PHML, All_Nodes, Compiler, Format, Formats, Parser
 from .utilities import *
 
 __version__ = "1.1.0"

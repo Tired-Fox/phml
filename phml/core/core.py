@@ -1,8 +1,8 @@
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Optional
 
+from phml.core.formats import Format, Formats
 from phml.core.nodes import AST, All_Nodes
-from phml.core.valid_file_types import Formats
 from phml.utilities import filename_from_path, parse_component
 
 from .compiler import Compiler
@@ -90,22 +90,22 @@ class PHML:
         self.compiler.remove(*components)
         return self
 
-    def load(self, file_path: str | Path, handler: Optional[Callable] = None):
+    def load(self, file_path: str | Path, from_format: Optional[Format] = None):
         """Load a source files data and parse it to phml.
 
         Args:
             file_path (str | Path): The file path to the source file.
         """
-        self.parser.load(file_path, handler)
+        self.parser.load(file_path, from_format)
         return self
 
-    def parse(self, data: str | dict, handler: Optional[Callable] = None):
+    def parse(self, data: str | dict, from_format: Format = Formats.PHML):
         """Parse a str or dict object into phml.
 
         Args:
             data (str | dict): Object to parse to phml
         """
-        self.parser.parse(data, handler)
+        self.parser.parse(data, from_format)
         return self
 
     def render(

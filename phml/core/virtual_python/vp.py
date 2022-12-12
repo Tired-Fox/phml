@@ -161,7 +161,6 @@ def extract_expressions(data: str) -> str:
         expression = [expr for expr in expression.split("\n") if expr.strip() != ""]
         if len(expression) > 1:
             offset = len(expression[0]) - len(expression[0].lstrip())
-            input([line[offset:] for line in expression])
             lines = [line[offset:] for line in expression]
             results.append("\n".join(lines))
         else:

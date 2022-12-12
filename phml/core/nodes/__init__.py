@@ -14,6 +14,7 @@ from .point import Point
 from .position import Position
 from .root import Root
 from .text import Text
+from .processing_instruction import PI
 from .types import Properties, PropertyName, PropertyValue
 
 All_Nodes = Root | Element | Text | Comment | DocType | Parent | Node | Literal
