@@ -2,7 +2,7 @@
 
 from html.parser import HTMLParser
 
-from phml.core.nodes import Comment, DocType, Element, Point, Position, Properties, Root, Text
+from phml.core.nodes import AST, Comment, DocType, Element, Point, Position, Properties, Root, Text
 
 self_closing_tags = [
     "area",
@@ -23,6 +23,28 @@ self_closing_tags = [
     "keygen",
     "menuitem",
 ]
+
+
+def parse_hypertest_markup(data: str, class_name: str) -> AST:
+    """Parse a string as a hypertest markup document."""
+
+    phml_parser = HypertextMarkupParser()
+
+    if isinstance(data, str):
+        try:
+            phml_parser.feed(data)
+            if len(phml_parser.cur_tags) > 0:
+                last = phml_parser.cur_tags[-1].position
+                raise Exception(
+                    f"Unbalanced tags in source at [{last.start.line}:{last.start.column}]"
+                )
+            return AST(phml_parser.cur)
+        except Exception as exception:
+            raise Exception(
+                f"{data[:6] + '...' if len(data) > 6 else data}\
+: {exception}"
+            ) from exception
+    raise Exception(f"Data passed to {class_name}.parse must be a str")
 
 
 def strip_blank_lines(data_lines: list[str]) -> list[str]:

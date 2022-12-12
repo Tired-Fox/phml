@@ -6,9 +6,9 @@ from copy import deepcopy
 from re import match, search, sub
 from typing import Optional
 
-from phml.core.nodes import AST, All_Nodes, Element, Root, DocType
+from phml.core.nodes import AST, All_Nodes, DocType, Element, Root
 from phml.core.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
-from phml.utilities import check, find, replace_node, visit_children, find_all
+from phml.utilities import check, find, find_all, replace_node, visit_children
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
 CONDITION_PREFIX = "@"
@@ -268,12 +268,10 @@ def process_conditions(tree: Root | Element, virtual_python: VirtualPython, **kw
         tree (Root | Element): The tree to process conditions on.
         virtual_python (VirtualPython): The collection of information from the python blocks.
     """
-
     conditional_elements = []
     for child in visit_children(tree):
         if check(child, "element"):
             condition = py_condition(child)
-
             if condition in [
                 "py-elif",
                 "py-else",
@@ -514,7 +512,6 @@ for {for_loop}:
     return local_env["children"]
 
 
-# TODO: Find better universal name for this class
 class ToML:
     """Compiles an ast to a hypertext markup language. Compiles to a tag based string."""
 

@@ -158,7 +158,8 @@ disable=raw-checker-failed,
         unnecessary-ellipsis,
         keyword-arg-before-vararg,
         too-few-public-methods,
-        arguments-differ
+        arguments-differ,
+        wildcard-import
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -492,7 +493,7 @@ ignore-imports=yes
 ignore-signatures=yes
 
 # Minimum lines number of a similarity.
-min-similarity-lines=4
+min-similarity-lines=10
 
 
 [SPELLING]

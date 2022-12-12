@@ -50,6 +50,28 @@ def test_html_format():
         == "<!DOCTYPE html>\n<div />"
     )
 
+    assert Formats.HTML.compile(asts["phml"], title="sample title") == strings["html"]
+
+    assert (
+        Formats.HTML.compile(AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "True"}))))
+        == "<!DOCTYPE html>\n<div />"
+    )
+
+    assert (
+        Formats.HTML.compile(AST(p(p("div", {"@if": "False"}), p("div", {"@else": True}))))
+        == "<!DOCTYPE html>\n<div />"
+    )
+
+    with raises(Exception, match="There can only be one python condition statement at a time:\n.+"):
+        Formats.HTML.compile(AST(p(p("div", {"@if": "True", "@else": True}))))
+
+    with raises(
+        Exception,
+        match="Condition statements that are not py-if or py-for must have py-if or py-elif as a \
+prevous sibling.+",
+    ):
+        Formats.HTML.compile(AST(p(p("div", {"@else": True}))))
+
 
 test_dict = {
     "type": "element",
@@ -90,7 +112,6 @@ def test_json_format():
                 "indent": 3,
             },
             "value": "test",
-            "num_lines": 1,
         }
     ) == AST(p(Text("test")))
 

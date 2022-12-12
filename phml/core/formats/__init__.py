@@ -10,8 +10,8 @@ from dataclasses import dataclass
 
 from .format import Format
 from .html_format import HTMLFormat
-from .phml_format import PHMLFormat
 from .json_format import JSONFormat
+from .phml_format import PHMLFormat
 from .xml_format import XMLFormat
 
 

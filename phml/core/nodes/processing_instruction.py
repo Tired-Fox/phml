@@ -1,4 +1,5 @@
 from typing import Optional
+
 from .node import Node
 from .position import Position
 
@@ -11,14 +12,7 @@ class PI(Node):
         self.tag = tag
         self.properties = properties
 
-    def __repr__(self) -> str:
-        return "<%s %r at %#x>" % (  # pylint: disable=consider-using-f-string
-            self.__class__.__name__,
-            self.tag,
-            id(self),
-        )
-
-    def stringify(self, indent: int = 0):
+    def stringify(self, indent: int = 0):  # pylint: disable=unused-argument
         """Construct the string representation of the processing instruction node."""
         attributes = " ".join(f'{key}="{value}"' for key, value in self.properties.items())
         return f"<?{self.tag} {attributes}?>"

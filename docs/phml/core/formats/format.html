@@ -73,43 +73,44 @@
                         <label class="view-source-button" for="mod-format-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">from</span> <span class="nn">phml.core.nodes</span> <span class="kn">import</span> <span class="n">All_Nodes</span><span class="p">,</span> <span class="n">AST</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span> <span class="nn">phml.core.nodes</span> <span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">All_Nodes</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="k">class</span> <span class="nc">Format</span><span class="p">:</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>    <span class="sd">&quot;&quot;&quot;Base class for built-in file formats. Each sub class contains a `parse` and</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">    `compile` method. The parse method should take a string or dict and return</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;txt&quot;</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>    <span class="sd">&quot;&quot;&quot;The extension or extensions for the file format. When writing to a file and</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    extensions is a list then the first extensions in the list is used for the file</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    extension.</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    <span class="nd">@classmethod</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="k">def</span> <span class="nf">is_format</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>        <span class="sd">&quot;&quot;&quot;Determine if an extension is of the current format.&quot;&quot;&quot;</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>            <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>        <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="nd">@classmethod</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>        <span class="sd">&quot;&quot;&quot;Parse the given data into a phml.core.nodes.AST.&quot;&quot;&quot;</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s parse method should never be called&quot;</span><span class="p">)</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="nd">@classmethod</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>        <span class="bp">cls</span><span class="p">,</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>        <span class="n">ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">,</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">All_Nodes</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>        <span class="sd">&quot;&quot;&quot;Compile the given phml.core.nodes.AST into string of a given format.&quot;&quot;&quot;</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s compile method should never be called&quot;</span><span class="p">)</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="k">class</span> <span class="nc">Format</span><span class="p">:</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>    <span class="sd">&quot;&quot;&quot;Base class for built-in file formats. Each sub class contains a `parse` and</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">    `compile` method. The parse method should take a string or dict and return</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>    <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;txt&quot;</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>    <span class="sd">&quot;&quot;&quot;The extension or extensions for the file format. When writing to a file and</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    extensions is a list then the first extensions in the list is used for the file</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">    extension.</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="nd">@classmethod</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="k">def</span> <span class="nf">is_format</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>        <span class="sd">&quot;&quot;&quot;Determine if an extension is of the current format.&quot;&quot;&quot;</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>            <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>        <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="nd">@classmethod</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>        <span class="sd">&quot;&quot;&quot;Parse the given data into a phml.core.nodes.AST.&quot;&quot;&quot;</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s parse method should never be called&quot;</span><span class="p">)</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="nd">@classmethod</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>        <span class="bp">cls</span><span class="p">,</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>        <span class="n">ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">,</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">All_Nodes</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>        <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>        <span class="sd">&quot;&quot;&quot;Compile the given phml.core.nodes.AST into string of a given format.&quot;&quot;&quot;</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s compile method should never be called&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -125,40 +126,40 @@
 
     </div>
     <a class="headerlink" href="#Format"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Format-6"><a href="#Format-6"><span class="linenos"> 6</span></a><span class="k">class</span> <span class="nc">Format</span><span class="p">:</span>
-</span><span id="Format-7"><a href="#Format-7"><span class="linenos"> 7</span></a>    <span class="sd">&quot;&quot;&quot;Base class for built-in file formats. Each sub class contains a `parse` and</span>
-</span><span id="Format-8"><a href="#Format-8"><span class="linenos"> 8</span></a><span class="sd">    `compile` method. The parse method should take a string or dict and return</span>
-</span><span id="Format-9"><a href="#Format-9"><span class="linenos"> 9</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="Format-10"><a href="#Format-10"><span class="linenos">10</span></a>
-</span><span id="Format-11"><a href="#Format-11"><span class="linenos">11</span></a>    <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;txt&quot;</span>
-</span><span id="Format-12"><a href="#Format-12"><span class="linenos">12</span></a>    <span class="sd">&quot;&quot;&quot;The extension or extensions for the file format. When writing to a file and</span>
-</span><span id="Format-13"><a href="#Format-13"><span class="linenos">13</span></a><span class="sd">    extensions is a list then the first extensions in the list is used for the file</span>
-</span><span id="Format-14"><a href="#Format-14"><span class="linenos">14</span></a><span class="sd">    extension.</span>
-</span><span id="Format-15"><a href="#Format-15"><span class="linenos">15</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="Format-16"><a href="#Format-16"><span class="linenos">16</span></a>
-</span><span id="Format-17"><a href="#Format-17"><span class="linenos">17</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Format-18"><a href="#Format-18"><span class="linenos">18</span></a>    <span class="k">def</span> <span class="nf">is_format</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="Format-19"><a href="#Format-19"><span class="linenos">19</span></a>        <span class="sd">&quot;&quot;&quot;Determine if an extension is of the current format.&quot;&quot;&quot;</span>
-</span><span id="Format-20"><a href="#Format-20"><span class="linenos">20</span></a>
-</span><span id="Format-21"><a href="#Format-21"><span class="linenos">21</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="Format-22"><a href="#Format-22"><span class="linenos">22</span></a>            <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
-</span><span id="Format-23"><a href="#Format-23"><span class="linenos">23</span></a>        <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
-</span><span id="Format-24"><a href="#Format-24"><span class="linenos">24</span></a>
-</span><span id="Format-25"><a href="#Format-25"><span class="linenos">25</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Format-26"><a href="#Format-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Format-27"><a href="#Format-27"><span class="linenos">27</span></a>        <span class="sd">&quot;&quot;&quot;Parse the given data into a phml.core.nodes.AST.&quot;&quot;&quot;</span>
-</span><span id="Format-28"><a href="#Format-28"><span class="linenos">28</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s parse method should never be called&quot;</span><span class="p">)</span>
-</span><span id="Format-29"><a href="#Format-29"><span class="linenos">29</span></a>
-</span><span id="Format-30"><a href="#Format-30"><span class="linenos">30</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Format-31"><a href="#Format-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span>
-</span><span id="Format-32"><a href="#Format-32"><span class="linenos">32</span></a>        <span class="bp">cls</span><span class="p">,</span>
-</span><span id="Format-33"><a href="#Format-33"><span class="linenos">33</span></a>        <span class="n">ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">,</span>
-</span><span id="Format-34"><a href="#Format-34"><span class="linenos">34</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">All_Nodes</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Format-35"><a href="#Format-35"><span class="linenos">35</span></a>        <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-</span><span id="Format-36"><a href="#Format-36"><span class="linenos">36</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="Format-37"><a href="#Format-37"><span class="linenos">37</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Format-38"><a href="#Format-38"><span class="linenos">38</span></a>        <span class="sd">&quot;&quot;&quot;Compile the given phml.core.nodes.AST into string of a given format.&quot;&quot;&quot;</span>
-</span><span id="Format-39"><a href="#Format-39"><span class="linenos">39</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s compile method should never be called&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Format-7"><a href="#Format-7"><span class="linenos"> 7</span></a><span class="k">class</span> <span class="nc">Format</span><span class="p">:</span>
+</span><span id="Format-8"><a href="#Format-8"><span class="linenos"> 8</span></a>    <span class="sd">&quot;&quot;&quot;Base class for built-in file formats. Each sub class contains a `parse` and</span>
+</span><span id="Format-9"><a href="#Format-9"><span class="linenos"> 9</span></a><span class="sd">    `compile` method. The parse method should take a string or dict and return</span>
+</span><span id="Format-10"><a href="#Format-10"><span class="linenos">10</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="Format-11"><a href="#Format-11"><span class="linenos">11</span></a>
+</span><span id="Format-12"><a href="#Format-12"><span class="linenos">12</span></a>    <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;txt&quot;</span>
+</span><span id="Format-13"><a href="#Format-13"><span class="linenos">13</span></a>    <span class="sd">&quot;&quot;&quot;The extension or extensions for the file format. When writing to a file and</span>
+</span><span id="Format-14"><a href="#Format-14"><span class="linenos">14</span></a><span class="sd">    extensions is a list then the first extensions in the list is used for the file</span>
+</span><span id="Format-15"><a href="#Format-15"><span class="linenos">15</span></a><span class="sd">    extension.</span>
+</span><span id="Format-16"><a href="#Format-16"><span class="linenos">16</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="Format-17"><a href="#Format-17"><span class="linenos">17</span></a>
+</span><span id="Format-18"><a href="#Format-18"><span class="linenos">18</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Format-19"><a href="#Format-19"><span class="linenos">19</span></a>    <span class="k">def</span> <span class="nf">is_format</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Format-20"><a href="#Format-20"><span class="linenos">20</span></a>        <span class="sd">&quot;&quot;&quot;Determine if an extension is of the current format.&quot;&quot;&quot;</span>
+</span><span id="Format-21"><a href="#Format-21"><span class="linenos">21</span></a>
+</span><span id="Format-22"><a href="#Format-22"><span class="linenos">22</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="Format-23"><a href="#Format-23"><span class="linenos">23</span></a>            <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
+</span><span id="Format-24"><a href="#Format-24"><span class="linenos">24</span></a>        <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
+</span><span id="Format-25"><a href="#Format-25"><span class="linenos">25</span></a>
+</span><span id="Format-26"><a href="#Format-26"><span class="linenos">26</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Format-27"><a href="#Format-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Format-28"><a href="#Format-28"><span class="linenos">28</span></a>        <span class="sd">&quot;&quot;&quot;Parse the given data into a phml.core.nodes.AST.&quot;&quot;&quot;</span>
+</span><span id="Format-29"><a href="#Format-29"><span class="linenos">29</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s parse method should never be called&quot;</span><span class="p">)</span>
+</span><span id="Format-30"><a href="#Format-30"><span class="linenos">30</span></a>
+</span><span id="Format-31"><a href="#Format-31"><span class="linenos">31</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Format-32"><a href="#Format-32"><span class="linenos">32</span></a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span>
+</span><span id="Format-33"><a href="#Format-33"><span class="linenos">33</span></a>        <span class="bp">cls</span><span class="p">,</span>
+</span><span id="Format-34"><a href="#Format-34"><span class="linenos">34</span></a>        <span class="n">ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">,</span>
+</span><span id="Format-35"><a href="#Format-35"><span class="linenos">35</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">All_Nodes</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Format-36"><a href="#Format-36"><span class="linenos">36</span></a>        <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="Format-37"><a href="#Format-37"><span class="linenos">37</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="Format-38"><a href="#Format-38"><span class="linenos">38</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Format-39"><a href="#Format-39"><span class="linenos">39</span></a>        <span class="sd">&quot;&quot;&quot;Compile the given phml.core.nodes.AST into string of a given format.&quot;&quot;&quot;</span>
+</span><span id="Format-40"><a href="#Format-40"><span class="linenos">40</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s compile method should never be called&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -206,13 +207,13 @@ extension.</p>
 
     </div>
     <a class="headerlink" href="#Format.is_format"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Format.is_format-17"><a href="#Format.is_format-17"><span class="linenos">17</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Format.is_format-18"><a href="#Format.is_format-18"><span class="linenos">18</span></a>    <span class="k">def</span> <span class="nf">is_format</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="Format.is_format-19"><a href="#Format.is_format-19"><span class="linenos">19</span></a>        <span class="sd">&quot;&quot;&quot;Determine if an extension is of the current format.&quot;&quot;&quot;</span>
-</span><span id="Format.is_format-20"><a href="#Format.is_format-20"><span class="linenos">20</span></a>
-</span><span id="Format.is_format-21"><a href="#Format.is_format-21"><span class="linenos">21</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="Format.is_format-22"><a href="#Format.is_format-22"><span class="linenos">22</span></a>            <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
-</span><span id="Format.is_format-23"><a href="#Format.is_format-23"><span class="linenos">23</span></a>        <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Format.is_format-18"><a href="#Format.is_format-18"><span class="linenos">18</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Format.is_format-19"><a href="#Format.is_format-19"><span class="linenos">19</span></a>    <span class="k">def</span> <span class="nf">is_format</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Format.is_format-20"><a href="#Format.is_format-20"><span class="linenos">20</span></a>        <span class="sd">&quot;&quot;&quot;Determine if an extension is of the current format.&quot;&quot;&quot;</span>
+</span><span id="Format.is_format-21"><a href="#Format.is_format-21"><span class="linenos">21</span></a>
+</span><span id="Format.is_format-22"><a href="#Format.is_format-22"><span class="linenos">22</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">extension</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+</span><span id="Format.is_format-23"><a href="#Format.is_format-23"><span class="linenos">23</span></a>            <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
+</span><span id="Format.is_format-24"><a href="#Format.is_format-24"><span class="linenos">24</span></a>        <span class="k">return</span> <span class="n">_extension</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">extension</span>
 </span></pre></div>
 
 
@@ -233,10 +234,10 @@ extension.</p>
 
     </div>
     <a class="headerlink" href="#Format.parse"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Format.parse-25"><a href="#Format.parse-25"><span class="linenos">25</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Format.parse-26"><a href="#Format.parse-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Format.parse-27"><a href="#Format.parse-27"><span class="linenos">27</span></a>        <span class="sd">&quot;&quot;&quot;Parse the given data into a phml.core.nodes.AST.&quot;&quot;&quot;</span>
-</span><span id="Format.parse-28"><a href="#Format.parse-28"><span class="linenos">28</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s parse method should never be called&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Format.parse-26"><a href="#Format.parse-26"><span class="linenos">26</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Format.parse-27"><a href="#Format.parse-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Format.parse-28"><a href="#Format.parse-28"><span class="linenos">28</span></a>        <span class="sd">&quot;&quot;&quot;Parse the given data into a phml.core.nodes.AST.&quot;&quot;&quot;</span>
+</span><span id="Format.parse-29"><a href="#Format.parse-29"><span class="linenos">29</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s parse method should never be called&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -257,16 +258,16 @@ extension.</p>
 
     </div>
     <a class="headerlink" href="#Format.compile"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Format.compile-30"><a href="#Format.compile-30"><span class="linenos">30</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Format.compile-31"><a href="#Format.compile-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span>
-</span><span id="Format.compile-32"><a href="#Format.compile-32"><span class="linenos">32</span></a>        <span class="bp">cls</span><span class="p">,</span>
-</span><span id="Format.compile-33"><a href="#Format.compile-33"><span class="linenos">33</span></a>        <span class="n">ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">,</span>
-</span><span id="Format.compile-34"><a href="#Format.compile-34"><span class="linenos">34</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">All_Nodes</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Format.compile-35"><a href="#Format.compile-35"><span class="linenos">35</span></a>        <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-</span><span id="Format.compile-36"><a href="#Format.compile-36"><span class="linenos">36</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-</span><span id="Format.compile-37"><a href="#Format.compile-37"><span class="linenos">37</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Format.compile-38"><a href="#Format.compile-38"><span class="linenos">38</span></a>        <span class="sd">&quot;&quot;&quot;Compile the given phml.core.nodes.AST into string of a given format.&quot;&quot;&quot;</span>
-</span><span id="Format.compile-39"><a href="#Format.compile-39"><span class="linenos">39</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s compile method should never be called&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Format.compile-31"><a href="#Format.compile-31"><span class="linenos">31</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Format.compile-32"><a href="#Format.compile-32"><span class="linenos">32</span></a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span>
+</span><span id="Format.compile-33"><a href="#Format.compile-33"><span class="linenos">33</span></a>        <span class="bp">cls</span><span class="p">,</span>
+</span><span id="Format.compile-34"><a href="#Format.compile-34"><span class="linenos">34</span></a>        <span class="n">ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">,</span>
+</span><span id="Format.compile-35"><a href="#Format.compile-35"><span class="linenos">35</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">All_Nodes</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Format.compile-36"><a href="#Format.compile-36"><span class="linenos">36</span></a>        <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="Format.compile-37"><a href="#Format.compile-37"><span class="linenos">37</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+</span><span id="Format.compile-38"><a href="#Format.compile-38"><span class="linenos">38</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Format.compile-39"><a href="#Format.compile-39"><span class="linenos">39</span></a>        <span class="sd">&quot;&quot;&quot;Compile the given phml.core.nodes.AST into string of a given format.&quot;&quot;&quot;</span>
+</span><span id="Format.compile-40"><a href="#Format.compile-40"><span class="linenos">40</span></a>        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Base class Format&#39;s compile method should never be called&quot;</span><span class="p">)</span>
 </span></pre></div>
 
 

@@ -9,9 +9,11 @@ from phml.core.virtual_python import VirtualPython, get_vp_result, process_vp_bl
 def test_import_objects():
     imp = Import(["pprint, phml"])
     assert repr(imp) == "Import(modules=[pprint, phml])"
+    assert str(imp) == "import pprint, phml"
 
     imp = ImportFrom("phml", ["inspect", "classnames"])
     assert repr(imp) == "ImportFrom(module='phml', names=[inspect, classnames])"
+    assert str(imp) == "from phml import inspect, classnames"
 
 
 def test_virtual_python():

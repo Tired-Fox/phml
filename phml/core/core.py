@@ -76,8 +76,8 @@ class PHML:
             if isinstance(component, Path):
                 self.parser.load(component)
                 self.compiler.add((filename_from_path(component), parse_component(self.parser.ast)))
-            elif isinstance(component, dict):
-                self.compiler.add(*list(component.items()))
+            else:
+                self.compiler.add(component)
         return self
 
     def remove(self, *components: str | All_Nodes):

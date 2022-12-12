@@ -9,9 +9,8 @@ Exposes phml.core.parser.Parser which handles all parsing functionality.
 from pathlib import Path
 from typing import Optional
 
-from phml.core.nodes import AST
-
 from phml.core.formats import Format, Formats
+from phml.core.nodes import AST
 
 __all__ = ["Parser"]
 
@@ -48,17 +47,21 @@ class Parser:
             from_format (Format): phml.core.formats.Format class that will parse the given source.
         """
 
-        with open(path, "r", encoding="utf-8") as source:
-            src = source.read()
-
         path = Path(path)
         if from_format is None:
             for file_format in Formats():
                 if file_format.is_format(path.suffix):
+                    with open(path, "r", encoding="utf-8") as source:
+                        src = source.read()
+
                     self.ast = file_format.parse(src)
                     return self
         else:
+            with open(path, "r", encoding="utf-8") as source:
+                src = source.read()
             self.ast = from_format.parse(src)
+            return self
+
         raise Exception(f"Could not parse unknown filetype {path.suffix.lstrip('.')}")
 
     def parse(

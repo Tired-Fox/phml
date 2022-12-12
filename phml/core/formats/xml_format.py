@@ -1,14 +1,15 @@
 from copy import deepcopy
 from pathlib import Path
+from re import match, sub
 from typing import Optional
-from re import sub, match
+
 from defusedxml.ElementTree import fromstring
 
-from phml.core.nodes import All_Nodes, AST, Element, Text, Root, PI
+from phml.core.nodes import AST, PI, All_Nodes, Element, Root, Text
 from phml.core.virtual_python import VirtualPython
 
-from .format import Format
 from .compile import ToML, apply_conditions, apply_python
+from .format import Format
 
 __all__ = ["XMLFormat"]
 
@@ -51,7 +52,7 @@ class XMLFormat(Format):
     extension: str = "xml"
 
     @classmethod
-    def parse(cls, data: ...) -> str:
+    def parse(cls, data: str) -> str:
         if isinstance(data, Path):
             with open(data, "r", encoding="utf-8") as file:
                 data = file.read()

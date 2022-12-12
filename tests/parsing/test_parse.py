@@ -1,92 +1,34 @@
 from data import asts, strings, dicts
-from phml import PHML, Parser, Format, Formats
+from phml import PHML, Parser, Formats
 from phml.builder import p
 from phml.utilities import parse_component
 from phml.core.nodes import AST
-from pathlib import Path
+
 from pytest import raises
-import re
 
 
 class TestParse:
     parser = Parser()
     phml = PHML()
 
-    def load_phml_file(self):
-        """Test the parsed ast of a phml file."""
+    def test_parse(self):
+        assert self.phml.parse(strings["phml"], from_format=Formats.PHML).ast == asts["phml"]
+        assert self.phml.load("tests/sample.phml").ast == asts["phml"]
 
-        self.parser.load("tests/sample.phml")
-        self.phml.load("tests/sample.phml")
+        assert self.parser.parse("<meta year='2022'>").ast == AST(p(p("meta", {"year": "2022"})))
 
-        assert self.parser.ast == asts["phml"]
-        assert self.phml.ast == asts["phml"]
-
-    def parse_phml_str(self):
-        """Test the parsed ast of a phml str."""
-
-        self.parser.parse(strings["phml"])
-        self.phml.parse(strings["phml"])
-
-        assert self.parser.ast == asts["phml"]
-        assert self.phml.ast == asts["phml"]
-
-    def parse_dict(self):
-        """Test the parsed ast of a dict object."""
-
-        self.parser.parse(dicts)
-        self.phml.parse(dicts)
-
-        assert self.parser.ast == asts["phml"]
-        assert self.phml.ast == asts["phml"]
-
-        valid = {
-            "type": "element",
-            "position": {
-                "start": {"line": 1, "column": 1, "offset": None},
-                "end": {"line": 1, "column": 1, "offset": None},
-                "indent": None,
-            },
-            "properties": {},
-            "tag": "title",
-            "startend": False,
-            "locals": {},
-            "children": [],
-        }
-
-        invalid_type = {"type": "invalid"}
-        no_type = {}
-
-        self.phml.parse(valid)
-
-        with raises(Exception, match=r"Unkown node type <.+>"):
-            self.phml.parse(invalid_type)
-
-        with raises(
-            Exception,
-            match="Invalid json for phml\\. Every node must have a type\\. Nodes may only have the types; root, element, doctype, text, or comment",
-        ):
-            self.phml.parse(no_type)
-
-    def add_components(self):
-        cmpt = AST(p(p("div", "Hello World!")))
-        self.phml.add({"test-cmpt": parse_component(cmpt)})
-        assert "test-cmpt" in self.phml.compiler.components
-        assert self.phml.compiler.components["test-cmpt"] == {
-            "python": [],
-            "script": [],
-            "style": [],
-            "component": p("div", "Hello World!"),
-        }
-
-        self.phml.add(Path("tests/component.phml"))
-        assert "component" in self.phml.compiler.components
-
-    def remove_components(self):
-        cmpt = AST(p(p("div", "Hello World!")))
-        self.phml.add({"test-cmpt": parse_component(cmpt)})
-        self.phml.remove("test-cmpt")
-
-        assert "test-cmpt" not in self.phml.compiler.components
+        assert self.parser.parse("<!--multi\nline-->", from_format=Formats.PHML).ast == AST(
+            p(p("comment", "multi\nline"))
+        )
+        with raises(Exception, match="Mismatched tags .+ at .+"):
+            self.parser.parse("<div></main>")
+            
+        assert self.parser.load("tests/sample.phml", from_format=Formats.PHML).ast == asts["phml"]
+        
+        with raises(Exception, match="Could not parse unknown filetype .+"):
+            self.parser.load("invalid.txt")
+            
+        assert self.parser.parse(dicts).ast == asts["phml"]
 
     def core_init(self):
         cmpt = AST(p(p("div", "Hello World!")))

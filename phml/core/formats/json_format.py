@@ -1,16 +1,7 @@
-from typing import Optional
 from json import dumps, loads
+from typing import Optional
 
-from phml.core.nodes import (
-    All_Nodes,
-    AST,
-    Root,
-    Element,
-    DocType,
-    Text,
-    Comment,
-    Position,
-)
+from phml.core.nodes import AST, All_Nodes, Comment, DocType, Element, Position, Root, Text
 from phml.utilities import visit_children
 
 from .format import Format
@@ -38,7 +29,7 @@ def __construct_node_type(node_type: str):
 
 def __construct_attributes(node, obj):
     for key in obj:
-        if key not in ["children", "type", "position"] and hasattr(node, key):
+        if key not in ["children", "type", "position", "num_lines"] and hasattr(node, key):
             setattr(node, key, obj[key])
 
 
@@ -92,7 +83,7 @@ class JSONFormat(Format):
     extension: str = "json"
 
     @classmethod
-    def parse(cls, data: ...) -> str:
+    def parse(cls, data: dict | str) -> str:
         if isinstance(data, str):
             data = loads(data)
 
@@ -122,7 +113,7 @@ class JSONFormat(Format):
                     raise Exception("Root nodes must only occur as the root of an ast/tree")
 
             for attr in vars(node):
-                if attr not in ["parent", "children"]:
+                if attr not in ["parent", "children", "num_lines"]:
                     value = getattr(node, attr)
                     if isinstance(value, Position):
                         data[attr] = value.as_dict()

@@ -78,6 +78,14 @@ def test_element():
 
     element = Element("div", {"id": "test"})
     assert element.start_tag() == '<div id="test">' and element.end_tag() == "</div>"
+    
+    world = Text("world")
+    element.append(world)
+    assert element.children == [world]
+    element.insert(0, Text("hello"))
+    assert element.children == [Text("hello"), world]
+    element.remove(world)
+    assert element.children == [Text("hello")]
 
     element = Element("input", {"type": "checkbox"}, startend=True)
     assert element.start_tag() == '<input type="checkbox" />' and element.end_tag() is None
@@ -105,6 +113,8 @@ def test_doctype():
     assert not doctype == None
 
     assert repr(doctype) == "node.doctype(html)"
+    
+    assert not doctype == Text("test")
 
 
 def test_text():

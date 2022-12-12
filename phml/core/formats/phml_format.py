@@ -1,10 +1,15 @@
 from typing import Optional
 
-from phml.core.nodes import All_Nodes, AST
+from phml.core.nodes import AST, All_Nodes
 
-from .format import Format
 from .compile import ToML
-from .parse import HypertextMarkupParser
+from .format import Format
+from .parse import parse_hypertest_markup
+
+
+def parse_markup(data: str, class_name: str) -> AST:
+    """Parse a string as a markup document."""
+    return parse_hypertest_markup(data, class_name)
 
 
 class PHMLFormat(Format):
@@ -13,24 +18,8 @@ class PHMLFormat(Format):
     extension: str = "phml"
 
     @classmethod
-    def parse(cls, data: ...) -> str:
-        phml_parser = HypertextMarkupParser()
-
-        if isinstance(data, str):
-            try:
-                phml_parser.feed(data)
-                if len(phml_parser.cur_tags) > 0:
-                    last = phml_parser.cur_tags[-1].position
-                    raise Exception(
-                        f"Unbalanced tags in source at [{last.start.line}:{last.start.column}]"
-                    )
-                return AST(phml_parser.cur)
-            except Exception as exception:
-                raise Exception(
-                    f"{data[:6] + '...' if len(data) > 6 else data}\
-: {exception}"
-                ) from exception
-        raise Exception("Data passed to PHMLFormat.parse must be a str")
+    def parse(cls, data: str) -> str:
+        return parse_markup(data, cls.__name__)
 
     @classmethod
     def compile(

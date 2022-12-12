@@ -489,7 +489,7 @@ strings = {
 
 if __name__ == "__main__":
     from phml import PHML
-    from phml.core.valid_file_types import Formats
+    from phml.core.formats import Formats
 
     phml = PHML()
     phml.ast = asts["phml"]

@@ -5,15 +5,10 @@ The heavy lifting module that compiles phml ast's to different string/file forma
 
 from typing import Any, Optional
 
+from phml.core.formats import Format, Formats
+from phml.core.formats.compile import * # pylint: disable=unused-wildcard-import
 from phml.core.nodes import AST, All_Nodes
-from phml.core.formats import Formats, Format
-from phml.utilities import (
-    parse_component,
-    tag_from_file,
-    valid_component_dict,
-)
-
-from phml.core.formats.compile import *
+from phml.utilities import parse_component, tag_from_file, valid_component_dict
 
 __all__ = ["Compiler"]
 
@@ -86,7 +81,7 @@ class Compiler:
                 if component in self.components:
                     self.components.pop(component, None)
                 else:
-                    raise KeyError(f"Invalid component name {component}")
+                    raise KeyError(f"Invalid component name '{component}'")
             elif isinstance(component, All_Nodes):
                 for key, value in self.components.items():
                     if isinstance(value, dict) and value["component"] == component:
@@ -108,7 +103,7 @@ class Compiler:
         ast = ast or self.ast
 
         if ast is None:
-            raise Exception("Must provide an ast to compile.")
+            raise Exception("Must provide an ast to compile")
 
         # Insert the scopes into the path
         scopes = scopes or ["./"]

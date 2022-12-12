@@ -388,4 +388,4 @@ def blank(value: Any) -> bool:
 
         return len(value) == 0
 
-    return False
+    return True

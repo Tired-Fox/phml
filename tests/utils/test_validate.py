@@ -37,6 +37,12 @@ def test_check():
     with raises(Exception, match="Invalid test condition"):
         check(p(), 3)
 
+def test_blank():
+    assert blank("")
+    assert blank("    \n")
+    assert not blank("    l")
+    assert not blank("  \n l")
+    assert blank(None)
 
 class TestValidate:
     """Test the phml.utils.validate.validate module."""

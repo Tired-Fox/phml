@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING, Optional
 from .node import Node
 
 if TYPE_CHECKING:
+    from . import All_Nodes
     from .comment import Comment
     from .doctype import DocType
     from .element import Element
     from .position import Position
     from .text import Text
-    from . import All_Nodes
 
 
 class Parent(Node):  # pylint: disable=too-few-public-methods

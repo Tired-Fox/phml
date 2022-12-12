@@ -1,104 +1,55 @@
-from data import asts, strings, dicts
+from pathlib import Path
+from data import asts, strings
 from phml import PHML, Compiler, Formats, Format
 from phml.core.compiler import ToML
-from phml.core.nodes import AST, Element, Point, Position
+from phml.core.nodes import AST
 from phml.builder import p
 from phml.utilities import parse_component
 from pytest import raises
 
 
-def to_ml():
-    with raises(
-        Exception,
-        match="Converting to a file format requires that an ast is provided",
-    ):
-        ToML().compile()
-
-    with raises(
-        Exception,
-        match="Doctypes must be in the root of the file/tree",
-    ):
-        ToML().compile(AST(p(p("div", p("doctype")))))
-        
 class TestCompile:
     compiler = Compiler()
     phml = PHML()
 
-    def compile_to_phml_str(self):
-        """Test the compiled phml strings from both
-        phml.core.Compiler and phml.PHML.
-        """
-
-        self.phml.ast = asts["phml"]
-
-        compare = [
-            line
-            for line in self.compiler.compile(asts["phml"], Formats.PHML).split("\n")
-            if line not in strings["phml"].split("\n")
-        ]
-        assert len(compare) == 0
-
-        compare = [
-            line
-            for line in self.phml.render(Formats.PHML).split("\n")
-            if line not in strings["phml"].split("\n")
-        ]
-        assert len(compare) == 0
-
-    def compile_to_html_file(self, tmp_path):
+    def test_compile(self, tmp_path):
         """Test the compiled html file written by phml.PHML."""
+        # self.phml.ast = asts["phml"]
 
+        assert all(
+            L1 == L2
+            for L1, L2 in zip(
+                self.compiler.compile(asts["phml"], to_format=Formats.PHML).split("\n"),
+                strings["phml"].split("\n"),
+            )
+        )
+        
+        with raises(Exception, match="Must provide an ast to compile"):
+            self.compiler.compile()
+            
         self.phml.ast = asts["phml"]
+        self.phml.scopes = ["../"]
+        assert self.phml.ast == asts["phml"]
+        
+        assert all(
+            L1 == L2
+            for L1, L2 in zip(
+                self.phml.render(file_type=Formats.PHML).split("\n"),
+                strings["phml"].split("\n"),
+            )
+        )
+        
+        tmp_file = tmp_path / "output.phml"
+        self.phml.write(tmp_file, file_type=Formats.PHML, title="sample title")
+        assert all(
+            L1 == L2
+            for L1, L2 in zip(
+                tmp_file.read_text().split("\n"),
+                strings["phml"].split("\n"),
+            )
+        )
 
-        file = tmp_path / "temp.txt"
-        self.phml.write(file, title="sample title")
-
-        compare = [
-            line for line in file.read_text().split("\n") if line not in strings["html"].split("\n")
-        ]
-        assert len(compare) == 0
-
-        # Exceptions
-        self.phml.ast = AST(p(p("div", {"@else": "True"})))
-        with raises(
-            Exception,
-            match=r"Condition statements that are not py-if or py-for must have py-if or py-elif as a prevous sibling.\n.+",
-        ):
-            self.phml.render()
-
-        self.phml.ast = AST(p(p("div", {"@else": "True", "@elif": "False"})))
-        with raises(
-            Exception, match=r"There can only be one python condition statement at a time:\n.+"
-        ):
-            self.phml.render()
-
-        self.phml.ast = AST(p(p("div", {"@if": "False"})))
-        assert self.phml.render() == "<!DOCTYPE html>"
-
-        self.phml.ast = AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "True"})))
-        assert self.phml.render() == "<!DOCTYPE html>\n<div />"
-
-        self.phml.ast = AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "False"})))
-        assert self.phml.render() == "<!DOCTYPE html>"
-
-        self.phml.ast = AST(p(p("div", {"@for": "i in range(1)"}), p("div", {"@elif": "False"})))
-        with raises(
-            Exception,
-            match=r"Condition statements that are not py-if or py-for must have py-if or py-elif as a prevous sibling.+",
-        ):
-            self.phml.render()
-
-        self.phml.ast = AST(p(p("div", {"@if": "False"}), p("div", {"@else": True})))
-        assert self.phml.render() == "<!DOCTYPE html>\n<div />"
-
-        self.phml.ast = AST(p(p("div", {"@for": "i in range(1)"}), p("div", {"@else": True})))
-        with raises(
-            Exception,
-            match=r"Condition statements that are not py-if or py-for must have py-if or py-elif as a prevous sibling.+",
-        ):
-            self.phml.render()
-
-    def add_component(self):
+    def test_add_component(self):
         cmpt = AST(
             p(
                 p(
@@ -132,21 +83,33 @@ class TestCompile:
         )
 
         self.compiler.add({"component": cmpt}, ("cmpt", cmpt))
-        self.compiler.add({"component": parse_component(cmpt)})
+        self.compiler.add({"component": parse_component(cmpt)}, ("cmpt", parse_component(cmpt)))
+        self.phml.add({"component": cmpt}, ("cmpt", cmpt))
+        self.phml.add(Path("tests/component.phml"))
 
         assert "component" in self.compiler.components
         assert "cmpt" in self.compiler.components
+        assert "component" in self.phml.compiler.components
+        assert "cmpt" in self.phml.compiler.components
         self.compiler.compile(ast=ast)
 
-    def remove_component(self):
+    def test_remove_component(self):
         cmpt = AST(p(p("div", "Hello World!")))
         self.compiler.add({"component": cmpt}, ("cmpt", cmpt))
+        self.phml.add(Path("tests/component.phml"), ("cmpt", cmpt))
 
-        with raises(KeyError, match="Invalid component name .+"):
+        with raises(KeyError, match="Invalid component name '.+'"):
             self.compiler.remove("invalid")
 
         self.compiler.remove(p("div", "Hello World!"))
         assert "component" not in self.compiler.components
+        self.compiler.remove("cmpt")
+        assert "cmpt" not in self.compiler.components
+        
+        self.phml.remove(p("div", "Hello World!"))
+        assert "cmpt" not in self.phml.compiler.components
+        self.phml.remove("component")
+        assert "component" not in self.phml.compiler.components
 
     def scopes(self, tmp_path):
         self.phml.ast = AST(p(p("div")))
@@ -163,3 +126,17 @@ class TestCompile:
         self.compiler.ast = AST(p(p("h1", "Markdown String")))
         with raises(Exception, match="Base class Format's compile method should never be called"):
             self.compiler.compile(to_format=Format)
+
+
+def test_to_ml():
+    with raises(
+        Exception,
+        match="Converting to a file format requires that an ast is provided",
+    ):
+        ToML().compile()
+
+    with raises(
+        Exception,
+        match="Doctypes must be in the root of the file/tree",
+    ):
+        ToML().compile(AST(p(p("div", p("doctype")))))

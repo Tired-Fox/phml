@@ -1,5 +1,6 @@
 from typing import Optional
-from phml.core.nodes import All_Nodes, AST
+
+from phml.core.nodes import AST, All_Nodes
 
 
 class Format:
