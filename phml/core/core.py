@@ -146,6 +146,7 @@ class PHML:
         file_type: str = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
+        replace_suffix: bool = False,
         **kwargs,
     ):
         """Renders the parsed ast to a different format, then writes
@@ -154,15 +155,23 @@ class PHML:
         Args:
             dest (str | Path): The path to the file to be written to.
             file_type (str): The format to render the ast as.
+
             indent (Optional[int], optional): The number of spaces per indent. By default it will
             use the standard for the given format. HTML has 4 spaces, phml has 4 spaces, and json
             has 2 spaces.
+
+            scopes (list[str], None): The relative paths from the cwd to the directory that will
+            be inserted into the python path.
+
+            replace_suffix (bool): Override to use the preferred file suffix no matter what.
+            Defaults to False, as the preferred suffix will only be used if no suffix is provided.
+
             kwargs: Any additional data to pass to the compiler that will be exposed to the
             phml files.
         """
         dest = Path(dest)
 
-        if dest.suffix == "":
+        if dest.suffix == "" or replace_suffix:
             dest = dest.with_suffix(file_type.suffix())
 
         with open(dest, "+w", encoding="utf-8") as dest_file:

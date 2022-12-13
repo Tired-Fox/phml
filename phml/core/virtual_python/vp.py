@@ -88,6 +88,7 @@ def get_vp_result(expr: str, **kwargs) -> Any:
         classnames,
     )
 
+    safe_vars = kwargs.pop("safe_vars", None) or False
     kwargs.update({"classnames": classnames, "blank": blank})
 
     if len(expr.split("\n")) > 1:
@@ -111,7 +112,8 @@ def get_vp_result(expr: str, **kwargs) -> Any:
             if var not in kwargs:
                 kwargs[var] = None
 
-        escape_args(kwargs)
+        if not safe_vars:
+            escape_args(kwargs)
 
         source = compile(f"{expr}\n", f"{expr}", "exec")
         exec(source, globals(), kwargs)  # pylint: disable=exec-used
@@ -123,7 +125,8 @@ def get_vp_result(expr: str, **kwargs) -> Any:
         if var not in kwargs:
             kwargs[var] = None
 
-    escape_args(kwargs)
+    if not safe_vars:
+        escape_args(kwargs)
 
     source = compile(f"phml_vp_result = {expr}", expr, "exec")
     exec(source, globals(), kwargs)  # pylint: disable=exec-used
@@ -142,7 +145,7 @@ def escape_args(args: dict) -> dict:
 
     for key in args:
         if isinstance(args[key], str):
-            args[key] = escape(args[key])
+            args[key] = escape(args[key], quote=False)
 
 
 def extract_expressions(data: str) -> str:

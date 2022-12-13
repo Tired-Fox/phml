@@ -6,7 +6,7 @@ The heavy lifting module that compiles phml ast's to different string/file forma
 from typing import Any, Optional
 
 from phml.core.formats import Format, Formats
-from phml.core.formats.compile import * # pylint: disable=unused-wildcard-import
+from phml.core.formats.compile import *  # pylint: disable=unused-wildcard-import
 from phml.core.nodes import AST, All_Nodes
 from phml.utilities import parse_component, tag_from_file, valid_component_dict
 
@@ -96,6 +96,7 @@ class Compiler:
         to_format: Format = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
+        safe_vars: bool = False,
         **kwargs: Any,
     ) -> str:
         """Execute compilation to a different format."""
@@ -114,4 +115,4 @@ class Compiler:
                 path.insert(0, scope)
 
         # Depending on the format parse with the appropriate function
-        return to_format.compile(ast, self.components, indent, **kwargs)
+        return to_format.compile(ast, self.components, indent, safe_vars=safe_vars, **kwargs)

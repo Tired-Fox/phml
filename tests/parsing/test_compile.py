@@ -60,6 +60,26 @@ class TestCompile:
             )
         )
 
+        tmp_file = tmp_path / "replace.html"
+        self.phml.write(tmp_file, file_type=Formats.PHML, title="sample title", replace_suffix=True)
+        tmp_file = tmp_path / "replace.phml"
+        assert all(
+            L1 == L2
+            for L1, L2 in zip(
+                tmp_file.read_text().split("\n"),
+                strings["phml"].split("\n"),
+            )
+        )
+        
+    def test_var_escaping(self):
+        start = AST(p(p("div", "{content}")))
+        content = "<script src='external.com'></script>"
+        escaped_result = "<!DOCTYPE html>\n<div>&lt;script src='external.com'&gt;&lt;/script&gt;</div>"
+        normal_result = "<!DOCTYPE html>\n<div><script src='external.com'></script></div>"
+        
+        assert self.compiler.compile(start, content=content) == escaped_result
+        assert self.compiler.compile(start, content=content, safe_vars=True) == normal_result
+
     def test_add_component(self):
         cmpt = AST(
             p(
