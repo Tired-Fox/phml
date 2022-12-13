@@ -1,7 +1,7 @@
 from pytest import raises
 
-from phml.validate import *
-from phml.nodes import Element, Position, Point
+from phml.utilities.validate import *
+from phml.core.nodes import Element, Position, Point
 from phml.builder import p
 
 # test
@@ -37,6 +37,12 @@ def test_check():
     with raises(Exception, match="Invalid test condition"):
         check(p(), 3)
 
+def test_blank():
+    assert blank("")
+    assert blank("    \n")
+    assert not blank("    l")
+    assert not blank("  \n l")
+    assert blank(None)
 
 class TestValidate:
     """Test the phml.utils.validate.validate module."""

@@ -1,5 +1,5 @@
 from phml.builder import p
-from phml.nodes import *
+from phml.core.nodes import *
 from pytest import raises
 import re
 
@@ -34,6 +34,7 @@ def test_builder_types():
 
     # Comment node
     assert p("<!--Comment-->") == Comment("Comment")
+    assert p("comment", "test") == Comment("test")
 
     # Doctype
     assert p("doctype", "xhtml") == DocType("xhtml")

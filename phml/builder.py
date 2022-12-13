@@ -1,4 +1,4 @@
-"""phml.utils.builder
+"""phml.utilities.builder
 
 This module serves as a utility to make building elements and ast's easier.
 """
@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from phml.nodes import All_Nodes, Comment, DocType, Element, Root, Text
+from phml.core.nodes import All_Nodes, Comment, DocType, Element, Root, Text
 
 __all__ = ["p"]
 
@@ -83,7 +83,7 @@ def parse_root(children: list):
 
 def parse_node(selector: str, props: dict, children: list):
     """From the provided selector, props, and children build an element node."""
-    from phml.utils import parse_specifiers  # pylint: disable=import-outside-toplevel
+    from phml.utilities import parse_specifiers  # pylint: disable=import-outside-toplevel
 
     node = parse_specifiers(selector)
     if not isinstance(node[0], dict) or len(node[0]["attributes"]) > 0:
