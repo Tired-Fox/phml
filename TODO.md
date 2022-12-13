@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] Optimize Component styles and script tags to avoid duplication
 - [ ] Ability to use flask???
   - Adapt flask to work with phml or think about new project?
 
