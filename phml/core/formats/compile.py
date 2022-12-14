@@ -5,6 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 from re import match, search, sub
 from typing import Optional
+import ast
 
 from phml.core.nodes import AST, All_Nodes, DocType, Element, Root
 from phml.core.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
@@ -90,57 +91,47 @@ def replace_components(
     if isinstance(node, AST):
         node = node.tree
 
-    for name, value in components.items():
-        curr_node = find(node, ["element", {"tag": name}])
-        while curr_node is not None:
-            new_props = {}
-
-            # Retain conditional properties
-            condition = py_condition(curr_node)
-            if condition is not None:
-                new_props[condition] = curr_node[condition]
-                del curr_node[condition]
-
-            # Generate and process the props
-            props = __process_props(curr_node, virtual_python, kwargs)
-            props["children"] = curr_node.children
-
-            # Create a duplicate of the component and assign values
-            rnode = deepcopy(value["component"])
-            rnode.locals.update(props)
-            rnode.parent = curr_node.parent
-
-            # Replace the component
-            idx = curr_node.parent.children.index(curr_node)
-            curr_node.parent.children = (
-                curr_node.parent.children[:idx]
-                + [
-                    *components[curr_node.tag]["python"],
-                    *components[curr_node.tag]["script"],
-                    *components[curr_node.tag]["style"],
-                    rnode,
-                ]
-                + curr_node.parent.children[idx + 1 :]
-            )
-
-            # Find the next node that is of the current component.
+    def find_next():
+        for name, value in components.items():
             curr_node = find(node, ["element", {"tag": name}])
+            if curr_node is not None:
+                return curr_node, value
+        return None, None
 
+    curr_node, value = find_next()
+    while curr_node is not None:
+        new_props = {}
 
-# def __has_py_condition(node: Element) -> Optional[tuple[str, str]]:
-#     for cond in [
-#         "py-for",
-#         "py-if",
-#         "py-elif",
-#         "py-else",
-#         f"{CONDITION_PREFIX}if",
-#         f"{CONDITION_PREFIX}elif",
-#         f"{CONDITION_PREFIX}else",
-#         f"{CONDITION_PREFIX}for",
-#     ]:
-#         if cond in node.properties.keys():
-#             return (cond, node[cond])
-#     return None
+        # Retain conditional properties
+        condition = py_condition(curr_node)
+        if condition is not None:
+            new_props[condition] = curr_node[condition]
+            del curr_node[condition]
+
+        # Generate and process the props
+        props = __process_props(curr_node, virtual_python, kwargs)
+        props["children"] = curr_node.children
+
+        # Create a duplicate of the component and assign values
+        rnode = deepcopy(value["component"])
+        rnode.locals.update(props)
+        rnode.parent = curr_node.parent
+
+        # Replace the component
+        idx = curr_node.parent.children.index(curr_node)
+        curr_node.parent.children = (
+            curr_node.parent.children[:idx]
+            + [
+                *components[curr_node.tag]["python"],
+                *components[curr_node.tag]["script"],
+                *components[curr_node.tag]["style"],
+                rnode,
+            ]
+            + curr_node.parent.children[idx + 1 :]
+        )
+
+        # Find the next node that is of the current component.
+        curr_node, value = find_next()
 
 
 def apply_conditions(node: Root | Element | AST, virtual_python: VirtualPython, **kwargs):
@@ -499,12 +490,13 @@ for {for_loop}:
         "child": child,
         "local_vals": clocals,
         **kwargs,
+        **clocals,
     }
 
     # Execute dynamic for loop
     exec(  # pylint: disable=exec-used
         for_loop,
-        {**globals()},
+        globals(),
         local_env,
     )
 

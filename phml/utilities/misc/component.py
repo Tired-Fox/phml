@@ -7,6 +7,7 @@ __all__ = [
     "filename_from_path",
     "parse_component",
     "valid_component_dict",
+    "cmpt_name_from_path"
 ]
 
 
@@ -38,13 +39,30 @@ def tag_from_file(filename: str | Path) -> str:
     return "-".join(tokens)
 
 
+def cmpt_name_from_path(file: Path) -> str:
+    """Construct a component name given a path. This will include parent directories.
+
+    Examples:
+        `blog/header.phml`
+
+        yields
+
+        `blog-header`
+    """
+    last = file.name.replace(file.suffix, "")
+
+    file = file.as_posix().lstrip("/")
+    dirs = [subdir for subdir in file.split("/")[:-1] if subdir.strip() != ""]
+
+    if len(dirs) > 0:
+        return "-".join(dirs) + f"-{last}"
+    return last
+
+
 def filename_from_path(file: Path) -> str:
     """Get the filename without the suffix from a pathlib.Path."""
 
-    if file.is_file():
-        return file.name.replace(file.suffix, "")
-
-    raise TypeError("Path must also be a valid file.")
+    return file.name.replace(file.suffix, "")
 
 
 def valid_component_dict(cmpt: dict) -> bool:

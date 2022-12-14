@@ -10,7 +10,7 @@ from html import escape
 from re import finditer, sub
 from typing import Any, Optional
 
-from .built_in import built_in_funcs
+from .built_in import built_in_funcs, built_in_types
 from .import_objects import Import, ImportFrom
 
 __all__ = ["VirtualPython", "get_vp_result", "process_vp_blocks"]
@@ -76,6 +76,33 @@ def parse_ast_assign(vals: list[ast.Name | tuple[ast.Name]]) -> list[str]:
     return []
 
 
+def __validate_kwargs(
+    kwargs: dict, expr: str, excludes: Optional[list] = None, safe_vars: bool = False
+):
+    """Validates the used variables and methods in the expression. If they are
+    missing then they are added to the kwargs as None. This means that it will
+    give a NoneType error if the method or variable is not provided in the kwargs.
+
+    After validating all variables and methods to be used are in kwargs it then escapes
+    all string kwargs for injected html.
+    """
+    excludes = excludes or []
+    exclude_list = {**built_in_funcs, **built_in_types}
+
+    for var in [
+        name.id  # Add the non built-in missing variable or method as none to kwargs
+        for name in ast.walk(ast.parse(expr))  # Iterate through entire ast of expression
+        if isinstance(name, ast.Name)  # Get all variables/names used this can be methods or values
+        and name.id not in exclude_list
+        and name.id not in excludes
+    ]:
+        if var not in kwargs:
+            kwargs[var] = None
+
+    if not safe_vars:
+        escape_args(kwargs)
+
+
 def get_vp_result(expr: str, **kwargs) -> Any:
     """Execute the given python expression, while using
     the kwargs as the local variables.
@@ -91,6 +118,10 @@ def get_vp_result(expr: str, **kwargs) -> Any:
     safe_vars = kwargs.pop("safe_vars", None) or False
     kwargs.update({"classnames": classnames, "blank": blank})
 
+    avars = []
+    result = "phml_vp_result"
+    expression = f"phml_vp_result = {expr}\n"
+
     if len(expr.split("\n")) > 1:
         # Find all assigned vars in expression
         avars = []
@@ -100,37 +131,22 @@ def get_vp_result(expr: str, **kwargs) -> Any:
                 assignment = parse_ast_assign(assign.targets)
                 avars.extend(parse_ast_assign(assign.targets))
 
-        # Find all variables being used that are not are not assigned
-        used_vars = [
-            name.id
-            for name in ast.walk(ast.parse(expr))
-            if isinstance(name, ast.Name) and name.id not in avars and name.id not in built_in_funcs
-        ]
+        result = assignment[-1]
+        expression = f"{expr}\n"
 
-        # For all variables used if they are not in kwargs then they == None
-        for var in used_vars:
-            if var not in kwargs:
-                kwargs[var] = None
+    __validate_kwargs(kwargs, expr, safe_vars=safe_vars)
 
-        if not safe_vars:
-            escape_args(kwargs)
-
-        source = compile(f"{expr}\n", f"{expr}", "exec")
+    try:
+        source = compile(expression, expr, "exec")
         exec(source, globals(), kwargs)  # pylint: disable=exec-used
-        # Get the last assignment and use it as the result
-        return kwargs[assignment[-1]]
+        return kwargs[result] if result in kwargs else None
+    except Exception as exception:  # pylint: disable=broad-except
+        from teddecor import TED  # pylint: disable=import-outside-toplevel
 
-    # For all variables used if they are not in kwargs then they == None
-    for var in [name.id for name in ast.walk(ast.parse(expr)) if isinstance(name, ast.Name)]:
-        if var not in kwargs:
-            kwargs[var] = None
+        TED.print(f"[@F red]*Error[]: {exception}")
+        print(expr)
 
-    if not safe_vars:
-        escape_args(kwargs)
-
-    source = compile(f"phml_vp_result = {expr}", expr, "exec")
-    exec(source, globals(), kwargs)  # pylint: disable=exec-used
-    return kwargs["phml_vp_result"] if "phml_vp_result" in kwargs else None
+        return False
 
 
 def escape_args(args: dict) -> dict:

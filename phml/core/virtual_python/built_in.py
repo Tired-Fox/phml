@@ -71,3 +71,20 @@ built_in_funcs = {
     "zip": zip,
     "__import__": __import__,
 }
+
+built_in_types = {
+    "int": int,
+    "float": float,
+    "complex": complex,
+    "str": str,
+    "list": list,
+    "tuple": tuple,
+    "range": range,
+    "bytes": bytes,
+    "bytearray": bytearray,
+    "memoryview": memoryview,
+    "dict": dict,
+    "bool": bool,
+    "set": set,
+    "frozenset": frozenset,
+}

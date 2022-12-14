@@ -3,7 +3,7 @@ from typing import Optional
 
 from phml.core.formats import Format, Formats
 from phml.core.nodes import AST, All_Nodes
-from phml.utilities import filename_from_path, parse_component
+from phml.utilities import cmpt_name_from_path, parse_component
 
 from .compiler import Compiler
 from .parser import Parser
@@ -75,7 +75,10 @@ class PHML:
         for component in components:
             if isinstance(component, Path):
                 self.parser.load(component)
-                self.compiler.add((filename_from_path(component), parse_component(self.parser.ast)))
+                self.compiler.add((cmpt_name_from_path(component), parse_component(self.parser.ast)))
+            elif isinstance(component, tuple) and isinstance(component[1], Path):
+                self.parser.load(component[1])
+                self.compiler.add((component[0], parse_component(self.parser.ast)))
             else:
                 self.compiler.add(component)
         return self
