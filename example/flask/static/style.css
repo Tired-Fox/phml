@@ -196,4 +196,6 @@ ul>li {
 
 #view-docs {
     transform: scale(1.5);
+    width: fit-content;
+    margin-inline: auto;
 }
