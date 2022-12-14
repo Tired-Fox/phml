@@ -1,7 +1,0 @@
-<ul @if="not blank(days)">
-    <li @for="day, url in days.items()">
-        <a :href="url">
-            <h5>Day {day}</h5>
-        </a>
-    </li>
-</ul>

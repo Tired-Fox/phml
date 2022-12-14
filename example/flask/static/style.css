@@ -9,6 +9,14 @@ html {font-size: 100%;} /*16px*/
     padding: 0;
 }
 
+.color-purple {
+    color: #916BBF
+}
+
+.color-green {
+    color: #4E9F3D;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
     font-weight: 400;
@@ -17,8 +25,8 @@ body {
     color: #DCD7C9;
 }
 
-a {color: inherit; text-underline-offset: .2rem;}
-a:hover {text-underline-offset: .25rem;}
+a {color: inherit; text-underline-offset: .2rem; text-decoration: none;}
+a:hover {text-decoration: underline; text-underline-offset: .25rem;}
 
 h1, h2, h3, h4, h5 {
     margin: 0;
@@ -132,4 +140,60 @@ ul>li {
     flex: 1;
     display: flex;
     justify-content: end;
+}
+
+#date-form {
+    width: fit-content;
+    margin-block: 0;
+    margin-inline: auto;
+    margin-top: 2rem;
+}
+
+#date-form button {
+    padding: 1rem;
+    border-radius: 2rem;
+    border: none;
+}
+
+#date-form label {
+    font-weight: bold;
+    text-align: center;
+}
+
+#date-form button:hover {
+    opacity: .8;
+    cursor: pointer;
+}
+
+#date-form input {
+    font-size: 1.333rem;
+    color: inherit;
+    background-color: inherit;
+    border: 2px solid white;
+    padding: .75rem;
+    border-radius: .5rem;
+}
+
+#year-input {
+    max-width: 6rem;
+}
+
+#month-input, #day-input {
+    max-width: 4.5rem;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.no-style {
+    list-style: none;
+}
+
+.ml-4 {
+    margin-left: 4rem;
+}
+
+#view-docs {
+    transform: scale(1.5);
 }

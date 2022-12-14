@@ -1,4 +1,4 @@
-<ul @if="not blank(months)">
+<ul @if="not blank(months)" class="no-style ml-4">
     <li @for="month, days in months.items()">
         <a href="/blog/{year}/{month}">
             <h4>{month_name(month)}</h4>

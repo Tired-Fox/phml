@@ -1,7 +1,8 @@
 from collections import OrderedDict
 import datetime
 from pathlib import Path
-from flask import Flask, url_for, abort
+from typing import Any, Optional
+from flask import Flask, url_for, abort, request
 from werkzeug import exceptions
 from phml import PHML, cmpt_name_from_path
 import re
@@ -10,7 +11,9 @@ app = Flask(__name__)
 
 phml = PHML()
 
-errors = {"404": "oops, it looks like the page you are trying to reach doesn't exist."}
+errors = {
+    "404": "oops, it looks like the page you are trying to reach doesn't exist.",
+}
 
 
 def construct_days(year: int, month: int) -> dict:
@@ -61,7 +64,20 @@ def month_num_to_name(month: int, long: bool = True) -> str:
 
 def get_components(phml: PHML):
     for path in Path("components/").glob("./**/*.phml"):
-        phml.add((cmpt_name_from_path(Path(path.as_posix().replace("components/", ""))), Path(path)))
+        phml.add(
+            (cmpt_name_from_path(Path(path.as_posix().replace("components/", ""))), Path(path))
+        )
+
+
+def str_or_blank(var: Any, expr: str) -> str:
+    return expr.format(var=var) if var is not None else ""
+
+
+def build_date(year: Optional[int], month: Optional[int], day: Optional[int]) -> str:
+    year = str_or_blank(year, ' {var}')
+    month = str_or_blank(month_num_to_name(month) if month is not None else None, '{var}')
+    day = str_or_blank(day, ' {var},')
+    return f"{month}{day}{year}"
 
 
 get_components(phml)
@@ -81,18 +97,20 @@ def home():
 
 
 @app.errorhandler(exceptions.NotFound)
+@app.errorhandler(exceptions.HTTPException)
 def page_not_found(error):
+    message = errors[str(error.code)] if str(error.code) in errors else error.description
     return (
         phml.load("error.phml").render(
-            error=error.code, name=error.name, message=errors[str(error.code)], url_for=url_for
+            error=error.code, name=error.name, message=message, url_for=url_for
         ),
-        404,
+        error.code,
     )
 
 
-blog_day = re.compile(r"blog\/\d{4}\/\d{1,2}\/\d{1,2}$")
-blog_month = re.compile(r"blog\/\d{4}\/\d{1,2}$")
-blog_year = re.compile(r"blog\/\d{4}$")
+re_day = re.compile(r"[a-z]+\/\d{4}\/\d{1,2}\/\d{1,2}$")
+re_month = re.compile(r"[a-z]+\/\d{4}\/\d{1,2}$")
+re_year = re.compile(r"[a-z]+\/\d{4}$")
 
 
 @app.route("/blog/<int:year>/<int:month>/<int:day>")
@@ -102,16 +120,12 @@ blog_year = re.compile(r"blog\/\d{4}$")
 def blog(year=None, month=None, day=None):
     get_components(phml)
     path = Path("blog")
-    if year is not None:
-        path = path.joinpath(str(year))
-        if month is not None:
-            path = path.joinpath(str(month))
-            if day is not None:
-                path = path.joinpath(str(day))
+
+    path = Path(f"blog{str_or_blank(year, '/{var}')}{str_or_blank(month, '/{var}')}{str_or_blank(day, '/{var}')}")
 
     if path.as_posix() == "blog":
         return phml.load("blog/index.phml").render(years=construct_years(), **global_vals)
-    elif blog_year.match(path.as_posix()) is not None:
+    elif re_year.match(path.as_posix()) is not None:
         if not path.is_dir():
             abort(404)
 
@@ -121,7 +135,7 @@ def blog(year=None, month=None, day=None):
             breadcrumbs=[("blog", url_for('blog')), year],
             **global_vals,
         )
-    elif blog_month.match(path.as_posix()) is not None:
+    elif re_month.match(path.as_posix()) is not None:
         if not path.is_dir():
             abort(404)
 
@@ -130,13 +144,13 @@ def blog(year=None, month=None, day=None):
             month=month,
             breadcrumbs=[
                 ("blog", url_for('blog')),
-                ("year", url_for('blog', year=year)),
+                (year, url_for('blog', year=year)),
                 month_num_to_name(month),
             ],
             days=construct_days(year, month),
             **global_vals,
         )
-    elif blog_day.match(path.as_posix()) is not None:
+    elif re_day.match(path.as_posix()) is not None:
         if not path.with_suffix(".phml").is_file():
             abort(404)
 
@@ -152,3 +166,17 @@ def blog(year=None, month=None, day=None):
         )
 
     abort(404)
+
+
+@app.route("/date", methods=["GET", "POST"])
+@app.route("/date/<int:year>")
+@app.route("/date/<int:year>/<int:month>")
+@app.route("/date/<int:year>/<int:month>/<int:day>")
+def date(year=None, month=None, day=None):
+    get_components(phml)
+    if request.method == "POST":
+        year = request.form.get('year', None)
+        month = request.form.get('month', None)
+        day = request.form.get('day', None)
+
+    return phml.load("date/index.phml").render(date=build_date(year, month, day), **global_vals)

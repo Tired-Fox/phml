@@ -19,6 +19,12 @@
             <p @if="not blank(message)">{message}</p>
             <p @if="not blank(info)">{info}</p>
         </div>
+        <div id="view-docs" class="flex justify-center">
+            <a href="https://tired-fox.github.io/phml/phml.html" title="Go to project documentation">
+                <img src="https://img.shields.io/badge/view-PHML_Documentation-blue?style=for-the-badge" alt="view - Documentation" />
+            </a>
+
+        </div>
     </body>
 
 </html>
