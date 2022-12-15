@@ -82,7 +82,7 @@ def build_date(year: Optional[int], month: Optional[int], day: Optional[int]) ->
 
 get_components(phml)
 
-phml.globals.update(url_for=url_for, month_name=month_num_to_name)
+phml.globals(url_for=url_for, month_name=month_num_to_name)
 
 
 @app.route("/")

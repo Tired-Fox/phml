@@ -8,6 +8,7 @@ from __future__ import annotations
 import ast
 from html import escape
 from re import finditer, sub
+import sys
 from typing import Any, Optional
 
 from .built_in import built_in_funcs, built_in_types
@@ -25,11 +26,11 @@ class VirtualPython:
         self,
         content: Optional[str] = None,
         imports: Optional[list] = None,
-        local_env: Optional[dict] = None,
+        exposable: Optional[dict] = None,
     ):
         self.content = content or ""
         self.imports = imports or []
-        self.locals = local_env or {}
+        self.exposable = exposable or {}
 
         if self.content != "":
             self.__normalize_indent()
@@ -42,7 +43,10 @@ class VirtualPython:
                     self.imports.append(Import.from_node(node))
 
             # Retreive locals from content
-            exec(self.content, globals(), self.locals)  # pylint: disable=exec-used
+            local_env = {}
+            global_env = {**self.exposable, **globals()}
+            exec(self.content, global_env, local_env)  # pylint: disable=exec-used
+            self.exposable.update(local_env)
 
     def __normalize_indent(self):
         self.content = self.content.split("\n")
@@ -52,15 +56,15 @@ class VirtualPython:
         self.content = joiner.join(lines)
 
     def __add__(self, obj: VirtualPython) -> VirtualPython:
-        local_env = {**self.locals}
-        local_env.update(obj.locals)
+        local_env = {**self.exposable}
+        local_env.update(obj.exposable)
         return VirtualPython(
             imports=[*self.imports, *obj.imports],
-            local_env=local_env,
+            exposable=local_env,
         )
 
     def __repr__(self) -> str:
-        return f"VP(imports: {len(self.imports)}, locals: {len(self.locals.keys())})"
+        return f"VP(imports: {len(self.imports)}, locals: {len(self.exposable.keys())})"
 
 
 def parse_ast_assign(vals: list[ast.Name | tuple[ast.Name]]) -> list[str]:
@@ -138,8 +142,9 @@ def get_vp_result(expr: str, **kwargs) -> Any:
 
     try:
         source = compile(expression, expr, "exec")
-        exec(source, globals(), kwargs)  # pylint: disable=exec-used
-        return kwargs[result] if result in kwargs else None
+        local_env = {}
+        exec(source, {**kwargs, **globals()}, local_env)  # pylint: disable=exec-used
+        return local_env[result] if result in local_env else None
     except Exception as exception:  # pylint: disable=broad-except
         from teddecor import TED  # pylint: disable=import-outside-toplevel
 
@@ -207,7 +212,7 @@ def process_vp_blocks(pvb_value: str, virtual_python: VirtualPython, **kwargs) -
         exec(str(imp))  # pylint: disable=exec-used
 
     expressions = extract_expressions(pvb_value)
-    kwargs.update(virtual_python.locals)
+    kwargs.update(virtual_python.exposable)
     if expressions is not None:
         for expr in expressions:
             result = get_vp_result(expr, **kwargs)

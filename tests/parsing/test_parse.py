@@ -33,8 +33,8 @@ class TestParse:
     def core_init(self):
         cmpt = AST(p(p("div", "Hello World!")))
         self.phml = PHML(["../dir/"], {"test-cmpt": parse_component(cmpt)})
-        assert self.phml.scopes == ["../dir/"]
-        assert "test-cmpt" in self.phml.compiler.components
+        assert self.phml._scopes == ["../dir/"]
+        assert "test-cmpt" in self.phml._compiler.components
 
     def imports(self):
         self.phml.ast = AST(p(p("python", "import pprint\nfrom time import time")))

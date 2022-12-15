@@ -28,7 +28,7 @@ class TestCompile:
             self.compiler.compile()
 
         self.phml.ast = asts["phml"]
-        self.phml.scopes = ["../"]
+        self.phml._scopes = ["../"]
         assert self.phml.ast == asts["phml"]
 
         assert all(
@@ -120,9 +120,9 @@ class TestCompile:
 
         assert "component" in self.compiler.components
         assert "cmpt" in self.compiler.components
-        assert "component" in self.phml.compiler.components
-        assert "cmpt" in self.phml.compiler.components
-        self.compiler.compile(ast=ast)
+        assert "component" in self.phml._compiler.components
+        assert "cmpt" in self.phml._compiler.components
+        self.compiler.compile(_ast=ast)
 
     def test_remove_component(self):
         cmpt = AST(p(p("div", "Hello World!")))
@@ -138,13 +138,13 @@ class TestCompile:
         assert "cmpt" not in self.compiler.components
 
         self.phml.remove(p("div", "Hello World!"))
-        assert "cmpt" not in self.phml.compiler.components
+        assert "cmpt" not in self.phml._compiler.components
         self.phml.remove("component")
-        assert "component" not in self.phml.compiler.components
+        assert "component" not in self.phml._compiler.components
 
     def scopes(self, tmp_path):
         self.phml.ast = AST(p(p("div")))
-        self.phml.scopes = ["../dir/"]
+        self.phml._scopes = ["../dir/"]
         self.phml.render(scopes=["./"])
         file = tmp_path / "temp.txt"
         self.phml.write(file, scopes=["./"])

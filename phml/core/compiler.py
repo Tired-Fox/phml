@@ -4,6 +4,8 @@ The heavy lifting module that compiles phml ast's to different string/file forma
 """
 
 from typing import Any, Optional
+import os
+import sys
 
 from phml.core.formats import Format, Formats
 from phml.core.formats.compile import *  # pylint: disable=unused-wildcard-import
@@ -23,10 +25,10 @@ class Compiler:
 
     def __init__(
         self,
-        ast: Optional[AST] = None,
+        _ast: Optional[AST] = None,
         components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
     ):
-        self.ast = ast
+        self.ast = _ast
         self.components = components or {}
 
     def add(
@@ -68,6 +70,17 @@ class Compiler:
 
         return self
 
+    def __construct_scope_path(self, scope: str) -> list[str]:
+        """Get the individual sub directories to to the scopes path."""
+        sub_dirs = scope.lstrip(".").lstrip("/")
+        sub_dirs = [sub_dir for sub_dir in os.path.split(sub_dirs) if sub_dir.strip() != ""]
+        path = []
+        for sub_dir in sub_dirs:
+            if sub_dir in ["*", "**"]:
+                raise Exception(f"Can not use wildcards in scopes: {scope}")
+            path.append(sub_dir)
+        return path
+
     def remove(self, *components: str | All_Nodes):
         """Takes either component names or components and removes them
         from the dictionary.
@@ -92,7 +105,7 @@ class Compiler:
 
     def compile(
         self,
-        ast: Optional[AST] = None,
+        _ast: Optional[AST] = None,
         to_format: Format = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
@@ -101,18 +114,22 @@ class Compiler:
     ) -> str:
         """Execute compilation to a different format."""
 
-        ast = ast or self.ast
+        _ast = _ast or self.ast
 
-        if ast is None:
+        if _ast is None:
             raise Exception("Must provide an ast to compile")
 
         # Insert the scopes into the path
         scopes = scopes or ["./"]
         if scopes is not None:
-            from sys import path  # pylint: disable=import-outside-toplevel
 
             for scope in scopes:
-                path.insert(0, scope)
+                sys.path.append(
+                    os.path.join(
+                        sys.path[0],
+                        *self.__construct_scope_path(scope),
+                    )
+                )
 
         # Depending on the format parse with the appropriate function
-        return to_format.compile(ast, self.components, indent, safe_vars=safe_vars, **kwargs)
+        return to_format.compile(_ast, self.components, indent, safe_vars=safe_vars, **kwargs)

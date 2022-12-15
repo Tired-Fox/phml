@@ -157,7 +157,7 @@ def __process_props(child: Element, virtual_python: VirtualPython, local_vars: d
 
     for prop in child.properties:
         if prop.startswith((ATTR_PREFIX, "py-")):
-            local_env = {**virtual_python.locals}
+            local_env = {**virtual_python.exposable}
             local_env.update(local_vars)
             new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_vp_result(
                 child[prop], **local_env
@@ -311,7 +311,7 @@ def execute_conditions(
     previous = (f"{CONDITION_PREFIX}for", True)
 
     # Add the python blocks locals to kwargs dict
-    kwargs.update(virtual_python.locals)
+    kwargs.update(virtual_python.exposable)
 
     # Bring python blocks imports into scope
     for imp in virtual_python.imports:
@@ -452,7 +452,7 @@ def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> li
         for item in sub(
             r"\s+",
             " ",
-            match(r"(for )?(.*)in", for_loop).group(2),
+            match(r"(for )?(.*)(?<= )in(?= )", for_loop).group(2),
         ).split(",")
     ]
 
@@ -489,16 +489,23 @@ for {for_loop}:
         "insert": insert,
         "child": child,
         "local_vals": clocals,
-        **kwargs,
-        **clocals,
     }
 
-    # Execute dynamic for loop
-    exec(  # pylint: disable=exec-used
-        for_loop,
-        globals(),
-        local_env,
-    )
+    try:
+        # Execute dynamic for loop
+        exec(  # pylint: disable=exec-used
+            for_loop,
+            {
+                **kwargs,
+                **clocals,
+                **globals(),
+            },
+            local_env,
+        )
+    except Exception as exception:
+        from teddecor import TED
+        new_line = "\n"
+        TED.print(f"[@F red]*Error[@]: {TED.encode(str(exception))} [@F yellow]|[@] {TED.encode(for_loop.split(new_line)[1].replace('for', '').replace(':', '')).replace(' in ', '[@F green] in [@]')}")
 
     # Return the new complete list of children after generation
     return local_env["children"]

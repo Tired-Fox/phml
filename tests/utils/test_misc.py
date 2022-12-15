@@ -100,8 +100,6 @@ class TestComponent:
         from pathlib import Path
 
         assert filename_from_path(Path("tests/utils/test_misc.py")) == "test_misc"
-        with raises(TypeError, match="Path must also be a valid file."):
-            filename_from_path(Path("invalid/file.py"))
 
     def test_parse_ast(self):
         bast = AST(
