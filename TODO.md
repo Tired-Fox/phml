@@ -1,8 +1,6 @@
 # TODO
 
 - [ ] Optimize Component styles and script tags to avoid duplication
-- [ ] Ability to use flask???
-  - Adapt flask to work with phml or think about new project?
 
 - [x] Code safe escaping
   - All string values passed in are escaped
@@ -13,3 +11,4 @@
   - XML support
   - Seperate format classes and base class
 - [x] Refine component system
+- [x] Ability to use flask

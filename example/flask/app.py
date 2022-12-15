@@ -82,18 +82,13 @@ def build_date(year: Optional[int], month: Optional[int], day: Optional[int]) ->
 
 get_components(phml)
 
-global_vals = {
-    "url_for": url_for,
-    "month_name": month_num_to_name,
-}
+phml.globals.update(url_for=url_for, month_name=month_num_to_name)
 
 
 @app.route("/")
 def home():
     get_components(phml)
-    return phml.load("home.phml").render(
-        message="Welcome to my test of using phml with flask!", **global_vals
-    )
+    return phml.load("home.phml").render( message="Welcome to my test of using phml with flask!")
 
 
 @app.errorhandler(exceptions.NotFound)
@@ -124,7 +119,7 @@ def blog(year=None, month=None, day=None):
     path = Path(f"blog{str_or_blank(year, '/{var}')}{str_or_blank(month, '/{var}')}{str_or_blank(day, '/{var}')}")
 
     if path.as_posix() == "blog":
-        return phml.load("blog/index.phml").render(years=construct_years(), **global_vals)
+        return phml.load("blog/index.phml").render(years=construct_years())
     elif re_year.match(path.as_posix()) is not None:
         if not path.is_dir():
             abort(404)
@@ -133,7 +128,6 @@ def blog(year=None, month=None, day=None):
             months=construct_months(year),
             year=year,
             breadcrumbs=[("blog", url_for('blog')), year],
-            **global_vals,
         )
     elif re_month.match(path.as_posix()) is not None:
         if not path.is_dir():
@@ -148,7 +142,6 @@ def blog(year=None, month=None, day=None):
                 month_num_to_name(month),
             ],
             days=construct_days(year, month),
-            **global_vals,
         )
     elif re_day.match(path.as_posix()) is not None:
         if not path.with_suffix(".phml").is_file():
@@ -156,7 +149,6 @@ def blog(year=None, month=None, day=None):
 
         return phml.load(path.with_suffix(".phml")).render(
             date=f"{day}/{month}/{year}",
-            **global_vals,
             breadcrumbs=[
                 ("blog", url_for('blog')),
                 (year, url_for('blog', year=year)),
@@ -179,4 +171,4 @@ def date(year=None, month=None, day=None):
         month = request.form.get('month', None)
         day = request.form.get('day', None)
 
-    return phml.load("date/index.phml").render(date=build_date(year, month, day), **global_vals)
+    return phml.load("date/index.phml").render(date=build_date(year, month, day))

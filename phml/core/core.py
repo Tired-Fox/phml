@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from phml.core.formats import Format, Formats
 from phml.core.nodes import AST, All_Nodes
@@ -26,6 +26,8 @@ class PHML:
     """List of paths from cwd to auto add to python path. This helps with
     importing inside of phml files.
     """
+    globals: list[Any]
+    """List of all objects you want to be global. This can be methods, classes, variables, etc..."""
 
     @property
     def ast(self) -> AST:
@@ -44,6 +46,7 @@ class PHML:
         self.parser = Parser()
         self.compiler = Compiler(components=components)
         self.scopes = scopes or []
+        self.globals = {}
 
     def add(
         self,
@@ -75,7 +78,9 @@ class PHML:
         for component in components:
             if isinstance(component, Path):
                 self.parser.load(component)
-                self.compiler.add((cmpt_name_from_path(component), parse_component(self.parser.ast)))
+                self.compiler.add(
+                    (cmpt_name_from_path(component), parse_component(self.parser.ast))
+                )
             elif isinstance(component, tuple) and isinstance(component[1], Path):
                 self.parser.load(component[1])
                 self.compiler.add((component[0], parse_component(self.parser.ast)))
@@ -140,6 +145,7 @@ class PHML:
             to_format=file_type,
             indent=indent,
             scopes=scopes,
+            **self.globals,
             **kwargs,
         )
 
