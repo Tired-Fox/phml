@@ -133,6 +133,7 @@ def replace_node(
     start: Root | Element,
     condition: Test,
     replacement: Optional[All_Nodes | list[All_Nodes]],
+    all_nodes: bool = False,
     strict: bool = True,
 ):
     """Search for a specific node in the tree and replace it with either
@@ -161,6 +162,9 @@ def replace_node(
                     parent.children.pop(idx)
                     if len(parent.children) == 0 and isinstance(parent, Element):
                         parent.startend = True
+
+            if not all_nodes:
+                break
 
 
 def find_and_replace(start: Root | Element, *replacements: tuple[str, str | Callable]) -> int:

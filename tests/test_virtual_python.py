@@ -36,6 +36,8 @@ results=message\
     assert get_vp_result("cow") is None
     assert get_vp_result("cow\nresult=dog") is None
 
+    get_vp_result("invalid('call')", cat=None)
+
 
 def test_process_vp_blocks():
     vp = VirtualPython()

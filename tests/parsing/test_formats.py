@@ -71,6 +71,8 @@ def test_html_format():
 prevous sibling.+",
     ):
         Formats.HTML.compile(AST(p(p("div", {"@else": True}))))
+        
+    assert Formats.HTML.suffix() == ".html"
 
 
 test_dict = {

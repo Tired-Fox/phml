@@ -7,7 +7,7 @@ __all__ = [
     "filename_from_path",
     "parse_component",
     "valid_component_dict",
-    "cmpt_name_from_path"
+    "cmpt_name_from_path",
 ]
 
 

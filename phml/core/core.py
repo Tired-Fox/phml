@@ -66,7 +66,8 @@ class PHML:
         self,
         *components: dict[str, dict[str, list | All_Nodes] | AST]
         | tuple[str, dict[str, list | All_Nodes] | AST]
-        | Path,
+        | Path
+        | str,
     ):
         """Add a component to the element replacement list.
 
@@ -90,13 +91,13 @@ class PHML:
         """
 
         for component in components:
-            if isinstance(component, Path):
-                self._parser.load(component)
+            if isinstance(component, (Path, str)):
+                self._parser.load(Path(component))
                 self._compiler.add(
-                    (cmpt_name_from_path(component), parse_component(self._parser.ast))
+                    (cmpt_name_from_path(Path(component)), parse_component(self._parser.ast))
                 )
-            elif isinstance(component, tuple) and isinstance(component[1], Path):
-                self._parser.load(component[1])
+            elif isinstance(component, tuple) and isinstance(component[1], (Path, str)):
+                self._parser.load(Path(component[1]))
                 self._compiler.add((component[0], parse_component(self._parser.ast)))
             else:
                 self._compiler.add(component)
@@ -149,7 +150,7 @@ class PHML:
             str: The rendered content in the appropriate format.
         """
 
-        scopes = scopes or ["./"]
+        scopes = scopes or []
         for scope in self._scopes:
             if scope not in scopes:
                 scopes.append(scope)

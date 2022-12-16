@@ -28,7 +28,6 @@ class TestCompile:
             self.compiler.compile()
 
         self.phml.ast = asts["phml"]
-        self.phml._scopes = ["../"]
         assert self.phml.ast == asts["phml"]
 
         assert all(
@@ -71,12 +70,22 @@ class TestCompile:
             )
         )
         
+        self.phml.ast = AST(p(p("html"), p("body", p("div", {"py-for": "name in invalid"}))))
+        self.phml.render()
+        
+        self.phml.add(("message", AST(p(p("div", "Hello World!"), p("style", "    div{color:black;}")))))
+        self.phml.ast = AST(p(p("html", p("style", "    body{margin:auto;}"), p("message"))))
+        assert self.phml.render() == "<!DOCTYPE html>\n<html>\n    <style>\n    body{margin:auto;}\n\n    div{color:black;}\n    </style>\n    <div>Hello World!</div>\n</html>"
+        self.phml.remove("message")
+
     def test_var_escaping(self):
         start = AST(p(p("div", "{content}")))
         content = "<script src='external.com'></script>"
-        escaped_result = "<!DOCTYPE html>\n<div>&lt;script src='external.com'&gt;&lt;/script&gt;</div>"
+        escaped_result = (
+            "<!DOCTYPE html>\n<div>&lt;script src='external.com'&gt;&lt;/script&gt;</div>"
+        )
         normal_result = "<!DOCTYPE html>\n<div><script src='external.com'></script></div>"
-        
+
         assert self.compiler.compile(start, content=content) == escaped_result
         assert self.compiler.compile(start, content=content, safe_vars=True) == normal_result
 
@@ -115,7 +124,7 @@ class TestCompile:
 
         self.compiler.add({"component": cmpt}, ("cmpt", cmpt))
         self.compiler.add({"component": parse_component(cmpt)}, ("cmpt", parse_component(cmpt)))
-        self.phml.add({"component": cmpt}, ("cmpt", cmpt))
+        self.phml.add({"component": cmpt}, ("cmpt", cmpt), ("cmpt", "tests/component.phml"))
         self.phml.add(Path("tests/component.phml"))
 
         assert "component" in self.compiler.components
@@ -142,12 +151,38 @@ class TestCompile:
         self.phml.remove("component")
         assert "component" not in self.phml._compiler.components
 
-    def scopes(self, tmp_path):
+    def test_scopes(self, tmp_path):
         self.phml.ast = AST(p(p("div")))
-        self.phml._scopes = ["../dir/"]
+
+        self.phml.expand("dir/sub_path")
+
         self.phml.render(scopes=["./"])
         file = tmp_path / "temp.txt"
         self.phml.write(file, scopes=["./"])
+        
+        with raises(Exception, match="Can not use wildcards in scopes: .+"):
+            self.phml.render(scopes=["./*"])
+        
+        with raises(Exception, match="Can not use wildcards in scopes: .+"):
+            self.phml.render(scopes=["./**/*"])
+            
+    def test_expose(self):
+        self.phml.expose(message="Hello World!")
+        assert "message" in self.phml._exposable
+    
+    def test_redact(self):
+        self.phml.redact("message")
+        assert "message" not in self.phml._exposable
+    
+    def test_expand(self):
+        self.phml._scopes = []
+        self.phml.expand("dir")
+        assert self.phml._scopes == ["dir"]
+    
+    def test_restrict(self):
+        self.phml._scopes = ["dir"]
+        self.phml.restrict("dir")
+        assert self.phml._scopes == []
 
     def compiler_no_ast_or_doctype(self):
         self.compiler.ast = None

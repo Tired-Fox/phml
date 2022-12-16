@@ -1,0 +1,17 @@
+<div class="alert">
+    {alert or backup_alert}
+</div>
+
+<python>
+    backup_alert="Backup alert"
+</python>
+<script>
+    const backupAlert = 'Backup alert';
+</script>
+<style>
+    .alert {
+        border: 1px solid red;
+        margin-block: 1rem;
+        padding: 1rem;
+    }
+</style>

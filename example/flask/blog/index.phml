@@ -8,15 +8,6 @@
         <link rel="stylesheet" href="{url_for('static', filename='style.css')}">
         <title>Blog</title>
     </head>
-    <style>
-        ul a {
-            text-decoration: none;
-        }
-
-        ul a:hover {
-            text-decoration: underline;
-        }
-    </style>
 
     <body>
         <header />
@@ -29,3 +20,12 @@
     </body>
 
 </html>
+<style>
+    ul a {
+        text-decoration: none;
+    }
+
+    ul a:hover {
+        text-decoration: underline;
+    }
+</style>

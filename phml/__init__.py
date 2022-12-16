@@ -133,4 +133,4 @@ from typing import Callable, Optional
 from .core import AST, PHML, All_Nodes, Compiler, Format, Formats, Parser
 from .utilities import *
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"

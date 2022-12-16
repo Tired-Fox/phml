@@ -8,7 +8,6 @@ from __future__ import annotations
 import ast
 from html import escape
 from re import finditer, sub
-import sys
 from typing import Any, Optional
 
 from .built_in import built_in_funcs, built_in_types
@@ -33,8 +32,9 @@ class VirtualPython:
         self.exposable = exposable or {}
 
         if self.content != "":
-            self.__normalize_indent()
+            from phml.utilities import normalize_indent  # pylint: disable=import-outside-toplevel
 
+            self.content = normalize_indent(content)
             # Extract imports from content
             for node in ast.parse(self.content).body:
                 if isinstance(node, ast.ImportFrom):
@@ -47,13 +47,6 @@ class VirtualPython:
             global_env = {**self.exposable, **globals()}
             exec(self.content, global_env, local_env)  # pylint: disable=exec-used
             self.exposable.update(local_env)
-
-    def __normalize_indent(self):
-        self.content = self.content.split("\n")
-        offset = len(self.content[0]) - len(self.content[0].lstrip())
-        lines = [line[offset:] for line in self.content]
-        joiner = "\n"
-        self.content = joiner.join(lines)
 
     def __add__(self, obj: VirtualPython) -> VirtualPython:
         local_env = {**self.exposable}
@@ -91,7 +84,7 @@ def __validate_kwargs(
     all string kwargs for injected html.
     """
     excludes = excludes or []
-    exclude_list = {**built_in_funcs, **built_in_types}
+    exclude_list = [*built_in_funcs, *built_in_types]
 
     for var in [
         name.id  # Add the non built-in missing variable or method as none to kwargs
@@ -183,12 +176,7 @@ def extract_expressions(data: str) -> str:
     for expression in finditer(r"\{[^}]+\}", data):
         expression = expression.group().lstrip("{").rstrip("}")
         expression = [expr for expr in expression.split("\n") if expr.strip() != ""]
-        if len(expression) > 1:
-            offset = len(expression[0]) - len(expression[0].lstrip())
-            lines = [line[offset:] for line in expression]
-            results.append("\n".join(lines))
-        else:
-            results.append(expression[0])
+        results.append(expression[0])
 
     return results
 

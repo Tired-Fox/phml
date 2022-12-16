@@ -1,0 +1,16 @@
+<div class="message">
+    {message or backup_message}
+</div>
+<python>
+    backup_message="Backup message"
+</python>
+<script>
+    const backupMessage = 'Backup message'
+</script>
+<style>
+    .message {
+        border: 1px solid blue;
+        margin-block: 1rem;
+        padding: 1rem;
+    }
+</style>

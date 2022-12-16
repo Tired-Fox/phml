@@ -3,9 +3,10 @@
 The heavy lifting module that compiles phml ast's to different string/file formats.
 """
 
-from typing import Any, Optional
 import os
 import sys
+from re import sub
+from typing import Any, Optional
 
 from phml.core.formats import Format, Formats
 from phml.core.formats.compile import *  # pylint: disable=unused-wildcard-import
@@ -72,7 +73,7 @@ class Compiler:
 
     def __construct_scope_path(self, scope: str) -> list[str]:
         """Get the individual sub directories to to the scopes path."""
-        sub_dirs = scope.lstrip(".").lstrip("/")
+        sub_dirs = sub(r"(\.+\/?)+", "", scope)
         sub_dirs = [sub_dir for sub_dir in os.path.split(sub_dirs) if sub_dir.strip() != ""]
         path = []
         for sub_dir in sub_dirs:

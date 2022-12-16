@@ -104,7 +104,7 @@ def get_test_results(command: str) -> tuple[int, int, int]:
             stmnt, missed, covered = search(r"TOTAL\s+(\d+)\s+(\d+)\s+(\d+)%", line).groups()
             covered = int(covered)
         elif search(r"(failed|passed)", line) is not None:
-            for status in finditer(r"\s(\d{1,})\s([a-z]+),?", line):
+            for status in finditer(r"\s(\d{1,})\s(?!warning)([a-z]+),?", line):
                 count, condition = status.groups()
                 if condition == "passed":
                     passed = int(count)

@@ -5,11 +5,18 @@ from __future__ import annotations
 from copy import deepcopy
 from re import match, search, sub
 from typing import Optional
-import ast
 
-from phml.core.nodes import AST, All_Nodes, DocType, Element, Root
+from phml.core.nodes import AST, All_Nodes, DocType, Element, Root, Text
 from phml.core.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
-from phml.utilities import check, find, find_all, replace_node, visit_children
+from phml.utilities import (
+    check,
+    find,
+    find_all,
+    normalize_indent,
+    offset,
+    replace_node,
+    visit_children,
+)
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
 CONDITION_PREFIX = "@"
@@ -91,6 +98,8 @@ def replace_components(
     if isinstance(node, AST):
         node = node.tree
 
+    used_components = {}
+
     def find_next():
         for name, value in components.items():
             curr_node = find(node, ["element", {"tag": name}])
@@ -100,6 +109,9 @@ def replace_components(
 
     curr_node, value = find_next()
     while curr_node is not None:
+        if curr_node.tag not in used_components:
+            used_components[curr_node.tag] = value
+
         new_props = {}
 
         # Retain conditional properties
@@ -120,18 +132,62 @@ def replace_components(
         # Replace the component
         idx = curr_node.parent.children.index(curr_node)
         curr_node.parent.children = (
-            curr_node.parent.children[:idx]
-            + [
-                *components[curr_node.tag]["python"],
-                *components[curr_node.tag]["script"],
-                *components[curr_node.tag]["style"],
-                rnode,
-            ]
-            + curr_node.parent.children[idx + 1 :]
+            curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
         )
 
         # Find the next node that is of the current component.
         curr_node, value = find_next()
+
+    # Combine style, script, and python tags
+    __add_component_elements(node, used_components, "style")
+    __add_component_elements(node, used_components, "python")
+    __add_component_elements(node, used_components, "script")
+
+
+def __add_component_elements(node, used_components: dict, tag: str):
+    if find(node, {"tag": tag}) is not None:
+        new_elements = __retrieve_component_elements(used_components, tag)
+        if len(new_elements) > 0:
+            replace_node(
+                node,
+                {"tag": tag},
+                __combine_component_elements(
+                    [
+                        find(node, {"tag": tag}),
+                        *new_elements,
+                    ],
+                    tag,
+                ),
+            )
+    else:
+        new_element = __combine_component_elements(
+            __retrieve_component_elements(used_components, tag),
+            tag,
+        )
+        if new_element.children[0].value.strip() != "":
+            node.append(new_element)
+
+
+def __combine_component_elements(elements: list[Element], tag: str) -> Element:
+    values = []
+
+    indent = -1
+    for element in elements:
+        if len(element.children) == 1 and isinstance(element.children[0], Text):
+            # normalize values
+            if indent == -1:
+                indent = offset(element.children[0].value)
+            values.append(normalize_indent(element.children[0].value, indent))
+
+    return Element(tag, children=[Text("\n\n".join(values))])
+
+
+def __retrieve_component_elements(collection: dict, element: str) -> list[Element]:
+    result = []
+    for value in collection.values():
+        if element in value:
+            result.extend(value[element])
+    return result
 
 
 def apply_conditions(node: Root | Element | AST, virtual_python: VirtualPython, **kwargs):
@@ -191,7 +247,11 @@ def apply_python(
         for child in node.children:
             if check(child, "element"):
                 if "children" in child.locals.keys():
-                    replace_node(child, ["element", {"tag": "slot"}], child.locals["children"])
+                    replace_node(
+                        child,
+                        ["element", {"tag": "slot"}],
+                        child.locals["children"],
+                    )
 
                 local_vars = {**local_env}
                 local_vars.update(child.locals)
@@ -502,10 +562,19 @@ for {for_loop}:
             },
             local_env,
         )
-    except Exception as exception:
-        from teddecor import TED
+    except Exception as exception:  # pylint: disable=broad-except
+        from teddecor import TED  # pylint: disable=import-outside-toplevel
+
         new_line = "\n"
-        TED.print(f"[@F red]*Error[@]: {TED.encode(str(exception))} [@F yellow]|[@] {TED.encode(for_loop.split(new_line)[1].replace('for', '').replace(':', '')).replace(' in ', '[@F green] in [@]')}")
+        TED.print(
+            f"""[@F red]*Error[@]: {TED.encode(str(exception))} [@F yellow]|[@] \
+{
+    TED.encode(for_loop.split(new_line)[1]
+    .replace('for', '')
+    .replace(':', ''))
+    .replace(' in ', '[@F green] in [@]')
+}"""
+        )
 
     # Return the new complete list of children after generation
     return local_env["children"]
@@ -514,14 +583,14 @@ for {for_loop}:
 class ToML:
     """Compiles an ast to a hypertext markup language. Compiles to a tag based string."""
 
-    def __init__(self, ast: Optional[AST] = None, offset: int = 4):
+    def __init__(self, ast: Optional[AST] = None, _offset: int = 4):
         self.ast = ast
-        self.offset = offset
+        self.offset = _offset
 
     def compile(
         self,
         ast: Optional[AST] = None,
-        offset: Optional[int] = None,
+        _offset: Optional[int] = None,
         include_doctype: bool = True,
     ) -> str:
         """Compile an ast to html.
@@ -547,7 +616,7 @@ class ToML:
             if len(doctypes) == 0:
                 ast.tree.children.insert(0, DocType(parent=ast.tree))
 
-        self.offset = offset or self.offset
+        self.offset = _offset or self.offset
         lines = self.__compile_children(ast.tree)
         return "\n".join(lines)
 

@@ -29,7 +29,6 @@ class TestExtract:
         assert to_string(p("<!--The Day-->")) == "The Day"
         assert to_string(p("doctype")) is None
 
-
 class TestTransform:
     """Test the phml.utils.transform.transform module"""
 
@@ -178,16 +177,16 @@ class TestTransform:
         root = p("body", p("container", p("div", "hello world")), p("div"))
         replace_node(root, {"tag": "div"}, p("span", "Replacement"))
 
-        assert root == p("body", p("container", p("span", "Replacement")), p("span", "Replacement"))
+        assert root == p("body", p("container", p("span", "Replacement")), p("div"))
 
         root = p("body", p("container", p("div", "hello world")), p("div"))
-        replace_node(root, {"tag": "div"}, None)
+        replace_node(root, {"tag": "div"}, None, all_nodes=True)
 
         assert root == p("body", p("container"))
 
     def test_modify_children(self):
         @modify_children
-        def div_to_span(node, idx, parent):
+        def div_to_span(node=None, idx=None, parent=None):
             if node.type == "element" and node.tag == "div":
                 return p("span", node.properties, *node.children)
             return node
