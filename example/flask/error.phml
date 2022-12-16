@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{url_for('static', filename='style.css')}">
+        <title>Error {error}</title>
+    </head>
+    <style>
+        #error-code {
+            color: #E94560;
+        }
+    </style>
+    <body>
+        <div class="flex flex-col items-center justify-center h-100">
+            <h1><span id="error-code">{error}</span> {name}</h1>
+            <p>{message}</p>
+            <a class="mt-2" href="{url_for('home')}">Back to Home</a>
+        </div>
+    </body>
+
+</html>

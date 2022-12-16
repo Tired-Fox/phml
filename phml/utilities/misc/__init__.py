@@ -46,3 +46,9 @@ def size(node: Root | Element) -> int:
         count += 1
 
     return count
+
+
+def offset(content: str | list[str]) -> int:
+    """Get the leading offset of the first line of the string."""
+    content = content.split("\n") if isinstance(content, str) else content
+    return len(content[0]) - len(content[0].lstrip())

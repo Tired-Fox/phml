@@ -28,7 +28,7 @@ build_docs:
 	pdoc $(PROJECT) -d google -o docs/
 
 badges:
-	python3 scripts/make_badges.py
+	python3 make_badges.py
 
 build:
 	make badges

@@ -6,9 +6,17 @@ from copy import deepcopy
 from re import match, search, sub
 from typing import Optional
 
-from phml.core.nodes import AST, All_Nodes, DocType, Element, Root
+from phml.core.nodes import AST, All_Nodes, DocType, Element, Root, Text
 from phml.core.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
-from phml.utilities import check, find, find_all, replace_node, visit_children
+from phml.utilities import (
+    check,
+    find,
+    find_all,
+    normalize_indent,
+    offset,
+    replace_node,
+    visit_children,
+)
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
 CONDITION_PREFIX = "@"
@@ -90,57 +98,96 @@ def replace_components(
     if isinstance(node, AST):
         node = node.tree
 
-    for name, value in components.items():
-        curr_node = find(node, ["element", {"tag": name}])
-        while curr_node is not None:
-            new_props = {}
+    used_components = {}
 
-            # Retain conditional properties
-            condition = py_condition(curr_node)
-            if condition is not None:
-                new_props[condition] = curr_node[condition]
-                del curr_node[condition]
-
-            # Generate and process the props
-            props = __process_props(curr_node, virtual_python, kwargs)
-            props["children"] = curr_node.children
-
-            # Create a duplicate of the component and assign values
-            rnode = deepcopy(value["component"])
-            rnode.locals.update(props)
-            rnode.parent = curr_node.parent
-
-            # Replace the component
-            idx = curr_node.parent.children.index(curr_node)
-            curr_node.parent.children = (
-                curr_node.parent.children[:idx]
-                + [
-                    *components[curr_node.tag]["python"],
-                    *components[curr_node.tag]["script"],
-                    *components[curr_node.tag]["style"],
-                    rnode,
-                ]
-                + curr_node.parent.children[idx + 1 :]
-            )
-
-            # Find the next node that is of the current component.
+    def find_next():
+        for name, value in components.items():
             curr_node = find(node, ["element", {"tag": name}])
+            if curr_node is not None:
+                return curr_node, value
+        return None, None
+
+    curr_node, value = find_next()
+    while curr_node is not None:
+        if curr_node.tag not in used_components:
+            used_components[curr_node.tag] = value
+
+        new_props = {}
+
+        # Retain conditional properties
+        condition = py_condition(curr_node)
+        if condition is not None:
+            new_props[condition] = curr_node[condition]
+            del curr_node[condition]
+
+        # Generate and process the props
+        props = __process_props(curr_node, virtual_python, kwargs)
+        props["children"] = curr_node.children
+
+        # Create a duplicate of the component and assign values
+        rnode = deepcopy(value["component"])
+        rnode.locals.update(props)
+        rnode.parent = curr_node.parent
+
+        # Replace the component
+        idx = curr_node.parent.children.index(curr_node)
+        curr_node.parent.children = (
+            curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
+        )
+
+        # Find the next node that is of the current component.
+        curr_node, value = find_next()
+
+    # Combine style, script, and python tags
+    __add_component_elements(node, used_components, "style")
+    __add_component_elements(node, used_components, "python")
+    __add_component_elements(node, used_components, "script")
 
 
-# def __has_py_condition(node: Element) -> Optional[tuple[str, str]]:
-#     for cond in [
-#         "py-for",
-#         "py-if",
-#         "py-elif",
-#         "py-else",
-#         f"{CONDITION_PREFIX}if",
-#         f"{CONDITION_PREFIX}elif",
-#         f"{CONDITION_PREFIX}else",
-#         f"{CONDITION_PREFIX}for",
-#     ]:
-#         if cond in node.properties.keys():
-#             return (cond, node[cond])
-#     return None
+def __add_component_elements(node, used_components: dict, tag: str):
+    if find(node, {"tag": tag}) is not None:
+        new_elements = __retrieve_component_elements(used_components, tag)
+        if len(new_elements) > 0:
+            replace_node(
+                node,
+                {"tag": tag},
+                __combine_component_elements(
+                    [
+                        find(node, {"tag": tag}),
+                        *new_elements,
+                    ],
+                    tag,
+                ),
+            )
+    else:
+        new_element = __combine_component_elements(
+            __retrieve_component_elements(used_components, tag),
+            tag,
+        )
+        if new_element.children[0].value.strip() != "":
+            node.append(new_element)
+
+
+def __combine_component_elements(elements: list[Element], tag: str) -> Element:
+    values = []
+
+    indent = -1
+    for element in elements:
+        if len(element.children) == 1 and isinstance(element.children[0], Text):
+            # normalize values
+            if indent == -1:
+                indent = offset(element.children[0].value)
+            values.append(normalize_indent(element.children[0].value, indent))
+
+    return Element(tag, children=[Text("\n\n".join(values))])
+
+
+def __retrieve_component_elements(collection: dict, element: str) -> list[Element]:
+    result = []
+    for value in collection.values():
+        if element in value:
+            result.extend(value[element])
+    return result
 
 
 def apply_conditions(node: Root | Element | AST, virtual_python: VirtualPython, **kwargs):
@@ -166,7 +213,7 @@ def __process_props(child: Element, virtual_python: VirtualPython, local_vars: d
 
     for prop in child.properties:
         if prop.startswith((ATTR_PREFIX, "py-")):
-            local_env = {**virtual_python.locals}
+            local_env = {**virtual_python.exposable}
             local_env.update(local_vars)
             new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_vp_result(
                 child[prop], **local_env
@@ -200,7 +247,11 @@ def apply_python(
         for child in node.children:
             if check(child, "element"):
                 if "children" in child.locals.keys():
-                    replace_node(child, ["element", {"tag": "slot"}], child.locals["children"])
+                    replace_node(
+                        child,
+                        ["element", {"tag": "slot"}],
+                        child.locals["children"],
+                    )
 
                 local_vars = {**local_env}
                 local_vars.update(child.locals)
@@ -320,7 +371,7 @@ def execute_conditions(
     previous = (f"{CONDITION_PREFIX}for", True)
 
     # Add the python blocks locals to kwargs dict
-    kwargs.update(virtual_python.locals)
+    kwargs.update(virtual_python.exposable)
 
     # Bring python blocks imports into scope
     for imp in virtual_python.imports:
@@ -461,7 +512,7 @@ def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> li
         for item in sub(
             r"\s+",
             " ",
-            match(r"(for )?(.*)in", for_loop).group(2),
+            match(r"(for )?(.*)(?<= )in(?= )", for_loop).group(2),
         ).split(",")
     ]
 
@@ -498,15 +549,32 @@ for {for_loop}:
         "insert": insert,
         "child": child,
         "local_vals": clocals,
-        **kwargs,
     }
 
-    # Execute dynamic for loop
-    exec(  # pylint: disable=exec-used
-        for_loop,
-        {**globals()},
-        local_env,
-    )
+    try:
+        # Execute dynamic for loop
+        exec(  # pylint: disable=exec-used
+            for_loop,
+            {
+                **kwargs,
+                **clocals,
+                **globals(),
+            },
+            local_env,
+        )
+    except Exception as exception:  # pylint: disable=broad-except
+        from teddecor import TED  # pylint: disable=import-outside-toplevel
+
+        new_line = "\n"
+        TED.print(
+            f"""[@F red]*Error[@]: {TED.encode(str(exception))} [@F yellow]|[@] \
+{
+    TED.encode(for_loop.split(new_line)[1]
+    .replace('for', '')
+    .replace(':', ''))
+    .replace(' in ', '[@F green] in [@]')
+}"""
+        )
 
     # Return the new complete list of children after generation
     return local_env["children"]
@@ -515,14 +583,14 @@ for {for_loop}:
 class ToML:
     """Compiles an ast to a hypertext markup language. Compiles to a tag based string."""
 
-    def __init__(self, ast: Optional[AST] = None, offset: int = 4):
+    def __init__(self, ast: Optional[AST] = None, _offset: int = 4):
         self.ast = ast
-        self.offset = offset
+        self.offset = _offset
 
     def compile(
         self,
         ast: Optional[AST] = None,
-        offset: Optional[int] = None,
+        _offset: Optional[int] = None,
         include_doctype: bool = True,
     ) -> str:
         """Compile an ast to html.
@@ -548,7 +616,7 @@ class ToML:
             if len(doctypes) == 0:
                 ast.tree.children.insert(0, DocType(parent=ast.tree))
 
-        self.offset = offset or self.offset
+        self.offset = _offset or self.offset
         lines = self.__compile_children(ast.tree)
         return "\n".join(lines)
 

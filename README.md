@@ -60,6 +60,10 @@ def URL(link: str) -> str:
 ...
 
 <a href="{URL('youtube')}">Youtube</a>
+
+or 
+
+<a :href="URL('youtube')">Youtube</a>
 ```
 
 phml combines all `python` elements and treats them as a python file. All local variables and imports are parsed and stored so that they may be accessed later. With that in mind that means you have the full power of the python programming language.
@@ -73,7 +77,7 @@ which renders to, `<p>Hello World!</p>`.
 Multiline blocks are a lot like inline python blocks, but they also have some differences.
 You can do whatever you like inside this block, however if you expect a value to come from the block you must have at least one local variable. The last local variable defined in this block is used at the result/value.
 
-Conditional Rendering with `py-if`, `py-elif`, and `py-else` is an extremely helpful tool in phml.
+Conditional rendering with `py-if`, `py-elif`, and `py-else` is an extremely helpful tool in phml.
 `py-if` can be used alone and that the python inside it's value must be truthy for the element to be rendered. `py-elif` requires an element with a `py-if` or `py-elif` attribute immediately before it, and it's condition is rendered the same as `py-if` but only rendered if a `py-if` or `py-elif` first
 fails. `py-else` requires there to be either a `py-if` or a `py-else` immediately before it. It only
 renders if the previous element's condition fails. If `py-elif` or `py-else` is on an element, but
@@ -83,7 +87,7 @@ Other than conditions, there is also a built in `py-for` attribute. Any element 
 
 ```html
 <ul>
-    <li py-for='i in range(3)'>
+    <li @for='i in range(3)'>
         <p>{i}</p>
     </li>
 </ul>
@@ -123,24 +127,27 @@ The current version is able to parse phml using an html parser. This creates a p
 
 **Use**
 
-PHML provides file type variables for better ease of use. The types include `HTML`, `PHML`, and `JSON`. They can be imported with `from phml import HTML, PHML, JSON`.
+PHML provides file type variables for better ease of use. The types include `HTML`, `PHML`, `JSON`, and `XML`. They can be used with the import `from phml import Formats`. Then all you need to do is use `Formats.HTML` or any other format.
 
-First import the PHMLCore, `from phml import PHMLCore`. Then you can do the following:
+First import the core parser and compiler, `from phml import PHML`. Then you can do the following:
 
 ```python
-core = PHMLCore().load("path/to/file.phml")
+phml = PHML().load("path/to/file.phml")
 print(core.render())
 ```
 
-By default `PHMLCore.render()` will return the `html` string. If you want to get a `json` string you may pass the file type variable `JSON`. `PHMLCore.render(file_type=JSON)`.
+There is method chaining so most if not all methods can be chained. The obvious exception being any method that returns a
+value.
 
-If you want to write to a file you can call `core.write("path/to/output/file.phml")`. Same with `render` it defaults to html. You can change this the same way as `render`. `core.write("path/to/otuput/file.json", file_type=JSON)`.
+By default `PHML.render()` will return the `html` string. If you want to get a `json` string you may pass `Formats.JSON`. `PHML.render(file_type=Formats.JSON)`.
 
-For both `render` and `write` you will first need to call `core.load("path/to/source/file.phml")`. This parses the source file and stores the ast in the parser. `render` and `write` then use that ast to create the desired output. Optionally if you already have
-a phml or html string or a properly formatted dict you can call `core.parse(data)` which will parse that information similar to `load`.
+If you want to write to a file you can call `core.write("path/to/output/file.phml")`. Same with `render` it defaults to html. You can change this the same way as `render`. `core.write("path/to/otuput/file.json", file_type=Formats.JSON)`.
 
-`core.render` and `core.write` return `self` which allows for method chaining. See the examples in `example/` to see how this can be used.
+For both `render` and `write` you will first need to call `core.load("path/to/source/file.phml")`. This parses the source file and stores the ast in the parser. `render` and `write` then use that ast to create the desired output. Optionally if you already have a phml or html string or a properly formatted dict you can call `core.parse(data)` which will parse that information similar to `load`.
 
 Every time `core.parse` or `core.load` is called it will overwrite the stored ast variable.
+
+There are many for features such as globally exposed variables or the ability to add nested scopes for importing
+objects inside of a phml document.
 
 For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)

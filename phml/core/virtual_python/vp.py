@@ -10,7 +10,7 @@ from html import escape
 from re import finditer, sub
 from typing import Any, Optional
 
-from .built_in import built_in_funcs
+from .built_in import built_in_funcs, built_in_types
 from .import_objects import Import, ImportFrom
 
 __all__ = ["VirtualPython", "get_vp_result", "process_vp_blocks"]
@@ -25,15 +25,16 @@ class VirtualPython:
         self,
         content: Optional[str] = None,
         imports: Optional[list] = None,
-        local_env: Optional[dict] = None,
+        exposable: Optional[dict] = None,
     ):
         self.content = content or ""
         self.imports = imports or []
-        self.locals = local_env or {}
+        self.exposable = exposable or {}
 
         if self.content != "":
-            self.__normalize_indent()
+            from phml.utilities import normalize_indent  # pylint: disable=import-outside-toplevel
 
+            self.content = normalize_indent(content)
             # Extract imports from content
             for node in ast.parse(self.content).body:
                 if isinstance(node, ast.ImportFrom):
@@ -42,25 +43,21 @@ class VirtualPython:
                     self.imports.append(Import.from_node(node))
 
             # Retreive locals from content
-            exec(self.content, globals(), self.locals)  # pylint: disable=exec-used
-
-    def __normalize_indent(self):
-        self.content = self.content.split("\n")
-        offset = len(self.content[0]) - len(self.content[0].lstrip())
-        lines = [line[offset:] for line in self.content]
-        joiner = "\n"
-        self.content = joiner.join(lines)
+            local_env = {}
+            global_env = {**self.exposable, **globals()}
+            exec(self.content, global_env, local_env)  # pylint: disable=exec-used
+            self.exposable.update(local_env)
 
     def __add__(self, obj: VirtualPython) -> VirtualPython:
-        local_env = {**self.locals}
-        local_env.update(obj.locals)
+        local_env = {**self.exposable}
+        local_env.update(obj.exposable)
         return VirtualPython(
             imports=[*self.imports, *obj.imports],
-            local_env=local_env,
+            exposable=local_env,
         )
 
     def __repr__(self) -> str:
-        return f"VP(imports: {len(self.imports)}, locals: {len(self.locals.keys())})"
+        return f"VP(imports: {len(self.imports)}, locals: {len(self.exposable.keys())})"
 
 
 def parse_ast_assign(vals: list[ast.Name | tuple[ast.Name]]) -> list[str]:
@@ -74,6 +71,33 @@ def parse_ast_assign(vals: list[ast.Name | tuple[ast.Name]]) -> list[str]:
         return [name.id for name in values]
 
     return []
+
+
+def __validate_kwargs(
+    kwargs: dict, expr: str, excludes: Optional[list] = None, safe_vars: bool = False
+):
+    """Validates the used variables and methods in the expression. If they are
+    missing then they are added to the kwargs as None. This means that it will
+    give a NoneType error if the method or variable is not provided in the kwargs.
+
+    After validating all variables and methods to be used are in kwargs it then escapes
+    all string kwargs for injected html.
+    """
+    excludes = excludes or []
+    exclude_list = [*built_in_funcs, *built_in_types]
+
+    for var in [
+        name.id  # Add the non built-in missing variable or method as none to kwargs
+        for name in ast.walk(ast.parse(expr))  # Iterate through entire ast of expression
+        if isinstance(name, ast.Name)  # Get all variables/names used this can be methods or values
+        and name.id not in exclude_list
+        and name.id not in excludes
+    ]:
+        if var not in kwargs:
+            kwargs[var] = None
+
+    if not safe_vars:
+        escape_args(kwargs)
 
 
 def get_vp_result(expr: str, **kwargs) -> Any:
@@ -91,6 +115,10 @@ def get_vp_result(expr: str, **kwargs) -> Any:
     safe_vars = kwargs.pop("safe_vars", None) or False
     kwargs.update({"classnames": classnames, "blank": blank})
 
+    avars = []
+    result = "phml_vp_result"
+    expression = f"phml_vp_result = {expr}\n"
+
     if len(expr.split("\n")) > 1:
         # Find all assigned vars in expression
         avars = []
@@ -100,37 +128,23 @@ def get_vp_result(expr: str, **kwargs) -> Any:
                 assignment = parse_ast_assign(assign.targets)
                 avars.extend(parse_ast_assign(assign.targets))
 
-        # Find all variables being used that are not are not assigned
-        used_vars = [
-            name.id
-            for name in ast.walk(ast.parse(expr))
-            if isinstance(name, ast.Name) and name.id not in avars and name.id not in built_in_funcs
-        ]
+        result = assignment[-1]
+        expression = f"{expr}\n"
 
-        # For all variables used if they are not in kwargs then they == None
-        for var in used_vars:
-            if var not in kwargs:
-                kwargs[var] = None
+    __validate_kwargs(kwargs, expr, safe_vars=safe_vars)
 
-        if not safe_vars:
-            escape_args(kwargs)
+    try:
+        source = compile(expression, expr, "exec")
+        local_env = {}
+        exec(source, {**kwargs, **globals()}, local_env)  # pylint: disable=exec-used
+        return local_env[result] if result in local_env else None
+    except Exception as exception:  # pylint: disable=broad-except
+        from teddecor import TED  # pylint: disable=import-outside-toplevel
 
-        source = compile(f"{expr}\n", f"{expr}", "exec")
-        exec(source, globals(), kwargs)  # pylint: disable=exec-used
-        # Get the last assignment and use it as the result
-        return kwargs[assignment[-1]]
+        TED.print(f"[@F red]*Error[]: {exception}")
+        print(expr)
 
-    # For all variables used if they are not in kwargs then they == None
-    for var in [name.id for name in ast.walk(ast.parse(expr)) if isinstance(name, ast.Name)]:
-        if var not in kwargs:
-            kwargs[var] = None
-
-    if not safe_vars:
-        escape_args(kwargs)
-
-    source = compile(f"phml_vp_result = {expr}", expr, "exec")
-    exec(source, globals(), kwargs)  # pylint: disable=exec-used
-    return kwargs["phml_vp_result"] if "phml_vp_result" in kwargs else None
+        return False
 
 
 def escape_args(args: dict) -> dict:
@@ -162,12 +176,7 @@ def extract_expressions(data: str) -> str:
     for expression in finditer(r"\{[^}]+\}", data):
         expression = expression.group().lstrip("{").rstrip("}")
         expression = [expr for expr in expression.split("\n") if expr.strip() != ""]
-        if len(expression) > 1:
-            offset = len(expression[0]) - len(expression[0].lstrip())
-            lines = [line[offset:] for line in expression]
-            results.append("\n".join(lines))
-        else:
-            results.append(expression[0])
+        results.append(expression[0])
 
     return results
 
@@ -191,7 +200,7 @@ def process_vp_blocks(pvb_value: str, virtual_python: VirtualPython, **kwargs) -
         exec(str(imp))  # pylint: disable=exec-used
 
     expressions = extract_expressions(pvb_value)
-    kwargs.update(virtual_python.locals)
+    kwargs.update(virtual_python.exposable)
     if expressions is not None:
         for expr in expressions:
             result = get_vp_result(expr, **kwargs)

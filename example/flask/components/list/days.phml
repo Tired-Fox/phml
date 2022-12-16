@@ -1,0 +1,7 @@
+<ul @if="not blank(days)" class="ml-2">
+    <li @for="day, url in days.items()">
+        <a :href="url">
+            <h5>Day {day}</h5>
+        </a>
+    </li>
+</ul>

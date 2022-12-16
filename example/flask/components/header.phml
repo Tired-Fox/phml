@@ -1,0 +1,22 @@
+<div id="header" class="flex justify-between items-center">
+    <div id="breadcrumbs">
+        <div @if="not blank(breadcrumbs)" class="flex items-center gap-2">
+            <div @for="idx, crumb in enumerate(breadcrumbs)" class="flex items-center gap-2">
+                <p @if="idx > 0">&gt;</p>
+                <a @if="isinstance(crumb, tuple)" :href="crumb[1]">{crumb[0]}</a>
+                <p @else>{crumb}</p>
+            </div>
+        </div>
+    </div>
+    <a id="logo" class="no-underline" :href="url_for('home')">
+        <h5>
+            <span class="color-purple">PHML</span>
+            with 
+            <span class="color-green">Flask</span>
+        </h5>
+    </a>
+    <nav id="nav" class="flex gap-4">
+        <a :href="url_for('date')">date</a>
+        <a :href="url_for('blog')">blog</a>
+    </nav>
+</div>

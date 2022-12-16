@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{url_for('static', filename='style.css')}">
+        <title>Blog</title>
+    </head>
+
+    <body>
+        <header />
+        <div class="content">
+            <div class="flex flex-col items-center">
+                <h1>All posts</h1>
+            </div>
+            <list-years />
+        </div>
+    </body>
+
+</html>
+<style>
+    ul a {
+        text-decoration: none;
+    }
+
+    ul a:hover {
+        text-decoration: underline;
+    }
+</style>

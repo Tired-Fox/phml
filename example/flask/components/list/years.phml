@@ -1,0 +1,8 @@
+<ul class="mt-2 no-style" @if="not blank(years)">
+    <li @for="year, months in years.items()">
+        <a href="/blog/{year}">
+            <h3>{year}</h3>
+        </a>
+        <list-months />
+    </li>
+</ul>

@@ -1,9 +1,9 @@
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from phml.core.formats import Format, Formats
 from phml.core.nodes import AST, All_Nodes
-from phml.utilities import filename_from_path, parse_component
+from phml.utilities import cmpt_name_from_path, parse_component
 
 from .compiler import Compiler
 from .parser import Parser
@@ -18,38 +18,56 @@ class PHML:
     writing the results of a render to a file.
     """
 
-    parser: Parser
-    """Instance of a [Parser][phml.parser.Parser]."""
-    compiler: Compiler
-    """Instance of a [Compiler][phml.compile.Compiler]."""
-    scopes: Optional[list[str]]
-    """List of paths from cwd to auto add to python path. This helps with
-    importing inside of phml files.
-    """
-
     @property
     def ast(self) -> AST:
-        """Reference to the parser attributes ast value."""
-        return self.parser.ast
+        """The parsed ast value."""
+        return self._parser.ast
 
     @ast.setter
     def ast(self, _ast: AST):
-        self.parser.ast = _ast
+        self._parser.ast = _ast
 
     def __init__(
         self,
         scopes: Optional[list[str]] = None,
         components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        **exposable: Any,
     ):
-        self.parser = Parser()
-        self.compiler = Compiler(components=components)
-        self.scopes = scopes or []
+        self._parser = Parser()
+        self._compiler = Compiler(components=components)
+        self._scopes = scopes or []
+        self._exposable = dict(exposable)
+
+    def expose(self, **kwargs: Any):
+        """Add additional data to the compilers global values. These values are exposed for every
+        call to render or write.
+        """
+        self._exposable.update(kwargs)
+
+    def redact(self, key: str):
+        """Remove a value from the compilers globally exposed values."""
+        self._exposable.pop(key, None)
+
+    def expand(self, *args: str):
+        """Add relative paths to a directory, that you want added to the python path
+        for every time render or write is called.
+        """
+        self._scopes.extend([arg for arg in args if arg not in self._scopes])
+
+    def restrict(self, *args: str):
+        """Remove relative paths to a directory, that are in the compilers globally added scopes.
+        This prevents them from being added to the python path.
+        """
+        for arg in args:
+            if arg in self._scopes:
+                self._scopes.remove(arg)
 
     def add(
         self,
         *components: dict[str, dict[str, list | All_Nodes] | AST]
         | tuple[str, dict[str, list | All_Nodes] | AST]
-        | Path,
+        | Path
+        | str,
     ):
         """Add a component to the element replacement list.
 
@@ -73,11 +91,16 @@ class PHML:
         """
 
         for component in components:
-            if isinstance(component, Path):
-                self.parser.load(component)
-                self.compiler.add((filename_from_path(component), parse_component(self.parser.ast)))
+            if isinstance(component, (Path, str)):
+                self._parser.load(Path(component))
+                self._compiler.add(
+                    (cmpt_name_from_path(Path(component)), parse_component(self._parser.ast))
+                )
+            elif isinstance(component, tuple) and isinstance(component[1], (Path, str)):
+                self._parser.load(Path(component[1]))
+                self._compiler.add((component[0], parse_component(self._parser.ast)))
             else:
-                self.compiler.add(component)
+                self._compiler.add(component)
         return self
 
     def remove(self, *components: str | All_Nodes):
@@ -87,7 +110,7 @@ class PHML:
         it is used as the key that will be removed. If a node object is passed
         it will attempt to find a matching node and remove it.
         """
-        self.compiler.remove(*components)
+        self._compiler.remove(*components)
         return self
 
     def load(self, file_path: str | Path, from_format: Optional[Format] = None):
@@ -96,7 +119,7 @@ class PHML:
         Args:
             file_path (str | Path): The file path to the source file.
         """
-        self.parser.load(file_path, from_format)
+        self._parser.load(file_path, from_format)
         return self
 
     def parse(self, data: str | dict, from_format: Format = Formats.PHML):
@@ -105,7 +128,7 @@ class PHML:
         Args:
             data (str | dict): Object to parse to phml
         """
-        self.parser.parse(data, from_format)
+        self._parser.parse(data, from_format)
         return self
 
     def render(
@@ -127,17 +150,17 @@ class PHML:
             str: The rendered content in the appropriate format.
         """
 
-        scopes = scopes or ["./"]
-        for scope in self.scopes:
+        scopes = scopes or []
+        for scope in self._scopes:
             if scope not in scopes:
                 scopes.append(scope)
 
-        return self.compiler.compile(
-            self.parser.ast,
+        return self._compiler.compile(
+            self._parser.ast,
             to_format=file_type,
             indent=indent,
             scopes=scopes,
-            **kwargs,
+            **{**self._exposable, **kwargs},
         )
 
     def write(

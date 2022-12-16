@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" :href="url_for('static', filename='style.css')">
+        <title>Posts | {month_name(month, False)} - {year}</title>
+    </head>
+    <style>
+        ul a {
+            text-decoration: none;
+        }
+
+        ul a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+    <body>
+        <header />
+        <div class="content">
+            <div class="flex justify-center">
+                <h1>All posts for {month_name(month)}</h1>
+            </div>
+            <list-days />
+        </div>
+    </body>
+
+</html>

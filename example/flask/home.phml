@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{url_for('static', filename='style.css')}">
+        <title>flask & phml</title>
+    </head>
+    <python>
+        info = "This page is brought to you by flask and phml. phml is used to render the pages and flask is used to serve the pages."
+    </python>
+
+    <body>
+        <header />
+        <div class="content">
+            <h1>Hello World</h1>
+            <p @if="not blank(message)">{message}</p>
+            <p @if="not blank(info)">{info}</p>
+        </div>
+        <div id="view-docs" class="flex justify-center">
+            <a href="https://tired-fox.github.io/phml/phml.html" title="Go to project documentation">
+                <img src="https://img.shields.io/badge/view-PHML_Documentation-blue?style=for-the-badge" alt="view - Documentation" />
+            </a>
+
+        </div>
+    </body>
+
+</html>
