@@ -1,10 +1,11 @@
 # TODO
 
 - [x] Optimize Component styles and script tags to avoid duplication
-- [ ] Multiline python blocks marked with `{}`.
+- [x] Multiline python blocks marked with `{}`.
   * Is this work it concidering the `@for` functionality?
   * Assume that the data returned is to be parsed as nodes/components
   * Use yields
+  * Will expect a string return value
 
 - [x] Code safe escaping
   - All string values passed in are escaped

@@ -7,13 +7,15 @@ from __future__ import annotations
 
 import ast
 from html import escape
-from re import finditer, sub
+from re import sub, findall
 from typing import Any, Optional
+
+from phml.utilities import normalize_indent
 
 from .built_in import built_in_funcs, built_in_types
 from .import_objects import Import, ImportFrom
 
-__all__ = ["VirtualPython", "get_vp_result", "process_vp_blocks"]
+__all__ = ["VirtualPython", "get_python_result", "process_python_blocks"]
 
 
 class VirtualPython:
@@ -32,7 +34,6 @@ class VirtualPython:
         self.exposable = exposable or {}
 
         if self.content != "":
-            from phml.utilities import normalize_indent  # pylint: disable=import-outside-toplevel
 
             self.content = normalize_indent(content)
             # Extract imports from content
@@ -100,7 +101,7 @@ def __validate_kwargs(
         escape_args(kwargs)
 
 
-def get_vp_result(expr: str, **kwargs) -> Any:
+def get_python_result(expr: str, **kwargs) -> Any:
     """Execute the given python expression, while using
     the kwargs as the local variables.
 
@@ -119,7 +120,7 @@ def get_vp_result(expr: str, **kwargs) -> Any:
     result = "phml_vp_result"
     expression = f"phml_vp_result = {expr}\n"
 
-    if len(expr.split("\n")) > 1:
+    if "\n" in expr:
         # Find all assigned vars in expression
         avars = []
         assignment = None
@@ -173,15 +174,44 @@ def extract_expressions(data: str) -> str:
     """
     results = []
 
-    for expression in finditer(r"\{[^}]+\}", data):
-        expression = expression.group().lstrip("{").rstrip("}")
-        expression = [expr for expr in expression.split("\n") if expr.strip() != ""]
-        results.append(expression[0])
+    index = 0
+    while index < len(data):
+        start, end, block = extract_block(data[index:])
+        if block is None:
+            if index < len(data):
+                results.append(data[index:])
+            break
+
+        if start > 0:
+            results.append(data[index : index + start])
+
+        index += end + 1
+        results.append(block)
+    # for expression in finditer(r"\{[^}]+
 
     return results
 
 
-def process_vp_blocks(pvb_value: str, virtual_python: VirtualPython, **kwargs) -> str:
+def extract_block(data: str) -> tuple[int, int, PythonBlock]:
+    """Extract the first python block from a given string"""
+    start = data.find("{")
+    index = start
+    if index != -1:
+        open_brackets = 1
+        while open_brackets > 0:
+            new_index = data.find("}", index + 1)
+            if len(findall(r"\{", data[index + 1 : new_index])) > 0:
+                open_brackets += len(findall(r"\{", data[index + 1 : new_index]))
+            index = new_index
+            open_brackets -= 1
+        end = index
+        if "\n" in data[start + 1 : end]:
+            return start, end, MultiLineBlock(data[start + 1 : end])
+        return start, end, InlineBlock(data[start + 1 : end])
+    return 0, 0, None
+
+
+def process_python_blocks(python_value: str, virtual_python: VirtualPython, **kwargs) -> str:
     """Process a lines python blocks. Use the VirtualPython locals,
     and kwargs as local variables for each python block. Import
     VirtualPython imports in this methods scope.
@@ -199,14 +229,88 @@ def process_vp_blocks(pvb_value: str, virtual_python: VirtualPython, **kwargs) -
     for imp in virtual_python.imports:
         exec(str(imp))  # pylint: disable=exec-used
 
-    expressions = extract_expressions(pvb_value)
+    expressions = extract_expressions(python_value)
     kwargs.update(virtual_python.exposable)
-    if expressions is not None:
-        for expr in expressions:
-            result = get_vp_result(expr, **kwargs)
-            if isinstance(result, bool):
-                pvb_value = result
-            else:
-                pvb_value = sub(r"\{[^}]+\}", str(result), pvb_value, 1)
+    for idx, expression in enumerate(expressions):
+        if isinstance(expression, PythonBlock):
+            expressions[idx] = expression.exec(**kwargs)
+            if isinstance(expressions[idx], bool):
+                return expressions[idx]
 
-    return pvb_value
+    return "".join([str(expression) for expression in expressions])
+
+
+class PythonBlock:
+    """Base class for python blocks."""
+
+    def __init__(self, expr: str) -> None:
+        self.expr = expr
+
+    def __str__(self) -> str:
+        return self.expr
+
+    def __repr__(self) -> str:
+        return f"{{{self.expr}}}"
+
+    def exec(self, **kwargs):
+        """Execute the inline python block"""
+        return get_python_result(self.expr, **kwargs)
+
+
+class InlineBlock(PythonBlock):
+    """Formats and stores a inline python expr/source."""
+
+    def __init__(self, expr: str) -> None:
+        super().__init__(expr.strip().lstrip("{").rstrip("}"))
+
+
+class MultiLineBlock(PythonBlock):
+    """Formats and stores a multiline python expr/source."""
+
+    def __init__(self, expr: str) -> None:
+        from phml.core.formats.parse import (  # pylint: disable=import-outside-toplevel
+            strip_blank_lines,
+        )
+
+        expr = expr.split("\n")
+
+        # strip brackets
+        expr[0] = sub(r"(\s+){", r"\1", expr[0], 1)
+        expr[-1] = sub(r"(.+)}", r"\1", expr[-1].rstrip(), 1)
+
+        # strip blank lines
+        expr = strip_blank_lines(expr)
+
+        # normalize indent
+        super().__init__(normalize_indent("\n".join(expr)))
+
+
+if __name__ == "__main__":
+    result = extract_expressions(
+        '''\
+    This is a multiline string.
+    It has {complex} examples of python blocks.
+    {
+        names = ["Zach", "Ashley"]
+        results= []
+        for name in names:
+            results.append(f"""<li>{name}</li>""")
+        result = "\\n".join(results)
+    }    \
+'''
+    )
+
+    print(
+        process_python_blocks(
+            '''\
+    This is a multiline string.
+    It has {complex} examples of python blocks.
+    {
+        names = ["Zach", "Ashley"]
+        results= []
+        for name in names:
+            results.append(f"""<li>{name}</li>""")
+        result = "\\n".join(results)
+    }    \
+''', VirtualPython(), complex="complex")
+    )

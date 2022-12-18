@@ -7,7 +7,7 @@ from re import match, search, sub
 from typing import Optional
 
 from phml.core.nodes import AST, All_Nodes, DocType, Element, Root, Text
-from phml.core.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
+from phml.core.virtual_python import VirtualPython, get_python_result, process_python_blocks
 from phml.utilities import (
     check,
     find,
@@ -215,11 +215,11 @@ def __process_props(child: Element, virtual_python: VirtualPython, local_vars: d
         if prop.startswith((ATTR_PREFIX, "py-")):
             local_env = {**virtual_python.exposable}
             local_env.update(local_vars)
-            new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_vp_result(
+            new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_python_result(
                 child[prop], **local_env
             )
         elif match(r".*\{.*\}.*", str(child[prop])) is not None:
-            new_props[prop] = process_vp_blocks(child[prop], virtual_python, **local_vars)
+            new_props[prop] = process_python_blocks(child[prop], virtual_python, **local_vars)
         else:
             new_props[prop] = child[prop]
 
@@ -263,7 +263,7 @@ def apply_python(
                 and child.parent.tag not in ["script", "style"]
                 and search(r".*\{.*\}.*", child.value) is not None
             ):
-                child.value = process_vp_blocks(child.value, virtual_python, **local_env)
+                child.value = process_python_blocks(child.value, virtual_python, **local_env)
 
     process_children(current, {**kwargs})
 
@@ -448,7 +448,7 @@ def run_py_if(child: Element, condition: str, children: list, **kwargs):
     """Run the logic for manipulating the children on a `if` condition."""
 
     clocals = build_locals(child, **kwargs)
-    result = get_vp_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
+    result = get_python_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
 
     if result:
         del child[condition]
@@ -472,7 +472,7 @@ def run_py_elif(
 
     if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
         if not variables["previous"][1]:
-            result = get_vp_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
+            result = get_python_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
             if result:
                 del child[condition]
                 return (f"{CONDITION_PREFIX}elif", True)
