@@ -1,3 +1,4 @@
+from io import TextIOWrapper
 from pathlib import Path
 from typing import Any, Optional
 
@@ -165,7 +166,7 @@ class PHML:
 
     def write(
         self,
-        dest: str | Path,
+        file: str | Path | TextIOWrapper,
         file_type: str = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
@@ -176,7 +177,9 @@ class PHML:
         it to a given file. Defaults to rendering and writing out as html.
 
         Args:
-            dest (str | Path): The path to the file to be written to.
+            file (str | Path | TextIOWrapper): The path to the file to be written to, or the opened
+            file to write to.
+
             file_type (str): The format to render the ast as.
 
             indent (Optional[int], optional): The number of spaces per indent. By default it will
@@ -192,13 +195,16 @@ class PHML:
             kwargs: Any additional data to pass to the compiler that will be exposed to the
             phml files.
         """
-        dest = Path(dest)
+        if isinstance(file, (str | Path)):
+            file = Path(file)
 
-        if dest.suffix == "" or replace_suffix:
-            dest = dest.with_suffix(file_type.suffix())
+            if file.suffix == "" or replace_suffix:
+                file = file.with_suffix(file_type.suffix())
 
-        with open(dest, "+w", encoding="utf-8") as dest_file:
-            dest_file.write(
-                self.render(file_type=file_type, indent=indent, scopes=scopes, **kwargs)
-            )
+            with open(file, "+w", encoding="utf-8") as dest_file:
+                dest_file.write(
+                    self.render(file_type=file_type, indent=indent, scopes=scopes, **kwargs)
+                )
+        elif isinstance(file, TextIOWrapper):
+            file.write(self.render(file_type=file_type, indent=indent, scopes=scopes, **kwargs))
         return self
