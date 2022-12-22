@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from contextlib import contextmanager
 import datetime
 from pathlib import Path
 from typing import Any, Optional
@@ -6,6 +7,7 @@ from flask import Flask, url_for, abort, request
 from werkzeug import exceptions
 from phml import PHML, cmpt_name_from_path
 import re
+from traceback import format_exc
 
 app = Flask(__name__)
 
@@ -14,6 +16,19 @@ phml = PHML()
 errors = {
     "404": "oops, it looks like the page you are trying to reach doesn't exist.",
 }
+
+internal_error_tb = list()
+internal_error_type = "error"
+
+
+@contextmanager
+def debug(error=500):
+    global internal_error_tb
+    try:
+        yield None
+    except Exception as exception:
+        internal_error_tb = [line for line in str(format_exc()).split("\n") if line.strip() != ""]
+        abort(error)
 
 
 def construct_days(year: int, month: int) -> dict:
@@ -88,7 +103,7 @@ phml.expose(url_for=url_for, month_name=month_num_to_name)
 @app.route("/")
 def home():
     get_components(phml)
-    return phml.load("home.phml").render( message="Welcome to my test of using phml with flask!")
+    return phml.load("home.phml").render(message="Welcome to my test of using phml with flask!")
 
 
 @app.errorhandler(exceptions.NotFound)
@@ -116,7 +131,9 @@ def blog(year=None, month=None, day=None):
     get_components(phml)
     path = Path("blog")
 
-    path = Path(f"blog{str_or_blank(year, '/{var}')}{str_or_blank(month, '/{var}')}{str_or_blank(day, '/{var}')}")
+    path = Path(
+        f"blog{str_or_blank(year, '/{var}')}{str_or_blank(month, '/{var}')}{str_or_blank(day, '/{var}')}"
+    )
 
     if path.as_posix() == "blog":
         return phml.load("blog/index.phml").render(years=construct_years())
@@ -172,3 +189,20 @@ def date(year=None, month=None, day=None):
         day = request.form.get('day', None)
 
     return phml.load("date/index.phml").render(date=build_date(year, month, day))
+
+
+@app.route("/debug")
+def test():
+    with debug():
+        raise Exception("Test Error")
+    return None
+
+
+@app.errorhandler(exceptions.InternalServerError)
+def internal_error(error):
+    return phml.load("debug.phml").render(
+        error_code=error.code,
+        error_name=error.name,
+        tb=internal_error_tb,
+        error_type=internal_error_type,
+    )
