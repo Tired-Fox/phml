@@ -27,6 +27,11 @@ class PHML:
     @ast.setter
     def ast(self, _ast: AST):
         self._parser.ast = _ast
+        
+    @property
+    def components(self) -> dict:
+        """The components currently stored in the compiler."""
+        return self._compiler.components
 
     def __init__(
         self,
@@ -69,6 +74,7 @@ class PHML:
         | tuple[str, dict[str, list | All_Nodes] | AST]
         | Path
         | str,
+        strip_root: bool = True,
     ):
         """Add a component to the element replacement list.
 
@@ -95,7 +101,10 @@ class PHML:
             if isinstance(component, (Path, str)):
                 self._parser.load(Path(component))
                 self._compiler.add(
-                    (cmpt_name_from_path(Path(component)), parse_component(self._parser.ast))
+                    (
+                        cmpt_name_from_path(Path(component), strip_root),
+                        parse_component(self._parser.ast),
+                    )
                 )
             elif isinstance(component, tuple) and isinstance(component[1], (Path, str)):
                 self._parser.load(Path(component[1]))
@@ -137,6 +146,7 @@ class PHML:
         file_type: str = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
+        components: Optional[dict] = None,
         **kwargs,
     ) -> str:
         """Render the parsed ast to a different format. Defaults to rendering to html.
@@ -161,6 +171,7 @@ class PHML:
             to_format=file_type,
             indent=indent,
             scopes=scopes,
+            components=components,
             **{**self._exposable, **kwargs},
         )
 
@@ -171,6 +182,7 @@ class PHML:
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
         replace_suffix: bool = False,
+        components: Optional[dict] = None,
         **kwargs,
     ):
         """Renders the parsed ast to a different format, then writes
@@ -203,8 +215,22 @@ class PHML:
 
             with open(file, "+w", encoding="utf-8") as dest_file:
                 dest_file.write(
-                    self.render(file_type=file_type, indent=indent, scopes=scopes, **kwargs)
+                    self.render(
+                        file_type=file_type,
+                        indent=indent,
+                        scopes=scopes,
+                        components=components,
+                        **kwargs,
+                    )
                 )
         elif isinstance(file, TextIOWrapper):
-            file.write(self.render(file_type=file_type, indent=indent, scopes=scopes, **kwargs))
+            file.write(
+                self.render(
+                    file_type=file_type,
+                    indent=indent,
+                    scopes=scopes,
+                    components=components,
+                    **kwargs,
+                )
+            )
         return self

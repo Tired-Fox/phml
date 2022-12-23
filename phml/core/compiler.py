@@ -110,6 +110,7 @@ class Compiler:
         to_format: Format = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
+        components: Optional[dict] = None,
         safe_vars: bool = False,
         **kwargs: Any,
     ) -> str:
@@ -133,4 +134,6 @@ class Compiler:
                 )
 
         # Depending on the format parse with the appropriate function
-        return to_format.compile(_ast, self.components, indent, safe_vars=safe_vars, **kwargs)
+        components = components or dict()
+        cmpts = {**self.components, **components}
+        return to_format.compile(_ast, cmpts, indent, safe_vars=safe_vars, **kwargs)

@@ -39,11 +39,12 @@ def tag_from_file(filename: str | Path) -> str:
     return "-".join(tokens)
 
 
-def cmpt_name_from_path(file: Path) -> str:
+def cmpt_name_from_path(file: Path, strip_root: bool = True) -> str:
     """Construct a component name given a path. This will include parent directories.
+    it will also strip the root directory as this is most commonly not wanted.
 
     Examples:
-        `blog/header.phml`
+        `components/blog/header.phml`
 
         yields
 
@@ -52,12 +53,14 @@ def cmpt_name_from_path(file: Path) -> str:
     last = file.name.replace(file.suffix, "")
 
     file = file.as_posix().lstrip("/")
-    dirs = [subdir for subdir in file.split("/")[:-1] if subdir.strip() != ""]
+    if strip_root:
+        dirs = [subdir for subdir in file.split("/")[1:-1] if subdir.strip() != ""]
+    else:
+        dirs = [subdir for subdir in file.split("/")[:-1] if subdir.strip() != ""]
 
     if len(dirs) > 0:
         return "-".join(dirs) + f"-{last}"
     return last
-
 
 def filename_from_path(file: Path) -> str:
     """Get the filename without the suffix from a pathlib.Path."""
