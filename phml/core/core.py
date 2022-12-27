@@ -76,7 +76,7 @@ class PHML:
         | str,
         strip_root: bool = True,
     ):
-        """Add a component to the element replacement list.
+        """Add a component to the compiler's component list.
 
         Components passed in can be of a few types. The first type it can be is a
         pathlib.Path type. This will allow for automatic parsing of the file at the

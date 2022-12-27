@@ -106,11 +106,11 @@ class Element(Parent):
             else:
                 attributes.append(f'{prop}="{self[prop]}"')
         if len(attributes) > 0:
-            attributes = " " + " ".join(attributes)
+            attributes = " " + " ".join(attributes) + " "
         else:
             attributes = ""
 
-        closing = f"{' /' if self.startend else ''}>"
+        closing = f"{'/' if self.startend else ''}>"
 
         return opening + attributes + closing
 

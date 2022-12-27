@@ -36,12 +36,10 @@ class Text(Literal):
             str: Built html of text
         """
         if self.parent is None or not any(
-            tag in self.get_ancestry() for tag in ["pre", "python", "script", "style"]
+            tag in self.get_ancestry() for tag in ["pre", "python"]
         ):
-            lines = [line.lstrip() for line in self.value.split("\n") if line.strip() != ""]
-            for i, line in enumerate(lines):
-                lines[i] = (' ' * indent) + line
-            return "\n".join(lines)
+            from phml.utilities.transform import normalize_indent # pylint: disable=import-outside-toplevel
+            return normalize_indent(self.value, indent)
         return self.value
 
     def __repr__(self) -> str:

@@ -16,6 +16,7 @@ from phml.utilities import (
     offset,
     replace_node,
     visit_children,
+    query
 )
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
@@ -165,7 +166,12 @@ def __add_component_elements(node, used_components: dict, tag: str):
             tag,
         )
         if new_element.children[0].value.strip() != "":
-            node.append(new_element)
+            if tag == "style":
+                head = query(node, "head")
+                head.append(new_element)
+            else:
+                html = query(node, "html")
+                html.append(new_element)
 
 
 def __combine_component_elements(elements: list[Element], tag: str) -> Element:

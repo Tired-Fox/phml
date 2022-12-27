@@ -1,0 +1,10 @@
+<div class="cmpt2">
+    <p>Component 2</p>
+</div>
+
+<style>
+    .cmpt2 {
+        background-color: black;
+        color: white;
+    }
+</style>

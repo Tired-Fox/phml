@@ -27,13 +27,15 @@ def tag_from_file(filename: str | Path) -> str:
             raise TypeError("If filename is a path it must also be a valid file.")
 
     tokens = []
-    for token in finditer(r"(\b|[A-Z]|_|-)([a-z]+)|([A-Z]+)(?=[^a-z])", filename):
-        first, rest, cap = token.groups()
+    for token in finditer(r"(\b|[A-Z]|_|-)([a-z]+)|([0-9]+)|([A-Z]+)(?=[^a-z])", filename):
+        first, rest, nums, cap = token.groups()
 
         if first is not None and first.isupper():
             rest = first + rest
         elif cap is not None and cap.isupper():
             rest = cap
+        elif nums is not None and nums.isnumeric():
+            rest = str(nums)
         tokens.append(rest.lower())
 
     return "-".join(tokens)
