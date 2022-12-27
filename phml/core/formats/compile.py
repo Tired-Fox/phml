@@ -168,10 +168,16 @@ def __add_component_elements(node, used_components: dict, tag: str):
         if new_element.children[0].value.strip() != "":
             if tag == "style":
                 head = query(node, "head")
-                head.append(new_element)
+                if head is not None:
+                    head.append(new_element)
+                else:
+                    node.append(new_element)
             else:
                 html = query(node, "html")
-                html.append(new_element)
+                if html is not None:
+                    html.append(new_element)
+                else:
+                    node.append(new_element)
 
 
 def __combine_component_elements(elements: list[Element], tag: str) -> Element:
@@ -575,7 +581,7 @@ for {for_loop}:
         TED.print(
             f"""[@F red]*Error[@]: {TED.encode(str(exception))} [@F yellow]|[@] \
 {
-    TED.encode(for_loop.split(new_line)[1]
+    TED.escape(for_loop.split(new_line)[1]
     .replace('for', '')
     .replace(':', ''))
     .replace(' in ', '[@F green] in [@]')

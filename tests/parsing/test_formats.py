@@ -30,7 +30,7 @@ def test_phml_format():
     with raises(Exception, match=r"<!DOCT...: Unbalanced tags in source at .+"):
         Formats.PHML.parse("<!DOCTYPE html><html><body>")
 
-    assert Formats.PHML.compile(AST(p(p("div")))) == "<!DOCTYPE html>\n<div />"
+    assert Formats.PHML.compile(AST(p(p("div")))) == "<!DOCTYPE html>\n<div/>"
 
 
 # html
@@ -47,19 +47,19 @@ def test_html_format():
         Formats.HTML.compile(
             AST(p(p("message"), p("python", "message='hello world'"))), {"message": component}
         )
-        == "<!DOCTYPE html>\n<div />"
+        == "<!DOCTYPE html>\n<div/>"
     )
 
     assert Formats.HTML.compile(asts["phml"], title="sample title") == strings["html"]
 
     assert (
         Formats.HTML.compile(AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "True"}))))
-        == "<!DOCTYPE html>\n<div />"
+        == "<!DOCTYPE html>\n<div/>"
     )
 
     assert (
         Formats.HTML.compile(AST(p(p("div", {"@if": "False"}), p("div", {"@else": True}))))
-        == "<!DOCTYPE html>\n<div />"
+        == "<!DOCTYPE html>\n<div/>"
     )
 
     with raises(Exception, match="There can only be one python condition statement at a time:\n.+"):

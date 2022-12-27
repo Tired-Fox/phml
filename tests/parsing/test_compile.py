@@ -15,7 +15,6 @@ class TestCompile:
     def test_compile(self, tmp_path):
         """Test the compiled html file written by phml.PHML."""
         # self.phml.ast = asts["phml"]
-
         assert all(
             L1 == L2
             for L1, L2 in zip(
@@ -75,7 +74,17 @@ class TestCompile:
         
         self.phml.add(("message", AST(p(p("div", "Hello World!"), p("style", "    div{color:black;}")))))
         self.phml.ast = AST(p(p("html", p("style", "    body{margin:auto;}"), p("message"))))
-        assert self.phml.render() == "<!DOCTYPE html>\n<html>\n    <style>\n    body{margin:auto;}\n\n    div{color:black;}\n    </style>\n    <div>Hello World!</div>\n</html>"
+        assert self.phml.render() == """\
+<!DOCTYPE html>
+<html>
+    <style>
+        body{margin:auto;}
+
+        div{color:black;}
+    </style>
+    <div>Hello World!</div>
+</html>\
+"""
         self.phml.remove("message")
 
     def test_var_escaping(self):

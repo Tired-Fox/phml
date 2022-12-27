@@ -106,12 +106,14 @@ class Element(Parent):
             else:
                 attributes.append(f'{prop}="{self[prop]}"')
         if len(attributes) > 0:
-            attributes = " " + " ".join(attributes) + " "
+            attributes = " " + " ".join(attributes)
         else:
             attributes = ""
 
         closing = f"{'/' if self.startend else ''}>"
 
+        if closing == "/>" and attributes != "":
+            return opening + attributes + " " + closing
         return opening + attributes + closing
 
     def end_tag(self) -> str:
