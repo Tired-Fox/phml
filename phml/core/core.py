@@ -74,7 +74,7 @@ class PHML:
         | tuple[str, dict[str, list | All_Nodes] | AST]
         | Path
         | str,
-        strip_root: bool = True,
+        strip_root: bool = False,
     ):
         """Add a component to the compiler's component list.
 

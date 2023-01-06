@@ -41,7 +41,7 @@ def tag_from_file(filename: str | Path) -> str:
     return "-".join(tokens)
 
 
-def cmpt_name_from_path(file: Path, strip_root: bool = True) -> str:
+def cmpt_name_from_path(file: Path, strip_root: bool = False) -> str:
     """Construct a component name given a path. This will include parent directories.
     it will also strip the root directory as this is most commonly not wanted.
 
@@ -104,7 +104,7 @@ def parse_component(ast: AST) -> dict[str, Element]:
                 raise Exception(
                     """\
 Components may only have one wrapping element. All other element in the root must be either a \
-script, style, or python tag.\
+script, style, or python tag. The root wrapping element must be '<phml>`\
 """
                 )
 

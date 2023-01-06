@@ -125,16 +125,24 @@ def replace_components(
         props = __process_props(curr_node, virtual_python, kwargs)
         props["children"] = curr_node.children
 
+        
         # Create a duplicate of the component and assign values
         rnode = deepcopy(value["component"])
-        rnode.locals.update(props)
-        rnode.parent = curr_node.parent
+        for child in rnode.children:
+            child.locals.update(props)
+            child.parent = curr_node.parent
 
+        
         # Replace the component
         idx = curr_node.parent.children.index(curr_node)
-        curr_node.parent.children = (
-            curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
-        )
+        if value["component"].tag == "phml":
+            curr_node.parent.children = (
+                curr_node.parent.children[:idx] + rnode.children + curr_node.parent.children[idx + 1 :]
+            )
+        else:
+            curr_node.parent.children = (
+                curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
+            )
 
         # Find the next node that is of the current component.
         curr_node, value = find_next()
