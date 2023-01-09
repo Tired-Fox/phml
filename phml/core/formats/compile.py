@@ -82,10 +82,63 @@ valid_prev = {
     ],
 }
 
+def substitute_component(
+    node: Root | Element | AST,
+    component: tuple[str, dict],
+    virtual_python: VirtualPython,
+    **kwargs,
+):
+    """Replace the first occurance of a component.
+
+    Args:
+        node (Root | Element | AST): The starting point.
+        virtual_python (VirtualPython): The python state to use while evaluating prop values
+    """
+
+    if isinstance(node, AST):
+        node = node.tree
+
+    new_props = {}
+
+    curr_node = find(node, ["element", {"tag": component[0]}])
+
+    # Retain conditional properties
+    condition = py_condition(curr_node)
+    if condition is not None:
+        new_props[condition] = curr_node[condition]
+        del curr_node[condition]
+
+    # Generate and process the props
+    props = __process_props(curr_node, virtual_python, kwargs)
+    props["children"] = curr_node.children
+
+    # Create a duplicate of the component and assign values
+    rnode = deepcopy(component[1]["component"])
+
+    # Replace the component
+    idx = curr_node.parent.children.index(curr_node)
+    if component[1]["component"].tag == "phml":
+        for child in rnode.children:
+            child.locals.update(props)
+            child.parent = curr_node.parent
+        curr_node.parent.children = (
+            curr_node.parent.children[:idx] + rnode.children + curr_node.parent.children[idx + 1 :]
+        )
+    else:
+        rnode.locals.update(props)
+        rnode.parent = curr_node.parent
+        curr_node.parent.children = (
+            curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
+        )
+
+    # Combine style, script, and python tags
+    __add_component_elements(node, {component[0]: component[1]}, "style")
+    __add_component_elements(node, {component[0]: component[1]}, "python")
+    __add_component_elements(node, {component[0]: component[1]}, "script")
 
 def replace_components(
     node: Root | Element | AST,
-    components: dict[str, All_Nodes],
+    components: dict[str, dict],
     virtual_python: VirtualPython,
     **kwargs,
 ):
@@ -103,13 +156,15 @@ def replace_components(
 
     def find_next():
         for name, value in components.items():
-            curr_node = find(node, ["element", {"tag": name}])
-            if curr_node is not None:
-                return curr_node, value
+            new_node = find(node, ["element", {"tag": name}])
+            if new_node is not None:
+                return new_node, value
         return None, None
 
+    from phml import inspect
     curr_node, value = find_next()
-    while curr_node is not None:
+    while curr_node:
+        
         if curr_node.tag not in used_components:
             used_components[curr_node.tag] = value
 
@@ -128,18 +183,22 @@ def replace_components(
         
         # Create a duplicate of the component and assign values
         rnode = deepcopy(value["component"])
-        for child in rnode.children:
-            child.locals.update(props)
-            child.parent = curr_node.parent
 
         
         # Replace the component
         idx = curr_node.parent.children.index(curr_node)
         if value["component"].tag == "phml":
+            for child in rnode.children:
+                child.locals.update(props)
+                child.parent = curr_node.parent
+
             curr_node.parent.children = (
                 curr_node.parent.children[:idx] + rnode.children + curr_node.parent.children[idx + 1 :]
             )
+            input(inspect(curr_node.parent))
         else:
+            rnode.locals.update(props)
+            rnode.parent = curr_node.parent
             curr_node.parent.children = (
                 curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
             )

@@ -150,13 +150,21 @@ def replace_node(
                 idx = node.parent.children.index(node)
                 if replacement is not None:
                     parent = node.parent
-                    parent.children = (
-                        node.parent.children[:idx] + replacement + node.parent.children[idx + 1 :]
-                        if isinstance(replacement, list)
-                        else node.parent.children[:idx]
-                        + [replacement]
-                        + node.parent.children[idx + 1 :]
-                    )
+                    if isinstance(replacement, list):
+                        for item in replacement:
+                            item.parent = node.parent
+                        parent.children = (
+                            node.parent.children[:idx]
+                            + replacement
+                            + node.parent.children[idx + 1 :]
+                        )
+                    else:
+                        replacement.parent = node.parent
+                        parent.children = (
+                            node.parent.children[:idx]
+                            + [replacement]
+                            + node.parent.children[idx + 1 :]
+                        )
                 else:
                     parent = node.parent
                     parent.children.pop(idx)

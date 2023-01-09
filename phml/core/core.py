@@ -209,6 +209,8 @@ class PHML:
         """
         if isinstance(file, (str | Path)):
             file = Path(file)
+            
+            file.parent.mkdir(parents=True, exist_ok=True)
 
             if file.suffix == "" or replace_suffix:
                 file = file.with_suffix(file_type.suffix())
