@@ -1,5 +1,5 @@
 """Pythonic Hypertext Markup Language (phml) parser."""
-
+from re import match
 from html.parser import HTMLParser
 
 from phml.core.nodes import AST, Comment, DocType, Element, Point, Position, Properties, Root, Text
@@ -85,26 +85,26 @@ def strip_and_count(data: str, cur_pos: tuple[int, int]) -> tuple[str, int, int]
     taht the data ends at.
     """
     lines, cols = 0, len(data) + cur_pos[1]
-    data_lines = data.split("\n")
+    if match(r"[ \n]+", data) is None:
+        data_lines = data.split("\n")
 
-    # If multiline data block
-    if len(data_lines) > 1:
+        # If multiline data block
+        if len(data_lines) > 1:
+            data_lines = strip_blank_lines(data_lines)
 
-        data_lines = strip_blank_lines(data_lines)
+            if len(data_lines) > 0:
+                # Get the line and col of the final position
+                lines, cols = len(data_lines) - 1, len(data_lines[-1])
 
-        if len(data_lines) > 0:
-            # Get the line and col of the final position
-            lines, cols = len(data_lines) - 1, len(data_lines[-1])
-
-        data_lines = "\n".join(data_lines)
-
-    # Else it is a single line data block
-    else:
-        # Is not a blank line
-        if data_lines[0].replace("\n", " ").strip() != "":
+            data_lines = "\n".join(data_lines)
+        # Else it is a single line data block
+        else:
+            # Is not a blank line
+            # if match(r" +\n", data_lines[0]) is None:
             data_lines = data_lines[0]
 
-    return data_lines, cur_pos[0] + lines, cols
+        return data_lines, cur_pos[0] + lines, cols
+    return data, cur_pos[0] + len(data.split("\n")), len(data.split("\n")[-1])
 
 
 class HypertextMarkupParser(HTMLParser):

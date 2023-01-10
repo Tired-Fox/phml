@@ -12,6 +12,11 @@ from .parser import Parser
 __all__ = ["PHML"]
 
 
+PathLike = str | Path
+CompiledComponent =  dict[str, list | All_Nodes] | AST
+Component = dict[str, CompiledComponent] | tuple[str, CompiledComponent] | list[PathLike] | PathLike
+
+
 class PHML:
     """A helper class that bundles the functionality
     of the parser and compiler together. Allows for loading source files,
@@ -70,10 +75,7 @@ class PHML:
 
     def add(
         self,
-        *components: dict[str, dict[str, list | All_Nodes] | AST]
-        | tuple[str, dict[str, list | All_Nodes] | AST]
-        | Path
-        | str,
+        *components: Component,
         strip_root: bool = False,
     ):
         """Add a component to the compiler's component list.
@@ -98,7 +100,19 @@ class PHML:
         """
 
         for component in components:
-            if isinstance(component, (Path, str)):
+            if isinstance(component, list):
+                if not all(isinstance(path, PathLike) for path in component):
+                    raise TypeError("If a component argument is a list all values must be either a \
+str or Path.")
+                for path in component:
+                    self._parser.load(Path(path))
+                    self._compiler.add(
+                        (
+                            cmpt_name_from_path(Path(path), strip_root),
+                            parse_component(self._parser.ast),
+                        )
+                    )
+            elif isinstance(component, PathLike):
                 self._parser.load(Path(component))
                 self._compiler.add(
                     (
@@ -106,7 +120,7 @@ class PHML:
                         parse_component(self._parser.ast),
                     )
                 )
-            elif isinstance(component, tuple) and isinstance(component[1], (Path, str)):
+            elif isinstance(component, tuple) and isinstance(component[1], PathLike):
                 self._parser.load(Path(component[1]))
                 self._compiler.add((component[0], parse_component(self._parser.ast)))
             else:

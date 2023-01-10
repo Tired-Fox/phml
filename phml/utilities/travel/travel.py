@@ -7,7 +7,7 @@ from typing import Iterator
 
 from phml.core.nodes import All_Nodes, Element, Root
 
-__all__ = ["path", "walk", "visit_children", "visit_all_after"]
+__all__ = ["path", "path_names", "walk", "visit_children", "visit_all_after"]
 
 
 def path(node: All_Nodes) -> list[All_Nodes]:
@@ -27,6 +27,27 @@ def path(node: All_Nodes) -> list[All_Nodes]:
     ancestors = []
     while node.parent is not None:
         ancestors = [node.parent, *ancestors]
+        node = node.parent
+
+    return ancestors
+
+def path_names(node: All_Nodes) -> list[str]:
+    """Get a list of nodes where each one is a child of
+    the other leading to the node passed in. This gives a
+    path to the node.
+
+    Does not include given node.
+
+    Args:
+        node (All_Nodes): Node to find ancestors of.
+
+    Returns:
+        list[str]: List of nodes leading to the given node
+        starting from the root.
+    """
+    ancestors = []
+    while node.parent is not None and node.parent.type != "root":
+        ancestors = [node.parent.tag, *ancestors]
         node = node.parent
 
     return ancestors

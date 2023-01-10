@@ -16,7 +16,8 @@ from phml.utilities import (
     offset,
     replace_node,
     visit_children,
-    query
+    query,
+    path_names
 )
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
@@ -119,7 +120,8 @@ def substitute_component(
     idx = curr_node.parent.children.index(curr_node)
     if component[1]["component"].tag == "phml":
         for child in rnode.children:
-            child.locals.update(props)
+            if child.type == "element":
+                child.locals.update(props)
             child.parent = curr_node.parent
         curr_node.parent.children = (
             curr_node.parent.children[:idx] + rnode.children + curr_node.parent.children[idx + 1 :]
@@ -339,8 +341,8 @@ def apply_python(
                 process_children(child, {**local_vars})
             elif (
                 check(child, "text")
+                and search(r".*\{.*\}.*", child.value)
                 and child.parent.tag not in ["script", "style"]
-                and search(r".*\{.*\}.*", child.value) is not None
             ):
                 child.value = process_python_blocks(child.value, virtual_python, **local_env)
 
@@ -714,7 +716,10 @@ class ToML:
         lines = []
         for child in visit_children(node):
             if child.type == "element":
-                lines.extend(self.__compile_children(child, indent + self.offset))
+                if child.tag == "pre" or "pre" in path_names(child):
+                    lines.append(''.join(self.__compile_children(child, 0)))
+                else:
+                    lines.extend(self.__compile_children(child, indent + self.offset))
             else:
                 lines.append(child.stringify(indent + self.offset))
         return lines

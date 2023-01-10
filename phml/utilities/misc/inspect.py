@@ -112,7 +112,7 @@ def build_literal_value(node: Text | Comment) -> list[str]:
 
 
 def normalize_indent(text: str) -> str:
-    """Remove extra prefix whitespac while preserving relative indenting.
+    """Remove extra prefix whitespace while preserving relative indenting.
 
     Example:
     ```python
