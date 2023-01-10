@@ -79,13 +79,13 @@ def calc_end_of_tag(tag_text: str, cur_pos: tuple[int, int]) -> tuple[int, int]:
     return cur_pos[0] + line, col
 
 
-def strip_and_count(data: str, cur_pos: tuple[int, int]) -> tuple[str, int, int]:
+def strip_and_count(data: str, cur_pos: tuple[int, int], cur_tags: list) -> tuple[str, int, int]:
     """This function takes a possibly mutliline string and strips leading and trailing
     blank lines. Given the current position it will also calculate the line and column
     taht the data ends at.
     """
     lines, cols = 0, len(data) + cur_pos[1]
-    if match(r"[ \n]+", data) is None:
+    if "pre" not in [elem.tag for elem in cur_tags]:
         data_lines = data.split("\n")
 
         # If multiline data block
@@ -205,7 +205,7 @@ class HypertextMarkupParser(HTMLParser):
     def handle_data(self, data):
         # Raw data, most likely text nodes
         # Strip extra blank lines and count the lines and columns
-        data, eline, ecol = strip_and_count(data, self.getpos())
+        data, eline, ecol = strip_and_count(data, self.getpos(), self.cur_tags)
 
         # If the data is not empty after stripping blank lines add a new text
         #  node to current elements children
@@ -216,7 +216,7 @@ class HypertextMarkupParser(HTMLParser):
 
     def handle_comment(self, data: str) -> None:
         # Strip extra blank lines and count the lines and columns
-        data, eline, ecol = strip_and_count(data, self.getpos())
+        data, eline, ecol = strip_and_count(data, self.getpos(), self.cur_tags)
 
         # If end line is the same as current line then add 7 to
         # column num for `<!--` and `-->` syntax

@@ -39,7 +39,7 @@ def __process_children(node, children: list[str | list | int | All_Nodes]):
 
 def p(  # pylint: disable=[invalid-name,keyword-arg-before-vararg]
     selector: Optional[str] = None,
-    *args: str | list | int | All_Nodes,
+    *args: str | list | dict | int | All_Nodes,
 ):
     """Generic factory for creating phml nodes."""
 

@@ -1,8 +1,10 @@
 from pathlib import Path
+from re import finditer
 
 from phml.core.nodes import AST, All_Nodes, Element
 
 __all__ = [
+    "tokanize_name",
     "tag_from_file",
     "filename_from_path",
     "parse_component",
@@ -10,24 +12,21 @@ __all__ = [
     "cmpt_name_from_path",
 ]
 
-
-def tag_from_file(filename: str | Path) -> str:
-    """Generates a tag name some-tag-name from a filename.
-    Assumes filenames of:
+def tokanize_name(name: str) -> list[str]:
+    """Generates name tokens `some name tokanized` from a filename.
+    Assumes filenames is one of:
     * snakecase - some_file_name
     * camel case - someFileName
     * pascal case - SomeFileName
+
+    Args:
+        name (str): File name without extension
+
+    Returns:
+        list[str]: List of word tokens.
     """
-    from re import finditer  # pylint: disable=import-outside-toplevel
-
-    if isinstance(filename, Path):
-        if filename.is_file():
-            filename = filename.name.replace(filename.suffix, "")
-        else:
-            raise TypeError("If filename is a path it must also be a valid file.")
-
     tokens = []
-    for token in finditer(r"(\b|[A-Z]|_|-)([a-z]+)|([0-9]+)|([A-Z]+)(?=[^a-z])", filename):
+    for token in finditer(r"(\b|[A-Z]|_|-|\.)([a-z]+)|([0-9]+)|([A-Z]+)(?=[^a-z])", name):
         first, rest, nums, cap = token.groups()
 
         if first is not None and first.isupper():
@@ -37,6 +36,23 @@ def tag_from_file(filename: str | Path) -> str:
         elif nums is not None and nums.isnumeric():
             rest = str(nums)
         tokens.append(rest.lower())
+    return tokens
+
+def tag_from_file(filename: str | Path) -> str:
+    """Generates a tag name some-tag-name from a filename.
+    Assumes filenames of:
+    * snakecase - some_file_name
+    * camel case - someFileName
+    * pascal case - SomeFileName
+    """
+
+    if isinstance(filename, Path):
+        if filename.is_file():
+            filename = filename.name.replace(filename.suffix, "")
+        else:
+            raise TypeError("If filename is a path it must also be a valid file.")
+
+    tokens = tokanize_name(filename)
 
     return "-".join(tokens)
 
