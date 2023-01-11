@@ -103,40 +103,57 @@ def substitute_component(
 
     curr_node = find(node, ["element", {"tag": component[0]}])
 
-    # Retain conditional properties
-    condition = py_condition(curr_node)
-    if condition is not None:
-        new_props[condition] = curr_node[condition]
-        del curr_node[condition]
+    if curr_node is not None:
+        # Retain conditional properties
+        parent = curr_node.parent
+        root = Root(children=[deepcopy(parent.children)])
+        condition = py_condition(curr_node)
+        print(curr_node, condition)
+        if condition is not None:
+            apply_conditions(root, virtual_python)
+            if len(root.children) == 1 and root.children[0] == curr_node:
+                new_props[condition] = "True"
 
-    # Generate and process the props
-    props = __process_props(curr_node, virtual_python, kwargs)
-    props["children"] = curr_node.children
+            del curr_node[condition]
 
-    # Create a duplicate of the component and assign values
-    rnode = deepcopy(component[1]["component"])
+        if curr_node in root.children[0]:
+            # Generate and process the props
+            curr_node.parent = parent
+            props = __process_props(curr_node, virtual_python, kwargs)
+            props["children"] = curr_node.children
 
-    # Replace the component
-    idx = curr_node.parent.children.index(curr_node)
-    if component[1]["component"].tag == "phml":
-        for child in rnode.children:
-            if child.type == "element":
-                child.locals.update(props)
-            child.parent = curr_node.parent
-        curr_node.parent.children = (
-            curr_node.parent.children[:idx] + rnode.children + curr_node.parent.children[idx + 1 :]
-        )
-    else:
-        rnode.locals.update(props)
-        rnode.parent = curr_node.parent
-        curr_node.parent.children = (
-            curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
-        )
+            # Create a duplicate of the component and assign values
+            rnode = deepcopy(component[1]["component"])
 
-    # Combine style, script, and python tags
-    __add_component_elements(node, {component[0]: component[1]}, "style")
-    __add_component_elements(node, {component[0]: component[1]}, "python")
-    __add_component_elements(node, {component[0]: component[1]}, "script")
+            # Replace the component
+            idx = curr_node.parent.children.index(curr_node)
+            if component[1]["component"].tag == "phml":
+                for child in rnode.children:
+                    if child.type == "element":
+                        child.locals.update(props)
+                        child.properties.update(new_props)
+                    child.parent = curr_node.parent
+                curr_node.parent.children = (
+                    curr_node.parent.children[:idx] + rnode.children + curr_node.parent.children[idx + 1 :]
+                )
+            else:
+                rnode.locals.update(props)
+                rnode.properties.update(new_props)
+                rnode.parent = curr_node.parent
+                curr_node.parent.children = (
+                    curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
+                )
+
+            # Combine style, script, and python tags
+            __add_component_elements(node, {component[0]: component[1]}, "style")
+            __add_component_elements(node, {component[0]: component[1]}, "python")
+            __add_component_elements(node, {component[0]: component[1]}, "script")
+        else:
+            # Replace the component
+            idx = curr_node.parent.children.index(curr_node)
+            curr_node.parent.children = (
+                curr_node.parent.children[:idx] + [Element("div", {"@if": "False"}, startend=True)] + curr_node.parent.children[idx + 1 :]
+            )
 
 def replace_components(
     node: Root | Element | AST,
@@ -172,41 +189,53 @@ def replace_components(
         new_props = {}
 
         # Retain conditional properties
+        parent = curr_node.parent
+        root = Root(children=[deepcopy(parent.children)])
         condition = py_condition(curr_node)
         if condition is not None:
-            new_props[condition] = curr_node[condition]
+            apply_conditions(root, virtual_python)
+            if len(root.children) == 1 and root.children[0] == curr_node:
+                new_props[condition] = "True"
             del curr_node[condition]
 
-        # Generate and process the props
-        props = __process_props(curr_node, virtual_python, kwargs)
-        props["children"] = curr_node.children
+        if len(root.children) == 1 and root.children[0] == curr_node:
+            # Generate and process the props
+            curr_node.parent = parent
+            props = __process_props(curr_node, virtual_python, kwargs)
+            props["children"] = curr_node.children
 
-        # Create a duplicate of the component and assign values
-        rnode = deepcopy(value["component"])
+            # Create a duplicate of the component and assign values
+            rnode = deepcopy(value["component"])
 
-        # Replace the component
-        idx = curr_node.parent.children.index(curr_node)
-        if value["component"].tag == "phml":
-            for child in rnode.children:
-                child.locals.update(props)
-                child.properties.update(new_props)
-                child.parent = curr_node.parent
+            # Replace the component
+            idx = curr_node.parent.children.index(curr_node)
+            if value["component"].tag == "phml":
+                for child in rnode.children:
+                    child.locals.update(props)
+                    child.properties.update(new_props)
+                    child.parent = curr_node.parent
 
-            curr_node.parent.children = (
-                curr_node.parent.children[:idx]
-                + rnode.children
-                + curr_node.parent.children[idx + 1 :]
-            )
+                curr_node.parent.children = (
+                    curr_node.parent.children[:idx]
+                    + rnode.children
+                    + curr_node.parent.children[idx + 1 :]
+                )
+            else:
+                rnode.locals.update(props)
+                rnode.properties.update(new_props)
+                rnode.parent = curr_node.parent
+                curr_node.parent.children = (
+                    curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
+                )
+
+            # Find the next node that is of the current component.
+            curr_node, value = find_next()
         else:
-            rnode.locals.update(props)
-            rnode.parent = curr_node.parent
-            rnode.properties.update(new_props)
+            idx = curr_node.parent.children.index(curr_node)
             curr_node.parent.children = (
-                curr_node.parent.children[:idx] + [rnode] + curr_node.parent.children[idx + 1 :]
+                curr_node.parent.children[:idx] + [Element("div", {"@if": "False"}, startend=True)] + curr_node.parent.children[idx + 1 :]
             )
-
-        # Find the next node that is of the current component.
-        curr_node, value = find_next()
+            curr_node, value = find_next()
 
     # Combine style, script, and python tags
     __add_component_elements(node, used_components, "style")
@@ -375,7 +404,19 @@ def py_condition(node: Element) -> bool:
 
 def __validate_previous_condition(child: Element) -> Optional[str]:
     idx = child.parent.children.index(child)
-    previous = child.parent.children[idx - 1] if idx > 0 else None
+    
+    def get_previous_condition(idx: int):
+        """Get the last conditional element allowing for comments and text"""
+        previous = None
+        parent = child.parent
+        for i in range(idx - 1, -1, -1):
+            if isinstance(parent.children[i], Element):
+                if py_condition(parent.children[i]) is not None:
+                    previous = parent.children[i]
+                break
+        return previous
+    
+    previous = get_previous_condition(idx)
     prev_cond = (
         py_condition(previous) if previous is not None and isinstance(previous, Element) else None
     )
@@ -388,7 +429,7 @@ def __validate_previous_condition(child: Element) -> Optional[str]:
     ]:
         raise Exception(
             f"Condition statements that are not py-if or py-for must have py-if or\
- py-elif as a prevous sibling.\n{child.start_tag()}\
+ py-elif as a previous sibling.\n{child.start_tag()}\
 {f' at {child.position}' if child.position is not None else ''}"
         )
 
