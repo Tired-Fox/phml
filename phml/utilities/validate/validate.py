@@ -386,6 +386,8 @@ def blank(value: Any) -> bool:
         if isinstance(value, str):
             value = value.strip()
 
-        return len(value) == 0
+        if hasattr(value, "__len__"):
+            return len(value) == 0
+        return False
 
     return True
