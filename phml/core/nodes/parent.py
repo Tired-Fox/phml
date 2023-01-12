@@ -39,6 +39,11 @@ class Parent(Node):  # pylint: disable=too-few-public-methods
         """Add a node to the nested children of the current parent node."""
         node.parent = self
         self.children.append(node)
+        
+    def extend(self, nodes: list[All_Nodes]):
+        """Add a node to the nested children of the current parent node."""
+        for node in nodes:
+            self.append(node)
 
     def insert(self, index: int, node: All_Nodes):
         """Insert a node into a specific position in the current parent node's children."""

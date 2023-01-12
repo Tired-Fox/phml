@@ -48,7 +48,12 @@ class HTMLFormat(Format):
         remove_nodes(src, ["element", {"tag": "python"}])
 
         # 2. Replace specific element node with given replacement components
-        replace_components(src, components, virtual_python, **kwargs)
+        # replace_components(src, components, virtual_python, **kwargs)
+
+        # 3. Search each element and find py-if, py-elif, py-else, and py-for
+        #    - Execute those statements
+
+        apply_conditions(src, virtual_python, components, **kwargs)
 
         for python_block in find_all(src, {"tag": "python"}):
             if len(python_block.children) == 1:
@@ -57,10 +62,6 @@ class HTMLFormat(Format):
 
         remove_nodes(src, ["element", {"tag": "python"}])
 
-        # 3. Search each element and find py-if, py-elif, py-else, and py-for
-        #    - Execute those statements
-
-        apply_conditions(src, virtual_python, **kwargs)
 
         # 4. Search for python blocks and process them.
 

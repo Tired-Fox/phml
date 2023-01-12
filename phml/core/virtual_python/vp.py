@@ -283,34 +283,3 @@ class MultiLineBlock(PythonBlock):
 
         # normalize indent
         super().__init__(normalize_indent("\n".join(expr)))
-
-
-if __name__ == "__main__":
-    result = extract_expressions(
-        '''\
-    This is a multiline string.
-    It has {complex} examples of python blocks.
-    {
-        names = ["Zach", "Ashley"]
-        results= []
-        for name in names:
-            results.append(f"""<li>{name}</li>""")
-        result = "\\n".join(results)
-    }    \
-'''
-    )
-
-    print(
-        process_python_blocks(
-            '''\
-    This is a multiline string.
-    It has {complex} examples of python blocks.
-    {
-        names = ["Zach", "Ashley"]
-        results= []
-        for name in names:
-            results.append(f"""<li>{name}</li>""")
-        result = "\\n".join(results)
-    }    \
-''', VirtualPython(), complex="complex")
-    )
