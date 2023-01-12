@@ -84,7 +84,7 @@ def __process_props(child: Element, virtual_python: VirtualPython, local_vars: d
 
     for prop in child.properties:
         if prop.startswith((ATTR_PREFIX, "py-")):
-            local_env = {**virtual_python.exposable}
+            local_env = {**virtual_python.context}
             local_env.update(local_vars)
             new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_python_result(
                 child[prop], **local_env
@@ -141,15 +141,15 @@ def apply_python(
 
         for child in node.children:
             if check(child, "element"):
-                if "children" in child.locals.keys():
+                if "children" in child.context.keys():
                     replace_node(
                         child,
                         ["element", {"tag": "slot"}],
-                        child.locals["children"],
+                        child.context["children"],
                     )
 
                 local_vars = {**local_env}
-                local_vars.update(child.locals)
+                local_vars.update(child.context)
 
                 child.properties = __process_props(child, virtual_python, local_vars)
                 process_children(child, {**local_vars})
@@ -279,7 +279,7 @@ def execute_conditions(
     previous = (f"{CONDITION_PREFIX}for", True)
 
     # Add the python blocks locals to kwargs dict
-    kwargs.update(virtual_python.exposable)
+    kwargs.update(virtual_python.context)
 
     # Bring python blocks imports into scope
     for imp in virtual_python.imports:
@@ -346,9 +346,9 @@ def build_locals(child, **kwargs) -> dict:
     # Inherit locals from top down
     for parent in path(child):
         if parent.type == "element":
-            clocals.update(parent.locals)
+            clocals.update(parent.context)
 
-    clocals.update(child.locals)
+    clocals.update(child.context)
     return clocals
 
 
@@ -438,8 +438,8 @@ def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> li
     for_loop = f'''\
 for {for_loop}:
     new_child = deepcopy(child)
-    new_child.locals = {{**local_vals}}
-    new_child.locals.update({{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}})
+    new_child.context = {{**local_vals}}
+    new_child.context.update({{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}})
     children = [*children[:insert], new_child, *children[insert+1:]]
     insert += 1\
 '''

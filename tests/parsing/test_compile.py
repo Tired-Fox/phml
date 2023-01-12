@@ -177,11 +177,11 @@ class TestCompile:
             
     def test_expose(self):
         self.phml.expose(message="Hello World!")
-        assert "message" in self.phml._exposable
+        assert "message" in self.phml._context
     
     def test_redact(self):
         self.phml.redact("message")
-        assert "message" not in self.phml._exposable
+        assert "message" not in self.phml._context
     
     def test_expand(self):
         self.phml._scopes = []

@@ -27,11 +27,11 @@ class VirtualPython:
         self,
         content: Optional[str] = None,
         imports: Optional[list] = None,
-        exposable: Optional[dict] = None,
+        context: Optional[dict] = None,
     ):
         self.content = content or ""
         self.imports = imports or []
-        self.exposable = exposable or {}
+        self.context = context or {}
 
         if self.content != "":
 
@@ -45,20 +45,20 @@ class VirtualPython:
 
             # Retreive locals from content
             local_env = {}
-            global_env = {**self.exposable, **globals()}
+            global_env = {**self.context, **globals()}
             exec(self.content, global_env, local_env)  # pylint: disable=exec-used
-            self.exposable.update(local_env)
+            self.context.update(local_env)
 
     def __add__(self, obj: VirtualPython) -> VirtualPython:
-        local_env = {**self.exposable}
-        local_env.update(obj.exposable)
+        local_env = {**self.context}
+        local_env.update(obj.context)
         return VirtualPython(
             imports=[*self.imports, *obj.imports],
-            exposable=local_env,
+            context=local_env,
         )
 
     def __repr__(self) -> str:
-        return f"VP(imports: {len(self.imports)}, locals: {len(self.exposable.keys())})"
+        return f"VP(imports: {len(self.imports)}, locals: {len(self.context.keys())})"
 
 
 def parse_ast_assign(vals: list[ast.Name | tuple[ast.Name]]) -> list[str]:
@@ -108,7 +108,6 @@ def get_python_result(expr: str, **kwargs) -> Any:
     This will collect the result of the expression and return it.
     """
     from phml.utilities import (  # pylint: disable=import-outside-toplevel,unused-import
-        ClassList,
         blank,
         classnames,
     )
@@ -230,7 +229,7 @@ def process_python_blocks(python_value: str, virtual_python: VirtualPython, **kw
         exec(str(imp))  # pylint: disable=exec-used
 
     expressions = extract_expressions(python_value)
-    kwargs.update(virtual_python.exposable)
+    kwargs.update(virtual_python.context)
     for idx, expression in enumerate(expressions):
         if isinstance(expression, PythonBlock):
             expressions[idx] = expression.exec(**kwargs)

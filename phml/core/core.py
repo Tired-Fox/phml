@@ -42,22 +42,22 @@ class PHML:
         self,
         scopes: Optional[list[str]] = None,
         components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
-        **exposable: Any,
+        **contexts: Any,
     ):
         self._parser = Parser()
         self._compiler = Compiler(components=components)
         self._scopes = scopes or []
-        self._exposable = dict(exposable)
+        self._context = dict(contexts)
 
     def expose(self, **kwargs: Any):
         """Add additional data to the compilers global values. These values are exposed for every
         call to render or write.
         """
-        self._exposable.update(kwargs)
+        self._context.update(kwargs)
 
     def redact(self, key: str):
         """Remove a value from the compilers globally exposed values."""
-        self._exposable.pop(key, None)
+        self._context.pop(key, None)
 
     def expand(self, *args: str):
         """Add relative paths to a directory, that you want added to the python path
@@ -186,7 +186,7 @@ str or Path.")
             indent=indent,
             scopes=scopes,
             components=components,
-            **{**self._exposable, **kwargs},
+            **{**self._context, **kwargs},
         )
 
     def write(

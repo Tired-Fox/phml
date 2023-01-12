@@ -61,7 +61,7 @@ class Element(Parent):
         self.tag = tag
         self.startend = startend
         self.parent = parent
-        self.locals = {}
+        self.context = {}
 
     def __getitem__(self, index: str) -> str:
         return self.properties[index]

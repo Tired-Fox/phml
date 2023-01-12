@@ -26,8 +26,6 @@ def substitute_component(
     if isinstance(node, AST):
         node = node.tree
 
-    new_props = {}
-    name = component[0]
     value = component[1]
 
     curr_node = find(node, ["element", {"tag": component[0]}])
@@ -54,7 +52,7 @@ def substitute_component(
                     context = build_locals(curr_node, **kwargs)
                     if prop.startswith((":", "py-")):
                         # process as python
-                        context.update(virtual_python.exposable)
+                        context.update(virtual_python.context)
                         props[attr_name] = get_python_result(attributes[prop], **context)
                     else:
                         # process python blocks
@@ -78,7 +76,7 @@ def substitute_component(
         # Assign props to locals and remaining attributes stay
         props, attrs = get_props()
         curr_node.properties = attrs
-        curr_node.locals = props
+        curr_node.context = props
 
         def execute_condition(
             condition: str,
@@ -96,7 +94,7 @@ def substitute_component(
             previous = (conditions[-1] if len(conditions) > 0 else "py-for", True)
 
             # Add the python blocks locals to kwargs dict
-            kwargs.update(virtual_python.exposable)
+            kwargs.update(virtual_python.context)
 
             # Bring python blocks imports into scope
             for imp in virtual_python.imports:
@@ -146,24 +144,33 @@ def substitute_component(
             state, results = execute_condition(condition, curr_node, virtual_python, **kwargs)
 
         # replace the valid components in the results list
+        new_children = []
         for i, child in enumerate(results):
-            if child.tag == curr_node.tag:
-                # get props and locals from current node
-                props, attrs = curr_node.locals, curr_node.properties
-                props["children"] = curr_node.children
+            props = child.context
+            attrs = child.properties
+            # get props and locals from current node
+            props, attrs = curr_node.context, curr_node.properties
+            props["children"] = curr_node.children
 
+            new_component = deepcopy(value["component"])
+            if new_component.tag == "phml":
                 # Create a copy of the component
-                new_node = deepcopy(value["component"])
-                new_node.locals = props
-                new_node.properties = attrs
-                new_node.parent = curr_node.parent
+                for sub_child in new_component.children:
+                    sub_child.context.update(props)
+                    sub_child.properties.update(attrs)
+                    sub_child.parent = curr_node.parent
 
-                results[i] = new_node
+                new_children.extend(new_component.children)
+            else:
+                new_component.context.update(props)
+                new_component.properties.update(attrs)
+                new_component.parent = curr_node.parent
+                new_children.append(new_component)
 
         # replace the curr_node with the list of replaced nodes
         parent = curr_node.parent
         index = parent.children.index(curr_node)
-        parent.children = parent.children[:index] + results + parent.children[index+1:]
+        parent.children = parent.children[:index] + new_children + parent.children[index+1:]
 
         __add_component_elements(node, {component[0]: component[1]}, "style")
         __add_component_elements(node, {component[0]: component[1]}, "python")
@@ -216,7 +223,7 @@ def replace_components(
                         context = build_locals(curr_node, **kwargs)
                         if prop.startswith((":", "py-")):
                             # process as python
-                            context.update(virtual_python.exposable)
+                            context.update(virtual_python.context)
                             props[attr_name] = get_python_result(attributes[prop], **context)
                         else:
                             # process python blocks
@@ -240,7 +247,7 @@ def replace_components(
             # Assign props to locals and remaining attributes stay
             props, attrs = get_props()
             curr_node.properties = attrs
-            curr_node.locals = props
+            curr_node.context = props
 
             def execute_condition(
                 condition: str,
@@ -258,7 +265,7 @@ def replace_components(
                 previous = (conditions[-1] if len(conditions) > 0 else "py-for", True)
 
                 # Add the python blocks locals to kwargs dict
-                kwargs.update(virtual_python.exposable)
+                kwargs.update(virtual_python.context)
 
                 # Bring python blocks imports into scope
                 for imp in virtual_python.imports:
@@ -308,24 +315,33 @@ def replace_components(
                 state, results = execute_condition(condition, curr_node, virtual_python, **kwargs)
 
             # replace the valid components in the results list
+            new_children = []
             for i, child in enumerate(results):
-                if child.tag == curr_node.tag:
-                    # get props and locals from current node
-                    props, attrs = curr_node.locals, curr_node.properties
-                    props["children"] = curr_node.children
+                props = child.context
+                attrs = child.properties
+                # get props and locals from current node
+                props, attrs = curr_node.context, curr_node.properties
+                props["children"] = curr_node.children
 
+                component = deepcopy(value["component"])
+                if component.tag == "phml":
                     # Create a copy of the component
-                    new_node = deepcopy(value["component"])
-                    new_node.locals = props
-                    new_node.properties = attrs
-                    new_node.parent = curr_node.parent
+                    for sub_child in component.children:
+                        sub_child.context.update(props)
+                        sub_child.properties.update(attrs)
+                        sub_child.parent = curr_node.parent
 
-                    results[i] = new_node
+                    new_children.extend(component.children)
+                else:
+                    component.context = props
+                    component.properties = attrs
+                    component.parent = curr_node.parent
+                    new_children.append(component)
 
             # replace the curr_node with the list of replaced nodes
             parent = curr_node.parent
             index = parent.children.index(curr_node)
-            parent.children = parent.children[:index] + results + parent.children[index+1:]
+            parent.children = parent.children[:index] + new_children + parent.children[index+1:]
 
     # Optimize, python, style, and script tags from components
     __add_component_elements(node, used_components, "style")
@@ -469,8 +485,8 @@ def run_py_for(condition: str, child: All_Nodes, **kwargs) -> list:
 new_children = []
 for {for_loop}:
     new_child = deepcopy(child)
-    new_child.locals = {{**local_vals}}
-    new_child.locals.update({{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}})
+    new_child.context = {{**local_vals}}
+    new_child.context.update({{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}})
     new_children.append(new_child)
 '''
 
@@ -529,9 +545,9 @@ def build_locals(child, **kwargs) -> dict:
     # Inherit locals from top down
     for parent in path(child):
         if parent.type == "element":
-            clocals.update(parent.locals)
+            clocals.update(parent.context)
 
-    clocals.update(child.locals)
+    clocals.update(child.context)
     return clocals
 
 def __get_previous_conditions(child: Element) -> list[str]:
