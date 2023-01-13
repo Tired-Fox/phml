@@ -324,7 +324,7 @@ def is_equal(rule: dict, node: Element) -> bool:
     if len(rule["attributes"]) > 0:
         return all(
             attr["name"] in node.properties.keys()
-            and ((attr["compare"] is not None and __validate_attr(attr, node)))
+            and __validate_attr(attr, node)
             for attr in rule["attributes"]
         )
 
