@@ -122,7 +122,7 @@ class Element(Parent):
         Returns:
             str: Built element end tag.
         """
-        return f"</{self.tag}>" if not self.startend else None
+        return f"</{self.tag}>" if not self.startend else ""
 
     def __repr__(self) -> str:
         out = f"{self.type}(tag: {self.tag}, properties: {self.properties}, \

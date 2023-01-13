@@ -116,6 +116,7 @@ def apply_conditions(
 
     process_conditions(node, virtual_python, **kwargs)
     replace_components(node, components, virtual_python, **kwargs)
+
     for child in node.children:
         if isinstance(child, (Root, Element)):
             apply_conditions(child, virtual_python, components, **kwargs)
@@ -560,6 +561,8 @@ class ToML:
             and node.children[0].num_lines == 1
         ):
             lines.append(self.__one_line(node, indent))
+        elif len(node.children) == 0:
+            lines.append(" " * indent + node.start_tag() + node.end_tag())
         else:
             lines.append(" " * indent + node.start_tag())
             lines.extend(self.__many_children(node, indent))

@@ -58,8 +58,6 @@ def filter_nodes(
                 children.append(node.children[i])
 
         node.children = children
-        if len(node.children) == 0 and isinstance(node, Element):
-            node.startend = True
         return node
 
     filter_children(tree)
@@ -87,9 +85,6 @@ def remove_nodes(
         for child in node.children:
             if child.type in ["root", "element"]:
                 filter_children(child)
-
-        if len(node.children) == 0 and isinstance(node, Element):
-            node.startend = True
 
     filter_children(tree)
 
@@ -168,8 +163,6 @@ def replace_node(
                 else:
                     parent = node.parent
                     parent.children.pop(idx)
-                    if len(parent.children) == 0 and isinstance(parent, Element):
-                        parent.startend = True
 
             if not all_nodes:
                 break

@@ -25,7 +25,7 @@ class Literal(Node):
         position: Optional[Position] = None,
     ):
         super().__init__(position)
-        self.value = value
+        self.value = str(value)
         self.parent = parent
 
     def __eq__(self, obj) -> bool:

@@ -276,10 +276,10 @@ def replace_components(
                 # For each element with a python condition
                 if condition in ["py-for", f"{CONDITION_PREFIX}for"]:
                     new_children = run_py_for(condition, child, **kwargs)
-                    return True, new_children
+                    return new_children
                 elif condition in ["py-if", f"{CONDITION_PREFIX}if"]:
                     state, child = run_py_if(child, condition, **kwargs)
-                    return state, [child]
+                    return [child]
                 elif condition in ["py-elif", f"{CONDITION_PREFIX}elif"]:
                     # Can only exist if previous condition in branch failed
                     state, child = run_py_elif(
@@ -306,13 +306,12 @@ def replace_components(
                         },
                         **kwargs
                     )
-                    return state, [child]
+                    return [child]
 
             condition = py_condition(curr_node)
-            state = True
             results = [curr_node]
             if condition is not None:
-                state, results = execute_condition(condition, curr_node, virtual_python, **kwargs)
+                results = execute_condition(condition, curr_node, virtual_python, **kwargs)
 
             # replace the valid components in the results list
             new_children = []

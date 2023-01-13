@@ -27,7 +27,7 @@ class Text(Literal):
     @cached_property
     def num_lines(self) -> int:
         """Determine the number of lines the text has."""
-        return len([line for line in self.value.split("\n") if line.strip() != ""])
+        return len([line for line in str(self.value).split("\n") if line.strip() != ""])
 
     def stringify(self, indent: int = 0) -> str:
         """Build indented html string of html text.
