@@ -12,6 +12,7 @@ __all__ = [
     "cmpt_name_from_path",
 ]
 
+
 def tokanize_name(name: str) -> list[str]:
     """Generates name tokens `some name tokanized` from a filename.
     Assumes filenames is one of:
@@ -37,6 +38,7 @@ def tokanize_name(name: str) -> list[str]:
             rest = str(nums)
         tokens.append(rest.lower())
     return tokens
+
 
 def tag_from_file(filename: str | Path) -> str:
     """Generates a tag name some-tag-name from a filename.
@@ -72,13 +74,18 @@ def cmpt_name_from_path(file: Path, strip_root: bool = False) -> str:
 
     file = file.as_posix().lstrip("/")
     if strip_root:
-        dirs = [subdir for subdir in file.split("/")[1:-1] if subdir.strip() != ""]
+        dirs = [
+            [subdir[0].upper(), *subdir[1:].lower()]
+            for subdir in file.split("/")[1:-1]
+            if subdir.strip() != ""
+        ]
     else:
         dirs = [subdir for subdir in file.split("/")[:-1] if subdir.strip() != ""]
 
     if len(dirs) > 0:
-        return "-".join(dirs) + f"-{last}"
+        return ".".join(dirs) + f".{last}"
     return last
+
 
 def filename_from_path(file: Path) -> str:
     """Get the filename without the suffix from a pathlib.Path."""
@@ -116,13 +123,20 @@ def parse_component(ast: AST) -> dict[str, Element]:
         elif check(node, "element"):
             if result["component"] is None:
                 result["component"] = node
+            elif result["component"].tag != "phml":
+                element = result["component"]
+                result["component"] = Element("phml")
+                result["component"].extend([element, node])
+            elif result["component"].tag == "phml":
+                result["component"].append(node)
             else:
-                raise Exception(
-                    """\
-Components may only have one wrapping element. All other element in the root must be either a \
-script, style, or python tag. The root wrapping element must be '<phml>`\
-"""
-                )
+                raise Exception("Unkown error while parsing component")
+#                 raise Exception(
+#                     """\
+# Components may only have one wrapping element. All other element in the root must be either a \
+# script, style, or python tag. The root wrapping element must be '<phml>`\
+# """
+#                 )
 
     if result["component"] is None:
         raise Exception("Must have at least one element in a component.")
