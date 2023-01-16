@@ -9,7 +9,7 @@ from phml.utilities import find, offset, normalize_indent, query, replace_node, 
 from .compile import py_condition, CONDITION_PREFIX, valid_prev
 
 __all__ = ["substitute_component", "replace_components"]
-WRAPPER_TAG = "PHML"
+WRAPPER_TAG = ["PHML", ""]
 
 def substitute_component(
     node: Root | Element | AST,
@@ -139,10 +139,9 @@ def substitute_component(
                 return state, [child]
 
         condition = py_condition(curr_node)
-        state = True
         results = [curr_node]
         if condition is not None:
-            state, results = execute_condition(condition, curr_node, virtual_python, **kwargs)
+            results = execute_condition(condition, curr_node, virtual_python, **kwargs)
 
         # replace the valid components in the results list
         new_children = []
@@ -154,7 +153,7 @@ def substitute_component(
             props["children"] = curr_node.children
 
             new_component = deepcopy(value["component"])
-            if new_component.tag == WRAPPER_TAG:
+            if new_component.tag in WRAPPER_TAG:
                 # Create a copy of the component
                 for sub_child in new_component.children:
                     sub_child.context.update(props)
@@ -324,7 +323,8 @@ def replace_components(
                 props["children"] = curr_node.children
 
                 component = deepcopy(value["component"])
-                if component.tag == WRAPPER_TAG:
+
+                if component.tag in WRAPPER_TAG:
                     # Create a copy of the component
                     for sub_child in component.children:
                         sub_child.context.update(props)

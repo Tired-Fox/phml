@@ -29,6 +29,7 @@ __all__ = [
     "Literal",
     "Comment",
     "Text",
+    "PI",
     "Position",
     "Point",
     "Properties",

@@ -103,7 +103,7 @@ class PHML:
             if isinstance(component, list):
                 if not all(isinstance(path, PathLike) for path in component):
                     raise TypeError("If a component argument is a list all values must be either a \
-str or Path.")
+str or pathlib.Path pointing to the file.")
                 for path in component:
                     self._parser.load(Path(path))
                     self._compiler.add(

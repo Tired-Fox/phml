@@ -71,6 +71,7 @@ def cmpt_name_from_path(file: Path, strip_root: bool = False) -> str:
         `blog-header`
     """
     last = file.name.replace(file.suffix, "")
+    last = last[0].upper() + last[1:].lower()
 
     file = file.as_posix().lstrip("/")
     if strip_root:

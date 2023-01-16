@@ -114,9 +114,9 @@ def apply_conditions(
     if isinstance(node, AST):
         node = node.tree
 
+    from phml import inspect
     process_conditions(node, virtual_python, **kwargs)
     replace_components(node, components, virtual_python, **kwargs)
-
     for child in node.children:
         if isinstance(child, (Root, Element)):
             apply_conditions(child, virtual_python, components, **kwargs)

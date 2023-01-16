@@ -4,6 +4,7 @@ The heavy lifting module that compiles phml ast's to different string/file forma
 """
 
 import os
+from pathlib import Path
 import sys
 from re import sub
 from typing import Any, Optional
@@ -60,14 +61,14 @@ class Compiler:
             if isinstance(component, dict):
                 for key, value in component.items():
                     if isinstance(value, AST):
-                        self.components[tag_from_file(key)] = parse_component(value)
+                        self.components[key] = parse_component(value)
                     elif isinstance(value, dict) and valid_component_dict(value):
-                        self.components[tag_from_file(key)] = value
+                        self.components[key] = value
             elif isinstance(component, tuple):
                 if isinstance(component[0], str) and isinstance(component[1], AST):
-                    self.components[tag_from_file(component[0])] = parse_component(component[1])
+                    self.components[component[0]] = parse_component(component[1])
                 elif isinstance(component[0], str) and valid_component_dict(component[1]):
-                    self.components[tag_from_file(component[0])] = component[1]
+                    self.components[component[0]] = component[1]
 
         return self
 
