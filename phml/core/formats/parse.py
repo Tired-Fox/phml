@@ -14,7 +14,8 @@ from phml.core.nodes import (
     Root,
     Text,
     All_Nodes,
-    PI
+    PI,
+    Parent
 )
 
 REGEX = {
@@ -108,133 +109,6 @@ def strip(data: str, cur_tags: list[str]) -> tuple[str, int, int]:
 
     return data
 
-
-# class HypertextMarkupParser(HTMLParser):
-#     """Custom html parser inherited from the python
-#     built-in html.parser.
-#     """
-
-#     cur: Root | Element
-#     """The current parent element in the recursion."""
-
-#     cur_tags: list
-#     """Stack of all open tags. Used for balancing tags."""
-
-#     def __init__(self, *, convert_charrefs=True):
-#         super().__init__(convert_charrefs=convert_charrefs)
-
-#         self.cur = Root()
-#         self.cur_tags = []
-
-#     def handle_decl(self, decl: str) -> None:
-#         tokens = decl.split(" ")
-#         if tokens[0].lower() == "doctype":
-#             self.cur.children.append(
-#                 DocType(
-#                     lang=tokens[1] if len(tokens) > 1 else "html",
-#                     parent=self.cur,
-#                     position=Position(self.getpos(), self.getpos()),
-#                 )
-#             )
-
-#     def handle_starttag(self, tag, attrs):
-#         properties: Properties = {}
-
-#         # Build properties/attributes
-#         for attr in attrs:
-#             if attr[1] is not None:
-#                 properties[attr[0]] = attr[1] if attr[1] != "no" else False
-#             else:
-#                 properties[attr[0]] = True
-
-#         # Add new element to current elements children
-#         self.cur.children.append(Element(tag=tag, properties=properties, parent=self.cur))
-
-#         # Self closing tags are marked as such
-#         if tag in self_closing_tags:
-#             self.cur.children[-1].startend = True
-
-#             self.cur.children[-1].position = Position(
-#                 self.getpos(), calc_end_of_tag(self.get_starttag_text(), self.getpos())
-#             )
-#         else:
-#             # New element is now the current node
-#             self.cur = self.cur.children[-1]
-#             # Elements tag is added to tag stack for balancing
-#             self.cur_tags.append(self.cur)
-#             # Elements start position is added
-#             self.cur.position = Position(self.getpos(), (0, 0))
-
-#     def handle_startendtag(self, tag, attrs):
-#         properties: Properties = {}
-
-#         # Build properties/attributes for element
-#         for attr in attrs:
-#             if attr[1] is not None:
-#                 properties[attr[0]] = attr[1] if attr[1] != "no" else False
-#             else:
-#                 properties[attr[0]] = True
-
-#         # Add new element to current elements children
-#         self.cur.children.append(
-#             Element(
-#                 tag=tag,
-#                 properties=properties,
-#                 parent=self.cur,
-#                 startend=True,
-#                 position=Position(
-#                     self.getpos(), calc_end_of_tag(self.get_starttag_text(), self.getpos())
-#                 ),
-#             )
-#         )
-
-#     def handle_endtag(self, tag):
-#         # Tag was closed validate the balancing and matches
-#         if tag == self.cur_tags[-1].tag:
-#             # Tags are balanced so add end point to position
-#             #  and make the parent the new current element
-#             self.cur.position.end = Point(*self.getpos())
-#             self.cur = self.cur.parent
-#             self.cur_tags.pop(-1)
-#         else:
-#             # Tags are not balanced, raise a new error
-#             raise Exception(
-#                 f"Mismatched tags <{self.cur.tag}> and </{tag}> at \
-# [{self.getpos()[0]}:{self.getpos()[1]}]"
-#             )
-
-#     def handle_data(self, data):
-#         # Raw data, most likely text nodes
-#         # Strip extra blank lines and count the lines and columns
-#         data, eline, ecol = strip(data, self.getpos(), self.cur_tags)
-
-#         # If the data is not empty after stripping blank lines add a new text
-#         #  node to current elements children
-#         if data not in [[], "", None]:
-#             self.cur.children.append(
-#                 Text(data, self.cur, position=Position(self.getpos(), (eline, ecol)))
-#             )
-
-#     def handle_comment(self, data: str) -> None:
-#         # Strip extra blank lines and count the lines and columns
-#         data, eline, ecol = strip(data, self.getpos(), self.cur_tags)
-
-#         # If end line is the same as current line then add 7 to
-#         # column num for `<!--` and `-->` syntax
-#         if eline == self.getpos()[0]:
-#             ecol += 7
-#         else:
-#             # Otherwise just add 3 for the `-->` syntax
-#             ecol += 3
-
-#         self.cur.children.append(
-#             Comment(
-#                 value=data,
-#                 parent=self.cur,
-#                 position=Position(self.getpos(), (eline, ecol)),
-#             )
-#         )
-
 @dataclass
 class Specifier:
     Open: str = "Open"
@@ -269,12 +143,12 @@ class HypertextMarkupParser:
         tag_stack = []
 
         root = Root()
-        current = root
+        current: Parent = root
 
         while element is not None:
             comment, tag_type, tag_name, tag_attributes, _, _, closing = element.groups()
             # Create position in file
-            position, text = self.__calculate(source, element, previous)
+            position, text = self.__calculate(source, element.group(0), element.start(), previous)
             if text.strip() != "":
                 current.append(Text(strip(text, tag_stack), position=Position(previous.end, position.start)))
             # Generate Element for tag found
@@ -320,6 +194,10 @@ class HypertextMarkupParser:
             # Find next node
             element = REGEX["tag"].search(source)
             previous = position
+
+        if source != "":
+            position, text = self.__calculate(source, source, 0, previous)
+            current.append(Text(strip(source, tag_stack), position=position))
 
         return AST(root)
 
@@ -423,8 +301,9 @@ class HypertextMarkupParser:
 
     def __calculate(
         self,
-        file: str, 
-        tag: re.Match, 
+        source: str,
+        tag: str,
+        start: int,
         previous: Position
     ) -> tuple[Position, str]:
         """Calculate the position of the tag and return the text between this tag and the
@@ -433,10 +312,10 @@ class HypertextMarkupParser:
         x_start = previous.end.column
         y_start = previous.end.line
 
-        text = file[:tag.start()]
+        text = source[:start]
 
-        for idx in range(0, tag.start()):
-            if file[idx] == "\n":
+        for idx in range(0, start):
+            if source[idx] == "\n":
                 x_start = 0
                 y_start += 1
             else:
@@ -445,7 +324,7 @@ class HypertextMarkupParser:
         start = Point(y_start, x_start)
 
         x_end, y_end = x_start, y_start
-        for char in tag.group(0):
+        for char in tag:
             if char == "\n":
                 x_end = 0
                 y_end += 1
