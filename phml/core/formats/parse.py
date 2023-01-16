@@ -136,7 +136,6 @@ class HypertextMarkupParser(HTMLParser):
             )
 
     def handle_starttag(self, tag, attrs):
-
         properties: Properties = {}
 
         # Build properties/attributes

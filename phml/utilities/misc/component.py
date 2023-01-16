@@ -123,20 +123,13 @@ def parse_component(ast: AST) -> dict[str, Element]:
         elif check(node, "element"):
             if result["component"] is None:
                 result["component"] = node
-            elif result["component"].tag != "phml":
-                element = result["component"]
-                result["component"] = Element("phml")
-                result["component"].extend([element, node])
-            elif result["component"].tag == "phml":
-                result["component"].append(node)
             else:
-                raise Exception("Unkown error while parsing component")
-#                 raise Exception(
-#                     """\
-# Components may only have one wrapping element. All other element in the root must be either a \
-# script, style, or python tag. The root wrapping element must be '<phml>`\
-# """
-#                 )
+                raise Exception(
+                    """\
+Components may only have one wrapping element. All other element in the root must be either a \
+script, style, or python tag. The root wrapping element must be '<PHML>`\
+"""
+                )
 
     if result["component"] is None:
         raise Exception("Must have at least one element in a component.")
