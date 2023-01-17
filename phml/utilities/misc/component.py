@@ -1,5 +1,5 @@
 from pathlib import Path
-from re import finditer
+from re import finditer, sub
 
 from phml.core.nodes import AST, All_Nodes, Element
 
@@ -59,7 +59,7 @@ def tag_from_file(filename: str | Path) -> str:
     return "-".join(tokens)
 
 
-def cmpt_name_from_path(file: Path, strip_root: bool = False) -> str:
+def cmpt_name_from_path(file: Path, strip: str = "") -> str:
     """Construct a component name given a path. This will include parent directories.
     it will also strip the root directory as this is most commonly not wanted.
 
@@ -70,22 +70,15 @@ def cmpt_name_from_path(file: Path, strip_root: bool = False) -> str:
 
         `blog-header`
     """
-    last = file.name.replace(file.suffix, "")
-    last = last[0].upper() + last[1:].lower()
+    file = file.with_name(file.name.replace(file.suffix, ""))
+    file = sub(strip.strip("/"), "", file.as_posix().lstrip("/")).strip("/")
+    dirs = [
+        subdir[0].upper() + subdir[1:].lower()
+        for subdir in file.split("/")
+        if subdir.strip() != ""
+    ]
 
-    file = file.as_posix().lstrip("/")
-    if strip_root:
-        dirs = [
-            [subdir[0].upper(), *subdir[1:].lower()]
-            for subdir in file.split("/")[1:-1]
-            if subdir.strip() != ""
-        ]
-    else:
-        dirs = [subdir for subdir in file.split("/")[:-1] if subdir.strip() != ""]
-
-    if len(dirs) > 0:
-        return ".".join(dirs) + f".{last}"
-    return last
+    return ".".join(dirs)
 
 
 def filename_from_path(file: Path) -> str:

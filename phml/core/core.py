@@ -76,7 +76,7 @@ class PHML:
     def add(
         self,
         *components: Component,
-        strip_root: bool = False,
+        strip: str = "",
     ):
         """Add a component to the compiler's component list.
 
@@ -108,7 +108,7 @@ str or pathlib.Path pointing to the file.")
                     self._parser.load(Path(path))
                     self._compiler.add(
                         (
-                            cmpt_name_from_path(Path(path), strip_root),
+                            cmpt_name_from_path(Path(path), strip),
                             parse_component(self._parser.ast),
                         )
                     )
@@ -116,7 +116,7 @@ str or pathlib.Path pointing to the file.")
                 self._parser.load(Path(component))
                 self._compiler.add(
                     (
-                        cmpt_name_from_path(Path(component), strip_root),
+                        cmpt_name_from_path(Path(component), strip),
                         parse_component(self._parser.ast),
                     )
                 )

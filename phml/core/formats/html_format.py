@@ -34,7 +34,7 @@ class HTMLFormat(Format):
     ) -> str:
         indent = indent or 4
         components = components or {}
-        src = deepcopy(ast)
+        src = ast
 
         # 1. Search for all python elements and get source info.
         #    - Remove when done
