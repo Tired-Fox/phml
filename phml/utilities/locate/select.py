@@ -128,7 +128,6 @@ def query(tree: AST | Root | Element, specifier: str) -> Element:
         tree = tree.tree
 
     rules = parse_specifiers(specifier)
-
     return all_nodes(tree, rules)
 
 
@@ -393,10 +392,10 @@ def is_valid_attr(attr: str, sub: str, name: str, validator: Callable) -> bool:
     return bool(len([item for item in compare_values if validator(item, sub)]) > 0)
 
 
-def __parse_el_with_attribute(token: str) -> dict:
-    el_classid_from_attr = re.compile(r"([a-zA-Z0-9_#.-]+)((\[.*\])*)")
+def __parse_el_with_attribute(item: str | None, attributes: str | None) -> dict:
     el_from_class_from_id = re.compile(r"(#|\.)?([a-zA-Z0-9_-]+)")
-    attr_compare_val = re.compile(r"\[([a-zA-Z0-9_-]+)([~|^$*]?=)?(\"[^\"]+\"|'[^']+'|[^'\"]+)?\]")
+
+    attr_compare_val = re.compile(r"\[([a-zA-Z0-9\-_:@]+)([\~\|\^\$\*]?=)?(\"[^\"\]\[]+\"|'[^'\]\[]+'|[^\s\]\[]+)\]")
 
     element = {
         "tag": "*",
@@ -405,13 +404,9 @@ def __parse_el_with_attribute(token: str) -> dict:
         "attributes": [],
     }
 
-    res = el_classid_from_attr.match(token)
-
-    el_class_id, attrs = res.group(1), res.group(2)
-
-    if attrs not in ["", None]:
-        for attr in attr_compare_val.finditer(attrs):
-            name, compare, value = attr.groups()
+    if attributes is not None:
+        for attr in attr_compare_val.findall(attributes):
+            name, compare, value = attr
             if value is not None:
                 value = value.lstrip("'\"").rstrip("'\"")
             element["attributes"].append(
@@ -422,18 +417,18 @@ def __parse_el_with_attribute(token: str) -> dict:
                 }
             )
 
-    if el_class_id not in ["", None]:
-        for item in el_from_class_from_id.finditer(el_class_id):
-            if item.group(1) == ".":
-                if item.group(2) not in element["classList"]:
-                    element["classList"].append(item.group(2))
-            elif item.group(1) == "#":
+    if item is not None:
+        for part in el_from_class_from_id.finditer(item):
+            if part.group(1) == ".":
+                if part.group(2) not in element["classList"]:
+                    element["classList"].append(part.group(2))
+            elif part.group(1) == "#":
                 if element["id"] is None:
-                    element["id"] = item.group(2)
+                    element["id"] = part.group(2)
                 else:
-                    raise Exception(f"There may only be one id per element specifier.\n{token}")
+                    raise Exception(f"There may only be one id per element specifier.\n{item}{attributes}")
             else:
-                element["tag"] = item.group(2) or "*"
+                element["tag"] = part.group(2) or "*"
 
     return element
 
@@ -484,19 +479,15 @@ def parse_specifiers(specifier: str) -> dict:
     * `node[attribute*=value]` = all elements with attribute containing value
 
     """
-
-    splitter = re.compile(r"([~>\*+])|(([.#]?[a-zA-Z0-9_-]+)+((\[[^\[\]]+\]))*)|(\[[^\[\]]+\])+")
-
-    el_only_attr = re.compile(r"((\[[^\[\]]+\]))+")
-    el_with_attr = re.compile(r"([.#]?[a-zA-Z0-9_-]+)+(\[[^\[\]]+\])*")
+    splitter = re.compile(r"([~>\*+])|(([.#]?[a-zA-Z0-9_-]+)+((\[[^\[\]]+\])*))|(\[[^\[\]]+\])+")
 
     tokens = []
     for token in splitter.finditer(specifier):
-        if token.group() in ["*", ">", "+", "~"]:
-            tokens.append(token.group())
-        elif el_with_attr.match(token.group()):
-            tokens.append(__parse_el_with_attribute(token.group()))
-        elif el_only_attr.match(token.group()):
-            tokens.append(__parse_attr_only_element(token.group()))
-
+        sibling, _, item, attributes, _, just_attributes = token.groups()
+        if sibling in ["*", ">", "+", "~"]:
+            tokens.append(sibling)
+        elif item is not None or attributes is not None:
+            tokens.append(__parse_el_with_attribute(item, attributes))
+        elif just_attributes is not None:
+            tokens.append(__parse_attr_only_element(just_attributes))
     return tokens

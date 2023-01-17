@@ -15,7 +15,7 @@ from phml.core.nodes import (
     Text,
     All_Nodes,
     PI,
-    Parent
+    Parent,
 )
 
 REGEX = {
@@ -23,7 +23,7 @@ REGEX = {
         r"<!--(.*)-->|<(!|\?|\/)?([a-zA-Z0-9\.\-_]*)((\s*[^ \"'><=\/]+(=\"[^\"]+\"|='[^']+'|=[^\s>]+)?)*)\s*(\/|\?)?\s*>"
     ),
     "attributes": re.compile(r"\s*([^<>\"'\= ]+)((=)\"([^\"]*)\"|(=)'([^']*)'|(=)([^<>\= ]+))?"),
-    "whitespace": re.compile(r"\s+")
+    "whitespace": re.compile(r"\s+"),
 }
 
 self_closing_tags = [
@@ -109,13 +109,14 @@ def strip(data: str, cur_tags: list[str]) -> tuple[str, int, int]:
 
     return data
 
+
 @dataclass
 class Specifier:
     Open: str = "Open"
     Decleration: str = "DECLERATION"
     ProcProfile: str = "PROC_PROFILE"
     Close: str = "Close"
-    
+
     @classmethod
     def of(cls, tag_type: str) -> str:
         if tag_type in ["", None]:
@@ -126,8 +127,9 @@ class Specifier:
             return cls.ProcProfile
         elif tag_type == "/":
             return cls.Close
-        
+
         raise TypeError(f"Unkown tag type <{tag_type}>: valid types are '', '!', '?', '/'")
+
 
 class HypertextMarkupParser:
     """Parse languages like XML, HTML, PHML, etc; into a PHML AST."""
@@ -136,7 +138,6 @@ class HypertextMarkupParser:
         """Takes a string of the source markup and returns the resulting
         PHML AST.
         """
-
         element = REGEX["tag"].search(source)
         previous = Position((0, 0), (0, 0))
 
@@ -144,37 +145,35 @@ class HypertextMarkupParser:
 
         root = Root()
         current: Parent = root
+        count = 0
 
-        while element is not None:
+        for element in REGEX["tag"].finditer(source):
             comment, tag_type, tag_name, tag_attributes, _, _, closing = element.groups()
             # Create position in file
-            position, text = self.__calculate(source, element.group(0), element.start(), previous)
-            if text.strip() != "":
-                current.append(Text(strip(text, tag_stack), position=Position(previous.end, position.start)))
+            position, text = self.__calculate(
+                source, element.group(0), (count, element.start()), previous
+            )
+            
+            if "pre" in tag_stack:
+                current.append(
+                    Text(text, position=Position(previous.end, position.start))
+                )
+            elif text.strip() != "":
+                current.append(
+                    Text(strip(text, tag_stack), position=Position(previous.end, position.start))
+                )
             # Generate Element for tag found
             if comment is None:
-                (
-                    _type,
-                    name,
-                    attrs,
-                    closing
-                ) = self.__parse_tag(
-                    tag_type,
-                    tag_name,
-                    tag_attributes,
-                    closing,
-                    pos=position)
+                (_type, name, attrs, closing) = self.__parse_tag(
+                    tag_type, tag_name, tag_attributes, closing, pos=position
+                )
             else:
                 current.append(
                     Comment(
-                        strip(comment, tag_stack) if comment is not None else "",
-                        position=position
+                        strip(comment, tag_stack) if comment is not None else "", position=position
                     )
                 )
-                # Progress file
-                source = source[element.start() + len(element.group(0)):]
-                # Find next node
-                element = REGEX["tag"].search(source)
+                count = element.start() + len(element.group(0))
                 previous = position
                 continue
 
@@ -189,14 +188,11 @@ class HypertextMarkupParser:
                     tag_stack.append(name)
                     current = current.children[-1]
 
-            # Progress file
-            source = source[element.start() + len(element.group(0)):]
-            # Find next node
-            element = REGEX["tag"].search(source)
+            count = element.start() + len(element.group(0))
             previous = position
 
-        if source != "":
-            position, text = self.__calculate(source, source, 0, previous)
+        if count < len(source):
+            position, text = self.__calculate(source, source[count:], (count, count), previous)
             current.append(Text(strip(source, tag_stack), position=position))
 
         return AST(root)
@@ -207,7 +203,7 @@ class HypertextMarkupParser:
         name: str | None = None,
         tag_attrs: str | None = None,
         closing: str | None = None,
-        pos: tuple[int, int] | None = None
+        pos: tuple[int, int] | None = None,
     ):
         """Take the raw parts from the tag regex and parse it the appropriatly processed parts.
 
@@ -233,10 +229,7 @@ class HypertextMarkupParser:
             value = True
             attribute = [
                 attribute[0],
-                [
-                    item for item in [attribute[3],attribute[5], attribute[7]]
-                    if item != ""
-                ]
+                [item for item in [attribute[3], attribute[5], attribute[7]] if item != ""],
             ]
             attribute[1] = attribute[1][0] if len(attribute[1]) > 0 else ""
             if attribute[1] in ["true", "false", "yes", "no", ""]:
@@ -247,31 +240,24 @@ class HypertextMarkupParser:
 
         closing = Specifier.of(closing)
 
-        if (
-            tag_type == Specifier.ProcProfile
-            and (
-                closing != Specifier.ProcProfile
-                or tag_name == ""
-            )
+        if tag_type == Specifier.ProcProfile and (
+            closing != Specifier.ProcProfile or tag_name == ""
         ):
             position = f" [$]{pos}[$]" if pos is not None else ""
             attrs = ' ' + tag_attrs if tag_attrs is not None else ''
             name = tag_name if tag_name != '' else "[@Fred]NAME[@F]"
             close = "?" if closing == Specifier.ProcProfile else "[@Fred]?[@F]"
-            raise Exception(TED.parse(
-                f"Invalid Processor Profile{position}: *<?{name}[@F]{attrs}{close}>"
-            ))
+            raise Exception(
+                TED.parse(f"Invalid Processor Profile{position}: *<?{name}[@F]{attrs}{close}>")
+            )
 
         if tag_type == Specifier.Decleration and tag_name == "":
             position = (
-                f" \\[[@Fcyan]{pos[0]}[@F]:[@Fcyan]{pos[1]}[@F]\\]"
-                if pos is not None else ""
+                f" \\[[@Fcyan]{pos[0]}[@F]:[@Fcyan]{pos[1]}[@F]\\]" if pos is not None else ""
             )
             attrs = ' ' + tag_attrs if tag_attrs is not None else ''
             name = tag_name if tag_name != '' else "[@Fred]NAME[@F]"
-            raise Exception(TED.parse(
-                f"Invalid Decleration {position}: *<!{tag_name}{attrs}>"
-            ))
+            raise Exception(TED.parse(f"Invalid Decleration {position}: *<!{tag_name}{attrs}>"))
 
         if closing == Specifier.Open and tag_name in self_closing_tags:
             closing = Specifier.of("/")
@@ -279,12 +265,7 @@ class HypertextMarkupParser:
         return tag_type, tag_name, attrs, closing
 
     def __create_node(
-        self,
-        tag_type: str,
-        name: str,
-        attrs: str,
-        closing: str,
-        position: Position | None
+        self, tag_type: str, name: str, attrs: str, closing: str, position: Position | None
     ) -> All_Nodes:
         """Create a PHML node based on the data from the parsed tag."""
 
@@ -300,11 +281,7 @@ class HypertextMarkupParser:
             return PI(name, attrs, position=position)
 
     def __calculate(
-        self,
-        source: str,
-        tag: str,
-        start: int,
-        previous: Position
+        self, source: str, tag: str, locations: tuple[int, int], previous: Position
     ) -> tuple[Position, str]:
         """Calculate the position of the tag and return the text between this tag and the
         previous tag.
@@ -312,9 +289,11 @@ class HypertextMarkupParser:
         x_start = previous.end.column
         y_start = previous.end.line
 
-        text = source[:start]
+        text = ""
+        if locations[0] != locations[1]:
+            text = source[locations[0] : locations[1]]
 
-        for idx in range(0, start):
+        for idx in range(locations[0], locations[1]):
             if source[idx] == "\n":
                 x_start = 0
                 y_start += 1
@@ -331,4 +310,5 @@ class HypertextMarkupParser:
             else:
                 x_end += 1
         end = Point(y_end, x_end)
+
         return Position(start, end), text
