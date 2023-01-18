@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from copy import deepcopy
 from re import match, sub
+from traceback import print_exc
+from teddecor import TED
 from phml.core.nodes import Root, Element, AST, Text, All_Nodes
 from phml.core.virtual_python import VirtualPython, process_python_blocks, get_python_result
 from phml.utilities import find, offset, normalize_indent, query, replace_node, check
@@ -481,6 +483,7 @@ def run_py_for(condition: str, child: All_Nodes, **kwargs) -> list:
     #       Creates deepcopy of looped element
     #       Adds locals from what was passed to exec and what is from for loop condition
     #       add generated element to list
+    expression = for_loop
     for_loop = f'''\
 new_children = []
 for {for_loop}:
@@ -516,20 +519,9 @@ for {for_loop}:
             local_env,
         )
     except Exception as exception:  # pylint: disable=broad-except
-        from teddecor import TED  # pylint: disable=import-outside-toplevel
-
-        new_line = "\n"
-        TED.print(
-            f"""[@F red]*Error <component.py:439:8>[@]: {TED.encode(str(exception))} [@F yellow]|[@] \
-{
-    TED.escape(for_loop.split(new_line)[1]
-    .replace('for', '')
-    .replace(':', ''))
-    .replace(' in ', '[@F green] in [@]')
-}"""
-        )
-        
-        print(exception)
+        TED.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
+[@Fblue]@if[@]=[@Fgreen]'[@]{expression}[@Fgreen]'[@]")
+        print_exc()
 
     # Return the new complete list of children after generation
     return local_env["new_children"]

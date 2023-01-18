@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from copy import deepcopy
 from re import match, search, sub
+from traceback import print_exc
 from typing import Optional
+
+from teddecor import TED
 
 from phml.core.nodes import AST, All_Nodes, DocType, Element, Root
 from phml.core.virtual_python import VirtualPython, get_python_result, process_python_blocks
@@ -435,6 +438,7 @@ def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> li
     #       Creates deepcopy of looped element
     #       Adds locals from what was passed to exec and what is from for loop condition
     #       concat and generate new list of children
+    expression = for_loop
     for_loop = f'''\
 for {for_loop}:
     new_child = deepcopy(child)
@@ -470,20 +474,10 @@ for {for_loop}:
             },
             local_env,
         )
-    except Exception as exception:  # pylint: disable=broad-except
-        from teddecor import TED  # pylint: disable=import-outside-toplevel
-
-        new_line = "\n"
-        TED.print(
-            f"""[@F red]*Error <compile.py:469:8>[@]: {TED.encode(str(exception))} [@F yellow]|[@] \
-{
-    TED.escape(for_loop.split(new_line)[1]
-    .replace('for', '')
-    .replace(':', ''))
-    .replace(' in ', '[@F green] in [@]')
-}"""
-        )
-        print(exception)
+    except Exception:  # pylint: disable=broad-except
+        TED.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
+[@Fblue]@if[@]=[@Fgreen]'[@]{expression}[@Fgreen]'[@]")
+        print_exc()
 
     # Return the new complete list of children after generation
     return local_env["children"]
