@@ -8,6 +8,7 @@ from __future__ import annotations
 import ast
 from html import escape
 from re import sub, findall
+from traceback import print_exc
 from typing import Any, Optional
 
 from phml.utilities import normalize_indent
@@ -45,15 +46,20 @@ class VirtualPython:
 
             # Retreive locals from content
             local_env = {}
-            global_env = {**self.context, **globals()}
+            global_env = {**self.context}
             exec(self.content, global_env, local_env)  # pylint: disable=exec-used
+            
+            local_env.update({key:value for key,value in global_env.items() if key not in globals() and key not in self.context})
             self.context.update(local_env)
 
     def __add__(self, obj: VirtualPython) -> VirtualPython:
         local_env = {**self.context}
+        local_imports = set(self.imports)
         local_env.update(obj.context)
+        for _import in obj.imports:
+            local_imports.add(_import)
         return VirtualPython(
-            imports=[*self.imports, *obj.imports],
+            imports=list(local_imports),
             context=local_env,
         )
 
@@ -117,7 +123,7 @@ def get_python_result(expr: str, **kwargs) -> Any:
 
     avars = []
     result = "phml_vp_result"
-    expression = f"phml_vp_result = {expr}\n"
+    expression = f"{result} = {expr}\n"
 
     if "\n" in expr:
         # Find all assigned vars in expression
@@ -135,14 +141,16 @@ def get_python_result(expr: str, **kwargs) -> Any:
 
     try:
         source = compile(expression, expr, "exec")
-        local_env = {}
-        exec(source, {**kwargs, **globals()}, local_env)  # pylint: disable=exec-used
+
+        local_env = {**kwargs}
+        global_env = {**kwargs}
+        exec(source, global_env, local_env)  # pylint: disable=exec-used
         return local_env[result] if result in local_env else None
     except Exception as exception:  # pylint: disable=broad-except
         from teddecor import TED  # pylint: disable=import-outside-toplevel
 
-        TED.print(f"[@F red]*Error[]: {exception}")
-        print(expr)
+        # print_exc()
+        TED.print(f"[@F red]*Error[]: [$]{exception}: {expr}")
 
         return False
 
