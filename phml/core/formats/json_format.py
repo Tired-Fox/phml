@@ -96,7 +96,7 @@ class JSONFormat(Format):
         raise Exception("Data passed to JSONFormat.parse must be either a str or a dict")
 
     @classmethod
-    def compile(
+    def render(
         cls,
         ast: AST,
         components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,

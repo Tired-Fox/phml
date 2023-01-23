@@ -40,8 +40,19 @@ class Format:
         cls,
         ast: AST,
         components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        **kwargs,
+    ) -> AST:
+        """Compile and process the given ast and return the resulting ast."""
+        raise Exception(f"{cls.__class__.__name__} \
+does not support compiling and returning a phml ast.")
+
+    @classmethod
+    def render(
+        cls,
+        ast: AST,
+        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
         indent: int = 0,
         **kwargs,
     ) -> str:
         """Compile the given phml.core.nodes.AST into string of a given format."""
-        raise Exception("Base class Format's compile method should never be called")
+        raise Exception("Base class Format's render method should never be called")

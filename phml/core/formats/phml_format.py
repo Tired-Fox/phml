@@ -2,7 +2,7 @@ from typing import Optional
 
 from phml.core.nodes import AST, All_Nodes
 
-from .compile import ToML
+from .compile import ASTRenderer
 from .format import Format
 from .parse import parse_hypertest_markup
 
@@ -26,9 +26,19 @@ class PHMLFormat(Format):
         cls,
         ast: AST,
         components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        **kwargs,
+    ) -> AST:
+        """Compile and process the given ast and return the resulting ast."""
+        return ast
+
+    @classmethod
+    def render(
+        cls,
+        ast: AST,
+        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
         indent: int = 4,
         **kwargs,
     ) -> str:
         indent = indent or 4
 
-        return ToML(ast, indent).compile()
+        return ASTRenderer(ast, indent).compile()

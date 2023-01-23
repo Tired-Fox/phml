@@ -109,6 +109,39 @@ class Compiler:
         self,
         _ast: Optional[AST] = None,
         to_format: Format = Formats.HTML,
+        scopes: Optional[list[str]] = None,
+        components: Optional[dict] = None,
+        safe_vars: bool = False,
+        **kwargs: Any,
+    ) -> AST:
+        """Execute compilation to a different format."""
+
+        _ast = _ast or self.ast
+
+        if _ast is None:
+            raise Exception("Must provide an ast to compile")
+
+        # Insert the scopes into the path
+        scopes = scopes or ["./"]
+        if scopes is not None:
+
+            for scope in scopes:
+                sys.path.append(
+                    os.path.join(
+                        sys.path[0],
+                        *self.__construct_scope_path(scope),
+                    )
+                )
+
+        # Depending on the format parse with the appropriate function
+        components = components or dict()
+        cmpts = {**self.components, **components}
+        return to_format.compile(_ast, cmpts, safe_vars=safe_vars, **kwargs)
+
+    def render(
+        self,
+        _ast: Optional[AST] = None,
+        to_format: Format = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
         components: Optional[dict] = None,
@@ -137,4 +170,4 @@ class Compiler:
         # Depending on the format parse with the appropriate function
         components = components or dict()
         cmpts = {**self.components, **components}
-        return to_format.compile(_ast, cmpts, indent, safe_vars=safe_vars, **kwargs)
+        return to_format.render(_ast, cmpts, indent, safe_vars=safe_vars, **kwargs)

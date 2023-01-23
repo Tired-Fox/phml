@@ -154,6 +154,38 @@ str or pathlib.Path pointing to the file.")
         """
         self._parser.parse(data, from_format)
         return self
+    
+    def compile(
+        self,
+        file_type: str = Formats.HTML,
+        scopes: Optional[list[str]] = None,
+        components: Optional[dict] = None,
+        **kwargs,
+    ) -> AST:
+        """Compile the parsed ast into it's fully processed form.
+
+        Args:
+            file_type (str): The format to render to. Currently support html, phml, and json.
+            indent (Optional[int], optional): The number of spaces per indent. By default it will
+            use the standard for the given format. HTML has 4 spaces, phml has 4 spaces, and json
+            has 2 spaces.
+
+        Returns:
+            AST: The processed ast. Ast is in the final format of the passed in file_type
+        """
+
+        scopes = scopes or []
+        for scope in self._scopes:
+            if scope not in scopes:
+                scopes.append(scope)
+
+        return self._compiler.compile(
+            self._parser.ast,
+            to_format=file_type,
+            scopes=scopes,
+            components=components,
+            **{**self._context, **kwargs},
+        )
 
     def render(
         self,
@@ -180,7 +212,7 @@ str or pathlib.Path pointing to the file.")
             if scope not in scopes:
                 scopes.append(scope)
 
-        return self._compiler.compile(
+        return self._compiler.render(
             self._parser.ast,
             to_format=file_type,
             indent=indent,
