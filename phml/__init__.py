@@ -135,8 +135,10 @@ from .core import (
     Format,
     Formats,
     Parser,
+    ASTRenderer,
     replace_components,
-    substitute_component
+    substitute_component,
+    combine_component_elements
 )
 from .utilities import *
 

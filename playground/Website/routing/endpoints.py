@@ -22,7 +22,7 @@ def page(subpath):
         ast = phml.load(source).ast
         head_node = query(ast, "head")
         head_node.append(p("meta", {"http-equiv": "refresh", "content": "7"}))
-        return compiler.compile(
+        return compiler.render(
             ast, scopes=phml._scopes, components=phml._compiler.components, **phml._context
         )
 

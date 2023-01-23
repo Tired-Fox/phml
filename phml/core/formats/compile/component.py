@@ -10,7 +10,7 @@ from phml.utilities import find, offset, normalize_indent, query, replace_node, 
 
 from .compile import py_condition, CONDITION_PREFIX, valid_prev
 
-__all__ = ["substitute_component", "replace_components"]
+__all__ = ["substitute_component", "replace_components", "combine_component_elements"]
 WRAPPER_TAG = ["PHML", ""]
 
 def substitute_component(
@@ -147,7 +147,7 @@ def substitute_component(
 
         # replace the valid components in the results list
         new_children = []
-        for i, child in enumerate(results):
+        for child in results:
             props = child.context
             attrs = child.properties
             # get props and locals from current node
@@ -230,8 +230,8 @@ def replace_components(
                         else:
                             # process python blocks
                             result = process_python_blocks(
-                                attributes[prop], 
-                                virtual_python, 
+                                attributes[prop],
+                                virtual_python,
                                 **context
                             )
                             if (
@@ -315,17 +315,25 @@ def replace_components(
             if condition is not None:
                 results = execute_condition(condition, curr_node, virtual_python, **kwargs)
 
+            # python_nodes = []
+            # for used in used_components.values():
+            #     python_nodes.extend(used["python"])
+            local_virtual_python = VirtualPython()
+            for python in value["python"]:
+                if len(python.children) == 1 and check(python.children[0], "text"):
+                    text = python.children[0].value
+                    local_virtual_python += VirtualPython(text)
+
             # replace the valid components in the results list
             new_children = []
-            for i, child in enumerate(results):
-                props = child.context
+            for child in results:
                 attrs = child.properties
                 # get props and locals from current node
                 props, attrs = curr_node.context, curr_node.properties
+                props.update(local_virtual_python.context)
                 props["children"] = curr_node.children
 
                 component = deepcopy(value["component"])
-
                 if component.tag in WRAPPER_TAG:
                     # Create a copy of the component
                     for sub_child in component.children:
@@ -339,15 +347,14 @@ def replace_components(
                     component.properties = attrs
                     component.parent = curr_node.parent
                     new_children.append(component)
-
             # replace the curr_node with the list of replaced nodes
             parent = curr_node.parent
             index = parent.children.index(curr_node)
             parent.children = parent.children[:index] + new_children + parent.children[index+1:]
 
     # Optimize, python, style, and script tags from components
+
     __add_component_elements(node, used_components, "style")
-    __add_component_elements(node, used_components, "python")
     __add_component_elements(node, used_components, "script")
 
 
@@ -358,7 +365,7 @@ def __add_component_elements(node, used_components: dict, tag: str):
             replace_node(
                 node,
                 {"tag": tag},
-                __combine_component_elements(
+                combine_component_elements(
                     [
                         find(node, {"tag": tag}),
                         *new_elements,
@@ -367,7 +374,7 @@ def __add_component_elements(node, used_components: dict, tag: str):
                 ),
             )
     else:
-        new_element = __combine_component_elements(
+        new_element = combine_component_elements(
             __retrieve_component_elements(used_components, tag),
             tag,
         )
@@ -386,7 +393,13 @@ def __add_component_elements(node, used_components: dict, tag: str):
                     node.append(new_element)
 
 
-def __combine_component_elements(elements: list[Element], tag: str) -> Element:
+def combine_component_elements(elements: list[Element], tag: str) -> Element:
+    """Combine text from elements like python, script, and style.
+
+    Returns:
+        Element: With tag of element list but with combined text content
+    """
+
     values = []
 
     indent = -1

@@ -16,7 +16,7 @@ from phml.utilities import (
     find_all,
     replace_node,
     visit_children,
-    path_names
+    path_names    
 )
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
@@ -144,7 +144,7 @@ def apply_python(
 
         for child in node.children:
             if check(child, "element"):
-                if "children" in child.context.keys():
+                if "children" in child.context.keys() and len(child.context["children"]) > 0:
                     replace_node(
                         child,
                         ["element", {"tag": "slot"}],
@@ -483,7 +483,7 @@ for {for_loop}:
     return local_env["children"]
 
 
-class ToML:
+class ASTRenderer:
     """Compiles an ast to a hypertext markup language. Compiles to a tag based string."""
 
     def __init__(self, ast: Optional[AST] = None, _offset: int = 4):

@@ -13,7 +13,7 @@ __all__ = [
 ]
 
 
-def tokanize_name(name: str) -> list[str]:
+def tokanize_name(name: str, normalize: bool = True) -> list[str]:
     """Generates name tokens `some name tokanized` from a filename.
     Assumes filenames is one of:
     * snakecase - some_file_name
@@ -22,6 +22,7 @@ def tokanize_name(name: str) -> list[str]:
 
     Args:
         name (str): File name without extension
+        normalize (bool): Make all tokens fully lowercase. Defaults to True
 
     Returns:
         list[str]: List of word tokens.
@@ -36,7 +37,7 @@ def tokanize_name(name: str) -> list[str]:
             rest = cap
         elif nums is not None and nums.isnumeric():
             rest = str(nums)
-        tokens.append(rest.lower())
+        tokens.append(rest.lower() if normalize else rest)
     return tokens
 
 
@@ -73,11 +74,12 @@ def cmpt_name_from_path(file: Path, strip: str = "") -> str:
     file = file.with_name(file.name.replace(file.suffix, ""))
     file = sub(strip.strip("/"), "", file.as_posix().lstrip("/")).strip("/")
     dirs = [
-        subdir[0].upper() + subdir[1:].lower()
-        for subdir in file.split("/")
-        if subdir.strip() != ""
+        "".join([
+            n[0].upper() + n[1:]
+            for n in tokanize_name(name, False)
+        ])
+        for name in file.split("/")
     ]
-
     return ".".join(dirs)
 
 
