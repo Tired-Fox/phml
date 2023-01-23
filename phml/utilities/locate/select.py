@@ -434,7 +434,7 @@ def __parse_el_with_attribute(item: str | None, attributes: str | None) -> dict:
 
 
 def __parse_attr_only_element(token: str) -> dict:
-    attr_compare_val = re.compile(r"\[([a-zA-Z0-9_-]+)([~|^$*]?=)?(\"[^\"]+\"|'[^']+'|[^'\"]+)?\]")
+    attr_compare_val = re.compile(r"\[([a-zA-Z0-9_:\-]+)([~|^$*]?=)?(\"[^\"]+\"|'[^']+'|[^'\"]+)?\]")
 
     element = {
         "tag": None,
