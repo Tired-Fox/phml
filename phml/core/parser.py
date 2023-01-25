@@ -62,7 +62,7 @@ class Parser:
             self.ast = from_format.parse(src)
             return self
 
-        raise Exception(f"Could not parse unknown filetype {path.suffix.lstrip('.')}")
+        raise Exception(f"Could not parse unknown filetype {path.suffix.lstrip('.')!r}")
 
     def parse(
         self,

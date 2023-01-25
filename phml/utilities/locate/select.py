@@ -339,39 +339,41 @@ def __validate_attr(attr: dict, node: Element):
             validator=lambda x, y: x == y,
         )
 
-    if attr["compare"] == "|=":
-        return is_valid_attr(
-            attr=node[attr["name"]],
-            sub=attr["value"],
-            name=attr["name"],
-            validator=lambda x, y: x == y or x.startswith(f"{y}-"),
-        )
+    if isinstance(node[attr["name"]], str):
+        if attr["compare"] == "|=":
+            return is_valid_attr(
+                attr=node[attr["name"]],
+                sub=attr["value"],
+                name=attr["name"],
+                validator=lambda x, y: x == y or x.startswith(f"{y}-"),
+            )
 
-    if attr["compare"] == "^=":
-        return is_valid_attr(
-            attr=node[attr["name"]],
-            sub=attr["value"],
-            name=attr["name"],
-            validator=lambda x, y: x.startswith(y),
-        )
+        if attr["compare"] == "^=":
+            return is_valid_attr(
+                attr=node[attr["name"]],
+                sub=attr["value"],
+                name=attr["name"],
+                validator=lambda x, y: x.startswith(y),
+            )
 
-    if attr["compare"] == "$=":
-        return is_valid_attr(
-            attr=node[attr["name"]],
-            sub=attr["value"],
-            name=attr["name"],
-            validator=lambda x, y: x.endswith(y),
-        )
+        if attr["compare"] == "$=":
+            return is_valid_attr(
+                attr=node[attr["name"]],
+                sub=attr["value"],
+                name=attr["name"],
+                validator=lambda x, y: x.endswith(y),
+            )
 
-    if attr["compare"] in ["*=", "~="]:
-        return is_valid_attr(
-            attr=node[attr["name"]],
-            sub=attr["value"],
-            name=attr["name"],
-            validator=lambda x, y: y in x,
-        )
+        if attr["compare"] in ["*=", "~="]:
+            return is_valid_attr(
+                attr=node[attr["name"]],
+                sub=attr["value"],
+                name=attr["name"],
+                validator=lambda x, y: y in x,
+            )
 
-    return True
+        return True
+    return False
 
 
 def is_valid_attr(attr: str, sub: str, name: str, validator: Callable) -> bool:

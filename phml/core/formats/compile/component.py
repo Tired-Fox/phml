@@ -11,7 +11,9 @@ from phml.utilities import find, offset, normalize_indent, query, replace_node, 
 from .compile import py_condition, CONDITION_PREFIX, valid_prev
 
 __all__ = ["substitute_component", "replace_components", "combine_component_elements"]
-WRAPPER_TAG = ["PHML", ""]
+
+
+WRAPPER_TAG = ["Template", ""]
 
 def substitute_component(
     node: Root | Element | AST,
@@ -29,154 +31,26 @@ def substitute_component(
     if isinstance(node, AST):
         node = node.tree
 
-    value = component[1]
-
     curr_node = find(node, ["element", {"tag": component[0]}])
+    used_components: dict[str, tuple[dict, dict]] = {}
 
     if curr_node is not None:
-        def get_props() -> dict[str, str]:
-            props = {}
-            attrs = {}
-            attributes = value["component"].properties
-            for prop in attributes:
-                if prop.startswith("@"):
-                    continue
-                elif prop.startswith("#"):
-                    props[prop.lstrip("#")] = attributes[prop]
-                else:
-                    attrs[prop] = attributes[prop]
-
-            attributes = curr_node.properties
-
-            for prop in attributes:
-                attr_name = prop.lstrip(":").lstrip("py-")
-                if attr_name in props:
-                    # Get value if pythonic
-                    context = build_locals(curr_node, **kwargs)
-                    if prop.startswith((":", "py-")):
-                        # process as python
-                        context.update(virtual_python.context)
-                        props[attr_name] = get_python_result(attributes[prop], **context)
-                    else:
-                        # process python blocks
-                        result = process_python_blocks(
-                            attributes[prop], 
-                            virtual_python, 
-                            **context
-                        )
-                        if (
-                            isinstance(result, str) 
-                            and result.lower() in ["true", "false", "yes", "no"]
-                        ):
-                            result = True if result.lower() in ["true", "yes"] else False
-                        props[attr_name] = result
-                else:
-                    # Add value to attributes
-                    attrs[prop] = attributes[prop]
-
-            return props, attrs
+        context, used_components[component[0]] = process_context(*component)
 
         # Assign props to locals and remaining attributes stay
-        props, attrs = get_props()
-        curr_node.properties = attrs
-        curr_node.context = props
+        curr_node.parent.children = apply_component(
+            curr_node,
+            component[0],
+            component[1],
+            used_components,
+            virtual_python,
+            context,
+            kwargs
+        )
 
-        def execute_condition(
-            condition: str,
-            child: Element,
-            virtual_python: VirtualPython,
-            **kwargs,
-        ) -> list:
-            conditions = __get_previous_conditions(child)
-
-            first_cond = (
-                conditions[0] in [f"{CONDITION_PREFIX}if", "py-if"] 
-                if len(conditions) > 0 else False
-            )
-
-            previous = (conditions[-1] if len(conditions) > 0 else "py-for", True)
-
-            # Add the python blocks locals to kwargs dict
-            kwargs.update(virtual_python.context)
-
-            # Bring python blocks imports into scope
-            for imp in virtual_python.imports:
-                exec(str(imp))  # pylint: disable=exec-used
-
-            state = False
-
-            # For each element with a python condition
-            if condition in ["py-for", f"{CONDITION_PREFIX}for"]:
-                new_children = run_py_for(condition, child, **kwargs)
-                return True, new_children
-            elif condition in ["py-if", f"{CONDITION_PREFIX}if"]:
-                state, child = run_py_if(child, condition, **kwargs)
-                return state, [child]
-            elif condition in ["py-elif", f"{CONDITION_PREFIX}elif"]:
-                # Can only exist if previous condition in branch failed
-                state, child = run_py_elif(
-                    child,
-                    condition,
-                    {
-                        "previous": previous,
-                        "valid_prev": valid_prev,
-                        "first_cond": first_cond,
-                    },
-                    **kwargs,
-                )
-                return state, [child]
-            elif condition in ["py-else", f"{CONDITION_PREFIX}else"]:
-
-                # Can only exist if previous condition in branch failed
-                state, child = run_py_else(
-                    child,
-                    condition,
-                    {
-                        "previous": previous,
-                        "valid_prev": valid_prev,
-                        "first_cond": first_cond,
-                    },
-                    **kwargs
-                )
-                return state, [child]
-
-        condition = py_condition(curr_node)
-        results = [curr_node]
-        if condition is not None:
-            results = execute_condition(condition, curr_node, virtual_python, **kwargs)
-
-        # replace the valid components in the results list
-        new_children = []
-        for child in results:
-            props = child.context
-            attrs = child.properties
-            # get props and locals from current node
-            props, attrs = curr_node.context, curr_node.properties
-            props["children"] = curr_node.children
-
-            new_component = deepcopy(value["component"])
-            if new_component.tag in WRAPPER_TAG:
-                # Create a copy of the component
-                for sub_child in new_component.children:
-                    sub_child.context.update(props)
-                    sub_child.properties.update(attrs)
-                    sub_child.parent = curr_node.parent
-
-                new_children.extend(new_component.children)
-            else:
-                new_component.context.update(props)
-                new_component.properties.update(attrs)
-                new_component.parent = curr_node.parent
-                new_children.append(new_component)
-
-        # replace the curr_node with the list of replaced nodes
-        parent = curr_node.parent
-        index = parent.children.index(curr_node)
-        parent.children = parent.children[:index] + new_children + parent.children[index+1:]
-
-        __add_component_elements(node, {component[0]: component[1]}, "style")
-        __add_component_elements(node, {component[0]: component[1]}, "python")
-        __add_component_elements(node, {component[0]: component[1]}, "script")
+        __add_component_elements(node, used_components, "style")
+        __add_component_elements(node, used_components, "python")
+        __add_component_elements(node, used_components, "script")
 
 def replace_components(
     node: Root | Element | AST,
@@ -195,168 +69,204 @@ def replace_components(
     if isinstance(node, AST):
         node = node.tree
 
-    used_components = {}
+    used_components: dict[str, tuple[dict, dict]] = {}
 
     for name, value in components.items():
         elements = [element for element in node.children if check(element, {"tag": name})]
 
+        context = {}
         if len(elements) > 0:
-            used_components[name] = value
+            context, used_components[name] = process_context(name, value)
 
         for curr_node in elements:
-            def get_props() -> dict[str, str]:
-                props = {}
-                attrs = {}
-                attributes = value["component"].properties
-                for prop in attributes:
-                    if prop.startswith("@"):
-                        continue
-                    elif prop.startswith("#"):
-                        props[prop.lstrip("#")] = attributes[prop]
-                    else:
-                        attrs[prop] = attributes[prop]
-
-                attributes = curr_node.properties
-
-                for prop in attributes:
-                    attr_name = prop.lstrip(":").lstrip("py-")
-                    if attr_name in props:
-                        # Get value if pythonic
-                        context = build_locals(curr_node, **kwargs)
-                        if prop.startswith((":", "py-")):
-                            # process as python
-                            context.update(virtual_python.context)
-                            props[attr_name] = get_python_result(attributes[prop], **context)
-                        else:
-                            # process python blocks
-                            result = process_python_blocks(
-                                attributes[prop],
-                                virtual_python,
-                                **context
-                            )
-                            if (
-                                isinstance(result, str) 
-                                and result.lower() in ["true", "false", "yes", "no"]
-                            ):
-                                result = True if result.lower() in ["true", "yes"] else False
-                            props[attr_name] = result
-                    else:
-                        # Add value to attributes
-                        attrs[prop] = attributes[prop]
-
-                return props, attrs
-
-            # Assign props to locals and remaining attributes stay
-            props, attrs = get_props()
-            curr_node.properties = attrs
-            curr_node.context = props
-
-            def execute_condition(
-                condition: str,
-                child: Element,
-                virtual_python: VirtualPython,
-                **kwargs,
-            ) -> list:
-                conditions = __get_previous_conditions(child)
-
-                first_cond = (
-                    conditions[0] in [f"{CONDITION_PREFIX}if", "py-if"] 
-                    if len(conditions) > 0 else False
-                )
-
-                previous = (conditions[-1] if len(conditions) > 0 else "py-for", True)
-
-                # Add the python blocks locals to kwargs dict
-                kwargs.update(virtual_python.context)
-
-                # Bring python blocks imports into scope
-                for imp in virtual_python.imports:
-                    exec(str(imp))  # pylint: disable=exec-used
-
-                state = False
-
-                # For each element with a python condition
-                if condition in ["py-for", f"{CONDITION_PREFIX}for"]:
-                    new_children = run_py_for(condition, child, **kwargs)
-                    return new_children
-                elif condition in ["py-if", f"{CONDITION_PREFIX}if"]:
-                    state, child = run_py_if(child, condition, **kwargs)
-                    return [child]
-                elif condition in ["py-elif", f"{CONDITION_PREFIX}elif"]:
-                    # Can only exist if previous condition in branch failed
-                    state, child = run_py_elif(
-                        child,
-                        condition,
-                        {
-                            "previous": previous,
-                            "valid_prev": valid_prev,
-                            "first_cond": first_cond,
-                        },
-                        **kwargs,
-                    )
-                    return state, [child]
-                elif condition in ["py-else", f"{CONDITION_PREFIX}else"]:
-
-                    # Can only exist if previous condition in branch failed
-                    state, child = run_py_else(
-                        child,
-                        condition,
-                        {
-                            "previous": previous,
-                            "valid_prev": valid_prev,
-                            "first_cond": first_cond,
-                        },
-                        **kwargs
-                    )
-                    return [child]
-
-            condition = py_condition(curr_node)
-            results = [curr_node]
-            if condition is not None:
-                results = execute_condition(condition, curr_node, virtual_python, **kwargs)
-
-            # python_nodes = []
-            # for used in used_components.values():
-            #     python_nodes.extend(used["python"])
-            local_virtual_python = VirtualPython()
-            for python in value["python"]:
-                if len(python.children) == 1 and check(python.children[0], "text"):
-                    text = python.children[0].value
-                    local_virtual_python += VirtualPython(text)
-
-            # replace the valid components in the results list
-            new_children = []
-            for child in results:
-                attrs = child.properties
-                # get props and locals from current node
-                props, attrs = curr_node.context, curr_node.properties
-                props.update(local_virtual_python.context)
-                props["children"] = curr_node.children
-
-                component = deepcopy(value["component"])
-                if component.tag in WRAPPER_TAG:
-                    # Create a copy of the component
-                    for sub_child in component.children:
-                        sub_child.context.update(props)
-                        sub_child.properties.update(attrs)
-                        sub_child.parent = curr_node.parent
-
-                    new_children.extend(component.children)
-                else:
-                    component.context = props
-                    component.properties = attrs
-                    component.parent = curr_node.parent
-                    new_children.append(component)
-            # replace the curr_node with the list of replaced nodes
-            parent = curr_node.parent
-            index = parent.children.index(curr_node)
-            parent.children = parent.children[:index] + new_children + parent.children[index+1:]
+            curr_node.parent.children = apply_component(
+                curr_node,
+                name,
+                value,
+                used_components,
+                virtual_python,
+                context,
+                kwargs
+            )
 
     # Optimize, python, style, and script tags from components
-
     __add_component_elements(node, used_components, "style")
     __add_component_elements(node, used_components, "script")
 
+def get_props(node, name, value, used_components, virtual_python, **kwargs) -> dict[str, str]:
+    props = used_components[name][1].pop("Props", {})
+    extra_props = {}
+    attrs = value["component"].properties
+
+    attributes = node.properties
+
+    for item in attributes:
+        attr_name = item.lstrip(":").lstrip("py-")
+        if attr_name in props:
+            # Get value if pythonic
+            context = build_locals(node, **kwargs)
+            if item.startswith((":", "py-")):
+                # process as python
+                context.update(virtual_python.context)
+                result = get_python_result(attributes[item], **context)
+            else:
+                # process python blocks
+                result = process_python_blocks(
+                    attributes[item],
+                    virtual_python,
+                    **context
+                )
+            if (
+                isinstance(result, str)
+                and result.lower() in ["true", "false", "yes", "no"]
+            ):
+                result = True if result.lower() in ["true", "yes"] else False
+            props[attr_name] = result
+        elif attr_name not in attrs and item not in attrs:
+            # Add value to attributes
+            if (
+                isinstance(attributes[item], str)
+                and attributes[item].lower() in ["true", "false", "yes", "no"]
+            ):
+                attributes[item] = True if attributes[item].lower() in ["true", "yes"] else False
+            extra_props[attr_name] = attributes[item]
+
+    if len(extra_props) > 0:
+        props["props"] = extra_props
+
+    return props, attrs
+
+def execute_condition(
+    condition: str,
+    child: Element,
+    virtual_python: VirtualPython,
+    **kwargs,
+) -> list:
+    conditions = __get_previous_conditions(child)
+
+    first_cond = (
+        conditions[0] in [f"{CONDITION_PREFIX}if", "py-if"] 
+        if len(conditions) > 0 else False
+    )
+
+    previous = (conditions[-1] if len(conditions) > 0 else "py-for", True)
+
+    # Add the python blocks locals to kwargs dict
+    kwargs.update(virtual_python.context)
+
+    # Bring python blocks imports into scope
+    for imp in virtual_python.imports:
+        exec(str(imp))  # pylint: disable=exec-used
+
+    state = False
+
+    # For each element with a python condition
+    if condition in ["py-for", f"{CONDITION_PREFIX}for"]:
+        new_children = run_py_for(condition, child, **kwargs)
+        return True, new_children
+    elif condition in ["py-if", f"{CONDITION_PREFIX}if"]:
+        state, child = run_py_if(child, condition, **kwargs)
+        return state, [child]
+    elif condition in ["py-elif", f"{CONDITION_PREFIX}elif"]:
+        # Can only exist if previous condition in branch failed
+        state, child = run_py_elif(
+            child,
+            condition,
+            {
+                "previous": previous,
+                "valid_prev": valid_prev,
+                "first_cond": first_cond,
+            },
+            **kwargs,
+        )
+        return state, [child]
+    elif condition in ["py-else", f"{CONDITION_PREFIX}else"]:
+
+        # Can only exist if previous condition in branch failed
+        state, child = run_py_else(
+            child,
+            condition,
+            {
+                "previous": previous,
+                "valid_prev": valid_prev,
+                "first_cond": first_cond,
+            },
+            **kwargs
+        )
+        return state, [child]
+
+def process_context(name, value):
+    context = {}
+
+    local_virtual_python = VirtualPython()
+    for python in value["python"]:
+        if len(python.children) == 1 and check(python.children[0], "text"):
+            text = python.children[0].value
+            local_virtual_python += VirtualPython(text)
+
+    if "Props" in local_virtual_python.context:
+        # TODO: Seperate local Props from global Props??
+        # TODO: Recognize variations of `props` and log a message
+        # TODO: Validate props is a dict
+        if not isinstance(local_virtual_python.context["Props"], dict):
+            raise Exception(
+                f"Props must be a dict was "
+                + f"{type(local_virtual_python.context['Props']).__name__}: <{name} />"
+            )
+
+        context = {
+            key:value 
+            for key,value in local_virtual_python.context.items()
+            if key != "Props"
+        }
+
+        # TODO: Add parsed python blocks data as cached
+    return context, (value, local_virtual_python.context)
+
+def apply_component(node, name, value, used_components, virtual_python, context, kwargs) -> list:
+    props, attrs = get_props(
+        node,
+        name,
+        value,
+        used_components,
+        virtual_python,
+        **kwargs
+    )
+
+    node.properties = attrs
+    node.context = props
+
+    condition = py_condition(node)
+    results = [node]
+    if condition is not None:
+        results = execute_condition(condition, node, virtual_python, **kwargs)
+
+    # replace the valid components in the results list
+    new_children = []
+    for child in results:
+        attrs = child.properties
+        # get props and locals from current node
+        props, attrs = node.context, node.properties
+        props.update(context)
+        props["children"] = node.children
+
+        component = deepcopy(value["component"])
+        if component.tag in WRAPPER_TAG:
+            # Create a copy of the component
+            for sub_child in component.children:
+                sub_child.context.update(props)
+                sub_child.parent = node.parent
+
+            new_children.extend(component.children)
+        else:
+            component.context = props
+            component.properties = attrs
+            component.parent = node.parent
+            new_children.append(component)
+    # replace the curr_node with the list of replaced nodes
+    parent = node.parent
+    index = parent.children.index(node)
+    return parent.children[:index] + new_children + parent.children[index+1:]
 
 def __add_component_elements(node, used_components: dict, tag: str):
     if find(node, {"tag": tag}) is not None:
@@ -416,8 +326,8 @@ def combine_component_elements(elements: list[Element], tag: str) -> Element:
 def __retrieve_component_elements(collection: dict, element: str) -> list[Element]:
     result = []
     for value in collection.values():
-        if element in value:
-            result.extend(value[element])
+        if element in value[0]:
+            result.extend(value[0][element])
     return result
 
 def run_py_if(child: Element, condition: str, **kwargs):

@@ -1,12 +1,18 @@
-<phml>
+<>
     <div>
-        <h1>Hello World</h1>
+        <h1>{message}</h1>
+        <p @if="not blank(props)">{props}</p>
     </div>
     <span class="red-border">Red border text</span>
-</phml>
+</>
 <style>
     .red-border {
         padding: .5rem;
         border: 1px dashed red;
     }
 </style>
+<python>
+    Props = {
+        "message": "Hello World"
+    }
+</python>

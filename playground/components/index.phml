@@ -9,7 +9,7 @@
     </head>
 
     <body>
-        <cmpt />
+        <Cmpt data="dog" extra/>
     </body>
 
 </html>
