@@ -60,7 +60,7 @@ def tag_from_file(filename: str | Path) -> str:
     return "-".join(tokens)
 
 
-def cmpt_name_from_path(file: Path, strip: str = "") -> str:
+def cmpt_name_from_path(file: Path | str, strip: str = "") -> str:
     """Construct a component name given a path. This will include parent directories.
     it will also strip the root directory as this is most commonly not wanted.
 
@@ -71,6 +71,7 @@ def cmpt_name_from_path(file: Path, strip: str = "") -> str:
 
         `blog-header`
     """
+    file = Path(file)
     file = file.with_name(file.name.replace(file.suffix, ""))
     file = sub(strip.strip("/"), "", file.as_posix().lstrip("/")).strip("/")
     dirs = [

@@ -158,18 +158,16 @@ def execute_condition(
     for imp in virtual_python.imports:
         exec(str(imp))  # pylint: disable=exec-used
 
-    state = False
-
     # For each element with a python condition
     if condition in ["py-for", f"{CONDITION_PREFIX}for"]:
         new_children = run_py_for(condition, child, **kwargs)
-        return True, new_children
+        return new_children
     elif condition in ["py-if", f"{CONDITION_PREFIX}if"]:
-        state, child = run_py_if(child, condition, **kwargs)
-        return state, [child]
+        child = run_py_if(child, condition, **kwargs)
+        return [child]
     elif condition in ["py-elif", f"{CONDITION_PREFIX}elif"]:
         # Can only exist if previous condition in branch failed
-        state, child = run_py_elif(
+        child = run_py_elif(
             child,
             condition,
             {
@@ -179,11 +177,11 @@ def execute_condition(
             },
             **kwargs,
         )
-        return state, [child]
+        return [child]
     elif condition in ["py-else", f"{CONDITION_PREFIX}else"]:
 
         # Can only exist if previous condition in branch failed
-        state, child = run_py_else(
+        child = run_py_else(
             child,
             condition,
             {
@@ -193,7 +191,7 @@ def execute_condition(
             },
             **kwargs
         )
-        return state, [child]
+        return [child]
 
 def process_context(name, value):
     context = {}
@@ -337,10 +335,10 @@ def run_py_if(child: Element, condition: str, **kwargs):
     result = get_python_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
 
     if result:
-        return (True, child)
+        return child
 
     # Condition failed, so remove the node
-    return (False, child)
+    return child
 
 
 def run_py_elif(
@@ -357,9 +355,9 @@ def run_py_elif(
         if not variables["previous"][1]:
             result = get_python_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
             if result:
-                return (True, child)
+                return child
 
-    return (False, child)
+    return child
 
 
 def run_py_else(child: Element, condition: str, variables: dict, **kwargs):
@@ -370,10 +368,10 @@ def run_py_else(child: Element, condition: str, variables: dict, **kwargs):
             clocals = build_locals(child, **kwargs)
             result = get_python_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
             if result:
-                return (True, child)
+                return child
 
     # Condition failed so remove element
-    return (False, child)
+    return child
 
 
 def run_py_for(condition: str, child: All_Nodes, **kwargs) -> list:

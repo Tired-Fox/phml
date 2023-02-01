@@ -13,7 +13,7 @@ __all__ = ["PHML"]
 
 
 PathLike = str | Path
-CompiledComponent =  dict[str, list | All_Nodes] | AST
+CompiledComponent =  dict[str, list | All_Nodes] | AST | PathLike
 Component = dict[str, CompiledComponent] | tuple[str, CompiledComponent] | list[PathLike] | PathLike
 
 
