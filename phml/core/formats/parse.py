@@ -228,6 +228,7 @@ class HypertextMarkupParser:
 
         tag_attrs = REGEX["whitespace"].sub(" ", tag_attrs or "")
         attributes = REGEX["attributes"].findall(tag_attrs or "")
+
         attrs: Properties = {}
 
         for attribute in attributes:

@@ -416,7 +416,7 @@ def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> li
     clocals = build_locals(child)
 
     # Format for loop condition
-    for_loop = sub(r"for |:", "", child[condition]).strip()
+    for_loop = sub(r"for |:\s*$", "", child[condition]).strip()
 
     # Get local var names from for loop condition
     new_locals = [
