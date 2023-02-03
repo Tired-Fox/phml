@@ -442,7 +442,7 @@ for {for_loop}:
         )
     except Exception as exception:  # pylint: disable=broad-except
         TED.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
-[@Fblue]@if[@]=[@Fgreen]'[@]{expression}[@Fgreen]'[@]")
+[@Fblue]@for[@]=[@Fgreen]'[@]{expression}[@Fgreen]'[@]")
         print_exc()
 
     # Return the new complete list of children after generation
