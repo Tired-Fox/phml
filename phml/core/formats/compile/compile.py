@@ -16,7 +16,7 @@ from phml.utilities import (
     find_all,
     replace_node,
     visit_children,
-    path_names    
+    path_names,
 )
 
 # ? Change prefix char for `if`, `elif`, `else`, and `fore` here
@@ -160,6 +160,7 @@ def apply_python(
                 check(child, "text")
                 and search(r".*\{.*\}.*", child.value)
                 and child.parent.tag not in ["script", "style"]
+                and "code" not in path_names(child)
             ):
                 child.value = process_python_blocks(child.value, virtual_python, **local_env)
 
