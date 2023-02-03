@@ -252,8 +252,9 @@ def apply_component(node, name, value, used_components, virtual_python, context,
         if component.tag in WRAPPER_TAG:
             # Create a copy of the component
             for sub_child in component.children:
-                sub_child.context.update(props)
-                sub_child.parent = node.parent
+                if isinstance(sub_child, Element):
+                    sub_child.context.update(props)
+                    sub_child.parent = node.parent
 
             new_children.extend(component.children)
         else:

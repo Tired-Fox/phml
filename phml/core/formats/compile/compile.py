@@ -158,7 +158,7 @@ def apply_python(
                 process_children(child, {**local_vars})
             elif (
                 check(child, "text")
-                and search(r".*\{.*\}.*", child.value)
+                and search(r".*\{.*\}.*", str(child.value))
                 and child.parent.tag not in ["script", "style"]
                 and "code" not in path_names(child)
             ):
