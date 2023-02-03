@@ -129,6 +129,6 @@ script, style, or python tag. The root wrapping element must be '<PHML>`\
                 )
 
     if result["component"] is None:
-        raise Exception("Must have at least one element in a component.")
+        result["component"] = Element("")
 
     return result

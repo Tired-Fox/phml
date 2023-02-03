@@ -137,27 +137,27 @@ str or pathlib.Path pointing to the file.")
         self._compiler.remove(*components)
         return self
 
-    def load(self, file_path: str | Path, from_format: Optional[Format] = None):
+    def load(self, file_path: str | Path, from_format: Optional[Format] = None, auto_close: bool = True):
         """Load a source files data and parse it to phml.
 
         Args:
             file_path (str | Path): The file path to the source file.
         """
-        self._parser.load(file_path, from_format)
+        self._parser.load(file_path, from_format, auto_close)
         return self
 
-    def parse(self, data: str | dict, from_format: Format = Formats.PHML):
+    def parse(self, data: str | dict, from_format: Format = Formats.PHML, auto_close: bool = True):
         """Parse a str or dict object into phml.
 
         Args:
             data (str | dict): Object to parse to phml
         """
-        self._parser.parse(data, from_format)
+        self._parser.parse(data, from_format, auto_close)
         return self
     
     def compile(
         self,
-        file_type: str = Formats.HTML,
+        file_type: Format = Formats.HTML,
         scopes: Optional[list[str]] = None,
         components: Optional[dict] = None,
         **kwargs,
@@ -189,7 +189,7 @@ str or pathlib.Path pointing to the file.")
 
     def render(
         self,
-        file_type: str = Formats.HTML,
+        file_type: Format = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
         components: Optional[dict] = None,
@@ -224,7 +224,7 @@ str or pathlib.Path pointing to the file.")
     def write(
         self,
         file: str | Path | TextIOWrapper,
-        file_type: str = Formats.HTML,
+        file_type: Format = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
         replace_suffix: bool = False,

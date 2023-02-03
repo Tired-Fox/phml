@@ -20,7 +20,7 @@ from phml.core.nodes import (
 
 REGEX = {
     "tag": re.compile(
-        r"<!--(.*)-->|<(!|\?|\/)?([a-zA-Z0-9\.\-_]*)((\s*[^ \"'><=\/]+(=\"[^\"]+\"|='[^']+'|=[^\s>]+)?)*)\s*(\/|\?)?\s*>"
+        r"<!--(.*)-->|<(!|\?|\/)?([a-zA-Z0-9\.\-_:]*)((\s*[^ \"'><=\/\?]+(=\"[^\"]+\"|='[^']+'|=[^\s>]+)?)*)\s*(\/|\?)?\s*>"
     ),
     "attributes": re.compile(r"\s*([^<>\"'\= ]+)((=)\"([^\"]*)\"|(=)'([^']*)'|(=)([^<>\= ]+))?"),
     "whitespace": re.compile(r"\s+"),
@@ -47,13 +47,13 @@ self_closing_tags = [
 ]
 
 
-def parse_hypertest_markup(data: str, class_name: str) -> AST:
+def parse_hypertest_markup(data: str, class_name: str, auto_close: bool = True) -> AST:
     """Parse a string as a hypertest markup document."""
 
     phml_parser = HypertextMarkupParser()
 
     if isinstance(data, str):
-        return phml_parser.parse(data)
+        return phml_parser.parse(data, auto_close=auto_close)
     raise Exception(f"Data passed to {class_name}.parse must be a str")
 
 
@@ -134,7 +134,7 @@ class Specifier:
 class HypertextMarkupParser:
     """Parse languages like XML, HTML, PHML, etc; into a PHML AST."""
 
-    def parse(self, source: str) -> AST:
+    def parse(self, source: str, auto_close: bool = True) -> AST:
         """Takes a string of the source markup and returns the resulting
         PHML AST.
         """
@@ -147,8 +147,10 @@ class HypertextMarkupParser:
         current: Parent = root
         count = 0
 
+        
         for element in REGEX["tag"].finditer(source):
             comment, tag_type, tag_name, tag_attributes, _, _, closing = element.groups()
+
             # Create position in file
             position, text = self.__calculate(
                 source, element.group(0), (count, element.start()), previous
@@ -165,7 +167,7 @@ class HypertextMarkupParser:
             # Generate Element for tag found
             if comment is None:
                 (_type, name, attrs, closing) = self.__parse_tag(
-                    tag_type, tag_name, tag_attributes, closing, pos=position
+                    tag_type, tag_name, tag_attributes, closing, pos=position, auto_close=auto_close
                 )
             else:
                 current.append(
@@ -179,8 +181,10 @@ class HypertextMarkupParser:
 
             if _type == Specifier.Close:
                 if tag_stack[-1] != name:
+                    print(tag_stack, element.groups())
                     raise Exception(f"Unbalanced tags {tag_stack[-1]!r} and {name!r} at {position}")
                 _ = tag_stack.pop()
+
                 current = current.parent
             elif _type in [Specifier.Open, Specifier.Decleration, Specifier.ProcProfile]:
                 current.append(self.__create_node(_type, name, attrs, closing, position))
@@ -204,6 +208,7 @@ class HypertextMarkupParser:
         tag_attrs: str | None = None,
         closing: str | None = None,
         pos: tuple[int, int] | None = None,
+        auto_close: bool = True
     ):
         """Take the raw parts from the tag regex and parse it the appropriatly processed parts.
 
@@ -259,7 +264,7 @@ class HypertextMarkupParser:
             name = tag_name if tag_name != '' else "[@Fred]NAME[@F]"
             raise Exception(TED.parse(f"Invalid Decleration {position}: *<!{tag_name}{attrs}>"))
 
-        if closing == Specifier.Open and tag_name in self_closing_tags:
+        if closing == Specifier.Open and tag_name in self_closing_tags and auto_close:
             closing = Specifier.of("/")
 
         return tag_type, tag_name, attrs, closing

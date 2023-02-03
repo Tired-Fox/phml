@@ -36,7 +36,7 @@ class Parser:
     def __init__(self):
         self.ast = None
 
-    def load(self, path: str | Path, from_format: Optional[Format] = None):
+    def load(self, path: str | Path, from_format: Optional[Format] = None, auto_close: bool = True):
         """Parse a given phml file to AST following hast and unist.
 
         When finished the PHML.ast variable will be populated with the
@@ -54,12 +54,12 @@ class Parser:
                     with open(path, "r", encoding="utf-8") as source:
                         src = source.read()
 
-                    self.ast = file_format.parse(src)
+                    self.ast = file_format.parse(src, auto_close=auto_close)
                     return self
         else:
             with open(path, "r", encoding="utf-8") as source:
                 src = source.read()
-            self.ast = from_format.parse(src)
+            self.ast = from_format.parse(src, auto_close=auto_close)
             return self
 
         raise Exception(f"Could not parse unknown filetype {path.suffix.lstrip('.')!r}")
@@ -68,6 +68,7 @@ class Parser:
         self,
         data: str | dict,
         from_format: Format = Formats.PHML,
+        auto_close: bool = True
     ):
         """Parse data from a phml/html string or from a dict to a phml ast.
 
@@ -80,8 +81,8 @@ class Parser:
         """
 
         if isinstance(data, dict):
-            self.ast = Formats.JSON.parse(data)
+            self.ast = Formats.JSON.parse(data, auto_close=auto_close)
         else:
-            self.ast = from_format.parse(data)
+            self.ast = from_format.parse(data, auto_close=auto_close)
 
         return self

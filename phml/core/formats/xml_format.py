@@ -121,7 +121,7 @@ class XMLFormat(Format):
         # 3. Search each element and find py-if, py-elif, py-else, and py-for
         #    - Execute those statements
 
-        apply_conditions(src, VirtualPython(), **kwargs)
+        apply_conditions(src, VirtualPython(), components={}, **kwargs)
 
         # 4. Search for python blocks and process them.
 

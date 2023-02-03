@@ -31,7 +31,7 @@ class Format:
         return _extension.lstrip(".") == cls.extension
 
     @classmethod
-    def parse(cls, data: ...) -> str:
+    def parse(cls, data: ..., auto_close: bool = True) -> str:
         """Parse the given data into a phml.core.nodes.AST."""
         raise Exception("Base class Format's parse method should never be called")
 
