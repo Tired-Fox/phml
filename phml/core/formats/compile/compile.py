@@ -9,7 +9,7 @@ from typing import Optional
 
 from teddecor import TED
 
-from phml.core.nodes import AST, All_Nodes, DocType, Element, Root
+from phml.core.nodes import AST, NODE, DocType, Element, Root
 from phml.core.virtual_python import VirtualPython, get_python_result, process_python_blocks
 from phml.utilities import (
     check,
@@ -406,7 +406,7 @@ def run_py_else(child: Element, children: list, condition: str, variables: dict)
     return (f"{CONDITION_PREFIX}else", False)
 
 
-def run_py_for(condition: str, child: All_Nodes, children: list, **kwargs) -> list:
+def run_py_for(condition: str, child: NODE, children: list, **kwargs) -> list:
     """Take a for loop condition, child node, and the list of children and
     generate new nodes.
 
@@ -563,7 +563,7 @@ class ASTRenderer:
             lines.append(" " * indent + node.end_tag())
         return lines
 
-    def __compile_children(self, node: All_Nodes, indent: int = 0) -> list[str]:
+    def __compile_children(self, node: NODE, indent: int = 0) -> list[str]:
         lines = []
         if node.type == "element":
             if node.startend:

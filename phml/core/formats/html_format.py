@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Optional
 
-from phml.core.nodes import AST, All_Nodes
+from phml.core.nodes import AST, NODE
 from phml.core.virtual_python import VirtualPython
 from phml.utilities import find_all, remove_nodes
 
@@ -28,7 +28,7 @@ class HTMLFormat(Format):
     def compile(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         **kwargs,
     ) -> AST:
         """Compile and process the given ast and return the resulting ast."""
@@ -73,7 +73,7 @@ class HTMLFormat(Format):
     def render(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         indent: int = 4,
         **kwargs,
     ) -> str:

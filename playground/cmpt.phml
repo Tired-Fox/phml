@@ -1,21 +1,10 @@
-<script>
-    window.onload = () => {
-        alert('page load');
-    }
-</script>
-
 <python>
-    message = 'hello world'
+    file_type = "Component"
+
+    def get_message() -> str:
+        return f"This is a {file_type}"
 </python>
 
-<div class="cmpt">
-    <p>{message}</p>
-    <input type="text">
-</div>
-
-<style>
-    .cmpt {
-        background-color: red;
-        color: green;
-    }
-</style>
+<>
+    <p>{get_message()}</p>
+</>

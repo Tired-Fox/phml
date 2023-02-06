@@ -4,7 +4,7 @@ from copy import deepcopy
 from re import match, sub
 from traceback import print_exc
 from teddecor import TED
-from phml.core.nodes import Root, Element, AST, Text, All_Nodes
+from phml.core.nodes import Root, Element, AST, Text, NODE
 from phml.core.virtual_python import VirtualPython, process_python_blocks, get_python_result
 from phml.utilities import find, offset, normalize_indent, query, replace_node, check
 
@@ -203,22 +203,18 @@ def process_context(name, value):
             local_virtual_python += VirtualPython(text)
 
     if "Props" in local_virtual_python.context:
-        # TODO: Seperate local Props from global Props??
-        # TODO: Recognize variations of `props` and log a message
-        # TODO: Validate props is a dict
         if not isinstance(local_virtual_python.context["Props"], dict):
             raise Exception(
                 f"Props must be a dict was "
                 + f"{type(local_virtual_python.context['Props']).__name__}: <{name} />"
             )
 
-        context = {
-            key:value 
-            for key,value in local_virtual_python.context.items()
-            if key != "Props"
-        }
+    context = {
+        key:value 
+        for key,value in local_virtual_python.context.items()
+        if key != "Props"
+    }
 
-        # TODO: Add parsed python blocks data as cached
     return context, (value, local_virtual_python.context)
 
 def apply_component(node, name, value, used_components, virtual_python, context, kwargs) -> list:
@@ -375,7 +371,7 @@ def run_py_else(child: Element, condition: str, variables: dict, **kwargs):
     return child
 
 
-def run_py_for(condition: str, child: All_Nodes, **kwargs) -> list:
+def run_py_for(condition: str, child: NODE, **kwargs) -> list:
     """Take a for loop condition, child node, and the list of children and
     generate new nodes.
 

@@ -5,12 +5,12 @@ Collection of utilities that hep with traversing an ast or node tree.
 
 from typing import Iterator
 
-from phml.core.nodes import All_Nodes, Element, Root
+from phml.core.nodes import NODE, Element, Root
 
 __all__ = ["path", "path_names", "walk", "visit_children", "visit_all_after"]
 
 
-def path(node: All_Nodes) -> list[All_Nodes]:
+def path(node: NODE) -> list[NODE]:
     """Get a list of nodes where each one is a child of
     the other leading to the node passed in. This gives a
     path to the node.
@@ -18,10 +18,10 @@ def path(node: All_Nodes) -> list[All_Nodes]:
     Does not include given node.
 
     Args:
-        node (All_Nodes): Node to find ancestors of.
+        node (NODE): Node to find ancestors of.
 
     Returns:
-        list[All_Nodes]: List of nodes leading to the given node
+        list[NODE]: List of nodes leading to the given node
         starting from the root.
     """
     ancestors = []
@@ -31,7 +31,7 @@ def path(node: All_Nodes) -> list[All_Nodes]:
 
     return ancestors
 
-def path_names(node: All_Nodes) -> list[str]:
+def path_names(node: NODE) -> list[str]:
     """Get a list of nodes where each one is a child of
     the other leading to the node passed in. This gives a
     path to the node.
@@ -39,7 +39,7 @@ def path_names(node: All_Nodes) -> list[str]:
     Does not include given node.
 
     Args:
-        node (All_Nodes): Node to find ancestors of.
+        node (NODE): Node to find ancestors of.
 
     Returns:
         list[str]: List of nodes leading to the given node
@@ -76,7 +76,7 @@ def visit_children(parent: Root | Element) -> Iterator:
         yield child
 
 
-def visit_all_after(start: All_Nodes) -> Iterator:
+def visit_all_after(start: NODE) -> Iterator:
     """Recursively traverse the tree starting at given node."""
 
     def get_children(parent) -> Iterator:

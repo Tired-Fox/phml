@@ -6,12 +6,12 @@ of the node as a string.
 
 from json import dumps
 
-from phml.core.nodes import AST, All_Nodes, Comment, Element, Root, Text
+from phml.core.nodes import AST, NODE, Comment, Element, Root, Text
 
 __all__ = ["inspect", "normalize_indent"]
 
 
-def inspect(start: AST | All_Nodes, indent: int = 2):
+def inspect(start: AST | NODE, indent: int = 2):
     """Recursively inspect the passed node or ast."""
 
     if isinstance(start, AST):
@@ -55,7 +55,7 @@ def inspect(start: AST | All_Nodes, indent: int = 2):
     return "\n".join(signature(start))
 
 
-def signature(node: All_Nodes, indent: int = 2):
+def signature(node: NODE, indent: int = 2):
     """Generate the signature or base information for a single node."""
     sig = f"{node.type}"
     # element node's tag

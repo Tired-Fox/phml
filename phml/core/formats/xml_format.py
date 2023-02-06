@@ -5,7 +5,7 @@ from typing import Optional
 
 from defusedxml.ElementTree import fromstring
 
-from phml.core.nodes import AST, PI, All_Nodes, Element, Root, Text
+from phml.core.nodes import AST, PI, NODE, Element, Root, Text
 from phml.core.virtual_python import VirtualPython
 from phml.utilities import remove_nodes
 
@@ -73,7 +73,7 @@ class XMLFormat(Format):
     def compile(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         **kwargs,
     ) -> AST:
         """Compile and process the given ast and return the resulting ast."""
@@ -103,7 +103,7 @@ class XMLFormat(Format):
     def render(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         indent: int = 2,
         **kwargs,
     ) -> str:

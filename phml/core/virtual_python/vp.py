@@ -8,7 +8,6 @@ from __future__ import annotations
 import ast
 from html import escape
 from re import sub, findall
-from traceback import print_exc
 from typing import Any, Optional
 
 from phml.utilities import normalize_indent
@@ -29,14 +28,18 @@ class VirtualPython:
         content: Optional[str] = None,
         imports: Optional[list] = None,
         context: Optional[dict] = None,
+        *,
+        file_name: Optional[str] = None,
     ):
         self.content = content or ""
         self.imports = imports or []
         self.context = context or {}
+        self.file_name = file_name or ""
 
         if self.content != "":
 
             self.content = normalize_indent(content)
+
             # Extract imports from content
             for node in ast.parse(self.content).body:
                 if isinstance(node, ast.ImportFrom):
@@ -44,13 +47,7 @@ class VirtualPython:
                 elif isinstance(node, ast.Import):
                     self.imports.append(Import.from_node(node))
 
-            # Retreive locals from content
-            # local_env = {}
-            # global_env = {**self.context}
-            # exec(self.content, global_env, local_env)  # pylint: disable=exec-used
-
-            # local_env.update({key:value for key,value in global_env.items() if key not in globals() and key not in self.context})
-            # self.context.update(local_env)
+            # Extract context from python source with additional context
             self.context = self.get_python_context(self.content)
 
     def get_python_context(self, source: str) -> dict[str, Any]:
@@ -64,6 +61,7 @@ class VirtualPython:
         i = 0
 
         # Split the python source code into chunks
+        # This is a way of exposing outer most scope to functions and classes
         while i < len(lines):
             if lines[i].startswith(("def","class")):
                 chunks.append([lines[i]])
@@ -77,7 +75,7 @@ class VirtualPython:
             chunks[-1].append(lines[i])
             i+=1
 
-        chunks = ["\n".join(chunk) for chunk in chunks]
+        chunks = [compile("\n".join(chunk), self.file_name, "exec") for chunk in chunks]
         local_env = {}
 
         # Process each chunk and build locals
@@ -144,7 +142,7 @@ def __validate_kwargs(
 
 def get_python_result(expr: str, **kwargs) -> Any:
     """Execute the given python expression, while using
-    the kwargs as the local variables.
+    the kwargs as the global variables.
 
     This will collect the result of the expression and return it.
     """
@@ -153,7 +151,10 @@ def get_python_result(expr: str, **kwargs) -> Any:
         classnames,
     )
 
+    # Data being passed is concidered to be safe and shouldn't be sanatized
     safe_vars = kwargs.pop("safe_vars", None) or False
+    
+    # Global utilities provided by phml
     kwargs.update({"classnames": classnames, "blank": blank})
 
     avars = []
@@ -172,9 +173,11 @@ def get_python_result(expr: str, **kwargs) -> Any:
         result = assignment[-1]
         expression = f"{expr}\n"
 
+    # validate kwargs and replace missing variables with None
     __validate_kwargs(kwargs, expr, safe_vars=safe_vars)
 
     try:
+        # Compile and execute python source
         source = compile(expression, expr, "exec")
 
         local_env = {**kwargs}
@@ -229,7 +232,6 @@ def extract_expressions(data: str) -> str:
 
         index += end + 1
         results.append(block)
-    # for expression in finditer(r"\{[^}]+
 
     return results
 

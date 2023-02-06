@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from phml.core.formats import Format, Formats
-from phml.core.nodes import AST, All_Nodes
+from phml.core.nodes import AST, NODE
 from phml.utilities import cmpt_name_from_path, parse_component
 
 from .compiler import Compiler
@@ -13,7 +13,7 @@ __all__ = ["PHML"]
 
 
 PathLike = str | Path
-CompiledComponent =  dict[str, list | All_Nodes] | AST | PathLike
+CompiledComponent =  dict[str, list | NODE] | AST | PathLike
 Component = dict[str, CompiledComponent] | tuple[str, CompiledComponent] | list[PathLike] | PathLike
 
 
@@ -41,7 +41,7 @@ class PHML:
     def __init__(
         self,
         scopes: Optional[list[str]] = None,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         **contexts: Any,
     ):
         self._parser = Parser()
@@ -127,7 +127,7 @@ str or pathlib.Path pointing to the file.")
                 self._compiler.add(component)
         return self
 
-    def remove(self, *components: str | All_Nodes):
+    def remove(self, *components: str | NODE):
         """Remove an element from the list of element replacements.
 
         Takes any number of strings or node objects. If a string is passed

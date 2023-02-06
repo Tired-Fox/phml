@@ -1,6 +1,6 @@
 from typing import Optional
 
-from phml.core.nodes import AST, All_Nodes
+from phml.core.nodes import AST, NODE
 
 
 class Format:
@@ -39,7 +39,7 @@ class Format:
     def compile(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         **kwargs,
     ) -> AST:
         """Compile and process the given ast and return the resulting ast."""
@@ -50,7 +50,7 @@ does not support compiling and returning a phml ast.")
     def render(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         indent: int = 0,
         **kwargs,
     ) -> str:

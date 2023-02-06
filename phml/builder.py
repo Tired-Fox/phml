@@ -7,18 +7,18 @@ from __future__ import annotations
 
 from typing import Optional
 
-from phml.core.nodes import All_Nodes, Comment, DocType, Element, Root, Text
+from phml.core.nodes import NODE, Comment, DocType, Element, Root, Text
 
 __all__ = ["p"]
 
 
-def __process_children(node, children: list[str | list | int | All_Nodes]):
+def __process_children(node, children: list[str | list | int | NODE]):
     for child in children:
         if isinstance(child, str):
             node.children.append(Text(child, node))
         elif isinstance(child, (float, int)):
             node.children.append(Text(str(child), node))
-        elif isinstance(child, All_Nodes):
+        elif isinstance(child, NODE):
             child.parent = node
             node.children.append(child)
         elif isinstance(child, list):
@@ -27,7 +27,7 @@ def __process_children(node, children: list[str | list | int | All_Nodes]):
                     node.children.append(Text(nested_child, node))
                 elif isinstance(nested_child, (float, int)):
                     node.children.append(Text(str(nested_child), node))
-                elif isinstance(nested_child, All_Nodes):
+                elif isinstance(nested_child, NODE):
                     nested_child.parent = node
                     node.children.append(nested_child)
                 else:
@@ -39,12 +39,12 @@ def __process_children(node, children: list[str | list | int | All_Nodes]):
 
 def p(  # pylint: disable=[invalid-name,keyword-arg-before-vararg]
     selector: Optional[str] = None,
-    *args: str | list | dict | int | All_Nodes,
+    *args: str | list | dict | int | NODE,
 ):
     """Generic factory for creating phml nodes."""
 
     # Get all children | non dict objects
-    children = [child for child in args if isinstance(child, (str, list, int, All_Nodes))]
+    children = [child for child in args if isinstance(child, (str, list, int, NODE))]
 
     # Get all properties | dict objects
     props = [prop for prop in args if isinstance(prop, dict)]
@@ -66,7 +66,7 @@ def p(  # pylint: disable=[invalid-name,keyword-arg-before-vararg]
             args = [selector, *args]
             selector = None
 
-            children = [child for child in args if isinstance(child, (str, list, int, All_Nodes))]
+            children = [child for child in args if isinstance(child, (str, list, int, NODE))]
             return parse_root(children)
         return parse_node(selector, props, children)
 

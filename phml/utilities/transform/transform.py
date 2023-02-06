@@ -5,7 +5,7 @@ Utility methods that revolve around transforming or manipulating the ast.
 
 from typing import Callable, Optional
 
-from phml.core.nodes import AST, All_Nodes, Element, Root
+from phml.core.nodes import AST, NODE, Element, Root
 from phml.utilities.misc import heading_rank
 from phml.utilities.travel.travel import walk
 from phml.utilities.validate.check import Test, check
@@ -127,8 +127,8 @@ def map_nodes(tree: Root | Element | AST, transform: Callable):
 def replace_node(
     start: Root | Element,
     condition: Test,
-    replacement: Optional[All_Nodes | list[All_Nodes]],
-    all_nodes: bool = False,
+    replacement: Optional[NODE | list[NODE]],
+    NODE: bool = False,
     strict: bool = True,
 ):
     """Search for a specific node in the tree and replace it with either
@@ -137,7 +137,7 @@ def replace_node(
     Args:
         start (Root | Element): The starting point.
         condition (test): Test condition to find the correct node.
-        replacement (All_Nodes | list[All_Nodes] | None): What to replace the node with.
+        replacement (NODE | list[NODE] | None): What to replace the node with.
     """
     for node in walk(start):
         if check(node, condition, strict=strict):
@@ -164,7 +164,7 @@ def replace_node(
                     parent = node.parent
                     parent.children.pop(idx)
 
-            if not all_nodes:
+            if not NODE:
                 break
 
 

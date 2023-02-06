@@ -1,9 +1,9 @@
-from phml.core.nodes import AST, All_Nodes, Comment, Element, Root, Text
+from phml.core.nodes import AST, NODE, Comment, Element, Root, Text
 
 __all__ = ["to_string"]
 
 
-def to_string(node: AST | All_Nodes) -> str:
+def to_string(node: AST | NODE) -> str:
     """Get the raw text content of the element. Works similar to
     the DOMs Node#textContent getter.
 

@@ -1,7 +1,7 @@
 from re import match, split, sub
 from typing import Any
 
-from phml.core.nodes import All_Nodes, Comment, Element, Literal, Parent, Root, Text
+from phml.core.nodes import NODE, Comment, Element, Literal, Parent, Root, Text
 
 __all__ = [
     "validate",
@@ -22,7 +22,7 @@ __all__ = [
 ]
 
 
-def validate(node: All_Nodes) -> bool:
+def validate(node: NODE) -> bool:
     """Validate a node based on attributes and type."""
 
     if hasattr(node, "children"):
@@ -34,7 +34,7 @@ def validate(node: All_Nodes) -> bool:
                 "Node should have a type of 'root' or 'element' to contain the 'children' attribute"
             )
 
-        if not all(isinstance(child, All_Nodes) for child in node.children):
+        if not all(isinstance(child, NODE) for child in node.children):
             raise AssertionError("Children must be a node type")
 
     if hasattr(node, "properties"):
@@ -76,12 +76,12 @@ def literal(node: Text | Comment) -> bool:
         raise AssertionError("Literal nodes 'value' type should be 'str'")
 
 
-def generated(node: All_Nodes) -> bool:
+def generated(node: NODE) -> bool:
     """Checks if a node has been generated. A node is concidered
     generated if it does not have a position.
 
     Args:
-        node (All_Nodes): Node to check for position with.
+        node (NODE): Node to check for position with.
 
     Returns:
         bool: Whether a node has a position or not.

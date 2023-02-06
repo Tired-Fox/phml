@@ -5,7 +5,7 @@ Collection of utility methods to find one or many of a specific node.
 
 from typing import Optional
 
-from phml.core.nodes import AST, All_Nodes, Element, Root
+from phml.core.nodes import AST, NODE, Element, Root
 from phml.utilities.travel.travel import path, walk
 from phml.utilities.validate import Test, check
 
@@ -21,16 +21,16 @@ __all__ = [
 ]
 
 
-def ancestor(*nodes: All_Nodes) -> Optional[All_Nodes]:
+def ancestor(*nodes: NODE) -> Optional[NODE]:
     """Get the common ancestor between two nodes.
 
     Args:
-        *nodes (All_Nodes): A list of any number of nodes
+        *nodes (NODE): A list of any number of nodes
         to find the common ancestor form. Worst case it will
         return the root.
 
     Returns:
-        Optional[All_Nodes]: The node that is the common
+        Optional[NODE]: The node that is the common
         ancestor or None if not found.
     """
     total_path: list = None
@@ -47,7 +47,7 @@ def ancestor(*nodes: All_Nodes) -> Optional[All_Nodes]:
     return total_path[-1] if len(total_path) > 0 else None
 
 
-def find(start: Root | Element | AST, condition: Test, strict: bool = True) -> Optional[All_Nodes]:
+def find(start: Root | Element | AST, condition: Test, strict: bool = True) -> Optional[NODE]:
     """Walk the nodes children and return the desired node.
 
     Returns the first node that matches the condition.
@@ -57,7 +57,7 @@ def find(start: Root | Element | AST, condition: Test, strict: bool = True) -> O
         condition (Test): Condition to check against each node.
 
     Returns:
-        Optional[All_Nodes]: Returns the found node or None if not found.
+        Optional[NODE]: Returns the found node or None if not found.
     """
     if isinstance(start, AST):
         start = start.tree
@@ -69,7 +69,7 @@ def find(start: Root | Element | AST, condition: Test, strict: bool = True) -> O
     return None
 
 
-def find_all(start: Root | Element | AST, condition: Test, strict: bool = True) -> list[All_Nodes]:
+def find_all(start: Root | Element | AST, condition: Test, strict: bool = True) -> list[NODE]:
     """Find all nodes that match the condition.
 
     Args:
@@ -77,7 +77,7 @@ def find_all(start: Root | Element | AST, condition: Test, strict: bool = True) 
         condition (Test): Condition to apply to each node.
 
     Returns:
-        list[All_Nodes]: List of found nodes. Empty if no nodes are found.
+        list[NODE]: List of found nodes. Empty if no nodes are found.
     """
     if isinstance(start, AST):
         start = start.tree
@@ -90,19 +90,19 @@ def find_all(start: Root | Element | AST, condition: Test, strict: bool = True) 
 
 
 def find_after(
-    start: All_Nodes,
+    start: NODE,
     condition: Optional[Test] = None,
     strict: bool = True,
-) -> Optional[All_Nodes]:
+) -> Optional[NODE]:
     """Get the first sibling node following the provided node that matches
     the condition.
 
     Args:
-        start (All_Nodes): Node to get sibling from.
+        start (NODE): Node to get sibling from.
         condition (Test): Condition to check against each node.
 
     Returns:
-        Optional[All_Nodes]: Returns the first sibling or None if there
+        Optional[NODE]: Returns the first sibling or None if there
         are no siblings.
     """
 
@@ -122,15 +122,15 @@ def find_all_after(
     start: Element,
     condition: Optional[Test] = None,
     strict: bool = True,
-) -> list[All_Nodes]:
+) -> list[NODE]:
     """Get all sibling nodes that match the condition.
 
     Args:
-        start (All_Nodes): Node to get siblings from.
+        start (NODE): Node to get siblings from.
         condition (Test): Condition to check against each node.
 
     Returns:
-        list[All_Nodes]: Returns the all siblings that match the
+        list[NODE]: Returns the all siblings that match the
         condition or an empty list if none were found.
     """
     idx = start.parent.children.index(start)
@@ -148,19 +148,19 @@ def find_all_after(
 
 
 def find_before(
-    start: All_Nodes,
+    start: NODE,
     condition: Optional[Test] = None,
     strict: bool = True,
-) -> Optional[All_Nodes]:
+) -> Optional[NODE]:
     """Find the first sibling node before the given node. If a condition is applied
     then it will be the first sibling node that passes that condition.
 
     Args:
-        start (All_Nodes): The node to find the previous sibling from.
+        start (NODE): The node to find the previous sibling from.
         condition (Optional[Test]): The test that is applied to each node.
 
     Returns:
-        Optional[All_Nodes]: The first node before the given node
+        Optional[NODE]: The first node before the given node
         or None if no prior siblings.
     """
 
@@ -180,15 +180,15 @@ def find_all_before(
     start: Element,
     condition: Optional[Test] = None,
     strict: bool = True,
-) -> list[All_Nodes]:
+) -> list[NODE]:
     """Find all nodes that come before the given node.
 
     Args:
-        start (All_Nodes): The node to find all previous siblings from.
+        start (NODE): The node to find all previous siblings from.
         condition (Optional[Test]): The condition to apply to each node.
 
     Returns:
-        list[All_Nodes]: A list of nodes that come before the given node.
+        list[NODE]: A list of nodes that come before the given node.
         Empty list if no nodes were found.
     """
     idx = start.parent.children.index(start)
@@ -211,7 +211,7 @@ def find_all_between(
     condition: Optional[Test] = None,
     _range: Optional[slice] = None,
     strict: bool = True,
-) -> list[All_Nodes]:
+) -> list[NODE]:
     """Find all sibling nodes in parent that meet the provided condition from start index
     to end index.
 
@@ -224,7 +224,7 @@ def find_all_between(
         end indecies. Defaults to None.
 
     Returns:
-        list[All_Nodes]: List of all matching nodes or an empty list if none were found.
+        list[NODE]: List of all matching nodes or an empty list if none were found.
     """
     if isinstance(parent, AST):
         parent = parent.tree

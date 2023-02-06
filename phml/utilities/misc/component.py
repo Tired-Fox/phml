@@ -1,7 +1,7 @@
 from pathlib import Path
 from re import finditer, sub
 
-from phml.core.nodes import AST, All_Nodes, Element
+from phml.core.nodes import AST, NODE, Element
 
 __all__ = [
     "tokanize_name",
@@ -96,7 +96,7 @@ def valid_component_dict(cmpt: dict) -> bool:
         ("python" in cmpt and isinstance(cmpt["python"], list))
         and ("script" in cmpt and isinstance(cmpt["script"], list))
         and ("style" in cmpt and isinstance(cmpt["script"], list))
-        and ("component" in cmpt and isinstance(cmpt["component"], All_Nodes))
+        and ("component" in cmpt and isinstance(cmpt["component"], NODE))
     )
 
 

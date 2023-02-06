@@ -4,15 +4,14 @@ The heavy lifting module that compiles phml ast's to different string/file forma
 """
 
 import os
-from pathlib import Path
 import sys
 from re import sub
 from typing import Any, Optional
 
 from phml.core.formats import Format, Formats
 from phml.core.formats.compile import *  # pylint: disable=unused-wildcard-import
-from phml.core.nodes import AST, All_Nodes
-from phml.utilities import parse_component, tag_from_file, valid_component_dict
+from phml.core.nodes import AST, NODE
+from phml.utilities import parse_component, valid_component_dict
 
 __all__ = ["Compiler"]
 
@@ -28,15 +27,15 @@ class Compiler:
     def __init__(
         self,
         _ast: Optional[AST] = None,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
     ):
         self.ast = _ast
         self.components = components or {}
 
     def add(
         self,
-        *components: dict[str, dict[str, list | All_Nodes] | AST]
-        | tuple[str, dict[str, list | All_Nodes] | AST],
+        *components: dict[str, dict[str, list | NODE] | AST]
+        | tuple[str, dict[str, list | NODE] | AST],
     ):
         """Add a component to the compilers component list.
 
@@ -83,12 +82,12 @@ class Compiler:
             path.append(sub_dir)
         return path
 
-    def remove(self, *components: str | All_Nodes):
+    def remove(self, *components: str | NODE):
         """Takes either component names or components and removes them
         from the dictionary.
 
         Args:
-            components (str | All_Nodes): Any str name of components or
+            components (str | NODE): Any str name of components or
             node value to remove from the components list in the compiler.
         """
         for component in components:
@@ -97,7 +96,7 @@ class Compiler:
                     self.components.pop(component, None)
                 else:
                     raise KeyError(f"Invalid component name '{component}'")
-            elif isinstance(component, All_Nodes):
+            elif isinstance(component, NODE):
                 for key, value in self.components.items():
                     if isinstance(value, dict) and value["component"] == component:
                         self.components.pop(key, None)

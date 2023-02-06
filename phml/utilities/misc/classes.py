@@ -7,7 +7,7 @@ transforming, traveling, or validating nodes.
 from re import split, sub
 from typing import Optional
 
-from phml.core.nodes import All_Nodes, Element
+from phml.core.nodes import NODE, Element
 
 __all__ = ["classnames", "ClassList"]
 
@@ -141,7 +141,7 @@ class ClassList:
 
 def validate_node(node, conditionals: list) -> bool:
     """Validate a node is a node and that it is an element."""
-    if not isinstance(node, All_Nodes):
+    if not isinstance(node, NODE):
         return None, [node, *conditionals]
 
     if not isinstance(node, Element):

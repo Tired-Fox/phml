@@ -1,7 +1,7 @@
 from json import dumps, loads
 from typing import Optional
 
-from phml.core.nodes import AST, All_Nodes, Comment, DocType, Element, Position, Root, Text
+from phml.core.nodes import AST, NODE, Comment, DocType, Element, Position, Root, Text
 from phml.utilities import visit_children
 
 from .format import Format
@@ -99,7 +99,7 @@ class JSONFormat(Format):
     def render(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         indent: int = 2,
         **kwargs,
     ) -> str:

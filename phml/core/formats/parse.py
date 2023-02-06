@@ -10,10 +10,9 @@ from phml.core.nodes import (
     Element,
     Point,
     Position,
-    Properties,
     Root,
     Text,
-    All_Nodes,
+    NODE,
     PI,
     Parent,
 )
@@ -272,7 +271,7 @@ class HypertextMarkupParser:
 
     def __create_node(
         self, tag_type: str, name: str, attrs: str, closing: str, position: Position | None
-    ) -> All_Nodes:
+    ) -> NODE:
         """Create a PHML node based on the data from the parsed tag."""
 
         if tag_type == Specifier.Open:

@@ -81,7 +81,7 @@ class Parser:
         """
 
         if isinstance(data, dict):
-            self.ast = Formats.JSON.parse(data, auto_close=auto_close)
+            self.ast = Formats.JSON.parse(data)
         else:
             self.ast = from_format.parse(data, auto_close=auto_close)
 

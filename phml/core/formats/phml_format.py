@@ -1,6 +1,6 @@
 from typing import Optional
 
-from phml.core.nodes import AST, All_Nodes
+from phml.core.nodes import AST, NODE
 
 from .compile import ASTRenderer
 from .format import Format
@@ -25,7 +25,7 @@ class PHMLFormat(Format):
     def compile(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         **kwargs,
     ) -> AST:
         """Compile and process the given ast and return the resulting ast."""
@@ -35,7 +35,7 @@ class PHMLFormat(Format):
     def render(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         indent: int = 4,
         **kwargs,
     ) -> str:
