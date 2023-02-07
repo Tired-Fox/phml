@@ -77,7 +77,7 @@ def replace_components(
         context = {}
         if len(elements) > 0:
             context, used_components[name] = process_context(name, value)
-
+        
         for curr_node in elements:
             curr_node.parent.children = apply_component(
                 curr_node,
@@ -93,13 +93,22 @@ def replace_components(
     __add_component_elements(node, used_components, "style")
     __add_component_elements(node, used_components, "script")
 
-def get_props(node, name, value, used_components, virtual_python, **kwargs) -> dict[str, str]:
-    props = used_components[name][1].pop("Props", {})
+def get_props(
+    node,
+    name,
+    value,
+    used_components,
+    virtual_python,
+    props: dict | None = None,
+    **kwargs
+) -> dict[str, str]:
+    """Extract props from a phml component."""
+
+    props = dict(props or {})
     extra_props = {}
     attrs = value["component"].properties
 
     attributes = node.properties
-
     for item in attributes:
         attr_name = item.lstrip(":").lstrip("py-")
         if attr_name in props:
@@ -142,6 +151,7 @@ def execute_condition(
     virtual_python: VirtualPython,
     **kwargs,
 ) -> list:
+    """Execute python conditions for node to determine what will happen with the component."""
     conditions = __get_previous_conditions(child)
 
     first_cond = (
@@ -194,6 +204,7 @@ def execute_condition(
         return [child]
 
 def process_context(name, value):
+    """Process the python elements and context of the component and extract the relavent context."""
     context = {}
 
     local_virtual_python = VirtualPython()
@@ -209,21 +220,23 @@ def process_context(name, value):
                 + f"{type(local_virtual_python.context['Props']).__name__}: <{name} />"
             )
 
-    context = {
-        key:value 
+    context.update({
+        key:value
         for key,value in local_virtual_python.context.items()
         if key != "Props"
-    }
+    })
 
     return context, (value, local_virtual_python.context)
 
 def apply_component(node, name, value, used_components, virtual_python, context, kwargs) -> list:
+    """Get the props, execute conditions and replace components in the node tree."""
     props, attrs = get_props(
         node,
         name,
         value,
         used_components,
         virtual_python,
+        used_components[name][1].get("Props"),
         **kwargs
     )
 
@@ -238,26 +251,26 @@ def apply_component(node, name, value, used_components, virtual_python, context,
     # replace the valid components in the results list
     new_children = []
     for child in results:
-        attrs = child.properties
         # get props and locals from current node
-        props, attrs = node.context, node.properties
-        props.update(context)
-        props["children"] = node.children
+        properties, attributes = node.context, child.properties
+        properties.update(context)
+        properties["children"] = node.children
 
         component = deepcopy(value["component"])
         if component.tag in WRAPPER_TAG:
             # Create a copy of the component
             for sub_child in component.children:
                 if isinstance(sub_child, Element):
-                    sub_child.context.update(props)
+                    sub_child.context.update(properties)
                     sub_child.parent = node.parent
 
             new_children.extend(component.children)
         else:
-            component.context = props
-            component.properties = attrs
+            component.context = properties
+            component.properties = attributes
             component.parent = node.parent
             new_children.append(component)
+
     # replace the curr_node with the list of replaced nodes
     parent = node.parent
     index = parent.children.index(node)

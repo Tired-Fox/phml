@@ -275,7 +275,7 @@ class Element(Parent):
     def __init__(
         self,
         tag: str = "element",
-        properties: Optional[Properties] = None,
+        properties: Optional[dict[str, str]] = None,
         parent: Optional[Element | Root] = None,
         startend: bool = False,
         **kwargs,

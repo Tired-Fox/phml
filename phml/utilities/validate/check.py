@@ -10,13 +10,13 @@ from typing import TYPE_CHECKING, Callable, Optional
 from phml.core.nodes import Element
 
 if TYPE_CHECKING:
-    from phml.core.nodes import All_Nodes, Root
+    from phml.core.nodes import NODE, Root
 
 Test = None | str | list | dict | Callable
 
 
 def check(
-    node: All_Nodes,
+    node: NODE,
     _test: Test,
     index: Optional[int] = None,
     parent: Optional[Root | Element] = None,
@@ -36,7 +36,7 @@ def check(
     If the `parent` arg is passed so should the `index` arg.
 
     Args:
-        node (All_Nodes): Node to test. Can be any phml node.
+        node (NODE): Node to test. Can be any phml node.
         test (Test): Test to apply to the node. See previous section
         for more info.
         index (Optional[int], optional): Index in the parent where the

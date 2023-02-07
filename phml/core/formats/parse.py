@@ -19,7 +19,7 @@ from phml.core.nodes import (
 
 REGEX = {
     "tag": re.compile(
-        r"<!--(.*)-->|<(!|\?|\/)?([a-zA-Z0-9\.\-_:]*)((\s*[^ \"'><=\/\?]+(=\"[^\"]+\"|='[^']+'|=[^\s>]+)?)*)\s*(\/|\?)?\s*>"
+        r"<!--(.*)-->|<(!|\?|\/)?([\w:\.\-]*)((\s*[\w:@\.\-]+(=\"[^\"]+\"|='[^']+'|=[^\s>]+)?)*)\s*(\/|\?)?\s*>"
     ),
     "attributes": re.compile(r"\s*([^<>\"'\= ]+)((=)\"([^\"]*)\"|(=)'([^']*)'|(=)([^<>\= ]+))?"),
     "whitespace": re.compile(r"\s+"),
@@ -180,7 +180,6 @@ class HypertextMarkupParser:
 
             if _type == Specifier.Close:
                 if tag_stack[-1] != name:
-                    print(tag_stack, element.groups())
                     raise Exception(f"Unbalanced tags {tag_stack[-1]!r} and {name!r} at {position}")
                 _ = tag_stack.pop()
 

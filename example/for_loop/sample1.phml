@@ -34,7 +34,7 @@
                 py-else statement
             </p>
         </div>
-        <img src="https://example.com" alt="Example" />
+        <img src="https://picsum.photos/200/300" alt="Example" />
         <!--  Brackets ({,}) inject python. Can be any python and can be multiline  -->
         <h2>
             {message}

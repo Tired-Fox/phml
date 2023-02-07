@@ -25,7 +25,7 @@
         page_title="Home"
     </python>
     <body>
-        <hero />
+        <Hero />
         
         <p>
             phml is python embedded inside of html. This is powerful when used with other libraries
@@ -33,7 +33,7 @@
             shows proof of that.
         </p>
 
-        <callout icon="warning" title="Some warning callout" />
+        <Callout icon="warning" title="Some warning callout" />
 
         <p>
             This homepage shows examples of components. The components I created are callouts.
@@ -47,15 +47,15 @@
             see more variations of the callout component.
         </p>
 
-        <callout icon="info" message="Here is an info message" />
+        <Callout icon="info" message="Here is an info message" />
 
-        <callout icon="danger">
+        <Callout icon="danger">
             <p>Callout with children</p>
-        </callout>
+        </Callout>
 
-        <callout icon="fail" message="Same callout but with message override">
+        <Callout icon="fail" message="Same callout but with message override">
             <p>Callout with children</p>
-        </callout>
+        </Callout>
 
         <a href="include_list.html">List of features in this example</a>
     </body>
