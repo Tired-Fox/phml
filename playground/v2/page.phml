@@ -14,6 +14,7 @@
     <body>
         <!-- This is a comment -->
         <ul>
+            <input type="hidden" value={message} />
             <For :each="word in message.split()" @if="message == 'Hello World!'">
                 <li>{word}</li>
             </For>

@@ -97,6 +97,8 @@ class RE:
 
     attribute = re.compile(r"([\w:\-@]+)(?:=(\"([^\"]*)\"|'([^']*)'|([^>'\"]+)))?")
     """Matches a tags attributes `attr|attr=value|attr='value'|attr="value"`."""
+    
+    bracket_attributte = re.compile(r"(?:\s|.)*\{((?:\s|.)*)\}(?:\s|.)*")
 
 class HypertextMarkupParser:
     """Parse html/xml like source code strings."""
@@ -175,6 +177,13 @@ class HypertextMarkupParser:
         for attr in RE.attribute.finditer(attrs):
             name, value, i1, i2, i3 = attr.groups()
             value = i1 or i2 or i3
+
+            if value is not None and RE.bracket_attributte.match(value) is not None:
+                if not name.startswith(":"):
+                    name = ":" + name
+                value = RE.bracket_attributte.match(value).group(1)
+                print(name, value)
+                input()
 
             if value in ["yes", "true", None]:
                 value = True
