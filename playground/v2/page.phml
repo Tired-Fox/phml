@@ -15,10 +15,10 @@
         <!-- This is a comment -->
         <ul>
             <input type="hidden" value={message} />
-            <For :each="word in message.split()" @if="message == 'Hello World!'">
+            <For each={word in message.split()} @if="message == 'Hello World!'">
                 <li>{word}</li>
             </For>
-            <For :each="char in message" @else >
+            <For each={char in message} @else >
                 <li @if="char == 'l'">{char}</li>
             </For>
             <Name name="dog" />

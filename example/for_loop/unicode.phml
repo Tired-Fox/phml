@@ -48,7 +48,7 @@
     <body>
         <!--  List of all unicode characters  -->
         <div id="unicode-table">
-            <For :each="num in range(10001)">
+            <For each={num in range(10001)}>
                 <button id="u{num}" onclick="copyUnicode({num})"><p>&#{num}</p></button>
             </For>
         </div>

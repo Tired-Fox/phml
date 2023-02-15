@@ -1,5 +1,6 @@
 """Pythonic Hypertext Markup Language (phml) parser."""
 from copy import deepcopy
+from operator import itemgetter
 import re
 
 from phml.core.nodes import (
@@ -95,7 +96,7 @@ class RE:
     comment = re.compile(r"<!--((?:.|\s)*)-->")
     """Matches all html style comments `<!--Comment-->`."""
 
-    attribute = re.compile(r"([\w:\-@]+)(?:=(\"([^\"]*)\"|'([^']*)'|([^>'\"]+)))?")
+    attribute = re.compile(r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"]+)))?")
     """Matches a tags attributes `attr|attr=value|attr='value'|attr="value"`."""
     
     bracket_attributte = re.compile(r"(?:\s|.)*\{((?:\s|.)*)\}(?:\s|.)*")
@@ -175,15 +176,21 @@ class HypertextMarkupParser:
         """
         attributes = {}
         for attr in RE.attribute.finditer(attrs):
-            name, value, i1, i2, i3 = attr.groups()
-            value = i1 or i2 or i3
+            (
+                name,
+                value,
+                _,
+                double,
+                single,
+                no_bracket
+            ) = itemgetter('name', 'value', 'curly', 'double', 'single', 'open')(attr.groupdict())
 
             if value is not None and RE.bracket_attributte.match(value) is not None:
                 if not name.startswith(":"):
                     name = ":" + name
                 value = RE.bracket_attributte.match(value).group(1)
-                print(name, value)
-                input()
+            else:
+                value = double or single or no_bracket
 
             if value in ["yes", "true", None]:
                 value = True
