@@ -128,7 +128,7 @@ def replace_node(
     start: Root | Element,
     condition: Test,
     replacement: Optional[NODE | list[NODE]],
-    NODE: bool = False,
+    all_nodes: bool = False,
     strict: bool = True,
 ):
     """Search for a specific node in the tree and replace it with either
@@ -164,7 +164,7 @@ def replace_node(
                     parent = node.parent
                     parent.children.pop(idx)
 
-            if not NODE:
+            if not all_nodes:
                 break
 
 

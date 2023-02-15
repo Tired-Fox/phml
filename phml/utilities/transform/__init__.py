@@ -16,7 +16,6 @@ from .transform import *
 #     "shift_heading",
 # ]
 
-
 def normalize_indent(content: str, indent: int = 0) -> str:
     """Normalize the indent between all lines.
 

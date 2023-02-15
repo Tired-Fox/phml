@@ -48,9 +48,9 @@ class VirtualPython:
                     self.imports.append(Import.from_node(node))
 
             # Extract context from python source with additional context
-            self.context = self.get_python_context(self.content)
+            self.context = self.get_python_context(self.content, self.context)
 
-    def get_python_context(self, source: str) -> dict[str, Any]:
+    def get_python_context(self, source: str, context: dict) -> dict[str, Any]:
         """Get the locals built from the python source code string.
         Splits the def's and classes into their own chunks and passes in
         all other local context to allow for outer scope to be seen in inner scope.
@@ -76,7 +76,7 @@ class VirtualPython:
             i+=1
 
         chunks = [compile("\n".join(chunk), self.file_name, "exec") for chunk in chunks]
-        local_env = {}
+        local_env = dict(self.context)
 
         # Process each chunk and build locals
         for chunk in chunks:

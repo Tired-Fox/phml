@@ -1,7 +1,7 @@
 from phml import PHML
 import time
 
-if False:
+if True:
     start = time.monotonic()
     PHML().load("unicode.phml").write("unicode.html")
     print(

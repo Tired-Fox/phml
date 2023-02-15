@@ -16,57 +16,23 @@ from phml.utilities import (
     find_all,
     replace_node,
     visit_children,
-    path_names,
+    path_names
 )
 
-# ? Change prefix char for `if`, `elif`, `else`, and `fore` here
+# ? Change prefix char for `if`, `elif`, and `else` here
 CONDITION_PREFIX = "@"
 
 # ? Change prefix char for python attributes here
 ATTR_PREFIX = ":"
 
 valid_prev = {
-    "py-for": [
-        "py-if",
-        "py-elif",
-        "py-else",
-        "py-for",
-        f"{CONDITION_PREFIX}if",
-        f"{CONDITION_PREFIX}elif",
-        f"{CONDITION_PREFIX}else",
-        f"{CONDITION_PREFIX}for",
-    ],
-    "py-if": [
-        "py-if",
-        "py-elif",
-        "py-else",
-        "py-for",
-        f"{CONDITION_PREFIX}if",
-        f"{CONDITION_PREFIX}elif",
-        f"{CONDITION_PREFIX}else",
-        f"{CONDITION_PREFIX}for",
-    ],
-    "py-elif": ["py-if", "py-elif", f"{CONDITION_PREFIX}if", f"{CONDITION_PREFIX}elif"],
-    "py-else": ["py-if", "py-elif", f"{CONDITION_PREFIX}if", f"{CONDITION_PREFIX}elif"],
-    f"{CONDITION_PREFIX}for": [
-        "py-if",
-        "py-elif",
-        "py-else",
-        "py-for",
-        f"{CONDITION_PREFIX}if",
-        f"{CONDITION_PREFIX}elif",
-        f"{CONDITION_PREFIX}else",
-        f"{CONDITION_PREFIX}for",
-    ],
     f"{CONDITION_PREFIX}if": [
         "py-if",
         "py-elif",
         "py-else",
-        "py-for",
         f"{CONDITION_PREFIX}if",
         f"{CONDITION_PREFIX}elif",
         f"{CONDITION_PREFIX}else",
-        f"{CONDITION_PREFIX}for",
     ],
     f"{CONDITION_PREFIX}elif": [
         "py-if",
@@ -86,10 +52,10 @@ def __process_props(child: Element, virtual_python: VirtualPython, local_vars: d
     new_props = {}
 
     for prop in child.properties:
-        if prop.startswith((ATTR_PREFIX, "py-")):
+        if prop.startswith(ATTR_PREFIX):
             local_env = {**virtual_python.context}
             local_env.update(local_vars)
-            new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_python_result(
+            new_props[prop.lstrip(ATTR_PREFIX)] = get_python_result(
                 child[prop], **local_env
             )
         elif match(r".*\{.*\}.*", str(child[prop])) is not None:
@@ -105,7 +71,7 @@ def apply_conditions(
     components: dict, 
     **kwargs
 ):
-    """Applys all `py-if`, `py-elif`, `py-else`, and `py-for` to the node
+    """Applys all `py-if`, `py-elif`, and `py-else` to the node
     recursively.
 
     Args:
@@ -117,12 +83,31 @@ def apply_conditions(
     if isinstance(node, AST):
         node = node.tree
 
-    process_conditions(node, virtual_python, **kwargs)
     replace_components(node, components, virtual_python, **kwargs)
+    process_conditions(node, virtual_python, **kwargs)
+    process_loops(node, virtual_python, **kwargs)
+
     for child in node.children:
         if isinstance(child, (Root, Element)):
             apply_conditions(child, virtual_python, components, **kwargs)
 
+def process_loops(node: Root | Element, virtual_python: VirtualPython, **kwargs):
+    """Expands all `<For />` tags giving their children context for each iteration."""
+
+    for_loops = [
+        loop 
+        for loop in visit_children(node) 
+        if check(loop, {"tag": "For", ":each": True})
+    ]
+
+    kwargs.update(virtual_python.context)
+
+    for loop in for_loops:
+        children = run_phml_for(loop, **kwargs)
+        replace_node(node, loop, children)
+
+    if len(for_loops) > 0:
+        process_conditions(node, virtual_python, **kwargs)
 
 def apply_python(
     current: Root | Element | AST,
@@ -174,14 +159,10 @@ def py_condition(node: Element) -> bool:
         for k in node.properties.keys()
         if k
         in [
-            "py-for",
-            "py-if",
-            "py-elif",
-            "py-else",
             f"{CONDITION_PREFIX}if",
             f"{CONDITION_PREFIX}elif",
             f"{CONDITION_PREFIX}else",
-            f"{CONDITION_PREFIX}for",
+            # f"{CONDITION_PREFIX}for",
         ]
     ]
     if len(conditions) > 1:
@@ -211,14 +192,12 @@ def __validate_previous_condition(child: Element) -> Optional[Element]:
     )
 
     if prev_cond is None or prev_cond not in [
-        "py-elif",
-        "py-if",
         f"{CONDITION_PREFIX}elif",
         f"{CONDITION_PREFIX}if",
     ]:
         raise Exception(
-            f"Condition statements that are not py-if or py-for must have py-if or\
- py-elif as a previous sibling.\n{child.start_tag()}\
+            f"Condition statements that are not @if must have @if or\
+ @elif as a previous sibling.\n{child.start_tag()}\
 {f' at {child.position}' if child.position is not None else ''}"
         )
     return previous, prev_cond
@@ -236,8 +215,6 @@ def process_conditions(tree: Root | Element, virtual_python: VirtualPython, **kw
         if check(child, "element"):
             condition = py_condition(child)
             if condition in [
-                "py-elif",
-                "py-else",
                 f"{CONDITION_PREFIX}elif",
                 f"{CONDITION_PREFIX}else",
             ]:
@@ -280,7 +257,7 @@ def execute_conditions(
     first_cond = False
 
     # Previous condition that was run and whether it was successful.
-    previous = (f"{CONDITION_PREFIX}for", True)
+    previous = (f"{CONDITION_PREFIX}else", True)
 
     # Add the python blocks locals to kwargs dict
     kwargs.update(virtual_python.context)
@@ -291,24 +268,15 @@ def execute_conditions(
 
     # For each element with a python condition
     for condition, child in cond:
-        if condition in ["py-for", f"{CONDITION_PREFIX}for"]:
-
-            children = run_py_for(condition, child, children, **kwargs)
-
-            previous = (f"{CONDITION_PREFIX}for", False)
-
-            # End any condition branch
-            first_cond = False
-
-        elif condition in ["py-if", f"{CONDITION_PREFIX}if"]:
-            previous = run_py_if(child, condition, children, **kwargs)
+        if condition == f"{CONDITION_PREFIX}if":
+            previous = run_phml_if(child, condition, children, **kwargs)
 
             # Start of condition branch
             first_cond = True
 
-        elif condition in ["py-elif", f"{CONDITION_PREFIX}elif"]:
+        elif condition == f"{CONDITION_PREFIX}elif":
             # Can only exist if previous condition in branch failed
-            previous = run_py_elif(
+            previous = run_phml_elif(
                 child,
                 children,
                 condition,
@@ -319,10 +287,10 @@ def execute_conditions(
                 },
                 **kwargs,
             )
-        elif condition in ["py-else", f"{CONDITION_PREFIX}else"]:
+        elif condition == f"{CONDITION_PREFIX}else":
 
             # Can only exist if previous condition in branch failed
-            previous = run_py_else(
+            previous = run_phml_else(
                 child,
                 children,
                 condition,
@@ -356,7 +324,7 @@ def build_locals(child, **kwargs) -> dict:
     return clocals
 
 
-def run_py_if(child: Element, condition: str, children: list, **kwargs):
+def run_phml_if(child: Element, condition: str, children: list, **kwargs):
     """Run the logic for manipulating the children on a `if` condition."""
 
     clocals = build_locals(child, **kwargs)
@@ -371,7 +339,7 @@ def run_py_if(child: Element, condition: str, children: list, **kwargs):
     return (f"{CONDITION_PREFIX}if", False)
 
 
-def run_py_elif(
+def run_phml_elif(
     child: Element,
     children: list,
     condition: str,
@@ -393,7 +361,7 @@ def run_py_elif(
     return variables["previous"]
 
 
-def run_py_else(child: Element, children: list, condition: str, variables: dict):
+def run_phml_else(child: Element, children: list, condition: str, variables: dict):
     """Run the logic for manipulating the children on a `else` condition."""
 
     if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
@@ -406,61 +374,63 @@ def run_py_else(child: Element, children: list, condition: str, variables: dict)
     return (f"{CONDITION_PREFIX}else", False)
 
 
-def run_py_for(condition: str, child: NODE, children: list, **kwargs) -> list:
-    """Take a for loop condition, child node, and the list of children and
-    generate new nodes.
+def run_phml_for(node: Element, **kwargs) -> list:
+    """Repeat the nested elements inside the `<For />` elements for the iterations provided by the
+    `:each` attribute. The values from the `:each` attribute are exposed as context for each node in
+    the `<For />` element for each iteration.
 
-    Nodes are duplicates from the child node with variables provided
-    from the for loop and child's locals.
+    Args:
+        node (Element): The `<For />` element that is to be used.
     """
-    clocals = build_locals(child)
+    clocals = build_locals(node)
 
     # Format for loop condition
-    for_loop = sub(r"for |:\s*$", "", child[condition]).strip()
+    for_loop = sub(r"for |:\s*$", "", node[":each"]).strip()
 
     # Get local var names from for loop condition
+    items = match(r"(for )?(.*)(?<= )in(?= )(.+)", for_loop)
     new_locals = [
         item.strip()
         for item in sub(
             r"\s+",
             " ",
-            match(r"(for )?(.*)(?<= )in(?= )", for_loop).group(2),
+            items.group(2),
         ).split(",")
     ]
+
+    source = items.group(3)
 
     # Formatter for key value pairs
     key_value = "\"{key}\": {key}"
 
-    # Start index on where to insert generated children
-    insert = children.index(child)
+    # Set children position to 0 since all copies are generated
+    children = node.children
+    for child in children:
+        child.position = None
 
-    # Construct dynamic for loop
-    #   Uses for loop condition from above
-    #       Creates deepcopy of looped element
-    #       Adds locals from what was passed to exec and what is from for loop condition
-    #       concat and generate new list of children
-    expression = for_loop
+    def children_with_context(context: dict):
+        new_children = []
+        for child in children:
+            new_child = deepcopy(child)
+            if check(new_child, "element"):
+                new_child.context.update(context)
+            new_children.append(new_child)
+        return new_children
+
+    expression = for_loop # original expression
+
     for_loop = f'''\
+new_children = []
 for {for_loop}:
-    new_child = deepcopy(child)
-    new_child.context = {{**local_vals}}
-    new_child.context.update({{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}})
-    children = [*children[:insert], new_child, *children[insert+1:]]
-    insert += 1\
+    new_children.extend(
+        children_with_context(
+            {{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}}
+        )
+    )
 '''
-
-    # Prep the child to be used as a copy for new children
-
-    # Delete the py-for condition from child's props
-    del child[condition]
-    # Set the position to None since the copies are generated
-    child.position = None
 
     # Construct locals for dynamic for loops execution
     local_env = {
-        "children": children,
-        "insert": insert,
-        "child": child,
         "local_vals": clocals,
     }
 
@@ -472,6 +442,7 @@ for {for_loop}:
                 **kwargs,
                 **globals(),
                 **clocals,
+                "children_with_context": children_with_context
             },
             local_env,
         )
@@ -481,7 +452,7 @@ for {for_loop}:
         print_exc()
 
     # Return the new complete list of children after generation
-    return local_env["children"]
+    return local_env["new_children"]
 
 
 class ASTRenderer:
@@ -528,7 +499,7 @@ class ASTRenderer:
         return "".join(
             [
                 " " * indent + node.start_tag(),
-                node.children[0].stringify(
+                node.children[0].normalized(
                     indent + self.offset if node.children[0].num_lines > 1 else 0
                 ),
                 node.end_tag(),

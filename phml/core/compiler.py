@@ -60,14 +60,14 @@ class Compiler:
             if isinstance(component, dict):
                 for key, value in component.items():
                     if isinstance(value, AST):
-                        self.components[key] = parse_component(value)
+                        self.components[key] = { "data": parse_component(value), "cache": None }
                     elif isinstance(value, dict) and valid_component_dict(value):
-                        self.components[key] = value
+                        self.components[key] = { "data": value, "cache": None }
             elif isinstance(component, tuple):
                 if isinstance(component[0], str) and isinstance(component[1], AST):
-                    self.components[component[0]] = parse_component(component[1])
+                    self.components[component[0]] = { "data": parse_component(component[1]), "cache": None }
                 elif isinstance(component[0], str) and valid_component_dict(component[1]):
-                    self.components[component[0]] = component[1]
+                    self.components[component[0]] = { "data": component[1], "cache": None }
 
         return self
 
@@ -98,7 +98,7 @@ class Compiler:
                     raise KeyError(f"Invalid component name '{component}'")
             elif isinstance(component, NODE):
                 for key, value in self.components.items():
-                    if isinstance(value, dict) and value["component"] == component:
+                    if isinstance(value["data"], dict) and value["data"]["component"] == component:
                         self.components.pop(key, None)
                         break
 
