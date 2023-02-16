@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] html escape all string value returns from python blocks
-- [ ] Allow for `@for` with `@if`, `@elif`, `@else` conditionals
+- [x] html escape all string value returns from python blocks
+- [x] Allow for `@for` with `@if`, `@elif`, `@else` conditionals
 - [ ] `@debug` conditional?
-- [ ] Add `<Markdown />` and `<HTML />` tags
+- [x] Add `<Markdown />` and `<HTML />` tags
