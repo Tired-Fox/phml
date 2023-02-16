@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
 from re import match, search, sub
-from traceback import print_exc
 from typing import Optional
-
-from teddecor import TED
+from pyparsing import Any
 
 from phml.core.nodes import AST, NODE, DocType, Element, Root
 from phml.core.virtual_python import VirtualPython, get_python_result, process_python_blocks
@@ -16,8 +13,11 @@ from phml.utilities import (
     find_all,
     replace_node,
     visit_children,
-    path_names
+    path_names,
+    classnames
 )
+
+from .reserved import RESERVED
 
 # ? Change prefix char for `if`, `elif`, and `else` here
 CONDITION_PREFIX = "@"
@@ -48,16 +48,33 @@ valid_prev = {
     ],
 }
 
-def __process_props(child: Element, virtual_python: VirtualPython, local_vars: dict) -> dict:
+EXTRAS = ["fenced-code-blocks", "cuddled-lists", "footnotes", "header-ids", "strike"]
+
+def process_reserved_attrs(prop: str, value: Any) -> tuple[str, Any]:
+    """Based on the props name, process/translate the props value."""
+
+    if prop.lstrip(ATTR_PREFIX) == "class:list":
+        value = classnames(value)
+        prop = "class"
+
+    return prop, value
+
+def process_props(child: Element, virtual_python: VirtualPython, local_vars: dict) -> dict:
+    """Process props inline python and reserved value translations."""
+
     new_props = {}
 
     for prop in child.properties:
         if prop.startswith(ATTR_PREFIX):
             local_env = {**virtual_python.context}
             local_env.update(local_vars)
-            new_props[prop.lstrip(ATTR_PREFIX)] = get_python_result(
+            value = get_python_result(
                 child[prop], **local_env
             )
+
+            name, value = process_reserved_attrs(prop, value)
+            new_props[name] = value
+
         elif match(r".*\{.*\}.*", str(child[prop])) is not None:
             new_props[prop] = process_python_blocks(child[prop], virtual_python, **local_vars)
         else:
@@ -85,28 +102,24 @@ def apply_conditions(
 
     replace_components(node, components, virtual_python, **kwargs)
     process_conditions(node, virtual_python, **kwargs)
-    process_loops(node, virtual_python, **kwargs)
+    process_reserved_elements(node, virtual_python, **kwargs)
 
     for child in node.children:
         if isinstance(child, (Root, Element)):
             apply_conditions(child, virtual_python, components, **kwargs)
 
-def process_loops(node: Root | Element, virtual_python: VirtualPython, **kwargs):
-    """Expands all `<For />` tags giving their children context for each iteration."""
+def process_reserved_elements(node: Root | Element, virtual_python: VirtualPython, **kwargs):
+    """Process all reserved elements and replace them with the results."""
 
-    for_loops = [
-        loop 
-        for loop in visit_children(node) 
-        if check(loop, {"tag": "For", ":each": True})
-    ]
+    tags = [n.tag for n in visit_children(node) if check(n, "element")]
+    reserved_found = False
+    
+    for key,value in RESERVED.items():
+        if key in tags:
+            value(node, virtual_python, **kwargs)
+            reserved_found = True
 
-    kwargs.update(virtual_python.context)
-
-    for loop in for_loops:
-        children = run_phml_for(loop, **kwargs)
-        replace_node(node, loop, children)
-
-    if len(for_loops) > 0:
+    if reserved_found:
         process_conditions(node, virtual_python, **kwargs)
 
 def apply_python(
@@ -139,7 +152,7 @@ def apply_python(
                 local_vars = {**local_env}
                 local_vars.update(child.context)
 
-                child.properties = __process_props(child, virtual_python, local_vars)
+                child.properties = process_props(child, virtual_python, local_vars)
                 process_children(child, {**local_vars})
             elif (
                 check(child, "text")
@@ -372,88 +385,6 @@ def run_phml_else(child: Element, children: list, condition: str, variables: dic
     # Condition failed so remove element
     children.remove(child)
     return (f"{CONDITION_PREFIX}else", False)
-
-
-def run_phml_for(node: Element, **kwargs) -> list:
-    """Repeat the nested elements inside the `<For />` elements for the iterations provided by the
-    `:each` attribute. The values from the `:each` attribute are exposed as context for each node in
-    the `<For />` element for each iteration.
-
-    Args:
-        node (Element): The `<For />` element that is to be used.
-    """
-    clocals = build_locals(node)
-
-    # Format for loop condition
-    for_loop = sub(r"for |:\s*$", "", node[":each"]).strip()
-
-    # Get local var names from for loop condition
-    items = match(r"(for )?(.*)(?<= )in(?= )(.+)", for_loop)
-    new_locals = [
-        item.strip()
-        for item in sub(
-            r"\s+",
-            " ",
-            items.group(2),
-        ).split(",")
-    ]
-
-    source = items.group(3)
-
-    # Formatter for key value pairs
-    key_value = "\"{key}\": {key}"
-
-    # Set children position to 0 since all copies are generated
-    children = node.children
-    for child in children:
-        child.position = None
-
-    def children_with_context(context: dict):
-        new_children = []
-        for child in children:
-            new_child = deepcopy(child)
-            if check(new_child, "element"):
-                new_child.context.update(context)
-            new_children.append(new_child)
-        return new_children
-
-    expression = for_loop # original expression
-
-    for_loop = f'''\
-new_children = []
-for {for_loop}:
-    new_children.extend(
-        children_with_context(
-            {{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}}
-        )
-    )
-'''
-
-    # Construct locals for dynamic for loops execution
-    local_env = {
-        "local_vals": clocals,
-    }
-
-    try:
-        # Execute dynamic for loop
-        exec(  # pylint: disable=exec-used
-            for_loop,
-            {
-                **kwargs,
-                **globals(),
-                **clocals,
-                "children_with_context": children_with_context
-            },
-            local_env,
-        )
-    except Exception:  # pylint: disable=broad-except
-        TED.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
-[@Fblue]@for[@]=[@Fgreen]'[@]{expression}[@Fgreen]'[@]")
-        print_exc()
-
-    # Return the new complete list of children after generation
-    return local_env["new_children"]
-
 
 class ASTRenderer:
     """Compiles an ast to a hypertext markup language. Compiles to a tag based string."""

@@ -96,10 +96,10 @@ class RE:
     comment = re.compile(r"<!--((?:.|\s)*)-->")
     """Matches all html style comments `<!--Comment-->`."""
 
-    attribute = re.compile(r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"]+)))?")
+    attribute = re.compile(r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\/\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"]+)))?")
     """Matches a tags attributes `attr|attr=value|attr='value'|attr="value"`."""
     
-    bracket_attributte = re.compile(r"(?:\s|.)*\{((?:\s|.)*)\}(?:\s|.)*")
+    bracket_attributte = re.compile(r"^\s*\{((?:\s|.)*)\/\}\s*$")
 
 class HypertextMarkupParser:
     """Parse html/xml like source code strings."""
@@ -227,7 +227,14 @@ class HypertextMarkupParser:
         attributes = self.__parse_attributes(source[:end[0]])
         return source[end[0] + len(end[1]):], begin, attributes, end, elems
 
-    def parse(self, source: str, *args, **kwargs) -> Root:
+    def is_self_closing(self, name: str, auto_closing: bool) -> bool:
+        """Check if the tag is self closing. Only check if auto_closing is toggled on."""
+
+        if auto_closing:
+            return name in self_closing
+        return False
+
+    def parse(self, source: str, auto_close: bool = True) -> Root:
         """Parse a given html or phml string into it's corresponding phml ast.
 
         Args:
@@ -251,7 +258,9 @@ class HypertextMarkupParser:
             if begin[2]["opening"] == "/":
                 if name != self.tag_stack[-1]:
                     input(self.tag_stack)
-                    raise Exception(f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}")
+                    raise Exception(
+                        f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}"
+                    )
 
                 self.tag_stack.pop()
                 current.position.end.line = position.end.line
@@ -262,14 +271,14 @@ class HypertextMarkupParser:
                 current.append(DocType(attr.get("lang", "html"), position=deepcopy(position)))
             elif (
                 end[2]["closing"] != "/"
-                and name not in self_closing
+                and not self.is_self_closing(name, auto_close)
                 and begin[2]["opening"] is None
             ):
                 self.tag_stack.append(name)
                 current.append(Element(name, attr, position=deepcopy(position)))
                 current = current.children[-1]
             else:
-                current.append(Element(name, attr, position=deepcopy(position)))
+                current.append(Element(name, attr, position=deepcopy(position), startend=True))
 
             position.start = deepcopy(position.end)
 

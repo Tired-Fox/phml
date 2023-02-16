@@ -55,7 +55,7 @@
     </style>
 
     <body>
-        <div id="error" class:list={{'error': error_type == 'error', 'warn': error_type == 'warn', 'info': error_type == 'info'}/}>
+        <div id="error" :class:list="{'error': error_type == 'error', 'warn': error_type == 'warn', 'info': error_type == 'info'}">
             <div id="error-message">
                 <p class="mb-2 text-center">
                     <strong>
@@ -63,8 +63,8 @@
                     </strong>
                 </p>
                 <ul @if="not blank(tb)">
-                    <For each={ idx, message in enumerate(tb) /}>
-                        <li class={ 'ml-2' if idx not in [0, len(tb) - 1] else '' /}>{message}</li>
+                    <For each={idx, message in enumerate(tb)}>
+                        <li class={'ml-2' if idx not in [0, len(tb) - 1] else ''}>{message}</li>
                     </For>
                 </ul>
             </div>

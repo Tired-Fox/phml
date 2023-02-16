@@ -334,6 +334,9 @@ class Element(Parent):
         self.parent = parent
         self.context = {}
 
+    def __contains__(self, index: str) -> str:
+        return index in self.properties
+
     def __getitem__(self, index: str) -> str:
         return self.properties[index]
 

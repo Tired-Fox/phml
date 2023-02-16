@@ -19,9 +19,9 @@
     <body>
         <p>Here is a list of all the features that are used:</p>
         <ul>
-            <li @for="feature in features">
-                <p>{feature}</p>
-            </li>
+            <For each={feature in features/}>
+                <li><p>{feature}</p></li>
+            </For>
         </ul>
         <a href="index.html">Home</a>
     </body>
