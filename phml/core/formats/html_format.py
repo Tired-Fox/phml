@@ -5,7 +5,7 @@ from phml.core.nodes import AST, NODE
 from phml.core.virtual_python import VirtualPython
 from phml.utilities import find_all, remove_nodes
 
-from .compile import ASTRenderer, apply_conditions, apply_python, replace_components
+from .compile import ASTRenderer, apply_conditions, apply_python
 from .format import Format
 from .parse import parse_hypertest_markup
 
@@ -34,7 +34,7 @@ class HTMLFormat(Format):
         """Compile and process the given ast and return the resulting ast."""
 
         components = components or {}
-        src = ast
+        src = deepcopy(ast)
 
         # 1. Search for all python elements and get source info.
         #    - Remove when done
@@ -43,7 +43,7 @@ class HTMLFormat(Format):
         for python_block in find_all(src, {"tag": "python"}):
             if len(python_block.children) == 1:
                 if python_block.children[0].type == "text":
-                    virtual_python += VirtualPython(python_block.children[0].value)
+                    virtual_python += VirtualPython(python_block.children[0].normalized())
 
         remove_nodes(src, ["element", {"tag": "python"}])
 
@@ -58,9 +58,10 @@ class HTMLFormat(Format):
         for python_block in find_all(src, {"tag": "python"}):
             if len(python_block.children) == 1:
                 if python_block.children[0].type == "text":
-                    virtual_python += VirtualPython(python_block.children[0].value)
+                    virtual_python += VirtualPython(python_block.children[0].normalized())
 
         remove_nodes(src, ["element", {"tag": "python"}])
+
 
         # 4. Search for python blocks and process them.
 

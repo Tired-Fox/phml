@@ -56,14 +56,16 @@ def normalize_indent(content: str, indent: int = 0) -> str:
     """
 
     content = strip_blank_lines(str(content).split("\n"))
-    offset = len(content[0]) - len(content[0].lstrip())
-    lines = []
-    for line in content:
-        if len(line) > 0 and leading_spaces(line) >= offset:
-            lines.append(" " * indent + line[offset:])
-        else:
-            lines.append(line)
-    return "\n".join(lines)
+    if len(content) > 0:
+        offset = len(content[0]) - len(content[0].lstrip())
+        lines = []
+        for line in content:
+            if len(line) > 0 and leading_spaces(line) >= offset:
+                lines.append(" " * indent + line[offset:])
+            else:
+                lines.append(line)
+        return "\n".join(lines)
+    return ""
 
 class Point:
     """Represents one place in a source file.
@@ -491,8 +493,10 @@ class Literal(Node):
         """Get the normalized indented value with leading and trailing blank lines stripped."""
         return normalize_indent(self.value, indent)
     
-    def stringify(self, indent: int) -> str:
-        return self.normalized(indent)
+    def stringify(self, indent: int = 0) -> str:
+        if "pre" in self.get_ancestry():
+            return self.value
+        return self.normalized(indent).strip()
 
     def get_ancestry(self) -> list[str]:
         """Get the ancestry of the literal node.
@@ -538,19 +542,6 @@ class Text(Literal):
     def num_lines(self) -> int:
         """Determine the number of lines the text has."""
         return len([line for line in str(self.value).split("\n") if line.strip() != ""])
-
-    def stringify(self, indent: int = 0) -> str:
-        """Build indented html string of html text.
-
-        Returns:
-            str: Built html of text
-        """
-        if self.parent is None or not any(
-            tag in self.get_ancestry() for tag in ["pre", "python"]
-        ):
-            from phml.utilities.transform import normalize_indent # pylint: disable=import-outside-toplevel
-            return normalize_indent(self.value, indent)
-        return self.value
 
     def __repr__(self) -> str:
         return f"literal.text('{self.value}')"

@@ -32,16 +32,19 @@ def process_loops(node: Root | Element, virtual_python: VirtualPython, **kwargs)
     """Expands all `<For />` tags giving their children context for each iteration."""
 
     for_loops = [
-        loop 
-        for loop in visit_children(node) 
+        loop
+        for loop in visit_children(node)
         if check(loop, {"tag": "For", ":each": True})
     ]
 
     kwargs.update(virtual_python.context)
 
     for loop in for_loops:
-        children = run_phml_for(loop, **kwargs)
-        replace_node(node, loop, children)
+        if loop[":each"].strip() != "":
+            children = run_phml_for(loop, **kwargs)
+            replace_node(node, loop, children)
+        else:
+            replace_node(node, loop, None)
 
 def process_markdown(node: Root | Element, virtual_python: VirtualPython, **kwargs):
     """Replace the `<Markdown />` element with it's `src` attributes parsed markdown string."""
@@ -55,13 +58,15 @@ def process_markdown(node: Root | Element, virtual_python: VirtualPython, **kwar
     ]
 
     kwargs.update(virtual_python.context)
+    context = build_locals(node, **kwargs)
+    
     # Don't escape the html values from context for html tags in markdown strings
     kwargs["safe_vars"] = True
 
     for elem in md_elems:
         if elem.startend and ":src" in elem or "src" in elem:
             if ":src" in elem:
-                src = str(get_python_result(elem[":src"], **kwargs))
+                src = str(get_python_result(elem[":src"], **context))
             else:
                 src = str(elem["src"])
 
@@ -85,6 +90,8 @@ def process_html(node: Root | Element, virtual_python: VirtualPython, **kwargs):
     ]
 
     kwargs.update(virtual_python.context)
+    context = build_locals(node, **kwargs)
+    
     # Don't escape the html values from context
     kwargs["safe_vars"] = True
 
@@ -94,7 +101,7 @@ def process_html(node: Root | Element, virtual_python: VirtualPython, **kwargs):
 
         if ":src" in elem or "src" in elem:
             if ":src" in elem:
-                src = str(get_python_result(elem[":src"], **kwargs))
+                src = str(get_python_result(elem[":src"], **context))
             else:
                 src = str(elem["src"])
 
@@ -134,6 +141,7 @@ def run_phml_for(node: Element, **kwargs) -> list:
 
     # Get local var names from for loop condition
     items = match(r"(for )?(.*)(?<= )in(?= )(.+)", for_loop)
+
     new_locals = [
         item.strip()
         for item in sub(

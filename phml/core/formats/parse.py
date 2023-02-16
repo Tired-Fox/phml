@@ -141,15 +141,15 @@ class HypertextMarkupParser:
             )
 
             # If there is text between two comments then add a text element
-            if comment.start() > 0 and text[:comment.start()].strip() != "":
+            if comment.start() > 0:
                 elements.append(Text(
-                    strip(text[:comment.span()[0]], self.tag_stack),
+                    text[:comment.span()[0]],
                     position=deepcopy(pos)
                 ))
 
             text = text[comment.span()[1]:]
             elements.append(
-                Comment(strip(comment.group(1), self.tag_stack), position=deepcopy(pos))
+                Comment(comment.group(1), position=deepcopy(pos))
             )
 
         # remaining text is added as a text element
@@ -158,14 +158,13 @@ class HypertextMarkupParser:
             pos.start.line += line
             pos.start.column = col
 
-            if text.strip() != "":
-                elements.append(Text(
-                    text,
-                    position=Position(
-                        deepcopy(pos.end),
-                        (pos.end.line + line, self.__calc_col(line, col, pos.end.column))
-                    )
-                ))
+            elements.append(Text(
+                text,
+                position=Position(
+                    deepcopy(pos.end),
+                    (pos.end.line + line, self.__calc_col(line, col, pos.end.column))
+                )
+            ))
         return elements
 
     def __parse_attributes(self, attrs: str) -> dict:

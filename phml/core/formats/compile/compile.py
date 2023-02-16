@@ -6,7 +6,7 @@ from re import match, search, sub
 from typing import Optional
 from pyparsing import Any
 
-from phml.core.nodes import AST, NODE, DocType, Element, Root
+from phml.core.nodes import AST, NODE, DocType, Element, Root, Text
 from phml.core.virtual_python import VirtualPython, get_python_result, process_python_blocks
 from phml.utilities import (
     check,
@@ -53,7 +53,7 @@ EXTRAS = ["fenced-code-blocks", "cuddled-lists", "footnotes", "header-ids", "str
 def process_reserved_attrs(prop: str, value: Any) -> tuple[str, Any]:
     """Based on the props name, process/translate the props value."""
 
-    if prop.lstrip(ATTR_PREFIX) == "class:list":
+    if prop == "class:list":
         value = classnames(value)
         prop = "class"
 
@@ -68,24 +68,25 @@ def process_props(child: Element, virtual_python: VirtualPython, local_vars: dic
         if prop.startswith(ATTR_PREFIX):
             local_env = {**virtual_python.context}
             local_env.update(local_vars)
+
             value = get_python_result(
                 child[prop], **local_env
             )
 
+            prop = prop.lstrip(ATTR_PREFIX)
             name, value = process_reserved_attrs(prop, value)
-            new_props[name] = value
 
+            new_props[name] = value
         elif match(r".*\{.*\}.*", str(child[prop])) is not None:
             new_props[prop] = process_python_blocks(child[prop], virtual_python, **local_vars)
         else:
             new_props[prop] = child[prop]
-
     return new_props
 
 def apply_conditions(
-    node: Root | Element | AST, 
-    virtual_python: VirtualPython, 
-    components: dict, 
+    node: Root | Element | AST,
+    virtual_python: VirtualPython,
+    components: dict,
     **kwargs
 ):
     """Applys all `py-if`, `py-elif`, and `py-else` to the node
@@ -100,9 +101,9 @@ def apply_conditions(
     if isinstance(node, AST):
         node = node.tree
 
-    replace_components(node, components, virtual_python, **kwargs)
     process_conditions(node, virtual_python, **kwargs)
     process_reserved_elements(node, virtual_python, **kwargs)
+    replace_components(node, components, virtual_python, **kwargs)
 
     for child in node.children:
         if isinstance(child, (Root, Element)):
@@ -141,7 +142,7 @@ def apply_python(
     def process_children(node: Root | Element, local_env: dict):
 
         for child in node.children:
-            if check(child, "element"):
+            if isinstance(child, Element):
                 if "children" in child.context.keys() and len(child.context["children"]) > 0:
                     replace_node(
                         child,
@@ -155,7 +156,7 @@ def apply_python(
                 child.properties = process_props(child, virtual_python, local_vars)
                 process_children(child, {**local_vars})
             elif (
-                check(child, "text")
+                isinstance(child, Text)
                 and search(r".*\{.*\}.*", str(child.value))
                 and child.parent.tag not in ["script", "style"]
                 and "code" not in path_names(child)
@@ -341,6 +342,7 @@ def run_phml_if(child: Element, condition: str, children: list, **kwargs):
     """Run the logic for manipulating the children on a `if` condition."""
 
     clocals = build_locals(child, **kwargs)
+
     result = get_python_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
 
     if result:
@@ -430,7 +432,7 @@ class ASTRenderer:
         return "".join(
             [
                 " " * indent + node.start_tag(),
-                node.children[0].normalized(
+                node.children[0].stringify(
                     indent + self.offset if node.children[0].num_lines > 1 else 0
                 ),
                 node.end_tag(),
@@ -444,7 +446,7 @@ class ASTRenderer:
                 if child.tag == "pre" or "pre" in path_names(child):
                     lines.append(''.join(self.__compile_children(child, 0)))
                 else:
-                    lines.extend(self.__compile_children(child, indent + self.offset))
+                    lines.extend([line for line in self.__compile_children(child, indent + self.offset) if line != ""])
             else:
                 lines.append(child.stringify(indent + self.offset))
         return lines
@@ -476,6 +478,8 @@ class ASTRenderer:
             for child in visit_children(node):
                 lines.extend(self.__compile_children(child))
         else:
-            lines.append(node.stringify(indent + self.offset))
+            value = node.stringify(indent + self.offset)
+            if value.strip() != "" or "pre" in path_names(node):
+                lines.append(value)
 
         return lines

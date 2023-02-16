@@ -81,16 +81,29 @@ def replace_components(
                     for key,value in components[name]["cache"][1].items()
                     if key != "Props"
                 })
+                used_components[name] = components[name]["cache"]
+                context.update(kwargs)
             else:
-                context, used_components[name] = process_context(name, value, kwargs)
-                components[name]["cache"] = used_components[name]
+                context, used_components[name] = process_context(name, value["data"], kwargs)
+                components[name]["cache"] = (
+                    used_components[name][0],
+                    {
+                        key:value
+                        for key,value in used_components[name][1].items()
+                        if key not in kwargs
+                    }
+                )
+
             cmpt_props = components[name]["cache"][1].get("Props", None)
+
+        if "Props" in context and "data" in context["Props"]:
+            print(context["Props"], kwargs)
 
         for curr_node in elements:
             curr_node.parent.children = apply_component(
                 curr_node,
                 name,
-                value,
+                value["data"],
                 cmpt_props,
                 virtual_python,
                 context,
@@ -112,7 +125,7 @@ def get_props(
     """Extract props from a phml component."""
     props = dict(props or {})
     extra_props = {}
-    attrs = value["data"]["component"].properties
+    attrs = value["component"].properties
 
     attributes = node.properties
     for item in attributes:
@@ -214,9 +227,8 @@ def execute_condition(
 def process_context(name, value, kwargs: dict | None = None):
     """Process the python elements and context of the component and extract the relavent context."""
     context = {}
-
     local_virtual_python = VirtualPython(context=dict(kwargs or {}))
-    for python in value["data"]["python"]:
+    for python in value["python"]:
         if len(python.children) == 1 and check(python.children[0], "text"):
             text = python.children[0].normalized()
             local_virtual_python += VirtualPython(text, context=local_virtual_python.context)
@@ -247,7 +259,7 @@ def apply_component(node, name, value, cmpt_props, virtual_python, context, kwar
         **kwargs
     )
 
-    node.properties.update(attrs)
+    node.properties = attrs
     node.context.update(props)
 
     condition = py_condition(node)
@@ -263,7 +275,7 @@ def apply_component(node, name, value, cmpt_props, virtual_python, context, kwar
         properties.update(context)
         properties["children"] = node.children
 
-        component = deepcopy(value["data"]["component"])
+        component = deepcopy(value["component"])
         if component.tag in WRAPPER_TAG:
             # Create a copy of the component
             for sub_child in component.children:
