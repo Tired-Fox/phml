@@ -5,12 +5,26 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Refactor</title>
+        <title>Debug</title>
     </head>
 
     <body>
-        <h1>Hello World!</h1>
-        <Cmpt />
+       <Markdown>
+# Markdown block
+
+```python
+print('hello world')
+```
+
+The end:
+* 1
+* 2
+* 3
+       </Markdown>
+
+       <Markdown src="# Header One" />
+
+       <HTML :src="dynamic_html" />
     </body>
 
 </html>

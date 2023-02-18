@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <python>
+            message = "Hello World!"
+        </python>
+    </head>
+
+    <body>
+        <!-- This is a comment -->
+        <ul>
+            <For :each="word in message.split()" @if="message == 'Hello World'">
+                <li>{word}</li>
+            </For>
+            <For :each="char in message" @else >
+                <li @if="char == 'l'">{char}</li>
+            </For>
+            <Name name="cat" />
+            <>
+                Blank Element
+            </>
+        </ul>
+    </body>
+</html>

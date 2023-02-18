@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
 from re import match, search, sub
-from traceback import print_exc
 from typing import Optional
+from pyparsing import Any
 
-from saimll import SAIML
-
-from phml.core.nodes import AST, NODE, DocType, Element, Root
+from phml.core.nodes import AST, NODE, DocType, Element, Root, Text
 from phml.core.virtual_python import VirtualPython, get_python_result, process_python_blocks
 from phml.utilities import (
     check,
@@ -17,56 +14,25 @@ from phml.utilities import (
     replace_node,
     visit_children,
     path_names,
+    classnames
 )
 
-# ? Change prefix char for `if`, `elif`, `else`, and `fore` here
+from .reserved import RESERVED
+
+# ? Change prefix char for `if`, `elif`, and `else` here
 CONDITION_PREFIX = "@"
 
 # ? Change prefix char for python attributes here
 ATTR_PREFIX = ":"
 
 valid_prev = {
-    "py-for": [
-        "py-if",
-        "py-elif",
-        "py-else",
-        "py-for",
-        f"{CONDITION_PREFIX}if",
-        f"{CONDITION_PREFIX}elif",
-        f"{CONDITION_PREFIX}else",
-        f"{CONDITION_PREFIX}for",
-    ],
-    "py-if": [
-        "py-if",
-        "py-elif",
-        "py-else",
-        "py-for",
-        f"{CONDITION_PREFIX}if",
-        f"{CONDITION_PREFIX}elif",
-        f"{CONDITION_PREFIX}else",
-        f"{CONDITION_PREFIX}for",
-    ],
-    "py-elif": ["py-if", "py-elif", f"{CONDITION_PREFIX}if", f"{CONDITION_PREFIX}elif"],
-    "py-else": ["py-if", "py-elif", f"{CONDITION_PREFIX}if", f"{CONDITION_PREFIX}elif"],
-    f"{CONDITION_PREFIX}for": [
-        "py-if",
-        "py-elif",
-        "py-else",
-        "py-for",
-        f"{CONDITION_PREFIX}if",
-        f"{CONDITION_PREFIX}elif",
-        f"{CONDITION_PREFIX}else",
-        f"{CONDITION_PREFIX}for",
-    ],
     f"{CONDITION_PREFIX}if": [
         "py-if",
         "py-elif",
         "py-else",
-        "py-for",
         f"{CONDITION_PREFIX}if",
         f"{CONDITION_PREFIX}elif",
         f"{CONDITION_PREFIX}else",
-        f"{CONDITION_PREFIX}for",
     ],
     f"{CONDITION_PREFIX}elif": [
         "py-if",
@@ -82,30 +48,48 @@ valid_prev = {
     ],
 }
 
-def __process_props(child: Element, virtual_python: VirtualPython, local_vars: dict) -> dict:
+EXTRAS = ["fenced-code-blocks", "cuddled-lists", "footnotes", "header-ids", "strike"]
+
+def process_reserved_attrs(prop: str, value: Any) -> tuple[str, Any]:
+    """Based on the props name, process/translate the props value."""
+
+    if prop == "class:list":
+        value = classnames(value)
+        prop = "class"
+
+    return prop, value
+
+def process_props(child: Element, virtual_python: VirtualPython, local_vars: dict) -> dict:
+    """Process props inline python and reserved value translations."""
+
     new_props = {}
 
     for prop in child.properties:
-        if prop.startswith((ATTR_PREFIX, "py-")):
+        if prop.startswith(ATTR_PREFIX):
             local_env = {**virtual_python.context}
             local_env.update(local_vars)
-            new_props[prop.lstrip(ATTR_PREFIX).lstrip("py-")] = get_python_result(
+
+            value = get_python_result(
                 child[prop], **local_env
             )
+
+            prop = prop.lstrip(ATTR_PREFIX)
+            name, value = process_reserved_attrs(prop, value)
+
+            new_props[name] = value
         elif match(r".*\{.*\}.*", str(child[prop])) is not None:
             new_props[prop] = process_python_blocks(child[prop], virtual_python, **local_vars)
         else:
             new_props[prop] = child[prop]
-
     return new_props
 
 def apply_conditions(
-    node: Root | Element | AST, 
-    virtual_python: VirtualPython, 
-    components: dict, 
+    node: Root | Element | AST,
+    virtual_python: VirtualPython,
+    components: dict,
     **kwargs
 ):
-    """Applys all `py-if`, `py-elif`, `py-else`, and `py-for` to the node
+    """Applys all `py-if`, `py-elif`, and `py-else` to the node
     recursively.
 
     Args:
@@ -118,11 +102,26 @@ def apply_conditions(
         node = node.tree
 
     process_conditions(node, virtual_python, **kwargs)
+    process_reserved_elements(node, virtual_python, **kwargs)
     replace_components(node, components, virtual_python, **kwargs)
+
     for child in node.children:
         if isinstance(child, (Root, Element)):
             apply_conditions(child, virtual_python, components, **kwargs)
 
+def process_reserved_elements(node: Root | Element, virtual_python: VirtualPython, **kwargs):
+    """Process all reserved elements and replace them with the results."""
+
+    tags = [n.tag for n in visit_children(node) if check(n, "element")]
+    reserved_found = False
+    
+    for key,value in RESERVED.items():
+        if key in tags:
+            value(node, virtual_python, **kwargs)
+            reserved_found = True
+
+    if reserved_found:
+        process_conditions(node, virtual_python, **kwargs)
 
 def apply_python(
     current: Root | Element | AST,
@@ -143,7 +142,7 @@ def apply_python(
     def process_children(node: Root | Element, local_env: dict):
 
         for child in node.children:
-            if check(child, "element"):
+            if isinstance(child, Element):
                 if "children" in child.context.keys() and len(child.context["children"]) > 0:
                     replace_node(
                         child,
@@ -154,10 +153,10 @@ def apply_python(
                 local_vars = {**local_env}
                 local_vars.update(child.context)
 
-                child.properties = __process_props(child, virtual_python, local_vars)
+                child.properties = process_props(child, virtual_python, local_vars)
                 process_children(child, {**local_vars})
             elif (
-                check(child, "text")
+                isinstance(child, Text)
                 and search(r".*\{.*\}.*", str(child.value))
                 and child.parent.tag not in ["script", "style"]
                 and "code" not in path_names(child)
@@ -174,14 +173,10 @@ def py_condition(node: Element) -> bool:
         for k in node.properties.keys()
         if k
         in [
-            "py-for",
-            "py-if",
-            "py-elif",
-            "py-else",
             f"{CONDITION_PREFIX}if",
             f"{CONDITION_PREFIX}elif",
             f"{CONDITION_PREFIX}else",
-            f"{CONDITION_PREFIX}for",
+            # f"{CONDITION_PREFIX}for",
         ]
     ]
     if len(conditions) > 1:
@@ -211,14 +206,12 @@ def __validate_previous_condition(child: Element) -> Optional[Element]:
     )
 
     if prev_cond is None or prev_cond not in [
-        "py-elif",
-        "py-if",
         f"{CONDITION_PREFIX}elif",
         f"{CONDITION_PREFIX}if",
     ]:
         raise Exception(
-            f"Condition statements that are not py-if or py-for must have py-if or\
- py-elif as a previous sibling.\n{child.start_tag()}\
+            f"Condition statements that are not @if must have @if or\
+ @elif as a previous sibling.\n{child.start_tag()}\
 {f' at {child.position}' if child.position is not None else ''}"
         )
     return previous, prev_cond
@@ -236,8 +229,6 @@ def process_conditions(tree: Root | Element, virtual_python: VirtualPython, **kw
         if check(child, "element"):
             condition = py_condition(child)
             if condition in [
-                "py-elif",
-                "py-else",
                 f"{CONDITION_PREFIX}elif",
                 f"{CONDITION_PREFIX}else",
             ]:
@@ -280,7 +271,7 @@ def execute_conditions(
     first_cond = False
 
     # Previous condition that was run and whether it was successful.
-    previous = (f"{CONDITION_PREFIX}for", True)
+    previous = (f"{CONDITION_PREFIX}else", True)
 
     # Add the python blocks locals to kwargs dict
     kwargs.update(virtual_python.context)
@@ -291,24 +282,15 @@ def execute_conditions(
 
     # For each element with a python condition
     for condition, child in cond:
-        if condition in ["py-for", f"{CONDITION_PREFIX}for"]:
-
-            children = run_py_for(condition, child, children, **kwargs)
-
-            previous = (f"{CONDITION_PREFIX}for", False)
-
-            # End any condition branch
-            first_cond = False
-
-        elif condition in ["py-if", f"{CONDITION_PREFIX}if"]:
-            previous = run_py_if(child, condition, children, **kwargs)
+        if condition == f"{CONDITION_PREFIX}if":
+            previous = run_phml_if(child, condition, children, **kwargs)
 
             # Start of condition branch
             first_cond = True
 
-        elif condition in ["py-elif", f"{CONDITION_PREFIX}elif"]:
+        elif condition == f"{CONDITION_PREFIX}elif":
             # Can only exist if previous condition in branch failed
-            previous = run_py_elif(
+            previous = run_phml_elif(
                 child,
                 children,
                 condition,
@@ -319,10 +301,10 @@ def execute_conditions(
                 },
                 **kwargs,
             )
-        elif condition in ["py-else", f"{CONDITION_PREFIX}else"]:
+        elif condition == f"{CONDITION_PREFIX}else":
 
             # Can only exist if previous condition in branch failed
-            previous = run_py_else(
+            previous = run_phml_else(
                 child,
                 children,
                 condition,
@@ -356,10 +338,11 @@ def build_locals(child, **kwargs) -> dict:
     return clocals
 
 
-def run_py_if(child: Element, condition: str, children: list, **kwargs):
+def run_phml_if(child: Element, condition: str, children: list, **kwargs):
     """Run the logic for manipulating the children on a `if` condition."""
 
     clocals = build_locals(child, **kwargs)
+
     result = get_python_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
 
     if result:
@@ -371,7 +354,7 @@ def run_py_if(child: Element, condition: str, children: list, **kwargs):
     return (f"{CONDITION_PREFIX}if", False)
 
 
-def run_py_elif(
+def run_phml_elif(
     child: Element,
     children: list,
     condition: str,
@@ -393,7 +376,7 @@ def run_py_elif(
     return variables["previous"]
 
 
-def run_py_else(child: Element, children: list, condition: str, variables: dict):
+def run_phml_else(child: Element, children: list, condition: str, variables: dict):
     """Run the logic for manipulating the children on a `else` condition."""
 
     if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
@@ -404,85 +387,6 @@ def run_py_else(child: Element, children: list, condition: str, variables: dict)
     # Condition failed so remove element
     children.remove(child)
     return (f"{CONDITION_PREFIX}else", False)
-
-
-def run_py_for(condition: str, child: NODE, children: list, **kwargs) -> list:
-    """Take a for loop condition, child node, and the list of children and
-    generate new nodes.
-
-    Nodes are duplicates from the child node with variables provided
-    from the for loop and child's locals.
-    """
-    clocals = build_locals(child)
-
-    # Format for loop condition
-    for_loop = sub(r"for |:\s*$", "", child[condition]).strip()
-
-    # Get local var names from for loop condition
-    new_locals = [
-        item.strip()
-        for item in sub(
-            r"\s+",
-            " ",
-            match(r"(for )?(.*)(?<= )in(?= )", for_loop).group(2),
-        ).split(",")
-    ]
-
-    # Formatter for key value pairs
-    key_value = "\"{key}\": {key}"
-
-    # Start index on where to insert generated children
-    insert = children.index(child)
-
-    # Construct dynamic for loop
-    #   Uses for loop condition from above
-    #       Creates deepcopy of looped element
-    #       Adds locals from what was passed to exec and what is from for loop condition
-    #       concat and generate new list of children
-    expression = for_loop
-    for_loop = f'''\
-for {for_loop}:
-    new_child = deepcopy(child)
-    new_child.context = {{**local_vals}}
-    new_child.context.update({{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}})
-    children = [*children[:insert], new_child, *children[insert+1:]]
-    insert += 1\
-'''
-
-    # Prep the child to be used as a copy for new children
-
-    # Delete the py-for condition from child's props
-    del child[condition]
-    # Set the position to None since the copies are generated
-    child.position = None
-
-    # Construct locals for dynamic for loops execution
-    local_env = {
-        "children": children,
-        "insert": insert,
-        "child": child,
-        "local_vals": clocals,
-    }
-
-    try:
-        # Execute dynamic for loop
-        exec(  # pylint: disable=exec-used
-            for_loop,
-            {
-                **kwargs,
-                **globals(),
-                **clocals,
-            },
-            local_env,
-        )
-    except Exception:  # pylint: disable=broad-except
-        SAIML.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
-[@Fblue]@for[@]=[@Fgreen]'[@]{expression}[@Fgreen]'[@]")
-        print_exc()
-
-    # Return the new complete list of children after generation
-    return local_env["children"]
-
 
 class ASTRenderer:
     """Compiles an ast to a hypertext markup language. Compiles to a tag based string."""
@@ -542,7 +446,7 @@ class ASTRenderer:
                 if child.tag == "pre" or "pre" in path_names(child):
                     lines.append(''.join(self.__compile_children(child, 0)))
                 else:
-                    lines.extend(self.__compile_children(child, indent + self.offset))
+                    lines.extend([line for line in self.__compile_children(child, indent + self.offset) if line != ""])
             else:
                 lines.append(child.stringify(indent + self.offset))
         return lines
@@ -574,6 +478,8 @@ class ASTRenderer:
             for child in visit_children(node):
                 lines.extend(self.__compile_children(child))
         else:
-            lines.append(node.stringify(indent + self.offset))
+            value = node.stringify(indent + self.offset)
+            if value.strip() != "" or "pre" in path_names(node):
+                lines.append(value)
 
         return lines

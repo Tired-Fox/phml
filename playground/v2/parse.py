@@ -1,69 +1,11 @@
-"""Pythonic Hypertext Markup Language (phml) parser."""
+from __future__ import annotations
 from copy import deepcopy
-from operator import itemgetter
 import re
+# https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/
+# https://www.jsonrpc.org/specification
 
-from phml.core.nodes import (
-    AST,
-    Comment,
-    DocType,
-    Element,
-    Point,
-    Position,
-    Root,
-    Text,
-    Node
-)
-
-def parse_hypertest_markup(data: str, class_name: str, auto_close: bool = True) -> AST:
-    """Parse a string as a hypertest markup document."""
-
-    phml_parser = HypertextMarkupParser()
-
-    if isinstance(data, str):
-        return phml_parser.parse(data, auto_close=auto_close)
-    raise Exception(f"Data passed to {class_name}.parse must be a str")
-
-def strip_blank_lines(data_lines: list[str]) -> list[str]:
-    """Strip the blank lines at the start and end of a list."""
-    data_lines = [line.replace("\r\n", "\n") for line in data_lines]
-    # remove leading blank lines
-    for idx in range(0, len(data_lines)):  # pylint: disable=consider-using-enumerate
-        if data_lines[idx].strip() != "":
-            data_lines = data_lines[idx:]
-            break
-        if idx == len(data_lines) - 1:
-            data_lines = []
-            break
-
-    # Remove trailing blank lines
-    if len(data_lines) > 0:
-        for idx in range(len(data_lines) - 1, -1, -1):
-            if data_lines[idx].replace("\n", " ").strip() != "":
-                data_lines = data_lines[: idx + 1]
-                break
-
-    return data_lines
-
-def strip(data: str, cur_tags: list[str]) -> tuple[str, int, int]:
-    """This function takes a possibly mutliline string and strips leading and trailing
-    blank lines. Given the current position it will also calculate the line and column
-    taht the data ends at.
-    """
-    if "pre" not in cur_tags:
-        data_lines = data.split("\n")
-
-        # If multiline data block
-        if len(data_lines) > 1:
-            data_lines = strip_blank_lines(data_lines)
-
-            data = "\n".join(data_lines)
-        # Else it is a single line data block
-        else:
-            data = data_lines[0]
-
-    return data
-
+from phml.core.nodes import Root, Element, Text, Comment, Node, Position, Point, DocType
+from phml import inspect, query, PHML
 
 self_closing = [
     "area",
@@ -87,7 +29,7 @@ self_closing = [
 
 # Main form of tokenization
 class RE:
-    tag_start = re.compile(r"<(?!!--)(?P<opening>!|\/)?(?P<name>([\w:\.]+\-?)+)|<(?P<opening2>/)?(?=\s+>|>)")
+    tag_start = re.compile(r"<(?!!--)(?P<opening>!|\/)?(?P<name>([\w:\.]+\-?)*)|<(?=\s+|>)")
     """Matches the start of a tag `<!name|</name|<name`"""
 
     tag_end = re.compile(r"(?P<closing>/?)>")
@@ -96,17 +38,10 @@ class RE:
     comment = re.compile(r"<!--((?:.|\s)*)-->")
     """Matches all html style comments `<!--Comment-->`."""
 
-    attribute = re.compile(r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\/\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"]+)))?")
+    attribute = re.compile(r"([\w:\-@]+)(?:=(\"([^\"]*)\"|'([^']*)'|([^>'\"]+)))?")
     """Matches a tags attributes `attr|attr=value|attr='value'|attr="value"`."""
-    
-    bracket_attributte = re.compile(r"^\s*\{((?:\s|.)*)\/\}\s*$")
 
-class HypertextMarkupParser:
-    """Parse html/xml like source code strings."""
-
-    tag_stack = []
-    """Current stack of tags in order of when they are opened."""
-    
+class HTMLParser:
     def __calc_line_col(self, source: str, start: int) -> tuple[int, int]:
         """Calculate the number of lines and columns that lead to the starting point int he source
         string.
@@ -141,16 +76,14 @@ class HypertextMarkupParser:
             )
 
             # If there is text between two comments then add a text element
-            if comment.start() > 0:
+            if comment.start() > 0 and text[:comment.start()].strip() != "":
                 elements.append(Text(
                     text[:comment.span()[0]],
                     position=deepcopy(pos)
                 ))
 
             text = text[comment.span()[1]:]
-            elements.append(
-                Comment(comment.group(1), position=deepcopy(pos))
-            )
+            elements.append(Comment(comment.group(1), position=deepcopy(pos)))
 
         # remaining text is added as a text element
         if len(text) > 0:
@@ -158,13 +91,14 @@ class HypertextMarkupParser:
             pos.start.line += line
             pos.start.column = col
 
-            elements.append(Text(
-                text,
-                position=Position(
-                    deepcopy(pos.end),
-                    (pos.end.line + line, self.__calc_col(line, col, pos.end.column))
-                )
-            ))
+            if text.strip() != "":
+                elements.append(Text(
+                    text,
+                    position=Position(
+                        deepcopy(pos.end),
+                        (pos.end.line + line, self.__calc_col(line, col, pos.end.column))
+                    )
+                ))
         return elements
 
     def __parse_attributes(self, attrs: str) -> dict:
@@ -175,21 +109,8 @@ class HypertextMarkupParser:
         """
         attributes = {}
         for attr in RE.attribute.finditer(attrs):
-            (
-                name,
-                value,
-                _,
-                double,
-                single,
-                no_bracket
-            ) = itemgetter('name', 'value', 'curly', 'double', 'single', 'open')(attr.groupdict())
-
-            if value is not None and RE.bracket_attributte.match(value) is not None:
-                if not name.startswith(":"):
-                    name = ":" + name
-                value = RE.bracket_attributte.match(value).group(1)
-            else:
-                value = double or single or no_bracket
+            name, value, i1, i2, i3 = attr.groups()
+            value = i1 or i2 or i3
 
             if value in ["yes", "true", None]:
                 value = True
@@ -206,7 +127,6 @@ class HypertextMarkupParser:
         """
         begin = RE.tag_start.search(source)
         begin = (begin.start(), begin.group(0), begin.groupdict())
-        begin[2]["opening"] = begin[2]["opening"] or begin[2]["opening2"]
 
         elems = []
         if begin[0] > 0:
@@ -226,14 +146,7 @@ class HypertextMarkupParser:
         attributes = self.__parse_attributes(source[:end[0]])
         return source[end[0] + len(end[1]):], begin, attributes, end, elems
 
-    def is_self_closing(self, name: str, auto_closing: bool) -> bool:
-        """Check if the tag is self closing. Only check if auto_closing is toggled on."""
-
-        if auto_closing:
-            return name in self_closing
-        return False
-
-    def parse(self, source: str, auto_close: bool = True) -> Root:
+    def parse(self, source: str) -> Root:
         """Parse a given html or phml string into it's corresponding phml ast.
 
         Args:
@@ -243,7 +156,7 @@ class HypertextMarkupParser:
             AST: A phml AST representing the parsed code source.
         """
 
-        self.tag_stack = []
+        tag_stack = []
         current = Root()
         position = Position((0, 0), (0, 0))
 
@@ -253,15 +166,14 @@ class HypertextMarkupParser:
             if len(elems) > 0:
                 current.extend(elems)
 
+            print(begin[1], end[1])
             name = begin[2]["name"] or ''
             if begin[2]["opening"] == "/":
-                if name != self.tag_stack[-1]:
-                    input(self.tag_stack)
-                    raise Exception(
-                        f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}"
-                    )
+                if name != tag_stack[-1]:
+                    input(tag_stack)
+                    raise Exception(f"Unbalanced tags: {name!r} | {tag_stack[-1]!r} at {position}")
 
-                self.tag_stack.pop()
+                tag_stack.pop()
                 current.position.end.line = position.end.line
                 current.position.end.column = position.end.column
 
@@ -270,15 +182,28 @@ class HypertextMarkupParser:
                 current.append(DocType(attr.get("lang", "html"), position=deepcopy(position)))
             elif (
                 end[2]["closing"] != "/"
-                and not self.is_self_closing(name, auto_close)
+                and name not in self_closing
                 and begin[2]["opening"] is None
             ):
-                self.tag_stack.append(name)
+                tag_stack.append(name)
                 current.append(Element(name, attr, position=deepcopy(position)))
                 current = current.children[-1]
             else:
-                current.append(Element(name, attr, position=deepcopy(position), startend=True))
+                current.append(Element(name, attr, position=deepcopy(position)))
 
             position.start = deepcopy(position.end)
 
-        return AST(current)
+        return current
+
+# with open("page.phml", "r", encoding="utf-8") as file:
+#     ast = HTMLParser().parse(file.read())
+
+# print(inspect(ast))
+
+# python_block = query(ast, "python")
+# if python_block is not None:
+#     print(python_block.children[0].normalized)
+phml = PHML()
+phml.add("Name.phml")
+print(phml.load("page.phml").render())
+print(phml.load("page2.phml").render())

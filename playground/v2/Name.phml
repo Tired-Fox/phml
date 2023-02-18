@@ -1,0 +1,15 @@
+<python>
+    Props = {
+        "name": "default"
+    }
+</python>
+
+<script>
+</script>
+
+<style>
+</style>
+
+<template>
+    <p>{name}</p>
+</template>

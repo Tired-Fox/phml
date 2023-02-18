@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from re import match, sub
-from traceback import print_exc
-from saimll import SAIML
-from phml.core.nodes import Root, Element, AST, Text, NODE
+from re import sub
+from phml.core.nodes import Root, Element, AST, Text
 from phml.core.virtual_python import VirtualPython, process_python_blocks, get_python_result
 from phml.utilities import find, offset, normalize_indent, query, replace_node, check
 
@@ -13,7 +11,7 @@ from .compile import py_condition, CONDITION_PREFIX, valid_prev
 __all__ = ["substitute_component", "replace_components", "combine_component_elements"]
 
 
-WRAPPER_TAG = ["Template", ""]
+WRAPPER_TAG = ["template", ""]
 
 def substitute_component(
     node: Root | Element | AST,
@@ -35,21 +33,21 @@ def substitute_component(
     used_components: dict[str, tuple[dict, dict]] = {}
 
     if curr_node is not None:
-        context, used_components[component[0]] = process_context(*component)
+        context, used_components[component[0]] = process_context(*component, kwargs)
+        cmpt_props = used_components[component[0]][1].get("Props", None)
 
         # Assign props to locals and remaining attributes stay
         curr_node.parent.children = apply_component(
             curr_node,
             component[0],
             component[1],
-            used_components,
+            cmpt_props,
             virtual_python,
             context,
             kwargs
         )
 
         __add_component_elements(node, used_components, "style")
-        __add_component_elements(node, used_components, "python")
         __add_component_elements(node, used_components, "script")
 
 def replace_components(
@@ -75,15 +73,38 @@ def replace_components(
         elements = [element for element in node.children if check(element, {"tag": name})]
 
         context = {}
+        cmpt_props = None
         if len(elements) > 0:
-            context, used_components[name] = process_context(name, value)
-        
+            if components[name]["cache"] is not None:
+                context.update({
+                    key:value
+                    for key,value in components[name]["cache"][1].items()
+                    if key != "Props"
+                })
+                used_components[name] = components[name]["cache"]
+                context.update(kwargs)
+            else:
+                context, used_components[name] = process_context(name, value["data"], kwargs)
+                components[name]["cache"] = (
+                    used_components[name][0],
+                    {
+                        key:value
+                        for key,value in used_components[name][1].items()
+                        if key not in kwargs
+                    }
+                )
+
+            cmpt_props = components[name]["cache"][1].get("Props", None)
+
+        if "Props" in context and "data" in context["Props"]:
+            print(context["Props"], kwargs)
+
         for curr_node in elements:
             curr_node.parent.children = apply_component(
                 curr_node,
                 name,
-                value,
-                used_components,
+                value["data"],
+                cmpt_props,
                 virtual_python,
                 context,
                 kwargs
@@ -97,20 +118,21 @@ def get_props(
     node,
     name,
     value,
-    used_components,
     virtual_python,
     props: dict | None = None,
     **kwargs
 ) -> dict[str, str]:
     """Extract props from a phml component."""
-
     props = dict(props or {})
     extra_props = {}
     attrs = value["component"].properties
 
     attributes = node.properties
     for item in attributes:
-        attr_name = item.lstrip(":").lstrip("py-")
+        attr_name = item.lstrip(":")
+        if attr_name.startswith("py-"):
+            attr_name = attr_name.lstrip("py-")
+
         if attr_name in props:
             # Get value if pythonic
             context = build_locals(node, **kwargs)
@@ -155,11 +177,11 @@ def execute_condition(
     conditions = __get_previous_conditions(child)
 
     first_cond = (
-        conditions[0] in [f"{CONDITION_PREFIX}if", "py-if"] 
+        conditions[0] in [f"{CONDITION_PREFIX}if"]
         if len(conditions) > 0 else False
     )
 
-    previous = (conditions[-1] if len(conditions) > 0 else "py-for", True)
+    previous = (conditions[-1] if len(conditions) > 0 else f"{CONDITION_PREFIX}else", True)
 
     # Add the python blocks locals to kwargs dict
     kwargs.update(virtual_python.context)
@@ -169,15 +191,13 @@ def execute_condition(
         exec(str(imp))  # pylint: disable=exec-used
 
     # For each element with a python condition
-    if condition in ["py-for", f"{CONDITION_PREFIX}for"]:
-        new_children = run_py_for(condition, child, **kwargs)
-        return new_children
-    elif condition in ["py-if", f"{CONDITION_PREFIX}if"]:
-        child = run_py_if(child, condition, **kwargs)
+    if condition == f"{CONDITION_PREFIX}if":
+        child = run_phml_if(child, condition, **kwargs)
         return [child]
-    elif condition in ["py-elif", f"{CONDITION_PREFIX}elif"]:
+    
+    if condition == f"{CONDITION_PREFIX}elif":
         # Can only exist if previous condition in branch failed
-        child = run_py_elif(
+        child = run_phml_elif(
             child,
             condition,
             {
@@ -188,10 +208,11 @@ def execute_condition(
             **kwargs,
         )
         return [child]
-    elif condition in ["py-else", f"{CONDITION_PREFIX}else"]:
+    
+    if condition == f"{CONDITION_PREFIX}else":
 
         # Can only exist if previous condition in branch failed
-        child = run_py_else(
+        child = run_phml_else(
             child,
             condition,
             {
@@ -203,16 +224,15 @@ def execute_condition(
         )
         return [child]
 
-def process_context(name, value):
+def process_context(name, value, kwargs: dict | None = None):
     """Process the python elements and context of the component and extract the relavent context."""
     context = {}
-
-    local_virtual_python = VirtualPython()
+    local_virtual_python = VirtualPython(context=dict(kwargs or {}))
     for python in value["python"]:
         if len(python.children) == 1 and check(python.children[0], "text"):
-            text = python.children[0].value
-            local_virtual_python += VirtualPython(text)
-
+            text = python.children[0].normalized()
+            local_virtual_python += VirtualPython(text, context=local_virtual_python.context)
+            
     if "Props" in local_virtual_python.context:
         if not isinstance(local_virtual_python.context["Props"], dict):
             raise Exception(
@@ -228,20 +248,19 @@ def process_context(name, value):
 
     return context, (value, local_virtual_python.context)
 
-def apply_component(node, name, value, used_components, virtual_python, context, kwargs) -> list:
+def apply_component(node, name, value, cmpt_props, virtual_python, context, kwargs) -> list:
     """Get the props, execute conditions and replace components in the node tree."""
     props, attrs = get_props(
         node,
         name,
         value,
-        used_components,
         virtual_python,
-        used_components[name][1].get("Props"),
+        cmpt_props,
         **kwargs
     )
 
     node.properties = attrs
-    node.context = props
+    node.context.update(props)
 
     condition = py_condition(node)
     results = [node]
@@ -338,7 +357,7 @@ def __retrieve_component_elements(collection: dict, element: str) -> list[Elemen
             result.extend(value[0][element])
     return result
 
-def run_py_if(child: Element, condition: str, **kwargs):
+def run_phml_if(child: Element, condition: str, **kwargs):
     """Run the logic for manipulating the children on a `if` condition."""
 
     clocals = build_locals(child, **kwargs)
@@ -351,7 +370,7 @@ def run_py_if(child: Element, condition: str, **kwargs):
     return child
 
 
-def run_py_elif(
+def run_phml_elif(
     child: Element,
     condition: str,
     variables: dict,
@@ -370,7 +389,7 @@ def run_py_elif(
     return child
 
 
-def run_py_else(child: Element, condition: str, variables: dict, **kwargs):
+def run_phml_else(child: Element, condition: str, variables: dict, **kwargs):
     """Run the logic for manipulating the children on a `else` condition."""
 
     if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
@@ -382,80 +401,6 @@ def run_py_else(child: Element, condition: str, variables: dict, **kwargs):
 
     # Condition failed so remove element
     return child
-
-
-def run_py_for(condition: str, child: NODE, **kwargs) -> list:
-    """Take a for loop condition, child node, and the list of children and
-    generate new nodes.
-
-    Nodes are duplicates from the child node with variables provided
-    from the for loop and child's locals.
-    """
-    clocals = build_locals(child)
-
-    # Format for loop condition
-    for_loop = sub(r"for |:", "", child[condition]).strip()
-
-    # Get local var names from for loop condition
-    new_locals = [
-        item.strip()
-        for item in sub(
-            r"\s+",
-            " ",
-            match(r"(for )?(.*)(?<= )in(?= )", for_loop).group(2),
-        ).split(",")
-    ]
-
-    # Formatter for key value pairs
-    key_value = "\"{key}\": {key}"
-
-    # Construct dynamic for loop
-    #   Uses for loop condition from above
-    #       Creates deepcopy of looped element
-    #       Adds locals from what was passed to exec and what is from for loop condition
-    #       add generated element to list
-    expression = for_loop
-    for_loop = f'''\
-new_children = []
-for {for_loop}:
-    new_child = deepcopy(child)
-    new_child.context = {{**local_vals}}
-    new_child.context.update({{{", ".join([f"{key_value.format(key=key)}" for key in new_locals])}}})
-    new_children.append(new_child)
-'''
-
-    # Prep the child to be used as a copy for new children
-
-    # Delete the py-for condition from child's attributes
-    del child[condition]
-    # Set the position to None since the copies are generated
-    child.position = None
-
-    # Construct locals for dynamic for loops execution
-    local_env = {
-        "child": child,
-        "local_vals": clocals,
-        "deepcopy": deepcopy
-    }
-
-    try:
-        # Execute dynamic for loop
-        exec(  # pylint: disable=exec-used
-            for_loop,
-            {
-                **kwargs,
-                **clocals,
-                **globals(),
-            },
-            local_env,
-        )
-    except Exception as exception:  # pylint: disable=broad-except
-        SAIML.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
-[@Fblue]@for[@]=[@Fgreen]'[@]{expression}[@Fgreen]'[@]")
-        print_exc()
-
-    # Return the new complete list of children after generation
-    return local_env["new_children"]
 
 def build_locals(child, **kwargs) -> dict:
     """Build a dictionary of local variables from a nodes inherited locals and

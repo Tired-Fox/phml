@@ -7,12 +7,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable, Optional
 
-from phml.core.nodes import Element
+from phml.core.nodes import Element, NODE
 
 if TYPE_CHECKING:
-    from phml.core.nodes import NODE, Root
+    from phml.core.nodes import Root
 
-Test = None | str | list | dict | Callable
+Test = None | str | list | dict | Callable | NODE
 
 
 def check(
@@ -57,6 +57,9 @@ def check(
             or parent.children[index] != node
         ):
             return False
+        
+    if isinstance(_test, NODE):
+        return node == _test
 
     if isinstance(_test, str):
         # If string then validate that the type is the same
@@ -69,7 +72,7 @@ def check(
             isinstance(node, Element)
             and all(
                 (hasattr(node, key) and value == getattr(node, key))
-                or (hasattr(node, "properties") and key in node.properties and value == node[key])
+                or (hasattr(node, "properties") and key in node.properties and (value == True or value == node[key]))
                 for key, value in _test.items()
             )
         )

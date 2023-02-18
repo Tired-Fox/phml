@@ -4,7 +4,7 @@ Logic to inspect any phml node. Outputs a tree representation
 of the node as a string.
 """
 
-from json import dumps
+from json import dumps, JSONEncoder
 
 from phml.core.nodes import AST, NODE, Comment, Element, Root, Text
 
@@ -84,12 +84,18 @@ def signature(node: NODE, indent: int = 2):
 
     return result
 
+class ComplexEncoder(JSONEncoder):
+    def default(self, obj):
+        try:
+            return JSONEncoder.default(self, obj)
+        except:
+            return repr(obj)
 
 def stringify_props(node: Element) -> list[str]:
     """Generate a list of lines from strigifying the nodes properties."""
 
     if len(node.properties.keys()) > 0:
-        lines = dumps(node.properties, indent=2).split("\n")
+        lines = dumps(node.properties, indent=2, cls=ComplexEncoder).split("\n")
         lines[0] = f"properties: {lines[0]}"
         return lines
     return []

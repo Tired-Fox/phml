@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import cached_property
+from functools import cached_property, lru_cache
 from typing import Optional, overload
 
 __all__ = [
@@ -17,6 +17,55 @@ __all__ = [
     "Text",
     "NODE"
 ]
+
+def leading_spaces(content: str | list[str]) -> int:
+    """Get the leading offset of the first line of the string."""
+    content = content.split("\n") if isinstance(content, str) else content
+    return len(content[0]) - len(content[0].lstrip())
+
+def strip_blank_lines(data_lines: list[str]) -> list[str]:
+    """Strip the blank lines at the start and end of a list."""
+    data_lines = [line.replace("\r\n", "\n") for line in data_lines]
+    # remove leading blank lines
+    for idx in range(0, len(data_lines)):  # pylint: disable=consider-using-enumerate
+        if data_lines[idx].strip() != "":
+            data_lines = data_lines[idx:]
+            break
+        if idx == len(data_lines) - 1:
+            data_lines = []
+            break
+
+    # Remove trailing blank lines
+    if len(data_lines) > 0:
+        for idx in range(len(data_lines) - 1, -1, -1):
+            if data_lines[idx].replace("\n", " ").strip() != "":
+                data_lines = data_lines[: idx + 1]
+                break
+
+    return data_lines
+
+def normalize_indent(content: str, indent: int = 0) -> str:
+    """Normalize the indent between all lines.
+
+    Args:
+        content (str): The content to normalize the indent for
+        indent (bool): The amount of offset to add to each line after normalization.
+
+    Returns:
+        str: The normalized string
+    """
+
+    content = strip_blank_lines(str(content).split("\n"))
+    if len(content) > 0:
+        offset = len(content[0]) - len(content[0].lstrip())
+        lines = []
+        for line in content:
+            if len(line) > 0 and leading_spaces(line) >= offset:
+                lines.append(" " * indent + line[offset:])
+            else:
+                lines.append(line)
+        return "\n".join(lines)
+    return ""
 
 class Point:
     """Represents one place in a source file.
@@ -287,6 +336,9 @@ class Element(Parent):
         self.parent = parent
         self.context = {}
 
+    def __contains__(self, index: str) -> str:
+        return index in self.properties
+
     def __getitem__(self, index: str) -> str:
         return self.properties[index]
 
@@ -437,6 +489,15 @@ class Literal(Node):
     def __eq__(self, obj) -> bool:
         return bool(obj is not None and self.type == obj.type and self.value == obj.value)
 
+    def normalized(self, indent: int = 0) -> str:
+        """Get the normalized indented value with leading and trailing blank lines stripped."""
+        return normalize_indent(self.value, indent)
+    
+    def stringify(self, indent: int = 0) -> str:
+        if "pre" in self.get_ancestry():
+            return self.value
+        return self.normalized(indent).strip()
+
     def get_ancestry(self) -> list[str]:
         """Get the ancestry of the literal node.
 
@@ -481,19 +542,6 @@ class Text(Literal):
     def num_lines(self) -> int:
         """Determine the number of lines the text has."""
         return len([line for line in str(self.value).split("\n") if line.strip() != ""])
-
-    def stringify(self, indent: int = 0) -> str:
-        """Build indented html string of html text.
-
-        Returns:
-            str: Built html of text
-        """
-        if self.parent is None or not any(
-            tag in self.get_ancestry() for tag in ["pre", "python"]
-        ):
-            from phml.utilities.transform import normalize_indent # pylint: disable=import-outside-toplevel
-            return normalize_indent(self.value, indent)
-        return self.value
 
     def __repr__(self) -> str:
         return f"literal.text('{self.value}')"

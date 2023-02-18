@@ -87,7 +87,7 @@ class XMLFormat(Format):
 
         src = deepcopy(ast)
 
-        # 3. Search each element and find py-if, py-elif, py-else, and py-for
+        # 3. Search each element and find @if, @elif, and @else
         #    - Execute those statements
 
         apply_conditions(src, VirtualPython(), **kwargs)
@@ -118,7 +118,7 @@ class XMLFormat(Format):
 
         src = deepcopy(ast)
 
-        # 3. Search each element and find py-if, py-elif, py-else, and py-for
+        # 3. Search each element and find @if, @elif, and @else
         #    - Execute those statements
 
         apply_conditions(src, VirtualPython(), components={}, **kwargs)
