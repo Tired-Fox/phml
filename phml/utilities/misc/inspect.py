@@ -4,14 +4,14 @@ Logic to inspect any phml node. Outputs a tree representation
 of the node as a string.
 """
 
-from json import dumps
+from json import dumps, JSONEncoder
 
-from phml.core.nodes import AST, All_Nodes, Comment, Element, Root, Text
+from phml.core.nodes import AST, NODE, Comment, Element, Root, Text
 
 __all__ = ["inspect", "normalize_indent"]
 
 
-def inspect(start: AST | All_Nodes, indent: int = 2):
+def inspect(start: AST | NODE, indent: int = 2):
     """Recursively inspect the passed node or ast."""
 
     if isinstance(start, AST):
@@ -55,7 +55,7 @@ def inspect(start: AST | All_Nodes, indent: int = 2):
     return "\n".join(signature(start))
 
 
-def signature(node: All_Nodes, indent: int = 2):
+def signature(node: NODE, indent: int = 2):
     """Generate the signature or base information for a single node."""
     sig = f"{node.type}"
     # element node's tag
@@ -84,12 +84,18 @@ def signature(node: All_Nodes, indent: int = 2):
 
     return result
 
+class ComplexEncoder(JSONEncoder):
+    def default(self, obj):
+        try:
+            return JSONEncoder.default(self, obj)
+        except:
+            return repr(obj)
 
 def stringify_props(node: Element) -> list[str]:
     """Generate a list of lines from strigifying the nodes properties."""
 
     if len(node.properties.keys()) > 0:
-        lines = dumps(node.properties, indent=2).split("\n")
+        lines = dumps(node.properties, indent=2, cls=ComplexEncoder).split("\n")
         lines[0] = f"properties: {lines[0]}"
         return lines
     return []
@@ -112,7 +118,7 @@ def build_literal_value(node: Text | Comment) -> list[str]:
 
 
 def normalize_indent(text: str) -> str:
-    """Remove extra prefix whitespac while preserving relative indenting.
+    """Remove extra prefix whitespace while preserving relative indenting.
 
     Example:
     ```python

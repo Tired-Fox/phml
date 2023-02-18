@@ -12,7 +12,6 @@ from typing import Iterator
 
 __all__ = ["AST"]
 
-
 class AST:
     """PHML ast.
 

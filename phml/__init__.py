@@ -127,7 +127,19 @@ This language also has the ability to convert back to html and json with convert
 from pathlib import Path
 from typing import Callable, Optional
 
-from .core import AST, PHML, All_Nodes, Compiler, Format, Formats, Parser
+from .core import (
+    AST,
+    PHML,
+    NODE,
+    Compiler,
+    Format,
+    Formats,
+    Parser,
+    ASTRenderer,
+    replace_components,
+    substitute_component,
+    combine_component_elements
+)
 from .utilities import *
 
 __version__ = "1.3.0"

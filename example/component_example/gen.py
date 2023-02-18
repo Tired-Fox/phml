@@ -1,4 +1,4 @@
-from phml import PHML, filename_from_path
+from phml import PHML, filename_from_path, cmpt_name_from_path
 from pathlib import Path
 
 
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     phml = PHML()
 
     for cfile in Path(cdir).glob("**/*.phml"):
-        phml.add(cfile)
+        phml.add(cfile, strip=cdir)
 
     Path(sdir).mkdir(parents=True, exist_ok=True)
 

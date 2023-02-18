@@ -1,7 +1,7 @@
 from pathlib import Path
 from data import asts, strings
 from phml import PHML, Compiler, Formats, Format
-from phml.core.compiler import ToML
+from phml.core.compiler import ASTRenderer
 from phml.core.nodes import AST
 from phml.builder import p
 from phml.utilities import parse_component
@@ -15,17 +15,16 @@ class TestCompile:
     def test_compile(self, tmp_path):
         """Test the compiled html file written by phml.PHML."""
         # self.phml.ast = asts["phml"]
-
         assert all(
             L1 == L2
             for L1, L2 in zip(
-                self.compiler.compile(asts["phml"], to_format=Formats.PHML).split("\n"),
+                self.compiler.render(asts["phml"], to_format=Formats.PHML).split("\n"),
                 strings["phml"].split("\n"),
             )
         )
 
         with raises(Exception, match="Must provide an ast to compile"):
-            self.compiler.compile()
+            self.compiler.render()
 
         self.phml.ast = asts["phml"]
         assert self.phml.ast == asts["phml"]
@@ -75,7 +74,17 @@ class TestCompile:
         
         self.phml.add(("message", AST(p(p("div", "Hello World!"), p("style", "    div{color:black;}")))))
         self.phml.ast = AST(p(p("html", p("style", "    body{margin:auto;}"), p("message"))))
-        assert self.phml.render() == "<!DOCTYPE html>\n<html>\n    <style>\n    body{margin:auto;}\n\n    div{color:black;}\n    </style>\n    <div>Hello World!</div>\n</html>"
+        assert self.phml.render() == """\
+<!DOCTYPE html>
+<html>
+    <style>
+        body{margin:auto;}
+
+        div{color:black;}
+    </style>
+    <div>Hello World!</div>
+</html>\
+"""
         self.phml.remove("message")
 
     def test_var_escaping(self):
@@ -86,8 +95,8 @@ class TestCompile:
         )
         normal_result = "<!DOCTYPE html>\n<div><script src='external.com'></script></div>"
 
-        assert self.compiler.compile(start, content=content) == escaped_result
-        assert self.compiler.compile(start, content=content, safe_vars=True) == normal_result
+        assert self.compiler.render(start, content=content) == escaped_result
+        assert self.compiler.render(start, content=content, safe_vars=True) == normal_result
 
     def test_add_component(self):
         cmpt = AST(
@@ -131,7 +140,7 @@ class TestCompile:
         assert "cmpt" in self.compiler.components
         assert "component" in self.phml._compiler.components
         assert "cmpt" in self.phml._compiler.components
-        self.compiler.compile(_ast=ast)
+        self.compiler.render(_ast=ast)
 
     def test_remove_component(self):
         cmpt = AST(p(p("div", "Hello World!")))
@@ -168,11 +177,11 @@ class TestCompile:
             
     def test_expose(self):
         self.phml.expose(message="Hello World!")
-        assert "message" in self.phml._exposable
+        assert "message" in self.phml._context
     
     def test_redact(self):
         self.phml.redact("message")
-        assert "message" not in self.phml._exposable
+        assert "message" not in self.phml._context
     
     def test_expand(self):
         self.phml._scopes = []
@@ -187,11 +196,11 @@ class TestCompile:
     def compiler_no_ast_or_doctype(self):
         self.compiler.ast = None
         with raises(Exception, match="Must provide an ast to compile."):
-            self.compiler.compile()
+            self.compiler.render()
 
         self.compiler.ast = AST(p(p("h1", "Markdown String")))
         with raises(Exception, match="Base class Format's compile method should never be called"):
-            self.compiler.compile(to_format=Format)
+            self.compiler.render(to_format=Format)
 
 
 def test_to_ml():
@@ -199,10 +208,10 @@ def test_to_ml():
         Exception,
         match="Converting to a file format requires that an ast is provided",
     ):
-        ToML().compile()
+        ASTRenderer().compile()
 
     with raises(
         Exception,
         match="Doctypes must be in the root of the file/tree",
     ):
-        ToML().compile(AST(p(p("div", p("doctype")))))
+        ASTRenderer().compile(AST(p(p("div", p("doctype")))))

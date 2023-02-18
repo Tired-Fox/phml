@@ -10,8 +10,8 @@ from typing import Any, Optional
 
 from phml.core.formats import Format, Formats
 from phml.core.formats.compile import *  # pylint: disable=unused-wildcard-import
-from phml.core.nodes import AST, All_Nodes
-from phml.utilities import parse_component, tag_from_file, valid_component_dict
+from phml.core.nodes import AST, NODE
+from phml.utilities import parse_component, valid_component_dict
 
 __all__ = ["Compiler"]
 
@@ -27,15 +27,15 @@ class Compiler:
     def __init__(
         self,
         _ast: Optional[AST] = None,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
     ):
         self.ast = _ast
         self.components = components or {}
 
     def add(
         self,
-        *components: dict[str, dict[str, list | All_Nodes] | AST]
-        | tuple[str, dict[str, list | All_Nodes] | AST],
+        *components: dict[str, dict[str, list | NODE] | AST]
+        | tuple[str, dict[str, list | NODE] | AST],
     ):
         """Add a component to the compilers component list.
 
@@ -60,14 +60,14 @@ class Compiler:
             if isinstance(component, dict):
                 for key, value in component.items():
                     if isinstance(value, AST):
-                        self.components[tag_from_file(key)] = parse_component(value)
+                        self.components[key] = { "data": parse_component(value), "cache": None }
                     elif isinstance(value, dict) and valid_component_dict(value):
-                        self.components[tag_from_file(key)] = value
+                        self.components[key] = { "data": value, "cache": None }
             elif isinstance(component, tuple):
                 if isinstance(component[0], str) and isinstance(component[1], AST):
-                    self.components[tag_from_file(component[0])] = parse_component(component[1])
+                    self.components[component[0]] = { "data": parse_component(component[1]), "cache": None }
                 elif isinstance(component[0], str) and valid_component_dict(component[1]):
-                    self.components[tag_from_file(component[0])] = component[1]
+                    self.components[component[0]] = { "data": component[1], "cache": None }
 
         return self
 
@@ -82,12 +82,12 @@ class Compiler:
             path.append(sub_dir)
         return path
 
-    def remove(self, *components: str | All_Nodes):
+    def remove(self, *components: str | NODE):
         """Takes either component names or components and removes them
         from the dictionary.
 
         Args:
-            components (str | All_Nodes): Any str name of components or
+            components (str | NODE): Any str name of components or
             node value to remove from the components list in the compiler.
         """
         for component in components:
@@ -96,9 +96,9 @@ class Compiler:
                     self.components.pop(component, None)
                 else:
                     raise KeyError(f"Invalid component name '{component}'")
-            elif isinstance(component, All_Nodes):
+            elif isinstance(component, NODE):
                 for key, value in self.components.items():
-                    if isinstance(value, dict) and value["component"] == component:
+                    if isinstance(value["data"], dict) and value["data"]["component"] == component:
                         self.components.pop(key, None)
                         break
 
@@ -108,8 +108,42 @@ class Compiler:
         self,
         _ast: Optional[AST] = None,
         to_format: Format = Formats.HTML,
+        scopes: Optional[list[str]] = None,
+        components: Optional[dict] = None,
+        safe_vars: bool = False,
+        **kwargs: Any,
+    ) -> AST:
+        """Execute compilation to a different format."""
+
+        _ast = _ast or self.ast
+
+        if _ast is None:
+            raise Exception("Must provide an ast to compile")
+
+        # Insert the scopes into the path
+        scopes = scopes or ["./"]
+        if scopes is not None:
+
+            for scope in scopes:
+                sys.path.append(
+                    os.path.join(
+                        sys.path[0],
+                        *self.__construct_scope_path(scope),
+                    )
+                )
+
+        # Depending on the format parse with the appropriate function
+        components = components or dict()
+        cmpts = {**self.components, **components}
+        return to_format.compile(_ast, cmpts, safe_vars=safe_vars, **kwargs)
+
+    def render(
+        self,
+        _ast: Optional[AST] = None,
+        to_format: Format = Formats.HTML,
         indent: Optional[int] = None,
         scopes: Optional[list[str]] = None,
+        components: Optional[dict] = None,
         safe_vars: bool = False,
         **kwargs: Any,
     ) -> str:
@@ -133,4 +167,6 @@ class Compiler:
                 )
 
         # Depending on the format parse with the appropriate function
-        return to_format.compile(_ast, self.components, indent, safe_vars=safe_vars, **kwargs)
+        components = components or dict()
+        cmpts = {**self.components, **components}
+        return to_format.render(_ast, cmpts, indent, safe_vars=safe_vars, **kwargs)

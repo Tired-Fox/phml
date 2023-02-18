@@ -1,10 +1,71 @@
 """Pythonic Hypertext Markup Language (phml) parser."""
+from copy import deepcopy
+from operator import itemgetter
+import re
 
-from html.parser import HTMLParser
+from phml.core.nodes import (
+    AST,
+    Comment,
+    DocType,
+    Element,
+    Point,
+    Position,
+    Root,
+    Text,
+    Node
+)
 
-from phml.core.nodes import AST, Comment, DocType, Element, Point, Position, Properties, Root, Text
+def parse_hypertest_markup(data: str, class_name: str, auto_close: bool = True) -> AST:
+    """Parse a string as a hypertest markup document."""
 
-self_closing_tags = [
+    phml_parser = HypertextMarkupParser()
+
+    if isinstance(data, str):
+        return phml_parser.parse(data, auto_close=auto_close)
+    raise Exception(f"Data passed to {class_name}.parse must be a str")
+
+def strip_blank_lines(data_lines: list[str]) -> list[str]:
+    """Strip the blank lines at the start and end of a list."""
+    data_lines = [line.replace("\r\n", "\n") for line in data_lines]
+    # remove leading blank lines
+    for idx in range(0, len(data_lines)):  # pylint: disable=consider-using-enumerate
+        if data_lines[idx].strip() != "":
+            data_lines = data_lines[idx:]
+            break
+        if idx == len(data_lines) - 1:
+            data_lines = []
+            break
+
+    # Remove trailing blank lines
+    if len(data_lines) > 0:
+        for idx in range(len(data_lines) - 1, -1, -1):
+            if data_lines[idx].replace("\n", " ").strip() != "":
+                data_lines = data_lines[: idx + 1]
+                break
+
+    return data_lines
+
+def strip(data: str, cur_tags: list[str]) -> tuple[str, int, int]:
+    """This function takes a possibly mutliline string and strips leading and trailing
+    blank lines. Given the current position it will also calculate the line and column
+    taht the data ends at.
+    """
+    if "pre" not in cur_tags:
+        data_lines = data.split("\n")
+
+        # If multiline data block
+        if len(data_lines) > 1:
+            data_lines = strip_blank_lines(data_lines)
+
+            data = "\n".join(data_lines)
+        # Else it is a single line data block
+        else:
+            data = data_lines[0]
+
+    return data
+
+
+self_closing = [
     "area",
     "base",
     "br",
@@ -24,212 +85,200 @@ self_closing_tags = [
     "menuitem",
 ]
 
+# Main form of tokenization
+class RE:
+    tag_start = re.compile(r"<(?!!--)(?P<opening>!|\/)?(?P<name>([\w:\.]+\-?)+)|<(?P<opening2>/)?(?=\s+>|>)")
+    """Matches the start of a tag `<!name|</name|<name`"""
 
-def parse_hypertest_markup(data: str, class_name: str) -> AST:
-    """Parse a string as a hypertest markup document."""
+    tag_end = re.compile(r"(?P<closing>/?)>")
+    """Matches the end of a tag `/>|>`."""
 
-    phml_parser = HypertextMarkupParser()
+    comment = re.compile(r"<!--((?:.|\s)*)-->")
+    """Matches all html style comments `<!--Comment-->`."""
 
-    if isinstance(data, str):
-        try:
-            phml_parser.feed(data)
-            if len(phml_parser.cur_tags) > 0:
-                last = phml_parser.cur_tags[-1].position
-                raise Exception(
-                    f"Unbalanced tags in source at [{last.start.line}:{last.start.column}]"
-                )
-            return AST(phml_parser.cur)
-        except Exception as exception:
-            raise Exception(
-                f"{data[:6] + '...' if len(data) > 6 else data}\
-: {exception}"
-            ) from exception
-    raise Exception(f"Data passed to {class_name}.parse must be a str")
+    attribute = re.compile(r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\/\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"]+)))?")
+    """Matches a tags attributes `attr|attr=value|attr='value'|attr="value"`."""
+    
+    bracket_attributte = re.compile(r"^\s*\{((?:\s|.)*)\/\}\s*$")
 
+class HypertextMarkupParser:
+    """Parse html/xml like source code strings."""
 
-def strip_blank_lines(data_lines: list[str]) -> list[str]:
-    """Strip the blank lines at the start and end of a list."""
-    # remove leading blank lines
-    for idx in range(0, len(data_lines)):  # pylint: disable=consider-using-enumerate
-        if data_lines[idx].strip() != "":
-            data_lines = data_lines[idx:]
-            break
-        if idx == len(data_lines) - 1:
-            data_lines = []
-            break
+    tag_stack = []
+    """Current stack of tags in order of when they are opened."""
+    
+    def __calc_line_col(self, source: str, start: int) -> tuple[int, int]:
+        """Calculate the number of lines and columns that lead to the starting point int he source
+        string.
+        """
+        source = source[:start]
+        return source.count("\n"), len(source.split("\n")[-1]) if len(source.split("\n")) > 0 else 0
 
-    # Remove trailing blank lines
-    if len(data_lines) > 0:
-        for idx in range(len(data_lines) - 1, 0, -1):
-            if data_lines[idx].replace("\n", " ").strip() != "":
-                data_lines = data_lines[: idx + 1]
-                break
+    def __calc_col(self, num_lines: int, num_cols: int, init_cols: int) -> int:
+        """Calculate whether the number of columns should be added to the current column or be
+        treated as if it is starting from zero based on whether new lines exist.
+        """
+        return num_cols if num_lines != 0 else init_cols + num_cols
 
-    return data_lines
+    def __parse_text_comment(self, text: str, pos: Position) -> list[Node]:
+        """Parse the comments and general text found in the provided source."""
 
+        elements = [] # List of text and comment elements.
 
-def calc_end_of_tag(tag_text: str, cur_pos: tuple[int, int]) -> tuple[int, int]:
-    """Given the current position and the open tag text, this function
-    calculates where the start tag ends.
-    """
-    lines = tag_text.split("\n")
-    line = len(lines) - 1
-    col = len(lines[-1]) + cur_pos[1] if len(lines) == 1 else len(lines[-1])
+        # For each comment add it to the list of elements
+        while RE.comment.search(text) is not None:
+            comment = RE.comment.search(text)
+            line_s, col_s = self.__calc_line_col(text, comment.start())
+            line_e, col_e = self.__calc_line_col(comment.group(0), len(comment.group(0)))
 
-    return cur_pos[0] + line, col
-
-
-def strip_and_count(data: str, cur_pos: tuple[int, int]) -> tuple[str, int, int]:
-    """This function takes a possibly mutliline string and strips leading and trailing
-    blank lines. Given the current position it will also calculate the line and column
-    taht the data ends at.
-    """
-    lines, cols = 0, len(data) + cur_pos[1]
-    data_lines = data.split("\n")
-
-    # If multiline data block
-    if len(data_lines) > 1:
-
-        data_lines = strip_blank_lines(data_lines)
-
-        if len(data_lines) > 0:
-            # Get the line and col of the final position
-            lines, cols = len(data_lines) - 1, len(data_lines[-1])
-
-        data_lines = "\n".join(data_lines)
-
-    # Else it is a single line data block
-    else:
-        # Is not a blank line
-        if data_lines[0].replace("\n", " ").strip() != "":
-            data_lines = data_lines[0]
-
-    return data_lines, cur_pos[0] + lines, cols
-
-
-class HypertextMarkupParser(HTMLParser):
-    """Custom html parser inherited from the python
-    built-in html.parser.
-    """
-
-    cur: Root | Element
-    """The current parent element in the recursion."""
-
-    cur_tags: list
-    """Stack of all open tags. Used for balancing tags."""
-
-    def __init__(self, *, convert_charrefs=True):
-        super().__init__(convert_charrefs=convert_charrefs)
-
-        self.cur = Root()
-        self.cur_tags = []
-
-    def handle_decl(self, decl: str) -> None:
-        tokens = decl.split(" ")
-        if tokens[0].lower() == "doctype":
-            self.cur.children.append(
-                DocType(
-                    lang=tokens[1] if len(tokens) > 1 else "html",
-                    parent=self.cur,
-                    position=Position(self.getpos(), self.getpos()),
-                )
+            pos.start = Point(
+                pos.start.line + line_s,
+                self.__calc_col(line_s, col_s, pos.start.column)
+            )
+            pos.end = Point(
+                pos.start.line + line_e,
+                self.__calc_col(line_e, col_e, pos.start.column)
             )
 
-    def handle_starttag(self, tag, attrs):
+            # If there is text between two comments then add a text element
+            if comment.start() > 0:
+                elements.append(Text(
+                    text[:comment.span()[0]],
+                    position=deepcopy(pos)
+                ))
 
-        properties: Properties = {}
-
-        # Build properties/attributes
-        for attr in attrs:
-            if attr[1] is not None:
-                properties[attr[0]] = attr[1] if attr[1] != "no" else False
-            else:
-                properties[attr[0]] = True
-
-        # Add new element to current elements children
-        self.cur.children.append(Element(tag=tag, properties=properties, parent=self.cur))
-
-        # Self closing tags are marked as such
-        if tag in self_closing_tags:
-            self.cur.children[-1].startend = True
-
-            self.cur.children[-1].position = Position(
-                self.getpos(), calc_end_of_tag(self.get_starttag_text(), self.getpos())
+            text = text[comment.span()[1]:]
+            elements.append(
+                Comment(comment.group(1), position=deepcopy(pos))
             )
-        else:
-            # New element is now the current node
-            self.cur = self.cur.children[-1]
-            # Elements tag is added to tag stack for balancing
-            self.cur_tags.append(self.cur)
-            # Elements start position is added
-            self.cur.position = Position(self.getpos(), (0, 0))
 
-    def handle_startendtag(self, tag, attrs):
-        properties: Properties = {}
+        # remaining text is added as a text element
+        if len(text) > 0:
+            line, col = self.__calc_line_col(text, len(text))
+            pos.start.line += line
+            pos.start.column = col
 
-        # Build properties/attributes for element
-        for attr in attrs:
-            if attr[1] is not None:
-                properties[attr[0]] = attr[1] if attr[1] != "no" else False
-            else:
-                properties[attr[0]] = True
-
-        # Add new element to current elements children
-        self.cur.children.append(
-            Element(
-                tag=tag,
-                properties=properties,
-                parent=self.cur,
-                startend=True,
+            elements.append(Text(
+                text,
                 position=Position(
-                    self.getpos(), calc_end_of_tag(self.get_starttag_text(), self.getpos())
-                ),
-            )
-        )
+                    deepcopy(pos.end),
+                    (pos.end.line + line, self.__calc_col(line, col, pos.end.column))
+                )
+            ))
+        return elements
 
-    def handle_endtag(self, tag):
-        # Tag was closed validate the balancing and matches
-        if tag == self.cur_tags[-1].tag:
-            # Tags are balanced so add end point to position
-            #  and make the parent the new current element
-            self.cur.position.end = Point(*self.getpos())
-            self.cur = self.cur.parent
-            self.cur_tags.pop(-1)
-        else:
-            # Tags are not balanced, raise a new error
-            raise Exception(
-                f"Mismatched tags <{self.cur.tag}> and </{tag}> at \
-[{self.getpos()[0]}:{self.getpos()[1]}]"
-            )
+    def __parse_attributes(self, attrs: str) -> dict:
+        """Parse a tags attributes from the text found between the tag start and the tag end.
+        
+        Example:
+            `<name (attributes)>`
+        """
+        attributes = {}
+        for attr in RE.attribute.finditer(attrs):
+            (
+                name,
+                value,
+                _,
+                double,
+                single,
+                no_bracket
+            ) = itemgetter('name', 'value', 'curly', 'double', 'single', 'open')(attr.groupdict())
 
-    def handle_data(self, data):
-        # Raw data, most likely text nodes
-        # Strip extra blank lines and count the lines and columns
-        data, eline, ecol = strip_and_count(data, self.getpos())
+            if value is not None and RE.bracket_attributte.match(value) is not None:
+                if not name.startswith(":"):
+                    name = ":" + name
+                value = RE.bracket_attributte.match(value).group(1)
+            else:
+                value = double or single or no_bracket
 
-        # If the data is not empty after stripping blank lines add a new text
-        #  node to current elements children
-        if data not in [[], "", None]:
-            self.cur.children.append(
-                Text(data, self.cur, position=Position(self.getpos(), (eline, ecol)))
-            )
+            if value in ["yes", "true", None]:
+                value = True
+            elif value in ["no", "false"]:
+                value = False
 
-    def handle_comment(self, data: str) -> None:
-        # Strip extra blank lines and count the lines and columns
-        data, eline, ecol = strip_and_count(data, self.getpos())
+            attributes[name] = value
+        return attributes
 
-        # If end line is the same as current line then add 7 to
-        # column num for `<!--` and `-->` syntax
-        if eline == self.getpos()[0]:
-            ecol += 7
-        else:
-            # Otherwise just add 3 for the `-->` syntax
-            ecol += 3
+    def __parse_tag(self, source, position: Position):
+        """Parse a tag from the given source. This includes the tag start, attributes and tag end.
+        It will also parse any comments and text from the start of the source to the start of the
+        tag.
+        """
+        begin = RE.tag_start.search(source)
+        begin = (begin.start(), begin.group(0), begin.groupdict())
+        begin[2]["opening"] = begin[2]["opening"] or begin[2]["opening2"]
 
-        self.cur.children.append(
-            Comment(
-                value=data,
-                parent=self.cur,
-                position=Position(self.getpos(), (eline, ecol)),
-            )
-        )
+        elems = []
+        if begin[0] > 0:
+            elems = self.__parse_text_comment(source[:begin[0]], position)
+        position.end.column = position.start.column + len(begin[1])
+        source = source[begin[0] + len(begin[1]):]
+
+        end = RE.tag_end.search(source)
+        if end is None:
+            raise Exception(f"Expected tag {begin} to be closed with symbol '>'. Was not closed.")
+        end = (end.start(), end.group(0), end.groupdict())
+
+        line, col = self.__calc_line_col(source, end[0] + len(end[1]))
+        position.end.line = position.start.line + line
+        position.end.column = position.end.column + col
+
+        attributes = self.__parse_attributes(source[:end[0]])
+        return source[end[0] + len(end[1]):], begin, attributes, end, elems
+
+    def is_self_closing(self, name: str, auto_closing: bool) -> bool:
+        """Check if the tag is self closing. Only check if auto_closing is toggled on."""
+
+        if auto_closing:
+            return name in self_closing
+        return False
+
+    def parse(self, source: str, auto_close: bool = True) -> Root:
+        """Parse a given html or phml string into it's corresponding phml ast.
+
+        Args:
+            source (str): The html or phml source to parse.
+
+        Returns:
+            AST: A phml AST representing the parsed code source.
+        """
+
+        self.tag_stack = []
+        current = Root()
+        position = Position((0, 0), (0, 0))
+
+        while RE.tag_start.search(source) is not None:
+            source, begin, attr, end, elems = self.__parse_tag(source, position)
+
+            if len(elems) > 0:
+                current.extend(elems)
+
+            name = begin[2]["name"] or ''
+            if begin[2]["opening"] == "/":
+                if name != self.tag_stack[-1]:
+                    input(self.tag_stack)
+                    raise Exception(
+                        f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}"
+                    )
+
+                self.tag_stack.pop()
+                current.position.end.line = position.end.line
+                current.position.end.column = position.end.column
+
+                current = current.parent
+            elif begin[2]["opening"] == "!":
+                current.append(DocType(attr.get("lang", "html"), position=deepcopy(position)))
+            elif (
+                end[2]["closing"] != "/"
+                and not self.is_self_closing(name, auto_close)
+                and begin[2]["opening"] is None
+            ):
+                self.tag_stack.append(name)
+                current.append(Element(name, attr, position=deepcopy(position)))
+                current = current.children[-1]
+            else:
+                current.append(Element(name, attr, position=deepcopy(position), startend=True))
+
+            position.start = deepcopy(position.end)
+
+        return AST(current)

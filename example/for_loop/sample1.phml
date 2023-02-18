@@ -18,34 +18,39 @@
         ]
     </python>
     <body>
-        <!--  `py-` prefix for python injected logic. Value is python  -->
-        <div py-if="'dog' == 'cat'">
+        <!--  `@` prefix for python injected logic. Value is python  -->
+        <div @if="'dog' == 'cat'">
             <p>
                 Cat's and dog's are not the same thing
             </p>
         </div>
-        <div py-elif="'dog' in ['cat', 'dog', 'bird']">
+        <div @elif="'dog' in ['cat', 'dog', 'bird']">
             <p>
                 dog in the list ['cat', 'dog', 'bird']
             </p>
         </div>
-        <div py-else>
+        <div @else>
             <p>
                 py-else statement
             </p>
         </div>
-        <img src="https://example.com" alt="Example" />
-        <!--  Brackets ({,}) inject python. Can be any python and can be multiline  -->
+        <img src="https://picsum.photos/200/300" alt="Example" />
+        <!--  Brackets ({,}) inject python. Can be any python,
+        but it must return or result in a value  -->
         <h2>
             {message}
         </h2>
 
         <ul>
-            <li py-for="error in errors">{error}</li>
+            <For each={error in errors/}>
+                <li>{error}</li>
+            </For>
         </ul>
 
         <p>
-            <span py-for="for char in message:">{char}</span>
+            <For :each="char in message">
+                <span>{char}</span>
+            </For>
         </p>
     </body>
 </html>

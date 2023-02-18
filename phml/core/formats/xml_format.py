@@ -5,10 +5,11 @@ from typing import Optional
 
 from defusedxml.ElementTree import fromstring
 
-from phml.core.nodes import AST, PI, All_Nodes, Element, Root, Text
+from phml.core.nodes import AST, PI, NODE, Element, Root, Text
 from phml.core.virtual_python import VirtualPython
+from phml.utilities import remove_nodes
 
-from .compile import ToML, apply_conditions, apply_python
+from .compile import ASTRenderer, apply_conditions, apply_python
 from .format import Format
 
 __all__ = ["XMLFormat"]
@@ -72,7 +73,37 @@ class XMLFormat(Format):
     def compile(
         cls,
         ast: AST,
-        components: Optional[dict[str, dict[str, list | All_Nodes]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
+        **kwargs,
+    ) -> AST:
+        """Compile and process the given ast and return the resulting ast."""
+
+        attribs = {
+            "version": kwargs.pop("version", None) or "1.0",
+            "encoding": kwargs.pop("encoding", None) or "UTF-8",
+        }
+
+        ast.tree.insert(0, PI("xml", attribs))
+
+        src = deepcopy(ast)
+
+        # 3. Search each element and find @if, @elif, and @else
+        #    - Execute those statements
+
+        apply_conditions(src, VirtualPython(), **kwargs)
+
+        # 4. Search for python blocks and process them.
+
+        apply_python(src, VirtualPython(), **kwargs)
+        remove_nodes(src, {"tag": "slot"})
+
+        return src
+
+    @classmethod
+    def render(
+        cls,
+        ast: AST,
+        components: Optional[dict[str, dict[str, list | NODE]]] = None,
         indent: int = 2,
         **kwargs,
     ) -> str:
@@ -87,13 +118,14 @@ class XMLFormat(Format):
 
         src = deepcopy(ast)
 
-        # 3. Search each element and find py-if, py-elif, py-else, and py-for
+        # 3. Search each element and find @if, @elif, and @else
         #    - Execute those statements
 
-        apply_conditions(src, VirtualPython(), **kwargs)
+        apply_conditions(src, VirtualPython(), components={}, **kwargs)
 
         # 4. Search for python blocks and process them.
 
         apply_python(src, VirtualPython(), **kwargs)
+        remove_nodes(src, {"tag": "slot"})
 
-        return ToML(src, indent).compile(include_doctype=False)
+        return ASTRenderer(src, indent).compile(include_doctype=False)

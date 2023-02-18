@@ -16,7 +16,6 @@ from .transform import *
 #     "shift_heading",
 # ]
 
-
 def normalize_indent(content: str, indent: int = 0) -> str:
     """Normalize the indent between all lines.
 
@@ -30,7 +29,7 @@ def normalize_indent(content: str, indent: int = 0) -> str:
     from phml.core.formats.parse import strip_blank_lines  # pylint: disable=import-outside-toplevel
     from phml.utilities.misc import offset as spaces  # pylint: disable=import-outside-toplevel
 
-    content = content.split("\n")
+    content = str(content).split("\n")
     offset = len(content[0]) - len(content[0].lstrip())
     lines = []
     for line in content:

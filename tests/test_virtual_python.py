@@ -3,7 +3,7 @@
 # process_vp_blocks
 
 from phml.core.virtual_python.import_objects import ImportFrom, Import
-from phml.core.virtual_python import VirtualPython, get_vp_result, process_vp_blocks
+from phml.core.virtual_python import VirtualPython, get_python_result, process_python_blocks
 
 
 def test_import_objects():
@@ -22,9 +22,9 @@ def test_virtual_python():
 
 
 def test_get_vp_result():
-    result = get_vp_result("message='2'\nresult=message")
+    result = get_python_result("message='2'\nresult=message")
     assert result == "2"
-    result = get_vp_result(
+    result = get_python_result(
         """\
 message = ['2', 3]
 (void, invalid) = (None, "RED ALERT")
@@ -33,17 +33,17 @@ results=message\
     )
     assert result == ['2', 3]
 
-    assert get_vp_result("cow") is None
-    assert get_vp_result("cow\nresult=dog") is None
+    assert get_python_result("cow") is None
+    assert get_python_result("cow\nresult=dog") is None
 
-    get_vp_result("invalid('call')", cat=None)
+    get_python_result("invalid('call')", cat=None)
 
 
 def test_process_vp_blocks():
     vp = VirtualPython()
-    result = process_vp_blocks("The {thing} has a {desc}.", vp, thing="cat", desc="big heart")
+    result = process_python_blocks("The {thing} has a {desc}.", vp, thing="cat", desc="big heart")
     assert result == "The cat has a big heart."
-    result = process_vp_blocks("The {thing} has a {desc}.", vp, thing="cat", desc="big heart")
+    result = process_python_blocks("The {thing} has a {desc}.", vp, thing="cat", desc="big heart")
     assert result == "The cat has a big heart."
 
 

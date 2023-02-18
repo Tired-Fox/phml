@@ -5,7 +5,7 @@ Utility methods that revolve around transforming or manipulating the ast.
 
 from typing import Callable, Optional
 
-from phml.core.nodes import AST, All_Nodes, Element, Root
+from phml.core.nodes import AST, NODE, Element, Root
 from phml.utilities.misc import heading_rank
 from phml.utilities.travel.travel import walk
 from phml.utilities.validate.check import Test, check
@@ -58,8 +58,6 @@ def filter_nodes(
                 children.append(node.children[i])
 
         node.children = children
-        if len(node.children) == 0 and isinstance(node, Element):
-            node.startend = True
         return node
 
     filter_children(tree)
@@ -87,9 +85,6 @@ def remove_nodes(
         for child in node.children:
             if child.type in ["root", "element"]:
                 filter_children(child)
-
-        if len(node.children) == 0 and isinstance(node, Element):
-            node.startend = True
 
     filter_children(tree)
 
@@ -132,7 +127,7 @@ def map_nodes(tree: Root | Element | AST, transform: Callable):
 def replace_node(
     start: Root | Element,
     condition: Test,
-    replacement: Optional[All_Nodes | list[All_Nodes]],
+    replacement: Optional[NODE | list[NODE]],
     all_nodes: bool = False,
     strict: bool = True,
 ):
@@ -142,7 +137,7 @@ def replace_node(
     Args:
         start (Root | Element): The starting point.
         condition (test): Test condition to find the correct node.
-        replacement (All_Nodes | list[All_Nodes] | None): What to replace the node with.
+        replacement (NODE | list[NODE] | None): What to replace the node with.
     """
     for node in walk(start):
         if check(node, condition, strict=strict):
@@ -150,18 +145,24 @@ def replace_node(
                 idx = node.parent.children.index(node)
                 if replacement is not None:
                     parent = node.parent
-                    parent.children = (
-                        node.parent.children[:idx] + replacement + node.parent.children[idx + 1 :]
-                        if isinstance(replacement, list)
-                        else node.parent.children[:idx]
-                        + [replacement]
-                        + node.parent.children[idx + 1 :]
-                    )
+                    if isinstance(replacement, list):
+                        for item in replacement:
+                            item.parent = node.parent
+                        parent.children = (
+                            node.parent.children[:idx]
+                            + replacement
+                            + node.parent.children[idx + 1 :]
+                        )
+                    else:
+                        replacement.parent = node.parent
+                        parent.children = (
+                            node.parent.children[:idx]
+                            + [replacement]
+                            + node.parent.children[idx + 1 :]
+                        )
                 else:
                     parent = node.parent
                     parent.children.pop(idx)
-                    if len(parent.children) == 0 and isinstance(parent, Element):
-                        parent.startend = True
 
             if not all_nodes:
                 break

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 12.2.0"/>
+    <meta name="generator" content="pdoc 12.3.0"/>
     <title>phml.utilities.travel.travel API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -32,6 +32,9 @@
             <ul class="memberlist">
             <li>
                     <a class="function" href="#path">path</a>
+            </li>
+            <li>
+                    <a class="function" href="#path_names">path_names</a>
             </li>
             <li>
                     <a class="function" href="#walk">walk</a>
@@ -74,12 +77,12 @@
 </span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">phml.core.nodes</span> <span class="kn">import</span> <span class="n">All_Nodes</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Root</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">phml.core.nodes</span> <span class="kn">import</span> <span class="n">NODE</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Root</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="s2">&quot;walk&quot;</span><span class="p">,</span> <span class="s2">&quot;visit_children&quot;</span><span class="p">,</span> <span class="s2">&quot;visit_all_after&quot;</span><span class="p">]</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="s2">&quot;path_names&quot;</span><span class="p">,</span> <span class="s2">&quot;walk&quot;</span><span class="p">,</span> <span class="s2">&quot;visit_children&quot;</span><span class="p">,</span> <span class="s2">&quot;visit_all_after&quot;</span><span class="p">]</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">All_Nodes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">All_Nodes</span><span class="p">]:</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">NODE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">NODE</span><span class="p">]:</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="sd">&quot;&quot;&quot;Get a list of nodes where each one is a child of</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    the other leading to the node passed in. This gives a</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">    path to the node.</span>
@@ -87,10 +90,10 @@
 </span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">    Does not include given node.</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    Args:</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">        node (All_Nodes): Node to find ancestors of.</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">        node (NODE): Node to find ancestors of.</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    Returns:</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">        list[All_Nodes]: List of nodes leading to the given node</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">        list[NODE]: List of nodes leading to the given node</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">        starting from the root.</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">ancestors</span> <span class="o">=</span> <span class="p">[]</span>
@@ -100,32 +103,32 @@
 </span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
 </span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="k">return</span> <span class="n">ancestors</span>
 </span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="k">def</span> <span class="nf">walk</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="sd">&quot;&quot;&quot;Recursively traverse the node and it&#39;s chidlren as an iterator.</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">    Left to right depth first.</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>        <span class="k">yield</span> <span class="n">parent</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>        <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>                <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    <span class="k">yield</span> <span class="n">node</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">visit_children</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>            <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a><span class="k">def</span> <span class="nf">visit_children</span><span class="p">(</span><span class="n">parent</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>    <span class="sd">&quot;&quot;&quot;Traverse the children of a Root or Element as an iterator.&quot;&quot;&quot;</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>        <span class="k">yield</span> <span class="n">child</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="k">def</span> <span class="nf">visit_all_after</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">All_Nodes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="sd">&quot;&quot;&quot;Recursively traverse the tree starting at given node.&quot;&quot;&quot;</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="k">def</span> <span class="nf">path_names</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">NODE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="sd">&quot;&quot;&quot;Get a list of nodes where each one is a child of</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a><span class="sd">    the other leading to the node passed in. This gives a</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">    path to the node.</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">    Does not include given node.</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">    Args:</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">        node (NODE): Node to find ancestors of.</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">    Returns:</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">        list[str]: List of nodes leading to the given node</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">        starting from the root.</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="n">ancestors</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="k">while</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;root&quot;</span><span class="p">:</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>        <span class="n">ancestors</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="o">*</span><span class="n">ancestors</span><span class="p">]</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>    <span class="k">return</span> <span class="n">ancestors</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="k">def</span> <span class="nf">walk</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="sd">&quot;&quot;&quot;Recursively traverse the node and it&#39;s chidlren as an iterator.</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="sd">    Left to right depth first.</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>
 </span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>        <span class="k">yield</span> <span class="n">parent</span>
@@ -133,11 +136,32 @@
 </span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>                <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
 </span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>    <span class="n">parent</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">parent</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="n">idx</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>            <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>    <span class="k">yield</span> <span class="n">node</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">visit_children</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>            <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a><span class="k">def</span> <span class="nf">visit_children</span><span class="p">(</span><span class="n">parent</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>    <span class="sd">&quot;&quot;&quot;Traverse the children of a Root or Element as an iterator.&quot;&quot;&quot;</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="k">yield</span> <span class="n">child</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a><span class="k">def</span> <span class="nf">visit_all_after</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">NODE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>    <span class="sd">&quot;&quot;&quot;Recursively traverse the tree starting at given node.&quot;&quot;&quot;</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>        <span class="k">yield</span> <span class="n">parent</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a>        <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>                <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>    <span class="n">parent</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">parent</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a>    <span class="n">idx</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>    <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a>        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>            <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -147,13 +171,13 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">path</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">node</span><span class="p">:</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">Root</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">Text</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">comment</span><span class="o">.</span><span class="n">Comment</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">doctype</span><span class="o">.</span><span class="n">DocType</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">Parent</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">Node</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">literal</span><span class="o">.</span><span class="n">Literal</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">Root</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">Text</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">comment</span><span class="o">.</span><span class="n">Comment</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">doctype</span><span class="o">.</span><span class="n">DocType</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">Parent</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">Node</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">literal</span><span class="o">.</span><span class="n">Literal</span><span class="p">]</span>:</span></span>
+        <span class="name">path</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">node</span><span class="p">:</span> <span class="n"><a href="../../core/nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="../../core/nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="path-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#path"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="path-14"><a href="#path-14"><span class="linenos">14</span></a><span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">All_Nodes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">All_Nodes</span><span class="p">]:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="path-14"><a href="#path-14"><span class="linenos">14</span></a><span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">NODE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">NODE</span><span class="p">]:</span>
 </span><span id="path-15"><a href="#path-15"><span class="linenos">15</span></a>    <span class="sd">&quot;&quot;&quot;Get a list of nodes where each one is a child of</span>
 </span><span id="path-16"><a href="#path-16"><span class="linenos">16</span></a><span class="sd">    the other leading to the node passed in. This gives a</span>
 </span><span id="path-17"><a href="#path-17"><span class="linenos">17</span></a><span class="sd">    path to the node.</span>
@@ -161,10 +185,10 @@
 </span><span id="path-19"><a href="#path-19"><span class="linenos">19</span></a><span class="sd">    Does not include given node.</span>
 </span><span id="path-20"><a href="#path-20"><span class="linenos">20</span></a>
 </span><span id="path-21"><a href="#path-21"><span class="linenos">21</span></a><span class="sd">    Args:</span>
-</span><span id="path-22"><a href="#path-22"><span class="linenos">22</span></a><span class="sd">        node (All_Nodes): Node to find ancestors of.</span>
+</span><span id="path-22"><a href="#path-22"><span class="linenos">22</span></a><span class="sd">        node (NODE): Node to find ancestors of.</span>
 </span><span id="path-23"><a href="#path-23"><span class="linenos">23</span></a>
 </span><span id="path-24"><a href="#path-24"><span class="linenos">24</span></a><span class="sd">    Returns:</span>
-</span><span id="path-25"><a href="#path-25"><span class="linenos">25</span></a><span class="sd">        list[All_Nodes]: List of nodes leading to the given node</span>
+</span><span id="path-25"><a href="#path-25"><span class="linenos">25</span></a><span class="sd">        list[NODE]: List of nodes leading to the given node</span>
 </span><span id="path-26"><a href="#path-26"><span class="linenos">26</span></a><span class="sd">        starting from the root.</span>
 </span><span id="path-27"><a href="#path-27"><span class="linenos">27</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="path-28"><a href="#path-28"><span class="linenos">28</span></a>    <span class="n">ancestors</span> <span class="o">=</span> <span class="p">[]</span>
@@ -182,16 +206,72 @@ path to the node.</p>
 
 <p>Does not include given node.</p>
 
-<h6 id="args">Args</h6>
+<h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>node (All_Nodes):</strong>  Node to find ancestors of.</li>
+<li><strong>node (NODE):</strong>  Node to find ancestors of.</li>
 </ul>
 
-<h6 id="returns">Returns</h6>
+<h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>list[All_Nodes]: List of nodes leading to the given node
+  <p>list[NODE]: List of nodes leading to the given node
+  starting from the root.</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="path_names">
+                            <input id="path_names-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">path_names</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">node</span><span class="p">:</span> <span class="n"><a href="../../core/nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="path_names-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#path_names"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="path_names-35"><a href="#path_names-35"><span class="linenos">35</span></a><span class="k">def</span> <span class="nf">path_names</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">NODE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="path_names-36"><a href="#path_names-36"><span class="linenos">36</span></a>    <span class="sd">&quot;&quot;&quot;Get a list of nodes where each one is a child of</span>
+</span><span id="path_names-37"><a href="#path_names-37"><span class="linenos">37</span></a><span class="sd">    the other leading to the node passed in. This gives a</span>
+</span><span id="path_names-38"><a href="#path_names-38"><span class="linenos">38</span></a><span class="sd">    path to the node.</span>
+</span><span id="path_names-39"><a href="#path_names-39"><span class="linenos">39</span></a>
+</span><span id="path_names-40"><a href="#path_names-40"><span class="linenos">40</span></a><span class="sd">    Does not include given node.</span>
+</span><span id="path_names-41"><a href="#path_names-41"><span class="linenos">41</span></a>
+</span><span id="path_names-42"><a href="#path_names-42"><span class="linenos">42</span></a><span class="sd">    Args:</span>
+</span><span id="path_names-43"><a href="#path_names-43"><span class="linenos">43</span></a><span class="sd">        node (NODE): Node to find ancestors of.</span>
+</span><span id="path_names-44"><a href="#path_names-44"><span class="linenos">44</span></a>
+</span><span id="path_names-45"><a href="#path_names-45"><span class="linenos">45</span></a><span class="sd">    Returns:</span>
+</span><span id="path_names-46"><a href="#path_names-46"><span class="linenos">46</span></a><span class="sd">        list[str]: List of nodes leading to the given node</span>
+</span><span id="path_names-47"><a href="#path_names-47"><span class="linenos">47</span></a><span class="sd">        starting from the root.</span>
+</span><span id="path_names-48"><a href="#path_names-48"><span class="linenos">48</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="path_names-49"><a href="#path_names-49"><span class="linenos">49</span></a>    <span class="n">ancestors</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="path_names-50"><a href="#path_names-50"><span class="linenos">50</span></a>    <span class="k">while</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;root&quot;</span><span class="p">:</span>
+</span><span id="path_names-51"><a href="#path_names-51"><span class="linenos">51</span></a>        <span class="n">ancestors</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="o">*</span><span class="n">ancestors</span><span class="p">]</span>
+</span><span id="path_names-52"><a href="#path_names-52"><span class="linenos">52</span></a>        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
+</span><span id="path_names-53"><a href="#path_names-53"><span class="linenos">53</span></a>
+</span><span id="path_names-54"><a href="#path_names-54"><span class="linenos">54</span></a>    <span class="k">return</span> <span class="n">ancestors</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Get a list of nodes where each one is a child of
+the other leading to the node passed in. This gives a
+path to the node.</p>
+
+<p>Does not include given node.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>node (NODE):</strong>  Node to find ancestors of.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: List of nodes leading to the given node
   starting from the root.</p>
 </blockquote>
 </div>
@@ -203,27 +283,27 @@ path to the node.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">walk</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">node</span><span class="p">:</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">Root</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span></span><span class="return-annotation">) -> <span class="n">Iterator</span>:</span></span>
+        <span class="name">walk</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">node</span><span class="p">:</span> <span class="n"><a href="../../core/nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span></span><span class="return-annotation">) -> <span class="n">Iterator</span>:</span></span>
 
                 <label class="view-source-button" for="walk-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#walk"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="walk-36"><a href="#walk-36"><span class="linenos">36</span></a><span class="k">def</span> <span class="nf">walk</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="walk-37"><a href="#walk-37"><span class="linenos">37</span></a>    <span class="sd">&quot;&quot;&quot;Recursively traverse the node and it&#39;s chidlren as an iterator.</span>
-</span><span id="walk-38"><a href="#walk-38"><span class="linenos">38</span></a><span class="sd">    Left to right depth first.</span>
-</span><span id="walk-39"><a href="#walk-39"><span class="linenos">39</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="walk-40"><a href="#walk-40"><span class="linenos">40</span></a>
-</span><span id="walk-41"><a href="#walk-41"><span class="linenos">41</span></a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="walk-42"><a href="#walk-42"><span class="linenos">42</span></a>        <span class="k">yield</span> <span class="n">parent</span>
-</span><span id="walk-43"><a href="#walk-43"><span class="linenos">43</span></a>        <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
-</span><span id="walk-44"><a href="#walk-44"><span class="linenos">44</span></a>            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-</span><span id="walk-45"><a href="#walk-45"><span class="linenos">45</span></a>                <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
-</span><span id="walk-46"><a href="#walk-46"><span class="linenos">46</span></a>
-</span><span id="walk-47"><a href="#walk-47"><span class="linenos">47</span></a>    <span class="k">yield</span> <span class="n">node</span>
-</span><span id="walk-48"><a href="#walk-48"><span class="linenos">48</span></a>    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
-</span><span id="walk-49"><a href="#walk-49"><span class="linenos">49</span></a>        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">visit_children</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-</span><span id="walk-50"><a href="#walk-50"><span class="linenos">50</span></a>            <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="walk-57"><a href="#walk-57"><span class="linenos">57</span></a><span class="k">def</span> <span class="nf">walk</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="walk-58"><a href="#walk-58"><span class="linenos">58</span></a>    <span class="sd">&quot;&quot;&quot;Recursively traverse the node and it&#39;s chidlren as an iterator.</span>
+</span><span id="walk-59"><a href="#walk-59"><span class="linenos">59</span></a><span class="sd">    Left to right depth first.</span>
+</span><span id="walk-60"><a href="#walk-60"><span class="linenos">60</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="walk-61"><a href="#walk-61"><span class="linenos">61</span></a>
+</span><span id="walk-62"><a href="#walk-62"><span class="linenos">62</span></a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="walk-63"><a href="#walk-63"><span class="linenos">63</span></a>        <span class="k">yield</span> <span class="n">parent</span>
+</span><span id="walk-64"><a href="#walk-64"><span class="linenos">64</span></a>        <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
+</span><span id="walk-65"><a href="#walk-65"><span class="linenos">65</span></a>            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+</span><span id="walk-66"><a href="#walk-66"><span class="linenos">66</span></a>                <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+</span><span id="walk-67"><a href="#walk-67"><span class="linenos">67</span></a>
+</span><span id="walk-68"><a href="#walk-68"><span class="linenos">68</span></a>    <span class="k">yield</span> <span class="n">node</span>
+</span><span id="walk-69"><a href="#walk-69"><span class="linenos">69</span></a>    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
+</span><span id="walk-70"><a href="#walk-70"><span class="linenos">70</span></a>        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">visit_children</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+</span><span id="walk-71"><a href="#walk-71"><span class="linenos">71</span></a>            <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -238,16 +318,16 @@ Left to right depth first.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">visit_children</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">parent</span><span class="p">:</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">Root</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span></span><span class="return-annotation">) -> <span class="n">Iterator</span>:</span></span>
+        <span class="name">visit_children</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">parent</span><span class="p">:</span> <span class="n"><a href="../../core/nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span></span><span class="return-annotation">) -> <span class="n">Iterator</span>:</span></span>
 
                 <label class="view-source-button" for="visit_children-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#visit_children"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="visit_children-53"><a href="#visit_children-53"><span class="linenos">53</span></a><span class="k">def</span> <span class="nf">visit_children</span><span class="p">(</span><span class="n">parent</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="visit_children-54"><a href="#visit_children-54"><span class="linenos">54</span></a>    <span class="sd">&quot;&quot;&quot;Traverse the children of a Root or Element as an iterator.&quot;&quot;&quot;</span>
-</span><span id="visit_children-55"><a href="#visit_children-55"><span class="linenos">55</span></a>    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-</span><span id="visit_children-56"><a href="#visit_children-56"><span class="linenos">56</span></a>        <span class="k">yield</span> <span class="n">child</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="visit_children-74"><a href="#visit_children-74"><span class="linenos">74</span></a><span class="k">def</span> <span class="nf">visit_children</span><span class="p">(</span><span class="n">parent</span><span class="p">:</span> <span class="n">Root</span> <span class="o">|</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="visit_children-75"><a href="#visit_children-75"><span class="linenos">75</span></a>    <span class="sd">&quot;&quot;&quot;Traverse the children of a Root or Element as an iterator.&quot;&quot;&quot;</span>
+</span><span id="visit_children-76"><a href="#visit_children-76"><span class="linenos">76</span></a>    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+</span><span id="visit_children-77"><a href="#visit_children-77"><span class="linenos">77</span></a>        <span class="k">yield</span> <span class="n">child</span>
 </span></pre></div>
 
 
@@ -261,26 +341,26 @@ Left to right depth first.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">visit_all_after</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">start</span><span class="p">:</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">Root</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">Text</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">comment</span><span class="o">.</span><span class="n">Comment</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">doctype</span><span class="o">.</span><span class="n">DocType</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">Parent</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">Node</span> <span class="o">|</span> <span class="n">phml</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">literal</span><span class="o">.</span><span class="n">Literal</span></span><span class="return-annotation">) -> <span class="n">Iterator</span>:</span></span>
+        <span class="name">visit_all_after</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">start</span><span class="p">:</span> <span class="n"><a href="../../core/nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="../../core/nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span></span><span class="return-annotation">) -> <span class="n">Iterator</span>:</span></span>
 
                 <label class="view-source-button" for="visit_all_after-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#visit_all_after"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="visit_all_after-59"><a href="#visit_all_after-59"><span class="linenos">59</span></a><span class="k">def</span> <span class="nf">visit_all_after</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">All_Nodes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="visit_all_after-60"><a href="#visit_all_after-60"><span class="linenos">60</span></a>    <span class="sd">&quot;&quot;&quot;Recursively traverse the tree starting at given node.&quot;&quot;&quot;</span>
-</span><span id="visit_all_after-61"><a href="#visit_all_after-61"><span class="linenos">61</span></a>
-</span><span id="visit_all_after-62"><a href="#visit_all_after-62"><span class="linenos">62</span></a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
-</span><span id="visit_all_after-63"><a href="#visit_all_after-63"><span class="linenos">63</span></a>        <span class="k">yield</span> <span class="n">parent</span>
-</span><span id="visit_all_after-64"><a href="#visit_all_after-64"><span class="linenos">64</span></a>        <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
-</span><span id="visit_all_after-65"><a href="#visit_all_after-65"><span class="linenos">65</span></a>            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-</span><span id="visit_all_after-66"><a href="#visit_all_after-66"><span class="linenos">66</span></a>                <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
-</span><span id="visit_all_after-67"><a href="#visit_all_after-67"><span class="linenos">67</span></a>
-</span><span id="visit_all_after-68"><a href="#visit_all_after-68"><span class="linenos">68</span></a>    <span class="n">parent</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">parent</span>
-</span><span id="visit_all_after-69"><a href="#visit_all_after-69"><span class="linenos">69</span></a>    <span class="n">idx</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
-</span><span id="visit_all_after-70"><a href="#visit_all_after-70"><span class="linenos">70</span></a>    <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="visit_all_after-71"><a href="#visit_all_after-71"><span class="linenos">71</span></a>        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>
-</span><span id="visit_all_after-72"><a href="#visit_all_after-72"><span class="linenos">72</span></a>            <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="visit_all_after-80"><a href="#visit_all_after-80"><span class="linenos">80</span></a><span class="k">def</span> <span class="nf">visit_all_after</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">NODE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="visit_all_after-81"><a href="#visit_all_after-81"><span class="linenos">81</span></a>    <span class="sd">&quot;&quot;&quot;Recursively traverse the tree starting at given node.&quot;&quot;&quot;</span>
+</span><span id="visit_all_after-82"><a href="#visit_all_after-82"><span class="linenos">82</span></a>
+</span><span id="visit_all_after-83"><a href="#visit_all_after-83"><span class="linenos">83</span></a>    <span class="k">def</span> <span class="nf">get_children</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+</span><span id="visit_all_after-84"><a href="#visit_all_after-84"><span class="linenos">84</span></a>        <span class="k">yield</span> <span class="n">parent</span>
+</span><span id="visit_all_after-85"><a href="#visit_all_after-85"><span class="linenos">85</span></a>        <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">]:</span>
+</span><span id="visit_all_after-86"><a href="#visit_all_after-86"><span class="linenos">86</span></a>            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+</span><span id="visit_all_after-87"><a href="#visit_all_after-87"><span class="linenos">87</span></a>                <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+</span><span id="visit_all_after-88"><a href="#visit_all_after-88"><span class="linenos">88</span></a>
+</span><span id="visit_all_after-89"><a href="#visit_all_after-89"><span class="linenos">89</span></a>    <span class="n">parent</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">parent</span>
+</span><span id="visit_all_after-90"><a href="#visit_all_after-90"><span class="linenos">90</span></a>    <span class="n">idx</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+</span><span id="visit_all_after-91"><a href="#visit_all_after-91"><span class="linenos">91</span></a>    <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="visit_all_after-92"><a href="#visit_all_after-92"><span class="linenos">92</span></a>        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]:</span>
+</span><span id="visit_all_after-93"><a href="#visit_all_after-93"><span class="linenos">93</span></a>            <span class="k">yield from</span> <span class="n">get_children</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -390,7 +470,7 @@ Left to right depth first.</p>
                 }
 
                 let heading;
-                switch (result.doc.type) {
+                switch (result.doc.kind) {
                     case "function":
                         if (doc.fullname.endsWith(".__init__")) {
                             heading = `<span class="name">${doc.fullname.replace(/\.__init__$/, "")}</span>${doc.signature}`;
@@ -417,7 +497,7 @@ Left to right depth first.</p>
                 }
                 html += `
                         <section class="search-result">
-                        <a href="${url}" class="attr ${doc.type}">${heading}</a>
+                        <a href="${url}" class="attr ${doc.kind}">${heading}</a>
                         <div class="docstring">${doc.doc}</div>
                         </section>
                     `;

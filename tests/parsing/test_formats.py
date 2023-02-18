@@ -15,7 +15,7 @@ def test_is_format():
         Format.parse("")
 
     with raises(Exception, match="Base class Format's compile method should never be called"):
-        Format.compile(AST(p()))
+        Format.render(AST(p()))
 
 
 def test_formats():
@@ -30,7 +30,7 @@ def test_phml_format():
     with raises(Exception, match=r"<!DOCT...: Unbalanced tags in source at .+"):
         Formats.PHML.parse("<!DOCTYPE html><html><body>")
 
-    assert Formats.PHML.compile(AST(p(p("div")))) == "<!DOCTYPE html>\n<div />"
+    assert Formats.PHML.render(AST(p(p("div")))) == "<!DOCTYPE html>\n<div/>"
 
 
 # html
@@ -44,33 +44,33 @@ def test_html_format():
 
     component = parse_component(AST(p(p("div"), p("python", "message='hello world'"))))
     assert (
-        Formats.HTML.compile(
+        Formats.HTML.render(
             AST(p(p("message"), p("python", "message='hello world'"))), {"message": component}
         )
-        == "<!DOCTYPE html>\n<div />"
+        == "<!DOCTYPE html>\n<div/>"
     )
 
-    assert Formats.HTML.compile(asts["phml"], title="sample title") == strings["html"]
+    assert Formats.HTML.render(asts["phml"], title="sample title") == strings["html"]
 
     assert (
-        Formats.HTML.compile(AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "True"}))))
-        == "<!DOCTYPE html>\n<div />"
+        Formats.HTML.render(AST(p(p("div", {"@if": "False"}), p("div", {"@elif": "True"}))))
+        == "<!DOCTYPE html>\n<div/>"
     )
 
     assert (
-        Formats.HTML.compile(AST(p(p("div", {"@if": "False"}), p("div", {"@else": True}))))
-        == "<!DOCTYPE html>\n<div />"
+        Formats.HTML.render(AST(p(p("div", {"@if": "False"}), p("div", {"@else": True}))))
+        == "<!DOCTYPE html>\n<div/>"
     )
 
     with raises(Exception, match="There can only be one python condition statement at a time:\n.+"):
-        Formats.HTML.compile(AST(p(p("div", {"@if": "True", "@else": True}))))
+        Formats.HTML.render(AST(p(p("div", {"@if": "True", "@else": True}))))
 
     with raises(
         Exception,
         match="Condition statements that are not py-if or py-for must have py-if or py-elif as a \
 prevous sibling.+",
     ):
-        Formats.HTML.compile(AST(p(p("div", {"@else": True}))))
+        Formats.HTML.render(AST(p(p("div", {"@else": True}))))
         
     assert Formats.HTML.suffix() == ".html"
 
@@ -119,13 +119,13 @@ def test_json_format():
 
     assert Formats.JSON.parse(dicts) == asts["phml"]
 
-    assert Formats.JSON.compile(asts["phml"]) == dumps(dicts, indent=2)
+    assert Formats.JSON.render(asts["phml"]) == dumps(dicts, indent=2)
 
     with raises(Exception, match="Root nodes must only occur as the root of an ast/tree"):
-        assert Formats.JSON.compile(AST(p(p("div", p()))))
+        assert Formats.JSON.render(AST(p(p("div", p()))))
 
     assert (
-        (Formats.JSON.compile(AST(p(Element("div", position=Position((0, 1), (2, 3)))))))
+        (Formats.JSON.render(AST(p(Element("div", position=Position((0, 1), (2, 3)))))))
         == '''\
 {
   "type": "root",
@@ -180,6 +180,6 @@ def test_xml_format():
 '''
 
     assert (
-        Formats.XML.compile(Formats.XML.parse(start), url="https://www.example.com/foo.html")
+        Formats.XML.render(Formats.XML.parse(start), url="https://www.example.com/foo.html")
         == strings["xml"]
     )

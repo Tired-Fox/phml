@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{url_for('static', filename='style.css')}">
+        <title>Debug</title>
+    </head>
+
+    <style>
+        #error-code {
+            color: #E94560;
+        }
+
+        .error {
+            border-top: 3rem solid #E94560;
+        }
+
+        #error {
+            width: 80%;
+            max-width: 80rem;
+            height: 70%;
+            overflow: auto;
+            background: #DCD7C9;
+            color: #282A3A;
+            border-radius: 1rem;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        }
+
+        #error-header {
+            width: 100%;
+            height: 3rem;
+        }
+
+        #error-message {
+            width: 100%;
+            height: auto;
+            padding: 2rem;
+            font-size: 1.25rem;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #282A3A;
+        }
+
+        ul {
+            list-style: none;
+        }
+    </style>
+
+    <body>
+        <div id="error" class:list={{'error': error_type == 'error', 'warn': error_type == 'warn', 'info': error_type == 'info'}/}>
+            <div id="error-message">
+                <p class="mb-2 text-center">
+                    <strong>
+                        This tests a context manager that redirects to an error page and diplays the stacktrace
+                    </strong>
+                </p>
+                <ul @if="not blank(tb)">
+                    <For each={ idx, message in enumerate(tb) /}>
+                        <li class={ 'ml-2' if idx not in [0, len(tb) - 1] else '' /}>{message}</li>
+                    </For>
+                </ul>
+            </div>
+        </div>
+    </body>
+
+</html>

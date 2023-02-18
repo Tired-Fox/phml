@@ -13,6 +13,7 @@ from .html_format import HTMLFormat
 from .json_format import JSONFormat
 from .phml_format import PHMLFormat
 from .xml_format import XMLFormat
+from .compile import replace_components, substitute_component, combine_component_elements, ASTRenderer
 
 
 @dataclass
