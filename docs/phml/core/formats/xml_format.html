@@ -161,7 +161,7 @@
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>        <span class="n">src</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ast</span><span class="p">)</span>
 </span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="c1"># 3. Search each element and find py-if, py-elif, py-else, and py-for</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="c1"># 3. Search each element and find @if, @elif, and @else</span>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="c1">#    - Execute those statements</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
 </span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="n">apply_conditions</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">VirtualPython</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -192,7 +192,7 @@
 </span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
 </span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="n">src</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ast</span><span class="p">)</span>
 </span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="c1"># 3. Search each element and find py-if, py-elif, py-else, and py-for</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="c1"># 3. Search each element and find @if, @elif, and @else</span>
 </span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="c1">#    - Execute those statements</span>
 </span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>
 </span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="n">apply_conditions</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">VirtualPython</span><span class="p">(),</span> <span class="n">components</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -258,7 +258,7 @@
 </span><span id="XMLFormat-88"><a href="#XMLFormat-88"><span class="linenos"> 88</span></a>
 </span><span id="XMLFormat-89"><a href="#XMLFormat-89"><span class="linenos"> 89</span></a>        <span class="n">src</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ast</span><span class="p">)</span>
 </span><span id="XMLFormat-90"><a href="#XMLFormat-90"><span class="linenos"> 90</span></a>
-</span><span id="XMLFormat-91"><a href="#XMLFormat-91"><span class="linenos"> 91</span></a>        <span class="c1"># 3. Search each element and find py-if, py-elif, py-else, and py-for</span>
+</span><span id="XMLFormat-91"><a href="#XMLFormat-91"><span class="linenos"> 91</span></a>        <span class="c1"># 3. Search each element and find @if, @elif, and @else</span>
 </span><span id="XMLFormat-92"><a href="#XMLFormat-92"><span class="linenos"> 92</span></a>        <span class="c1">#    - Execute those statements</span>
 </span><span id="XMLFormat-93"><a href="#XMLFormat-93"><span class="linenos"> 93</span></a>
 </span><span id="XMLFormat-94"><a href="#XMLFormat-94"><span class="linenos"> 94</span></a>        <span class="n">apply_conditions</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">VirtualPython</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -289,7 +289,7 @@
 </span><span id="XMLFormat-119"><a href="#XMLFormat-119"><span class="linenos">119</span></a>
 </span><span id="XMLFormat-120"><a href="#XMLFormat-120"><span class="linenos">120</span></a>        <span class="n">src</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ast</span><span class="p">)</span>
 </span><span id="XMLFormat-121"><a href="#XMLFormat-121"><span class="linenos">121</span></a>
-</span><span id="XMLFormat-122"><a href="#XMLFormat-122"><span class="linenos">122</span></a>        <span class="c1"># 3. Search each element and find py-if, py-elif, py-else, and py-for</span>
+</span><span id="XMLFormat-122"><a href="#XMLFormat-122"><span class="linenos">122</span></a>        <span class="c1"># 3. Search each element and find @if, @elif, and @else</span>
 </span><span id="XMLFormat-123"><a href="#XMLFormat-123"><span class="linenos">123</span></a>        <span class="c1">#    - Execute those statements</span>
 </span><span id="XMLFormat-124"><a href="#XMLFormat-124"><span class="linenos">124</span></a>
 </span><span id="XMLFormat-125"><a href="#XMLFormat-125"><span class="linenos">125</span></a>        <span class="n">apply_conditions</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">VirtualPython</span><span class="p">(),</span> <span class="n">components</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -400,7 +400,7 @@ extension.</p>
 </span><span id="XMLFormat.compile-88"><a href="#XMLFormat.compile-88"><span class="linenos"> 88</span></a>
 </span><span id="XMLFormat.compile-89"><a href="#XMLFormat.compile-89"><span class="linenos"> 89</span></a>        <span class="n">src</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ast</span><span class="p">)</span>
 </span><span id="XMLFormat.compile-90"><a href="#XMLFormat.compile-90"><span class="linenos"> 90</span></a>
-</span><span id="XMLFormat.compile-91"><a href="#XMLFormat.compile-91"><span class="linenos"> 91</span></a>        <span class="c1"># 3. Search each element and find py-if, py-elif, py-else, and py-for</span>
+</span><span id="XMLFormat.compile-91"><a href="#XMLFormat.compile-91"><span class="linenos"> 91</span></a>        <span class="c1"># 3. Search each element and find @if, @elif, and @else</span>
 </span><span id="XMLFormat.compile-92"><a href="#XMLFormat.compile-92"><span class="linenos"> 92</span></a>        <span class="c1">#    - Execute those statements</span>
 </span><span id="XMLFormat.compile-93"><a href="#XMLFormat.compile-93"><span class="linenos"> 93</span></a>
 </span><span id="XMLFormat.compile-94"><a href="#XMLFormat.compile-94"><span class="linenos"> 94</span></a>        <span class="n">apply_conditions</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">VirtualPython</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -450,7 +450,7 @@ extension.</p>
 </span><span id="XMLFormat.render-119"><a href="#XMLFormat.render-119"><span class="linenos">119</span></a>
 </span><span id="XMLFormat.render-120"><a href="#XMLFormat.render-120"><span class="linenos">120</span></a>        <span class="n">src</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ast</span><span class="p">)</span>
 </span><span id="XMLFormat.render-121"><a href="#XMLFormat.render-121"><span class="linenos">121</span></a>
-</span><span id="XMLFormat.render-122"><a href="#XMLFormat.render-122"><span class="linenos">122</span></a>        <span class="c1"># 3. Search each element and find py-if, py-elif, py-else, and py-for</span>
+</span><span id="XMLFormat.render-122"><a href="#XMLFormat.render-122"><span class="linenos">122</span></a>        <span class="c1"># 3. Search each element and find @if, @elif, and @else</span>
 </span><span id="XMLFormat.render-123"><a href="#XMLFormat.render-123"><span class="linenos">123</span></a>        <span class="c1">#    - Execute those statements</span>
 </span><span id="XMLFormat.render-124"><a href="#XMLFormat.render-124"><span class="linenos">124</span></a>
 </span><span id="XMLFormat.render-125"><a href="#XMLFormat.render-125"><span class="linenos">125</span></a>        <span class="n">apply_conditions</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">VirtualPython</span><span class="p">(),</span> <span class="n">components</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
