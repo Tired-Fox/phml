@@ -133,7 +133,7 @@ First import the core parser and compiler, `from phml import PHML`. Then you can
 
 ```python
 phml = PHML().load("path/to/file.phml")
-print(core.render())
+print(phml.render())
 ```
 
 There is method chaining so most if not all methods can be chained. The obvious exception being any method that returns a
@@ -141,11 +141,11 @@ value.
 
 By default `PHML.render()` will return the `html` string. If you want to get a `json` string you may pass `Formats.JSON`. `PHML.render(file_type=Formats.JSON)`.
 
-If you want to write to a file you can call `core.write("path/to/output/file.phml")`. Same with `render` it defaults to html. You can change this the same way as `render`. `core.write("path/to/otuput/file.json", file_type=Formats.JSON)`.
+If you want to write to a file you can call `phml.write("path/to/output/file.phml")`. Same with `render` it defaults to html. You can change this the same way as `render`. `core.write("path/to/otuput/file.json", file_type=Formats.JSON)`.
 
-For both `render` and `write` you will first need to call `core.load("path/to/source/file.phml")`. This parses the source file and stores the ast in the parser. `render` and `write` then use that ast to create the desired output. Optionally if you already have a phml or html string or a properly formatted dict you can call `core.parse(data)` which will parse that information similar to `load`.
+For both `render` and `write` you will first need to call `phml.load("path/to/source/file.phml")`. This parses the source file and stores the ast in the parser. `render` and `write` then use that ast to create the desired output. Optionally if you already have a phml or html string or a properly formatted dict you can call `core.parse(data)` which will parse that information similar to `load`.
 
-Every time `core.parse` or `core.load` is called it will overwrite the stored ast variable.
+Every time `phml.parse` or `phml.load` is called it will overwrite the stored ast variable.
 
 There are many for features such as globally exposed variables or the ability to add nested scopes for importing
 objects inside of a phml document.
