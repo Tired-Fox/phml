@@ -1,7 +1,7 @@
 """Pythonic Hypertext Markup Language (phml) parser."""
 from dataclasses import dataclass
 import re
-from teddecor import TED
+from saimll import SAIML
 
 from phml.core.nodes import (
     AST,
@@ -252,7 +252,7 @@ class HypertextMarkupParser:
             name = tag_name if tag_name != '' else "[@Fred]NAME[@F]"
             close = "?" if closing == Specifier.ProcProfile else "[@Fred]?[@F]"
             raise Exception(
-                TED.parse(f"Invalid Processor Profile{position}: *<?{name}[@F]{attrs}{close}>")
+                SAIML.parse(f"Invalid Processor Profile{position}: *<?{name}[@F]{attrs}{close}>")
             )
 
         if tag_type == Specifier.Decleration and tag_name == "":
@@ -261,7 +261,7 @@ class HypertextMarkupParser:
             )
             attrs = ' ' + tag_attrs if tag_attrs is not None else ''
             name = tag_name if tag_name != '' else "[@Fred]NAME[@F]"
-            raise Exception(TED.parse(f"Invalid Decleration {position}: *<!{tag_name}{attrs}>"))
+            raise Exception(SAIML.parse(f"Invalid Decleration {position}: *<!{tag_name}{attrs}>"))
 
         if closing == Specifier.Open and tag_name in self_closing_tags and auto_close:
             closing = Specifier.of("/")

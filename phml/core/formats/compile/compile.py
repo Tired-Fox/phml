@@ -7,7 +7,7 @@ from re import match, search, sub
 from traceback import print_exc
 from typing import Optional
 
-from teddecor import TED
+from saimll import SAIML
 
 from phml.core.nodes import AST, NODE, DocType, Element, Root
 from phml.core.virtual_python import VirtualPython, get_python_result, process_python_blocks
@@ -476,7 +476,7 @@ for {for_loop}:
             local_env,
         )
     except Exception:  # pylint: disable=broad-except
-        TED.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
+        SAIML.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
 [@Fblue]@for[@]=[@Fgreen]'[@]{expression}[@Fgreen]'[@]")
         print_exc()
 

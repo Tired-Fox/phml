@@ -185,10 +185,10 @@ def get_python_result(expr: str, **kwargs) -> Any:
         exec(source, global_env, local_env)  # pylint: disable=exec-used
         return local_env[result] if result in local_env else None
     except Exception as exception:  # pylint: disable=broad-except
-        from teddecor import TED  # pylint: disable=import-outside-toplevel
+        from saimll import SAIML  # pylint: disable=import-outside-toplevel
 
         # print_exc()
-        TED.print(f"[@F red]*Error[]: [$]{exception}: {expr}")
+        SAIML.print(f"[@F red]*Error[]: [$]{exception}: {expr}")
 
         return False
 

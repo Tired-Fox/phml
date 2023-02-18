@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from re import match, sub
 from traceback import print_exc
-from teddecor import TED
+from saimll import SAIML
 from phml.core.nodes import Root, Element, AST, Text, NODE
 from phml.core.virtual_python import VirtualPython, process_python_blocks, get_python_result
 from phml.utilities import find, offset, normalize_indent, query, replace_node, check
@@ -450,7 +450,7 @@ for {for_loop}:
             local_env,
         )
     except Exception as exception:  # pylint: disable=broad-except
-        TED.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
+        SAIML.print(f"\\[[@Fred]*Error[@]\\] Failed to execute loop expression \
 [@Fblue]@for[@]=[@Fgreen]'[@]{expression}[@Fgreen]'[@]")
         print_exc()
 
