@@ -5,7 +5,7 @@ from re import match, sub
 from traceback import print_exc
 
 from saimll import SAIML
-from markdown2 import markdown
+from markdown import Markdown
 
 from phml.core.nodes import Root, Element, Text
 from phml.core.virtual_python import VirtualPython, get_python_result
@@ -13,7 +13,7 @@ from phml.utilities import (
     visit_children,
     check,
     replace_node,
-    sanatize
+    # sanatize
 )
 
 __all__ = [
@@ -27,6 +27,8 @@ EXTRAS = [
     "footnotes",
     "strike",
 ]
+
+MARKDOWN = Markdown(extensions=["codehilite", "tables", "fenced_code"])
 
 def process_loops(node: Root | Element, virtual_python: VirtualPython, **kwargs):
     """Expands all `<For />` tags giving their children context for each iteration."""
@@ -47,19 +49,20 @@ def process_loops(node: Root | Element, virtual_python: VirtualPython, **kwargs)
             replace_node(node, loop, None)
 
 def process_markdown(node: Root | Element, virtual_python: VirtualPython, **kwargs):
-    """Replace the `<Markdown />` element with it's `src` attributes parsed markdown string."""
+    """Replace the `<Markdown />` element with it's `src` attributes parsed markdown
+    string."""
 
     from phml import PHML
 
     md_elems: list[Element] = [
-        loop 
-        for loop in visit_children(node) 
+        loop
+        for loop in visit_children(node)
         if check(loop, {"tag": "Markdown"})
     ]
 
     kwargs.update(virtual_python.context)
     context = build_locals(node, **kwargs)
-    
+
     # Don't escape the html values from context for html tags in markdown strings
     kwargs["safe_vars"] = True
 
@@ -70,10 +73,10 @@ def process_markdown(node: Root | Element, virtual_python: VirtualPython, **kwar
             else:
                 src = str(elem["src"])
 
-            html = markdown(src, extras=EXTRAS)
+            html = MARKDOWN.reset().convert(src)
             replace_node(node, elem, PHML().parse(html).ast.tree.children)
         elif not elem.startend and len(elem.children) == 1 and isinstance(elem.children[0], Text):
-            html = markdown(elem.children[0].normalized(), extras=EXTRAS)
+            html = MARKDOWN.reset().convert(elem.children[0].normalized())
             replace_node(node, elem, PHML().parse(html).ast.tree.children)
         else:
             replace_node(node, elem, None)
@@ -123,7 +126,8 @@ def build_locals(child, **kwargs) -> dict:
         if parent.type == "element":
             clocals.update(parent.context)
 
-    clocals.update(child.context)
+    if hasattr(child, "context"):
+        clocals.update(child.context)
     return clocals
 
 def run_phml_for(node: Element, **kwargs) -> list:

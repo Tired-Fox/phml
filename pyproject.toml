@@ -15,7 +15,11 @@ classifiers = [
 
 ]
 requires-python = ">=3.10"
-dependencies = ["saimll>=0.3.0", "defusedxml", "markdown2"]
+dependencies = [
+    "saimll>=0.3.0",
+    "defusedxml",
+    "markdown"
+]
 
 [project.optional-dependencies]
 tests = [
