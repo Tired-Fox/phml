@@ -6,10 +6,10 @@
     <!-- Comment Example -->
     <h1>Hello World</h1>
     <input
-      type="email"
+      type='email'
       class="email-input"
-      id="email-input"
-      name="email"
+      id=email-input
+      open
     >
   </body>
 </html>
