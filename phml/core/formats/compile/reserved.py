@@ -67,40 +67,101 @@ def process_markdown(node: Root | Element, virtual_python: VirtualPython, **kwar
     kwargs["safe_vars"] = True
 
     for elem in md_elems:
-        if elem.startend and ":src" in elem or "src" in elem:
+        markdown = MARKDOWN
+        rendered_html = []
+
+        # If extras are provided then add them as extensions. Don't allow configs
+        # and only allow extensions built into the markdown package.
+        if "extra" in elem:
+            markdown = deepcopy(MARKDOWN)
+            markdown.registerExtensions(
+                [
+                    extra.strip()
+                    for extra in elem["extra"].split(" ")
+                    if extra.strip() != ""
+                ],
+                {}
+            )
+        elif ":extra" in elem:
+            extra_list = get_python_result(elem[":extra"], **context)
+            if not isinstance(extra_list, list):
+                raise TypeError("Expected extra's to be a list of strings")
+            markdown = deepcopy(MARKDOWN)
+            markdown.registerExtensions(extra_list, {})
+
+        # Append the rendered markdown from the children, src, and referenced
+        # file in that order
+        if (
+            not elem.startend
+            and len(elem.children) == 1
+            and isinstance(elem.children[0], Text)
+        ):
+            html = markdown.reset().convert(elem.children[0].normalized())
+            rendered_html.append(html)
+
+        if ":src" in elem or "src" in elem:
             if ":src" in elem:
-                src = str(get_python_result(elem[":src"], **context))
+                src = str(
+                    get_python_result(
+                        elem[":src"],
+                        **context
+                    )
+                )
             else:
-                src = str(elem["src"])
+                src = elem["src"]
+            html = markdown.reset().convert(src)
+            rendered_html.append(html)
 
-            html = MARKDOWN.reset().convert(src)
-            replace_node(node, elem, PHML().parse(html).ast.tree.children)
-        elif not elem.startend and len(elem.children) == 1 and isinstance(elem.children[0], Text):
-            html = MARKDOWN.reset().convert(elem.children[0].normalized())
-            replace_node(node, elem, PHML().parse(html).ast.tree.children)
+        if "file" in elem:
+            with open(elem["file"], "r", encoding="utf-8") as md_file:
+                html = markdown.reset().convert(md_file.read())
+
+            rendered_html.append(html)
+
+        # Replace node with rendered nodes of the markdown. Remove node if no
+        # markdown was provided
+        if len(rendered_html) > 0:
+            replace_node(
+                node,
+                elem,
+                PHML().parse('\n'.join(rendered_html)).ast.tree.children
+            )
         else:
-            replace_node(node, elem, None)
+            replace_node(
+                node,
+                elem,
+                None
+            )
 
-def process_html(node: Root | Element, virtual_python: VirtualPython, **kwargs):
-    """Replace the `<HTML />` element with it's `src` attributes html string."""
+
+def process_html(
+    node: Root | Element,
+    virtual_python: VirtualPython,
+    **kwargs
+):
+    """Replace the `<HTML />` element with it's `src` attributes html string.
+    """
 
     from phml import PHML
 
-    md_elems: list[Element] = [
-        loop 
-        for loop in visit_children(node)
-        if check(loop, {"tag": "HTML"})
+    html_elems: list[Element] = [
+        elem 
+        for elem in visit_children(node)
+        if check(elem, {"tag": "HTML"})
     ]
 
     kwargs.update(virtual_python.context)
     context = build_locals(node, **kwargs)
-    
+
     # Don't escape the html values from context
     kwargs["safe_vars"] = True
 
-    for elem in md_elems:
+    for elem in html_elems:
         if not elem.startend:
-            raise Exception(f"<HTML /> elements are not allowed to have children elements: {elem.position}")
+            raise TypeError(
+                f"<HTML /> elements are not allowed to have children \
+elements: {elem.position}"
+            )
 
         if ":src" in elem or "src" in elem:
             if ":src" in elem:
@@ -109,9 +170,13 @@ def process_html(node: Root | Element, virtual_python: VirtualPython, **kwargs):
                 src = str(elem["src"])
 
             ast = PHML().parse(src).ast
+            print(ast.tree)
             # sanatize(ast)
 
             replace_node(node, elem, ast.tree.children)
+        else:
+            print("REMOVING HTML NODE")
+            replace_node(node, elem, None)
 
 def build_locals(child, **kwargs) -> dict:
     """Build a dictionary of local variables from a nodes inherited locals and
@@ -155,7 +220,7 @@ def run_phml_for(node: Element, **kwargs) -> list:
         ).split(",")
     ]
 
-    source = items.group(3)
+    items.group(3)
 
     # Formatter for key value pairs
     key_value = "\"{key}\": {key}"

@@ -32,17 +32,27 @@ tests = [
 
 [project.scripts]
 
-[tool.black]
-line-length = 100
-target-version = ["py37"]
-skip-string-normalization = true
-
-[tool.isort]
-profile = "black"
-line_length = 100
-
-[tool.mypy]
-ignore_missing_imports = true
-warn_unreachable = true
-no_implicit_optional = true
-show_error_codes = true
+[tool.ruff]
+extend-select = [
+    'E',
+    'F',
+    'W',
+    "C90",
+    "I",
+    "N",
+    "D",
+    "UP",
+    "ANN",
+    "S",
+    "A",
+    "B",
+    "COM",
+    "C4",
+    "Q",
+    "RET",
+    "SIM",
+    "TCH",
+    "PTH",
+    "PLE",
+    "RUF"
+]

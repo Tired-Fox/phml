@@ -1,6 +1,7 @@
 from typing import Optional
 
 from phml.core.nodes import AST, NODE
+from phml.types.config import Config
 
 
 class Format:
@@ -39,6 +40,7 @@ class Format:
     def compile(
         cls,
         ast: AST,
+        config: Config,
         components: Optional[dict[str, dict[str, list | NODE]]] = None,
         **kwargs,
     ) -> AST:
@@ -50,6 +52,7 @@ does not support compiling and returning a phml ast.")
     def render(
         cls,
         ast: AST,
+        config: Config,
         components: Optional[dict[str, dict[str, list | NODE]]] = None,
         indent: int = 0,
         **kwargs,

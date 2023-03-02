@@ -1,21 +1,19 @@
 from io import TextIOWrapper
 from pathlib import Path
 from typing import Any, Optional
+from phml.core.defaults.config import EnableDefault
 
 from phml.core.formats import Format, Formats
 from phml.core.nodes import AST, NODE
 from phml.utilities import cmpt_name_from_path, parse_component
 
+from phml.types import Component, Components, PathLike
+from phml.types.config import EnableKeys
+
 from .compiler import Compiler
 from .parser import Parser
 
 __all__ = ["PHML"]
-
-
-PathLike = str | Path
-CompiledComponent =  dict[str, list | NODE] | AST | PathLike
-Component = dict[str, CompiledComponent] | tuple[str, CompiledComponent] | list[PathLike] | PathLike
-
 
 class PHML:
     """A helper class that bundles the functionality
@@ -40,12 +38,14 @@ class PHML:
 
     def __init__(
         self,
-        scopes: Optional[list[str]] = None,
-        components: Optional[dict[str, dict[str, list | NODE]]] = None,
+        *,
+        scopes: list[str] | None = None,
+        components: Components | None = None,
+        enable: dict[EnableKeys, bool] = EnableDefault,
         **contexts: Any,
     ):
         self._parser = Parser()
-        self._compiler = Compiler(components=components)
+        self._compiler = Compiler(components=components, enable=enable)
         self._scopes = scopes or []
         self._context = dict(contexts)
 

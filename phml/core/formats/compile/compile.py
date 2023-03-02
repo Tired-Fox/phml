@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 from re import match, search, sub
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from pyparsing import Any
 
 from phml.core.nodes import AST, NODE, DocType, Element, Root, Text
-from phml.core.virtual_python import VirtualPython, get_python_result, process_python_blocks
+from phml.core.virtual_python import (
+    VirtualPython,
+    get_python_result,
+    process_python_blocks
+)
+from phml.types.config import ConfigEnable
 from phml.utilities import (
     check,
     find_all,
@@ -18,6 +23,9 @@ from phml.utilities import (
 )
 
 from .reserved import RESERVED
+
+if TYPE_CHECKING:
+    from phml.types.config import Config
 
 # ? Change prefix char for `if`, `elif`, and `else` here
 CONDITION_PREFIX = "@"
@@ -48,7 +56,14 @@ valid_prev = {
     ],
 }
 
-EXTRAS = ["fenced-code-blocks", "cuddled-lists", "footnotes", "header-ids", "strike"]
+EXTRAS = [
+    "fenced-code-blocks",
+    "cuddled-lists",
+    "footnotes",
+    "header-ids",
+    "strike"
+]
+
 
 def process_reserved_attrs(prop: str, value: Any) -> tuple[str, Any]:
     """Based on the props name, process/translate the props value."""
@@ -59,7 +74,12 @@ def process_reserved_attrs(prop: str, value: Any) -> tuple[str, Any]:
 
     return prop, value
 
-def process_props(child: Element, virtual_python: VirtualPython, local_vars: dict) -> dict:
+
+def process_props(
+    child: Element,
+    virtual_python: VirtualPython,
+    local_vars: dict
+) -> dict:
     """Process props inline python and reserved value translations."""
 
     new_props = {}
@@ -69,32 +89,38 @@ def process_props(child: Element, virtual_python: VirtualPython, local_vars: dic
             local_env = {**virtual_python.context}
             local_env.update(local_vars)
 
-            value = get_python_result(
-                child[prop], **local_env
-            )
+            value = get_python_result(child[prop], **local_env)
 
             prop = prop.lstrip(ATTR_PREFIX)
             name, value = process_reserved_attrs(prop, value)
 
             new_props[name] = value
         elif match(r".*\{.*\}.*", str(child[prop])) is not None:
-            new_props[prop] = process_python_blocks(child[prop], virtual_python, **local_vars)
+            new_props[prop] = process_python_blocks(
+                child[prop],
+                virtual_python,
+                **local_vars
+            )
         else:
             new_props[prop] = child[prop]
     return new_props
 
+
 def apply_conditions(
     node: Root | Element | AST,
+    config: Config,
     virtual_python: VirtualPython,
     components: dict,
-    **kwargs
+    **kwargs,
 ):
     """Applys all `py-if`, `py-elif`, and `py-else` to the node
     recursively.
 
     Args:
-        node (Root | Element): The node to recursively apply `py-` attributes too.
-        virtual_python (VirtualPython): All of the data from the python elements.
+        node (Root | Element): The node to recursively apply `py-` attributes
+            too.
+        virtual_python (VirtualPython): All of the data from the python
+            elements.
     """
     from .component import replace_components
 
@@ -102,26 +128,50 @@ def apply_conditions(
         node = node.tree
 
     process_conditions(node, virtual_python, **kwargs)
-    process_reserved_elements(node, virtual_python, **kwargs)
+    process_reserved_elements(
+        node,
+        virtual_python,
+        config["enabled"],
+        **kwargs
+    )
     replace_components(node, components, virtual_python, **kwargs)
 
     for child in node.children:
         if isinstance(child, (Root, Element)):
-            apply_conditions(child, virtual_python, components, **kwargs)
+            apply_conditions(
+                child,
+                config,
+                virtual_python,
+                components,
+                **kwargs
+            )
 
-def process_reserved_elements(node: Root | Element, virtual_python: VirtualPython, **kwargs):
+
+def process_reserved_elements(
+    node: Root | Element,
+    virtual_python: VirtualPython,
+    enabled: ConfigEnable,
+    **kwargs
+):
     """Process all reserved elements and replace them with the results."""
-
     tags = [n.tag for n in visit_children(node) if check(n, "element")]
     reserved_found = False
-    
-    for key,value in RESERVED.items():
+
+    for key, value in RESERVED.items():
         if key in tags:
-            value(node, virtual_python, **kwargs)
-            reserved_found = True
+            if key.lower() in enabled and enabled[key.lower()]:
+                value(node, virtual_python, **kwargs)
+                reserved_found = True
+            else:
+                node.children = [
+                    child
+                    for child in node.children
+                    if not check(child, {"tag": key})
+                ]
 
     if reserved_found:
         process_conditions(node, virtual_python, **kwargs)
+
 
 def apply_python(
     current: Root | Element | AST,
@@ -143,7 +193,10 @@ def apply_python(
 
         for child in node.children:
             if isinstance(child, Element):
-                if "children" in child.context.keys() and len(child.context["children"]) > 0:
+                if (
+                    "children" in child.context.keys()
+                    and len(child.context["children"]) > 0
+                ):
                     replace_node(
                         child,
                         ["element", {"tag": "slot"}],
@@ -153,7 +206,11 @@ def apply_python(
                 local_vars = {**local_env}
                 local_vars.update(child.context)
 
-                child.properties = process_props(child, virtual_python, local_vars)
+                child.properties = process_props(
+                    child,
+                    virtual_python,
+                    local_vars
+                )
                 process_children(child, {**local_vars})
             elif (
                 isinstance(child, Text)
@@ -161,7 +218,11 @@ def apply_python(
                 and child.parent.tag not in ["script", "style"]
                 and "code" not in path_names(child)
             ):
-                child.value = process_python_blocks(child.value, virtual_python, **local_env)
+                child.value = process_python_blocks(
+                    child.value,
+                    virtual_python,
+                    **local_env
+                )
 
     process_children(current, {**kwargs})
 
@@ -181,14 +242,15 @@ def py_condition(node: Element) -> bool:
     ]
     if len(conditions) > 1:
         raise Exception(
-            f"There can only be one python condition statement at a time:\n{repr(node)}"
+            f"There can only be one python condition statement at a \
+time:\n{repr(node)}"
         )
     return conditions[0] if len(conditions) == 1 else None
 
 
 def __validate_previous_condition(child: Element) -> Optional[Element]:
     idx = child.parent.children.index(child)
-    
+
     def get_previous_condition(idx: int):
         """Get the last conditional element allowing for comments and text"""
         previous = None
@@ -199,10 +261,12 @@ def __validate_previous_condition(child: Element) -> Optional[Element]:
                     previous = parent.children[i]
                 break
         return previous
-    
+
     previous = get_previous_condition(idx)
     prev_cond = (
-        py_condition(previous) if previous is not None and isinstance(previous, Element) else None
+        py_condition(previous) 
+        if previous is not None and isinstance(previous, Element)
+        else None
     )
 
     if prev_cond is None or prev_cond not in [
@@ -217,12 +281,17 @@ def __validate_previous_condition(child: Element) -> Optional[Element]:
     return previous, prev_cond
 
 
-def process_conditions(tree: Root | Element, virtual_python: VirtualPython, **kwargs):
+def process_conditions(
+    tree: Root | Element,
+    virtual_python: VirtualPython,
+    **kwargs
+):
     """Process all python condition attributes in the phml tree.
 
     Args:
         tree (Root | Element): The tree to process conditions on.
-        virtual_python (VirtualPython): The collection of information from the python blocks.
+        virtual_python (VirtualPython): The collection of information from the
+            python blocks.
     """
     conditional_elements = []
     for child in visit_children(tree):
@@ -251,13 +320,15 @@ def execute_conditions(
     virtual_python: VirtualPython,
     **kwargs,
 ) -> list:
-    """Execute all the conditions. If the condition is a `for` then generate more nodes.
-    All other conditions determine if the node stays or is removed.
+    """Execute all the conditions. If the condition is a `for` then generate
+    more nodes. All other conditions determine if the node stays or is removed.
 
     Args:
-        cond (list[tuple]): The list of conditions to apply. Holds tuples of (condition, node).
+        cond (list[tuple]): The list of conditions to apply. Holds tuples of
+            (condition, node).
         children (list): List of current nodes children.
-        virtual_python (VirtualPython): The collection of information from the python blocks.
+        virtual_python (VirtualPython): The collection of information from the
+            python blocks.
 
     Raises:
         Exception: An unkown conditional attribute is being parsed.
@@ -343,7 +414,10 @@ def run_phml_if(child: Element, condition: str, children: list, **kwargs):
 
     clocals = build_locals(child, **kwargs)
 
-    result = get_python_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
+    result = get_python_result(
+        sub(r"\{|\}", "", child[condition].strip()),
+        **clocals
+    )
 
     if result:
         del child[condition]
@@ -365,9 +439,15 @@ def run_phml_elif(
 
     clocals = build_locals(child, **kwargs)
 
-    if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
+    if (
+        variables["previous"][0] in variables["valid_prev"][condition]
+        and variables["first_cond"]
+    ):
         if not variables["previous"][1]:
-            result = get_python_result(sub(r"\{|\}", "", child[condition].strip()), **clocals)
+            result = get_python_result(
+                sub(r"\{|\}", "", child[condition].strip()),
+                **clocals
+            )
             if result:
                 del child[condition]
                 return (f"{CONDITION_PREFIX}elif", True)
@@ -376,10 +456,18 @@ def run_phml_elif(
     return variables["previous"]
 
 
-def run_phml_else(child: Element, children: list, condition: str, variables: dict):
+def run_phml_else(
+    child: Element,
+    children: list,
+    condition: str,
+    variables: dict
+):
     """Run the logic for manipulating the children on a `else` condition."""
 
-    if variables["previous"][0] in variables["valid_prev"][condition] and variables["first_cond"]:
+    if (
+        variables["previous"][0] in variables["valid_prev"][condition]
+        and variables["first_cond"]
+    ):
         if not variables["previous"][1]:
             del child[condition]
             return (f"{CONDITION_PREFIX}else", True)
@@ -388,8 +476,11 @@ def run_phml_else(child: Element, children: list, condition: str, variables: dic
     children.remove(child)
     return (f"{CONDITION_PREFIX}else", False)
 
+
 class ASTRenderer:
-    """Compiles an ast to a hypertext markup language. Compiles to a tag based string."""
+    """Compiles an ast to a hypertext markup language. Compiles to a tag based
+    string.
+    """
 
     def __init__(self, ast: Optional[AST] = None, _offset: int = 4):
         self.ast = ast
@@ -406,20 +497,28 @@ class ASTRenderer:
         Args:
             ast (AST): The phml ast to compile.
             offset (int | None): The amount to offset for each nested element
-            include_doctype (bool): Whether to validate for doctype and auto insert if it is
-            missing.
+            include_doctype (bool): Whether to validate for doctype and auto
+                insert if it is missing.
         """
 
         ast = ast or self.ast
         if ast is None:
-            raise Exception("Converting to a file format requires that an ast is provided")
+            raise ValueError(
+                "Converting to a file format requires that an ast is provided"
+            )
 
         if include_doctype:
             # Validate doctypes
             doctypes = find_all(ast.tree, "doctype")
 
-            if any(dt.parent is None or dt.parent.type != "root" for dt in doctypes):
-                raise Exception("Doctypes must be in the root of the file/tree")
+            if any(
+                dt.parent is None
+                or dt.parent.type != "root"
+                for dt in doctypes
+            ):
+                raise ValueError(
+                    "Doctypes must be in the root of the file/tree"
+                )
 
             if len(doctypes) == 0:
                 ast.tree.children.insert(0, DocType(parent=ast.tree))
@@ -433,7 +532,9 @@ class ASTRenderer:
             [
                 " " * indent + node.start_tag(),
                 node.children[0].stringify(
-                    indent + self.offset if node.children[0].num_lines > 1 else 0
+                    indent + self.offset
+                    if node.children[0].num_lines > 1
+                    else 0
                 ),
                 node.end_tag(),
             ]
@@ -446,7 +547,15 @@ class ASTRenderer:
                 if child.tag == "pre" or "pre" in path_names(child):
                     lines.append(''.join(self.__compile_children(child, 0)))
                 else:
-                    lines.extend([line for line in self.__compile_children(child, indent + self.offset) if line != ""])
+                    lines.extend(
+                        [
+                            line
+                            for line in self.__compile_children(
+                                child, indent + self.offset
+                            )
+                            if line != ""
+                        ]
+                    )
             else:
                 lines.append(child.stringify(indent + self.offset))
         return lines

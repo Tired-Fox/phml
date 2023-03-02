@@ -26,7 +26,7 @@ def debug(error=500):
     global internal_error_tb
     try:
         yield None
-    except Exception as exception:
+    except Exception:
         internal_error_tb = [line for line in str(format_exc()).split("\n") if line.strip() != ""]
         abort(error)
 

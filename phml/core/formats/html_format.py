@@ -9,6 +9,8 @@ from .compile import ASTRenderer, apply_conditions, apply_python
 from .format import Format
 from .parse import parse_hypertest_markup
 
+from phml.types.config import Config
+
 
 def parse_markup(data: str, class_name: str, auto_close: bool = True) -> AST:
     """Parse a string as a markup document."""
@@ -28,6 +30,7 @@ class HTMLFormat(Format):
     def compile(
         cls,
         ast: AST,
+        config: Config,
         components: Optional[dict[str, dict[str, list | NODE]]] = None,
         **kwargs,
     ) -> AST:
@@ -41,9 +44,13 @@ class HTMLFormat(Format):
         virtual_python = VirtualPython()
 
         for python_block in find_all(src, {"tag": "python"}):
-            if len(python_block.children) == 1:
-                if python_block.children[0].type == "text":
-                    virtual_python += VirtualPython(python_block.children[0].normalized())
+            if (
+                len(python_block.children) == 1
+                and python_block.children[0].type == "text"
+            ):
+                virtual_python += VirtualPython(
+                    python_block.children[0].normalized()
+                )
 
         remove_nodes(src, ["element", {"tag": "python"}])
 
@@ -53,15 +60,18 @@ class HTMLFormat(Format):
         # 3. Search each element and find @if, @elif, and @else
         #    - Execute those statements
 
-        apply_conditions(src, virtual_python, components, **kwargs)
+        apply_conditions(src, config, virtual_python, components, **kwargs)
 
         for python_block in find_all(src, {"tag": "python"}):
-            if len(python_block.children) == 1:
-                if python_block.children[0].type == "text":
-                    virtual_python += VirtualPython(python_block.children[0].normalized())
+            if (
+                len(python_block.children) == 1
+                and python_block.children[0].type == "text"
+            ):
+                virtual_python += VirtualPython(
+                    python_block.children[0].normalized()
+                )
 
         remove_nodes(src, ["element", {"tag": "python"}])
-
 
         # 4. Search for python blocks and process them.
 
@@ -74,6 +84,7 @@ class HTMLFormat(Format):
     def render(
         cls,
         ast: AST,
+        config: Config,
         components: Optional[dict[str, dict[str, list | NODE]]] = None,
         indent: int = 4,
         **kwargs,
@@ -99,7 +110,7 @@ class HTMLFormat(Format):
         # 3. Search each element and find @if, @elif, and @else
         #    - Execute those statements
 
-        apply_conditions(src, virtual_python, components, **kwargs)
+        apply_conditions(src, config, virtual_python, components, **kwargs)
 
         for python_block in find_all(src, {"tag": "python"}):
             if len(python_block.children) == 1:
@@ -107,7 +118,6 @@ class HTMLFormat(Format):
                     virtual_python += VirtualPython(python_block.children[0].normalized())
 
         remove_nodes(src, ["element", {"tag": "python"}])
-
 
         # 4. Search for python blocks and process them.
 

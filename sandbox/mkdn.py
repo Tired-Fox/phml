@@ -1,15 +1,16 @@
 from phml import PHML
 
-phml = PHML()
+phml = PHML(enable={"markdown": True})
 
-text = """\
-<Markdown src="
-# Code highlighting
+# text = """\
+# <Markdown src="
+# # Code highlighting
 
-```python
-print('hello world')
-```
-" />\
-"""
+# ```python
+# print('hello world')
+# ```
+# " />\
+# """
 
-print(phml.parse(text).render())
+# print(phml.parse("<p>{{source}}</p>").render(source="Hello World!"))
+print(phml.load("test.phml").render())

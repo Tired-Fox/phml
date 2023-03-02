@@ -124,22 +124,7 @@ This language also has the ability to convert back to html and json with convert
 """
 # pylint: enable=line-too-long
 
-from pathlib import Path
-from typing import Callable, Optional
 
-from .core import (
-    AST,
-    PHML,
-    NODE,
-    Compiler,
-    Format,
-    Formats,
-    Parser,
-    ASTRenderer,
-    replace_components,
-    substitute_component,
-    combine_component_elements
-)
 from .utilities import *
 
 __version__ = "2.0.0"

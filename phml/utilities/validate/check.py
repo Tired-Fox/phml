@@ -72,7 +72,7 @@ def check(
             isinstance(node, Element)
             and all(
                 (hasattr(node, key) and value == getattr(node, key))
-                or (hasattr(node, "properties") and key in node.properties and (value == True or value == node[key]))
+                or (hasattr(node, "properties") and key in node.properties and (value is True or value == node[key]))
                 for key, value in _test.items()
             )
         )

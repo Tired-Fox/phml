@@ -236,7 +236,7 @@ def process_context(name, value, kwargs: dict | None = None):
     if "Props" in local_virtual_python.context:
         if not isinstance(local_virtual_python.context["Props"], dict):
             raise Exception(
-                f"Props must be a dict was "
+                "Props must be a dict was "
                 + f"{type(local_virtual_python.context['Props']).__name__}: <{name} />"
             )
 
