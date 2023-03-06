@@ -107,7 +107,7 @@ class Point:
         return f"point(line: {self.line}, column: {self.column}, offset: {self.offset})"
 
     def __str__(self) -> str:
-        return f"{self.line}:{self.column}"
+        return f"\x1b[38;5;244m{self.line}:{self.column}\x1b[39m"
 
 
 class Position:
@@ -163,7 +163,9 @@ class Position:
         )
 
         if indent is not None and indent < 0:
-            raise IndexError(f"Position.indent value must be >= 0 or None but was {indent}")
+            raise IndexError(
+                f"Position.indent value must be >= 0 or None but was {indent}"
+            )
 
         self.indent = indent
 
@@ -183,13 +185,17 @@ class Position:
                 "column": self.start.column,
                 "offset": self.start.offset,
             },
-            "end": {"line": self.end.line, "column": self.end.column, "offset": self.end.offset},
+            "end": {
+                "line": self.end.line,
+                "column": self.end.column,
+                "offset": self.end.offset,
+            },
             "indent": self.indent,
         }
 
     def __repr__(self) -> str:
         indent = f" ~ {self.indent}" if self.indent is not None else ""
-        return f"<{self.start}-{self.end}{indent}>"
+        return f"\x1b[38;5;8m<\x1b[39m{self.start}\x1b[38;5;8m-\x1b[39m{self.end}{indent}\x1b[38;5;8m>\x1b[39m"
 
     def __str__(self) -> str:
         return repr(self)
@@ -228,7 +234,9 @@ class Parent(Node):  # pylint: disable=too-few-public-methods
     Its content is limited to only other hast content.
     """
 
-    def __init__(self, position: Optional[Position] = None, children: Optional[list] = None):
+    def __init__(
+        self, position: Optional[Position] = None, children: Optional[list] = None
+    ):
         super().__init__(position)
 
         if children is not None:
@@ -236,9 +244,9 @@ class Parent(Node):  # pylint: disable=too-few-public-methods
                 if hasattr(child, "type") and child.type in [
                     "element",
                     "text",
+                    "comment",
                     "doctype",
                     "root",
-                    "comment",
                 ]:
                     child.parent = self
 
@@ -284,7 +292,10 @@ class Root(Parent):
             obj is not None
             and isinstance(obj, Root)
             and len(self.children) == len(obj.children)
-            and all(child == obj_child for child, obj_child in zip(self.children, obj.children))
+            and all(
+                child == obj_child
+                for child, obj_child in zip(self.children, obj.children)
+            )
         )
 
     def __repr__(self) -> str:
@@ -369,7 +380,10 @@ class Element(Parent):
             and self.startend == obj.startend
             and self.properties == obj.properties
             and len(self.children) == len(obj.children)
-            and all(child == obj_child for child, obj_child in zip(self.children, obj.children))
+            and all(
+                child == obj_child
+                for child, obj_child in zip(self.children, obj.children)
+            )
         )
 
     def get(self, attr: str, _default: Any = None) -> str | bool | Any | None:
@@ -381,7 +395,7 @@ class Element(Parent):
         else:
             return _default
 
-    def start_tag(self) -> str:
+    def start_tag(self, indent: int = 4) -> str:
         """Builds the open/start tag for the element.
 
         Note:
@@ -399,16 +413,20 @@ class Element(Parent):
                     attributes.append(prop)
             else:
                 attributes.append(f'{prop}="{self[prop]}"')
-        if len(attributes) > 0:
-            attributes = " " + " ".join(attributes)
-        else:
-            attributes = ""
 
         closing = f"{'/' if self.startend else ''}>"
 
-        if closing == "/>" and attributes != "":
-            return opening + attributes + " " + closing
-        return opening + attributes + closing
+        if len(attributes) <= 1:
+            return (
+                [f"{opening}{closing}"]
+                if len(attributes) == 0
+                else [f"{opening} {attributes[0]}{closing}"]
+            )
+        return [
+            opening,
+            *[f"{' ' * indent}{attr}" for attr in attributes],
+            closing,
+        ]
 
     def end_tag(self) -> str:
         """Build the elements end tag.
@@ -427,14 +445,18 @@ startend: {self.startend}, children: {len(self.children)})"
 class PI(Node):
     """A processing instruction node. Mainly used for XML."""
 
-    def __init__(self, tag: str, properties: dict, position: Optional[Position] = None) -> None:
+    def __init__(
+        self, tag: str, properties: dict, position: Optional[Position] = None
+    ) -> None:
         super().__init__(position)
         self.tag = tag
         self.properties = properties
 
     def stringify(self, indent: int = 0):  # pylint: disable=unused-argument
         """Construct the string representation of the processing instruction node."""
-        attributes = " ".join(f'{key}="{value}"' for key, value in self.properties.items())
+        attributes = " ".join(
+            f'{key}="{value}"' for key, value in self.properties.items()
+        )
         return f"<?{self.tag} {attributes}?>"
 
 
@@ -462,7 +484,7 @@ class DocType(Node):
     ):
         super().__init__(position)
         self.parent = parent
-        self.lang = lang or 'html'
+        self.lang = lang or "html"
 
     def __eq__(self, obj) -> bool:
         if obj is None:
@@ -508,7 +530,9 @@ class Literal(Node):
         self.parent = parent
 
     def __eq__(self, obj) -> bool:
-        return bool(obj is not None and self.type == obj.type and self.value == obj.value)
+        return bool(
+            obj is not None and self.type == obj.type and self.value == obj.value
+        )
 
     def normalized(self, indent: int = 0) -> str:
         """Get the normalized indented value with leading and trailing blank lines stripped."""
@@ -517,7 +541,7 @@ class Literal(Node):
     def stringify(self, indent: int = 0) -> str:
         if "pre" in self.get_ancestry():
             return self.value
-        return self.normalized(indent).strip()
+        return self.normalized(indent).rstrip()
 
     def get_ancestry(self) -> list[str]:
         """Get the ancestry of the literal node.
@@ -584,7 +608,7 @@ class Comment(Literal):
         Returns:
             str: Built html of comment
         """
-        return ' ' * indent + f"<!--{self.value}-->"
+        return " " * indent + f"<!--{self.value}-->"
 
     def __repr__(self) -> str:
         return f"literal.comment(value: {self.value})"

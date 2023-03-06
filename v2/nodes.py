@@ -8,7 +8,7 @@ from v2.types import Attribute, Position
 
 @unique
 class NodeType(StrEnum):
-    ROOT = "root"
+    AST = "ast"
     ELEMENT = "element"
     LITERAL = "literal"
 
@@ -128,9 +128,9 @@ class Parent(Node):
         return f"{self.type} [{self.len_as_str()}]{pos}"
 
 
-class Root(Parent):
+class AST(Parent):
     def __init__(self, children: list[Node] | None = None, position: Position | None = None):
-        super().__init__(NodeType.ROOT, children or [], position, None)
+        super().__init__(NodeType.AST, children or [], position, None)
 
 
 class Element(Parent):
@@ -229,7 +229,7 @@ class Literal(Node):
 
 
 if __name__ == "__main__":
-    root = Root([], position(0, 0, 0, 0))
-    root.append(Element("meta", {"size": "100"}, [], position=position(10, 0, 10, 34)))
+    ast = AST([], position(0, 0, 0, 0))
+    ast.append(Element("meta", {"size": "100"}, [], position=position(10, 0, 10, 34)))
 
-    print(root)
+    print(ast)

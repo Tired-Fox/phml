@@ -10,7 +10,7 @@ from html import escape
 from re import sub
 from typing import Any, Optional
 
-from phml.utilities import normalize_indent
+from phml.utilities.transform import normalize_indent
 
 from .built_in import built_in_funcs, built_in_types
 from .import_objects import Import, ImportFrom

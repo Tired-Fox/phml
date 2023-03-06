@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 from typing import Any, Literal
-from nodes import Literal, Node, Root, Element, position, Parent
+from nodes import Literal, Node, AST, Element, position, Parent
 from v2.nodes import NodeType
 
 self_closing = [
@@ -127,16 +127,18 @@ def parse_tags(data: str, context: Parent):
             context.append(Literal("text", data))
 
 
+def parse(text: str) -> AST:
+    ast: AST = AST([])
+    parse_tags(text, ast)
+    return ast 
+
 if __name__ == "__main__":
     with Path("sandbox/sample.phml").open("r", encoding="utf-8") as file:
-        data = file.read()
+        ast: AST = parse(file.read())
 
-    root: Root = Root([])
-    parse_tags(data, root)
-    # print(root)
-    print(root[0])
-    if isinstance(root[0], Parent):
-        for child in root[0]:
+    print(ast[0])
+    if isinstance(ast[0], Parent):
+        for child in ast[0]:
             if isinstance(child, Element) and child.tag == "body":
                 for c in child:
                     print(c)

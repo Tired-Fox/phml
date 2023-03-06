@@ -275,7 +275,7 @@ def __validate_previous_condition(child: Element) -> Optional[Element]:
     ]:
         raise Exception(
             f"Condition statements that are not @if must have @if or\
- @elif as a previous sibling.\n{child.start_tag()}\
+ @elif as a previous sibling.\n{child.start_tag(self.offset)}\
 {f' at {child.position}' if child.position is not None else ''}"
         )
     return previous, prev_cond
@@ -530,7 +530,7 @@ class ASTRenderer:
     def __one_line(self, node, indent: int = 0) -> str:
         return "".join(
             [
-                " " * indent + node.start_tag(),
+                *[" " * indent + line for line in node.start_tag(self.offset)],
                 node.children[0].stringify(
                     indent + self.offset
                     if node.children[0].num_lines > 1
@@ -566,24 +566,26 @@ class ASTRenderer:
             len(node.children) == 1
             and node.children[0].type == "text"
             and node.children[0].num_lines == 1
+            and len(node.properties) <= 1
         ):
             lines.append(self.__one_line(node, indent))
         elif len(node.children) == 0:
-            lines.append(" " * indent + node.start_tag() + node.end_tag())
+            lines.extend([*[" " * indent + line for line in node.start_tag(self.offset)], " " * indent + node.end_tag()])
         else:
-            lines.append(" " * indent + node.start_tag())
+            lines.extend([" " * indent + line for line in node.start_tag(self.offset)])
             lines.extend(self.__many_children(node, indent))
             lines.append(" " * indent + node.end_tag())
         return lines
 
     def __compile_children(self, node: NODE, indent: int = 0) -> list[str]:
         lines = []
-        if node.type == "element":
+        if isinstance(node, Element):
             if node.startend:
-                lines.append(" " * indent + node.start_tag())
+
+                lines.extend([" " * indent + line for line in node.start_tag(self.offset)])
             else:
                 lines.extend(self.__construct_element(node, indent))
-        elif node.type == "root":
+        elif isinstance(node, Root):
             for child in visit_children(node):
                 lines.extend(self.__compile_children(child))
         else:

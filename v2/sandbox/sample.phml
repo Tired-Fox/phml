@@ -11,5 +11,11 @@
       id=email-input
       open
     >
+    <div
+      role="heading"
+      aria-level="2"
+    >
+      heading 2
+    </div>
   </body>
 </html>
