@@ -238,8 +238,8 @@ def extract_expressions(data: str) -> str:
 def extract_block(data: str) -> tuple[int, int, PythonBlock]:
     """Extract the first python block from a given string"""
     start = data.find("{{")
-    index = start + 1
-    if index != -1:
+    if start != -1:
+        index = start + 1
         open_brackets = 2
         while open_brackets > 0 and index < len(data):
             new_index = data.find("}}", index + 1)

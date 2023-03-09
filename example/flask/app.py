@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import Any, Optional
 from flask import Flask, url_for, abort, request
 from werkzeug import exceptions
-from phml import PHML, cmpt_name_from_path
+from phml import PHML 
+from phml.utilities import cmpt_name_from_path
+
 import re
 from traceback import format_exc
 

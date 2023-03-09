@@ -36,13 +36,14 @@ def process_loops(node: Root | Element, virtual_python: VirtualPython, **kwargs)
     for_loops = [
         loop
         for loop in visit_children(node)
-        if check(loop, {"tag": "For", ":each": True})
+        if check(loop, {"tag": "For"})
     ]
 
     kwargs.update(virtual_python.context)
 
     for loop in for_loops:
-        if loop[":each"].strip() != "":
+        each = loop.get(":each", loop.get("each"))
+        if each is not None and each.strip() != "":
             children = run_phml_for(loop, **kwargs)
             replace_node(node, loop, children)
         else:
@@ -206,7 +207,7 @@ def run_phml_for(node: Element, **kwargs) -> list:
     clocals = build_locals(node)
 
     # Format for loop condition
-    for_loop = sub(r"for |:\s*$", "", node[":each"]).strip()
+    for_loop = sub(r"for |:\s*$", "", node.get(":each", node.get("each"))).strip()
 
     # Get local var names from for loop condition
     items = match(r"(for )?(.*)(?<= )in(?= )(.+)", for_loop)

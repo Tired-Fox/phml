@@ -1,5 +1,5 @@
 from phml.utilities.transform import *
-from phml import AST
+from phml.core import AST
 from phml.builder import p
 
 

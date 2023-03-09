@@ -102,7 +102,7 @@ def valid_component_dict(cmpt: dict) -> bool:
 
 def parse_component(ast: AST) -> dict[str, Element]:
     """Helper function to parse the components elements."""
-    from phml import (  # pylint: disable=import-outside-toplevel
+    from phml.utilities import (  # pylint: disable=import-outside-toplevel
         check,
         is_css_style,
         is_javascript,

@@ -1,4 +1,5 @@
-from phml import PHML, filename_from_path
+from phml import PHML 
+from phml.utilities import filename_from_path
 from pathlib import Path
 
 

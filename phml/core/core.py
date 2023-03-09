@@ -13,7 +13,7 @@ from phml.types.config import EnableKeys
 from .compiler import Compiler
 from .parser import Parser
 
-__all__ = ["PHML"]
+__all__ = ["PHML", "Compiler"]
 
 class PHML:
     """A helper class that bundles the functionality

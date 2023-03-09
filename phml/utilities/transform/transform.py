@@ -210,7 +210,7 @@ def modify_children(func):
     The wrapped function will be passed the child node,
     the index in the parents children, and the parent node
     """
-    from phml import visit_children  # pylint: disable=import-outside-toplevel
+    from phml.utilities import visit_children  # pylint: disable=import-outside-toplevel
 
     def inner(start: AST | Element | Root):
         if isinstance(start, AST):

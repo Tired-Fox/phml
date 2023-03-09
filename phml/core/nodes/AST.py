@@ -25,7 +25,7 @@ class AST:
             raise TypeError("The given tree/root node for AST must be of type `Root` or `Element`")
 
     def __iter__(self) -> Iterator:
-        from phml import walk  # pylint: disable=import-outside-toplevel
+        from phml.utilities import walk  # pylint: disable=import-outside-toplevel
 
         return walk(self.tree)
 
@@ -38,7 +38,7 @@ class AST:
     @cached_property
     def size(self) -> int:
         """Get the number of nodes in the ast tree."""
-        from phml import size  # pylint: disable=import-outside-toplevel
+        from phml.utilities import size  # pylint: disable=import-outside-toplevel
 
         return size(self.tree)
 

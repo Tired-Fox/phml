@@ -19,7 +19,7 @@ def inspect(start: AST | NODE, indent: int = 2):
 
     def recursive_inspect(node: Element | Root, indent: int) -> list[str]:
         """Generate signature for node then for each child recursively."""
-        from phml import visit_children  # pylint: disable=import-outside-toplevel
+        from phml.utilities import visit_children  # pylint: disable=import-outside-toplevel
 
         results = [*signature(node)]
 

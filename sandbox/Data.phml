@@ -1,0 +1,5 @@
+<div>
+  <Slot name="top" />
+  <Slot />
+  <Slot name="bottom" />
+</div>

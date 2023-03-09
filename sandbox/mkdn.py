@@ -13,4 +13,5 @@ phml = PHML(enable={"markdown": True})
 # """
 
 # print(phml.parse("<p>{{source}}</p>").render(source="Hello World!"))
+phml.add("Data.phml")
 print(phml.load("test.phml").render())

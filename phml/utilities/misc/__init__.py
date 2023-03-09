@@ -38,7 +38,7 @@ def depth(node) -> int:
 
 def size(node: Root | Element) -> int:
     """Get the number of nodes recursively."""
-    from phml import walk  # pylint: disable=import-outside-toplevel
+    from phml.utilities import walk  # pylint: disable=import-outside-toplevel
 
     count = 0
 

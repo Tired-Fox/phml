@@ -199,7 +199,7 @@ def apply_python(
                 ):
                     replace_node(
                         child,
-                        ["element", {"tag": "slot"}],
+                        ["element", {"tag": "Slot"}],
                         child.context["children"],
                     )
 

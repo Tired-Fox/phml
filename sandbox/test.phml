@@ -1,51 +1,16 @@
 <!DOCTYPE html>
 <html>
+
     <head>
-        <title>Example</title>
+      <title>Named Slots</title>
     </head>
-    <python>
-        source = """
-        ## Markdown is cool {: .red }
-
-        ```python
-        print('hello world')
-        ```
-        """
-
-        bad_html = """
-            crash your pc
-        """
-    </python>
+    
     <body>
-        <Markdown
-            :src="source"
-            extra="footnotes attr_list"
-        />
-        <Markdown file="example.md" />
-        <Markdown>
-            ## Markdown in a component
-
-            ```python
-            print('this is in a markdown block')
-            ```
-        </Markdown>
-
-        <br />
-        <br />
-        <br />
-
-        <Markdown 
-            :src="source"
-            file="example.md"
-            :extra="['footnotes', 'attr_list']"
-        >
-            # Markdown in a component
-
-            ```python
-            print('this is in a markdown block')
-            ```
-        </Markdown>
-
-        <HTML :src="bad_html" />
+        <Data>
+            <p slot="bottom">Buttom</p>
+            <p slot="top">Top</p>
+            Middle/Catch all
+        </Data>
     </body>
+
 </html>
