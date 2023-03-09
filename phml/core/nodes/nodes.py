@@ -356,7 +356,7 @@ class Element(Parent):
         self.parent = parent
         self.context = {}
 
-    def __contains__(self, index: str) -> str:
+    def __contains__(self, index: str) -> bool:
         return index in self.properties
 
     def __getitem__(self, index: str) -> str:
@@ -395,7 +395,7 @@ class Element(Parent):
         else:
             return _default
 
-    def start_tag(self, indent: int = 4) -> str:
+    def start_tag(self, indent: int = 4) -> list[str]:
         """Builds the open/start tag for the element.
 
         Note:

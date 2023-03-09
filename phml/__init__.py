@@ -126,4 +126,4 @@ This language also has the ability to convert back to html and json with convert
 
 from .core import PHML
 from .utilities import inspect, visit_children
-__version__ = "2.0.0"
+__version__ = "0.2.0"
