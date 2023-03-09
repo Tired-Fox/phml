@@ -3,7 +3,8 @@ from typing import Optional
 
 from phml.core.nodes import AST, NODE
 from phml.core.virtual_python import VirtualPython
-from phml.utilities import find_all, remove_nodes
+from phml.utilities.locate.find import find_all
+from phml.utilities.transform import remove_nodes
 
 from .compile import ASTRenderer, apply_conditions, apply_python
 from .format import Format
@@ -49,7 +50,8 @@ class HTMLFormat(Format):
                 and python_block.children[0].type == "text"
             ):
                 virtual_python += VirtualPython(
-                    python_block.children[0].normalized()
+                    python_block.children[0].normalized(),
+                    context={**kwargs}
                 )
 
         remove_nodes(src, ["element", {"tag": "python"}])
@@ -68,7 +70,8 @@ class HTMLFormat(Format):
                 and python_block.children[0].type == "text"
             ):
                 virtual_python += VirtualPython(
-                    python_block.children[0].normalized()
+                    python_block.children[0].normalized(),
+                    context={**kwargs}
                 )
 
         remove_nodes(src, ["element", {"tag": "python"}])
