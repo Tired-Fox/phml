@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import ast
 from html import escape
-from re import sub
+from re import sub, match
 from typing import Any, Optional
 
 from phml.utilities.transform import normalize_indent
@@ -316,7 +316,11 @@ class InlineBlock(PythonBlock):
     """Formats and stores a inline python expr/source."""
 
     def __init__(self, expr: str) -> None:
-        super().__init__(expr.strip().lstrip("{").rstrip("}"))
+        result = match(r"\s*{{\s*(.*)\s*}}\s*", expr)
+        if result is not None:
+            super().__init__(result.group(1))
+        else:
+            super().__init__(expr.strip().lstrip("{{").rstrip("}}").strip())
 
 
 class MultiLineBlock(PythonBlock):
@@ -330,8 +334,8 @@ class MultiLineBlock(PythonBlock):
         expr = expr.split("\n")
 
         # strip brackets
-        expr[0] = sub(r"(\s+){", r"\1", expr[0], 1)
-        expr[-1] = sub(r"(.+)}", r"\1", expr[-1].rstrip(), 1)
+        expr[0] = sub(r"(\s+){{", r"\1", expr[0], 1)
+        expr[-1] = sub(r"(.+)}}", r"\1", expr[-1].rstrip(), 1)
 
         # strip blank lines
         expr = strip_blank_lines(expr)
