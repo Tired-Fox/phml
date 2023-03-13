@@ -125,4 +125,4 @@ This language also has the ability to convert back to html and json with convert
 # pylint: enable=line-too-long
 
 from .core import PHML
-__version__ = "0.2.0"
+__version__ = "0.2.1"
