@@ -1,8 +1,6 @@
 from pathlib import Path
 from data import asts, strings
-from phml import PHML, Compiler, Formats, Format
-from phml.core.compiler import ASTRenderer
-from phml.core.nodes import AST
+from phml.core import PHML, AST, Compiler, Formats, Format, ASTRenderer
 from phml.builder import p
 from phml.utilities import parse_component
 from pytest import raises

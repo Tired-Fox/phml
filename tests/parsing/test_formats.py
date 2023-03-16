@@ -1,6 +1,6 @@
 from pathlib import Path
-from phml import Formats, Format, AST, parse_component
-from phml.core.nodes import Text, Position, Element
+from phml.core import Formats, Format, AST, Text, Position, Element 
+from phml.utilities import parse_component
 from phml.builder import p
 from pytest import raises
 

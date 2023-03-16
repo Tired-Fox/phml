@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import Any, Optional
 from flask import Flask, url_for, abort, request
 from werkzeug import exceptions
-from phml import PHML, cmpt_name_from_path
+from phml import PHML 
+from phml.utilities import cmpt_name_from_path
+
 import re
 from traceback import format_exc
 
@@ -26,7 +28,7 @@ def debug(error=500):
     global internal_error_tb
     try:
         yield None
-    except Exception as exception:
+    except Exception:
         internal_error_tb = [line for line in str(format_exc()).split("\n") if line.strip() != ""]
         abort(error)
 

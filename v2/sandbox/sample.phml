@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <title>Sample</title>
+  </head>
+  <body>
+    <!-- Comment Example -->
+    <h1>Hello</h1>
+    <input
+      type='email'
+      class="email-input"
+      id=email-input
+      open
+    >
+    <div
+      role="heading"
+      aria-level="2"
+    >
+      heading 2
+    </div>
+  </body>
+</html>

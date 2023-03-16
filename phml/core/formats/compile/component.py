@@ -4,7 +4,7 @@ from copy import deepcopy
 from re import sub
 from phml.core.nodes import Root, Element, AST, Text
 from phml.core.virtual_python import VirtualPython, process_python_blocks, get_python_result
-from phml.utilities import find, offset, normalize_indent, query, replace_node, check
+from phml.utilities import find, find_all, offset, normalize_indent, query, replace_node, check
 
 from .compile import py_condition, CONDITION_PREFIX, valid_prev
 
@@ -172,7 +172,7 @@ def execute_condition(
     child: Element,
     virtual_python: VirtualPython,
     **kwargs,
-) -> list:
+) -> Element|None:
     """Execute python conditions for node to determine what will happen with the component."""
     conditions = __get_previous_conditions(child)
 
@@ -193,7 +193,7 @@ def execute_condition(
     # For each element with a python condition
     if condition == f"{CONDITION_PREFIX}if":
         child = run_phml_if(child, condition, **kwargs)
-        return [child]
+        return child
     
     if condition == f"{CONDITION_PREFIX}elif":
         # Can only exist if previous condition in branch failed
@@ -207,7 +207,7 @@ def execute_condition(
             },
             **kwargs,
         )
-        return [child]
+        return child
     
     if condition == f"{CONDITION_PREFIX}else":
 
@@ -222,7 +222,8 @@ def execute_condition(
             },
             **kwargs
         )
-        return [child]
+        return child
+    return None
 
 def process_context(name, value, kwargs: dict | None = None):
     """Process the python elements and context of the component and extract the relavent context."""
@@ -236,7 +237,7 @@ def process_context(name, value, kwargs: dict | None = None):
     if "Props" in local_virtual_python.context:
         if not isinstance(local_virtual_python.context["Props"], dict):
             raise Exception(
-                f"Props must be a dict was "
+                "Props must be a dict was "
                 + f"{type(local_virtual_python.context['Props']).__name__}: <{name} />"
             )
 
@@ -263,37 +264,75 @@ def apply_component(node, name, value, cmpt_props, virtual_python, context, kwar
     node.context.update(props)
 
     condition = py_condition(node)
-    results = [node]
+    result = None
     if condition is not None:
-        results = execute_condition(condition, node, virtual_python, **kwargs)
+        result = execute_condition(condition, node, virtual_python, **kwargs)
 
     # replace the valid components in the results list
     new_children = []
-    for child in results:
-        # get props and locals from current node
-        properties, attributes = node.context, child.properties
-        properties.update(context)
-        properties["children"] = node.children
+    # get props and locals from current node
+    properties, attributes = node.context, result.properties if result is not None else node.properties
+    properties.update(context)
+    # properties["children"] = node.children
 
-        component = deepcopy(value["component"])
-        if component.tag in WRAPPER_TAG:
-            # Create a copy of the component
-            for sub_child in component.children:
-                if isinstance(sub_child, Element):
-                    sub_child.context.update(properties)
-                    sub_child.parent = node.parent
+    component = deepcopy(value["component"])
 
-            new_children.extend(component.children)
-        else:
-            component.context = properties
-            component.properties = attributes
-            component.parent = node.parent
-            new_children.append(component)
+    if len(node.children) > 0:
+        slots: dict[str, tuple[Element, list]] = get_slots(component)
+        for child in node.children:
+            if isinstance(child, Element) and "slot" in child:
+                if child.get("slot") in slots:
+                    slots[child["slot"]][1].append(child)
+                    if isinstance(child, Element):
+                        child.parent = slots[child["slot"]][0]
+                        del child["slot"] 
+            elif "" in slots:
+                if isinstance(child, Element):
+                    child.parent = slots[""][0]
+                    del child["slot"] 
+                slots[""][1].append(child)
+
+        for slot in slots.values():
+            replace_node(
+                component,
+                slot[0],
+                slot[1] if len(slot[1]) > 0 else None
+            )
+
+    if component.tag in WRAPPER_TAG:
+        # Create a copy of the component
+        for sub_child in component.children:
+            if isinstance(sub_child, Element):
+                sub_child.context.update(properties)
+                sub_child.parent = node.parent
+
+        new_children.extend(component.children)
+    else:
+        component.context = properties
+        component.properties = attributes
+        component.parent = node.parent
+        new_children.append(component)
 
     # replace the curr_node with the list of replaced nodes
     parent = node.parent
     index = parent.children.index(node)
     return parent.children[:index] + new_children + parent.children[index+1:]
+
+def get_slots(node: Element) -> dict[str, tuple[Element, list]]:
+    """Get the slots found recursively in a Element."""
+
+    slots = {}
+    for slot in find_all(node, {"tag": "Slot"}):
+        name = slot.get("name", "")
+        if name == "":
+            if "" in slots:
+                raise KeyError("Can only have one slot without a name: <Slot />")
+            slots[""] = (slot, [])
+        else:
+            if name in slots:
+                raise KeyError("Must have unique slot names in components: <Slot name='unique' />")
+            slots[name] = (slot, [])
+    return slots
 
 def __add_component_elements(node, used_components: dict, tag: str):
     if find(node, {"tag": tag}) is not None:

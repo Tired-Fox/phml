@@ -26,7 +26,7 @@ class Index:
             `test` (Test): The test to apply to each node. Only valid/passing nodes
             will be indexed
         """
-        from phml import check, walk  # pylint: disable=import-outside-toplevel
+        from phml.utilties import check, walk  # pylint: disable=import-outside-toplevel
 
         if isinstance(start, AST):
             start = start.tree

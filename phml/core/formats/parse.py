@@ -83,11 +83,12 @@ self_closing = [
     "command",
     "keygen",
     "menuitem",
+    "Slot",
 ]
 
 # Main form of tokenization
 class RE:
-    tag_start = re.compile(r"<(?!!--)(?P<opening>!|\/)?(?P<name>([\w:\.]+\-?)+)|<(?P<opening2>/)?(?=\s+>|>)")
+    tag_start = re.compile(r"(?P<comment><!--)|<(?!!--)(?P<opening>!|\/)?(?P<name>([\w:\.]+\-?)+)|<(?P<opening2>/)?(?=\s+>|>)")
     """Matches the start of a tag `<!name|</name|<name`"""
 
     tag_end = re.compile(r"(?P<closing>/?)>")
@@ -95,6 +96,7 @@ class RE:
 
     comment = re.compile(r"<!--((?:.|\s)*)-->")
     """Matches all html style comments `<!--Comment-->`."""
+    comment_close = re.compile(r"-->")
 
     attribute = re.compile(r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\/\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"]+)))?")
     """Matches a tags attributes `attr|attr=value|attr='value'|attr="value"`."""
@@ -106,7 +108,7 @@ class HypertextMarkupParser:
 
     tag_stack = []
     """Current stack of tags in order of when they are opened."""
-    
+
     def __calc_line_col(self, source: str, start: int) -> tuple[int, int]:
         """Calculate the number of lines and columns that lead to the starting point int he source
         string.
@@ -206,7 +208,6 @@ class HypertextMarkupParser:
         """
         begin = RE.tag_start.search(source)
         begin = (begin.start(), begin.group(0), begin.groupdict())
-        begin[2]["opening"] = begin[2]["opening"] or begin[2]["opening2"]
 
         elems = []
         if begin[0] > 0:
@@ -214,16 +215,25 @@ class HypertextMarkupParser:
         position.end.column = position.start.column + len(begin[1])
         source = source[begin[0] + len(begin[1]):]
 
-        end = RE.tag_end.search(source)
-        if end is None:
-            raise Exception(f"Expected tag {begin} to be closed with symbol '>'. Was not closed.")
-        end = (end.start(), end.group(0), end.groupdict())
+        if begin[2]["comment"] is not None:
+            end = RE.comment_close.search(source)
+            if end is None:
+                raise Exception("Comment was not closed")
+            end = (end.start(), end.group(0), end.groupdict())
+            attributes = {"data": source[:end[0]]}
+        else:
+            begin[2]["opening"] = begin[2]["opening"] or begin[2]["opening2"]
+
+            end = RE.tag_end.search(source)
+            if end is None:
+                raise Exception(f"Expected tag {begin} to be closed with symbol '>'. Was not closed.")
+            end = (end.start(), end.group(0), end.groupdict())
+            attributes = self.__parse_attributes(source[:end[0]])
 
         line, col = self.__calc_line_col(source, end[0] + len(end[1]))
         position.end.line = position.start.line + line
         position.end.column = position.end.column + col
 
-        attributes = self.__parse_attributes(source[:end[0]])
         return source[end[0] + len(end[1]):], begin, attributes, end, elems
 
     def is_self_closing(self, name: str, auto_closing: bool) -> bool:
@@ -253,32 +263,40 @@ class HypertextMarkupParser:
             if len(elems) > 0:
                 current.extend(elems)
 
-            name = begin[2]["name"] or ''
-            if begin[2]["opening"] == "/":
-                if name != self.tag_stack[-1]:
-                    input(self.tag_stack)
-                    raise Exception(
-                        f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}"
-                    )
-
-                self.tag_stack.pop()
-                current.position.end.line = position.end.line
-                current.position.end.column = position.end.column
-
-                current = current.parent
-            elif begin[2]["opening"] == "!":
-                current.append(DocType(attr.get("lang", "html"), position=deepcopy(position)))
-            elif (
-                end[2]["closing"] != "/"
-                and not self.is_self_closing(name, auto_close)
-                and begin[2]["opening"] is None
-            ):
-                self.tag_stack.append(name)
-                current.append(Element(name, attr, position=deepcopy(position)))
-                current = current.children[-1]
+            if begin[2]["comment"] is not None:
+                current.append(Comment(attr["data"], position=deepcopy(position)))
             else:
-                current.append(Element(name, attr, position=deepcopy(position), startend=True))
+                name = begin[2]["name"] or ''
+                if begin[2]["opening"] == "/":
+                    if name != self.tag_stack[-1]:
+                        print("Tag Stack", self.tag_stack)
+                        raise Exception(
+                            f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}"
+                        )
+
+                    self.tag_stack.pop()
+                    current.position.end.line = position.end.line
+                    current.position.end.column = position.end.column
+
+                    current = current.parent
+                elif begin[2]["opening"] == "!":
+                    current.append(DocType(attr.get("lang", "html"), position=deepcopy(position)))
+                elif (
+                    end[2]["closing"] != "/"
+                    and not self.is_self_closing(name, auto_close)
+                    and begin[2]["opening"] is None
+                ):
+                    self.tag_stack.append(name)
+                    current.append(Element(name, attr, position=deepcopy(position)))
+                    current = current.children[-1]
+                else:
+                    current.append(Element(name, attr, position=deepcopy(position), startend=True))
 
             position.start = deepcopy(position.end)
 
+        if len(source) > 0:
+            elems = self.__parse_text_comment(source, position)
+            current.extend(elems)
+
         return AST(current)
+

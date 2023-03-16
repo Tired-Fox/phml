@@ -4,7 +4,7 @@ from pytest import raises
 
 def test_point():
     point = Point(1, 3)
-    assert point.line == 1 and point.column == 3 and point.offset == None
+    assert point.line == 1 and point.column == 3 and point.offset is None
 
     with raises(IndexError, match="Point.line must be >= 0 but was .+"):
         Point(-1, 0)
@@ -70,9 +70,9 @@ def test_element():
     assert (
         element.tag == "element"
         and element.properties == {}
-        and element.parent == None
-        and element.position == None
-        and element.startend == False
+        and element.parent is None
+        and element.position is None
+        and element.startend is False
         and len(element.children) == 0
     )
 
@@ -110,7 +110,7 @@ def test_doctype():
 
     assert doctype.stringify() == "<!DOCTYPE html>"
 
-    assert not doctype == None
+    assert doctype is not None
 
     assert repr(doctype) == "node.doctype(html)"
     

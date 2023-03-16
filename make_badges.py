@@ -121,7 +121,7 @@ def write_test_badges(command: str, test_output: str, test_cov_output: str):
     passed, total, covered = get_test_results(command)
 
     test_link = (
-        f"https://img.shields.io/badge/testing-{passed}/{total}-{get_test_color(passed/total)}"
+        f"https://img.shields.io/badge/testing-{passed}/{total}-{get_test_color(passed/total if passed > 0 else 0)}"
     )
     test_cov_link = (
         f"https://img.shields.io/badge/test_coverage-{covered}%25-{get_color(covered/100)}"

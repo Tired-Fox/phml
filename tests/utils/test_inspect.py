@@ -1,6 +1,6 @@
 from phml.builder import p
 from phml.core.nodes import AST, Text, Element, Position, Point
-from phml import inspect
+from phml.utilities import inspect
 
 with_position = {
     "el": Element(

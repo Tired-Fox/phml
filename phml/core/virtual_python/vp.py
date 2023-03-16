@@ -7,10 +7,10 @@ from __future__ import annotations
 
 import ast
 from html import escape
-from re import sub, findall
+from re import sub, match
 from typing import Any, Optional
 
-from phml.utilities import normalize_indent
+from phml.utilities.transform import normalize_indent
 
 from .built_in import built_in_funcs, built_in_types
 from .import_objects import Import, ImportFrom
@@ -179,7 +179,6 @@ def get_python_result(expr: str, **kwargs) -> Any:
     try:
         # Compile and execute python source
         source = compile(expression, expr, "exec")
-
         local_env = {**kwargs}
         global_env = {**kwargs}
         exec(source, global_env, local_env)  # pylint: disable=exec-used
@@ -215,7 +214,7 @@ def extract_expressions(data: str) -> str:
 
     Note:
         phml python blocks/expressions are indicated
-        with curly brackets, {}.
+        with curly brackets, {{}}.
     """
     results = []
 
@@ -238,16 +237,28 @@ def extract_expressions(data: str) -> str:
 
 def extract_block(data: str) -> tuple[int, int, PythonBlock]:
     """Extract the first python block from a given string"""
-    start = data.find("{")
-    index = start
-    if index != -1:
-        open_brackets = 1
-        while open_brackets > 0:
-            new_index = data.find("}", index + 1)
-            if len(findall(r"\{", data[index + 1 : new_index])) > 0:
-                open_brackets += len(findall(r"\{", data[index + 1 : new_index]))
-            index = new_index
-            open_brackets -= 1
+    start = data.find("{{")
+    if start != -1:
+        index = start + 1
+        open_brackets = 2
+        while open_brackets > 0 and index < len(data):
+            new_index = data.find("}}", index + 1)
+            if new_index == -1:
+                print(
+                    f"[WARN] Python block not closed {data!r}: Are you missing \
+a '}}'"
+                )
+                return 0, 0, None
+
+            # Calculate the balance of open and close brackets {}
+            openings = data.count("{", index+1, new_index)
+            closings = data.count("}", index+1, new_index)
+            total = openings - closings - 2
+
+            # Add the balance. If all open and closes are balanced at }} then
+            # end of block. Else keep looking
+            open_brackets += total
+            index = new_index + 1
         end = index
         if "\n" in data[start + 1 : end]:
             return start, end, MultiLineBlock(data[start + 1 : end])
@@ -305,7 +316,11 @@ class InlineBlock(PythonBlock):
     """Formats and stores a inline python expr/source."""
 
     def __init__(self, expr: str) -> None:
-        super().__init__(expr.strip().lstrip("{").rstrip("}"))
+        result = match(r"\s*{{\s*(.*)\s*}}\s*", expr)
+        if result is not None:
+            super().__init__(result.group(1))
+        else:
+            super().__init__(expr.strip().lstrip("{{").rstrip("}}").strip())
 
 
 class MultiLineBlock(PythonBlock):
@@ -319,8 +334,8 @@ class MultiLineBlock(PythonBlock):
         expr = expr.split("\n")
 
         # strip brackets
-        expr[0] = sub(r"(\s+){", r"\1", expr[0], 1)
-        expr[-1] = sub(r"(.+)}", r"\1", expr[-1].rstrip(), 1)
+        expr[0] = sub(r"(\s+){{", r"\1", expr[0], 1)
+        expr[-1] = sub(r"(.+)}}", r"\1", expr[-1].rstrip(), 1)
 
         # strip blank lines
         expr = strip_blank_lines(expr)

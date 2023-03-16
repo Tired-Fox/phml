@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+      <title>Named Slots</title>
+    </head>
+    
+    <body>
+        <Data>
+            <p slot="bottom">Buttom</p>
+            <p slot="top">Top</p>
+            Middle/Catch all
+        </Data>
+    </body>
+
+</html>

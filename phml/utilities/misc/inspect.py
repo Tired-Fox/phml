@@ -19,7 +19,7 @@ def inspect(start: AST | NODE, indent: int = 2):
 
     def recursive_inspect(node: Element | Root, indent: int) -> list[str]:
         """Generate signature for node then for each child recursively."""
-        from phml import visit_children  # pylint: disable=import-outside-toplevel
+        from phml.utilities import visit_children  # pylint: disable=import-outside-toplevel
 
         results = [*signature(node)]
 
@@ -27,10 +27,16 @@ def inspect(start: AST | NODE, indent: int = 2):
             if isinstance(child, (Element, Root)):
                 lines = recursive_inspect(child, indent)
 
-                child_prefix = "└" if idx == len(node.children) - 1 else "├"
-                nested_prefix = " " if idx == len(node.children) - 1 else "│"
+                child_prefix = (
+                    "\x1b[38;5;8m└\x1b[39m"
+                    if idx == len(node.children) - 1
+                    else "\x1b[38;5;8m├\x1b[39m"
+                )
+                nested_prefix = (
+                    " " if idx == len(node.children) - 1 else "\x1b[38;5;8m│\x1b[39m"
+                )
 
-                lines[0] = f"{child_prefix}{idx} {lines[0]}"
+                lines[0] = f"{child_prefix}\x1b[38;5;8m{idx}\x1b[39m {lines[0]}"
                 if len(lines) > 1:
                     for line in range(1, len(lines)):
                         lines[line] = f"{nested_prefix}  {lines[line]}"
@@ -38,10 +44,16 @@ def inspect(start: AST | NODE, indent: int = 2):
             else:
                 lines = signature(child, indent)
 
-                child_prefix = "└" if idx == len(node.children) - 1 else "├"
-                nested_prefix = " " if idx == len(node.children) - 1 else "│"
+                child_prefix = (
+                    "\x1b[38;5;8m└\x1b[39m"
+                    if idx == len(node.children) - 1
+                    else "\x1b[38;5;8m├\x1b[39m"
+                )
+                nested_prefix = (
+                    " " if idx == len(node.children) - 1 else "\x1b[38;5;8m│\x1b[39m"
+                )
 
-                lines[0] = f"{child_prefix}{idx} {lines[0]}"
+                lines[0] = f"{child_prefix}\x1b[38;5;8m{idx}\x1b[39m {lines[0]}"
                 if len(lines) > 1:
                     for line in range(1, len(lines)):
                         lines[line] = f"{nested_prefix}  {lines[line]}"
@@ -57,14 +69,16 @@ def inspect(start: AST | NODE, indent: int = 2):
 
 def signature(node: NODE, indent: int = 2):
     """Generate the signature or base information for a single node."""
-    sig = f"{node.type}"
+    sig = ""
     # element node's tag
     if isinstance(node, Element):
-        sig += f"<{node.tag}{'/' if node.startend else ''}>"
+        sig += f"\x1b[34m{node.tag}\x1b[39m"
+    else:
+        sig = f"\x1b[34m{node.type}\x1b[39m"
 
     # count of children in parent node
-    if isinstance(node, (Element, Root)) and len(node.children) > 0:
-        sig += f" [{len(node.children)}]"
+    if isinstance(node, (Element, Root)):
+        sig += f" \x1b[38;5;8m[{len(node.children) if len(node.children) > 0 else '/'}]\x1b[39m"
 
     # position of non generated nodes
     if node.position is not None:
@@ -75,14 +89,15 @@ def signature(node: NODE, indent: int = 2):
     # element node's properties
     if hasattr(node, "properties"):
         for line in stringify_props(node):
-            result.append(f"│{' '*indent}{line}")
+            result.append(f"\x1b[38;5;8m│\x1b[39m{' '*indent}{line}")
 
     # literal node's value
     if isinstance(node, (Text, Comment)):
         for line in build_literal_value(node):
-            result.append(f"│{' '*indent}{line}")
+            result.append(f"\x1b[38;5;8m│\x1b[39m{' '*indent}\x1b[32m{line}\x1b[39m")
 
     return result
+
 
 class ComplexEncoder(JSONEncoder):
     def default(self, obj):
@@ -91,12 +106,19 @@ class ComplexEncoder(JSONEncoder):
         except:
             return repr(obj)
 
+
 def stringify_props(node: Element) -> list[str]:
     """Generate a list of lines from strigifying the nodes properties."""
 
     if len(node.properties.keys()) > 0:
-        lines = dumps(node.properties, indent=2, cls=ComplexEncoder).split("\n")
-        lines[0] = f"properties: {lines[0]}"
+        lines = ["properties: \x1b[38;5;8m{\x1b[39m"]
+        for key, value in node.properties.items():
+            if value is None or isinstance(value, bool):
+                value = f"\x1b[38;5;104m{value}\x1b[39m"
+            elif isinstance(value, str):
+                value = f'\x1b[32m"{value}"\x1b[39m'
+            lines.append(f'  \x1b[32m"{key}"\x1b[39m: {value},')
+        lines.append("\x1b[38;5;8m}\x1b[39m")
         return lines
     return []
 
@@ -113,7 +135,7 @@ def build_literal_value(node: Text | Comment) -> list[str]:
         lines[-1] = f' {lines[-1]}"'
         if len(lines) > 2:
             for idx in range(1, len(lines) - 1):
-                lines[idx] = f' {lines[idx]}'
+                lines[idx] = f" {lines[idx]}"
     return lines
 
 

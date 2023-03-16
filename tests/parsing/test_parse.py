@@ -1,8 +1,7 @@
 from data import asts, strings, dicts
-from phml import PHML, Parser, Formats
+from phml.core import AST, PHML, Parser, Formats
 from phml.builder import p
 from phml.utilities import parse_component
-from phml.core.nodes import AST
 
 from pytest import raises
 

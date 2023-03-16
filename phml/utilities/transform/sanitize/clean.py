@@ -25,7 +25,7 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
         schema (Optional[Schema], optional): User defined schema. Defaults to github schema.
     """
 
-    from phml import check, is_element, remove_nodes  # pylint: disable=import-outside-toplevel
+    from phml.utilities import check, is_element, remove_nodes  # pylint: disable=import-outside-toplevel
 
     if isinstance(tree, AST):
         src = tree.tree

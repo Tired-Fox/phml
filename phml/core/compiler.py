@@ -1,17 +1,22 @@
 """phml.core.compile
 
-The heavy lifting module that compiles phml ast's to different string/file formats.
+The heavy lifting module that compiles phml ast's to different string/file
+formats.
 """
 
 import os
 import sys
 from re import sub
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
+from phml.core.defaults.config import EnableDefault
 
 from phml.core.formats import Format, Formats
-from phml.core.formats.compile import *  # pylint: disable=unused-wildcard-import
+from phml.core.formats.compile import *
 from phml.core.nodes import AST, NODE
 from phml.utilities import parse_component, valid_component_dict
+
+if TYPE_CHECKING:
+    from phml.types.config import ConfigEnable, Config
 
 __all__ = ["Compiler"]
 
@@ -28,9 +33,13 @@ class Compiler:
         self,
         _ast: Optional[AST] = None,
         components: Optional[dict[str, dict[str, list | NODE]]] = None,
+        enable: ConfigEnable | None = None,
     ):
         self.ast = _ast
         self.components = components or {}
+        self.config: Config = {
+            "enabled": enable or EnableDefault
+        }
 
     def add(
         self,
@@ -39,13 +48,14 @@ class Compiler:
     ):
         """Add a component to the compilers component list.
 
-        Components passed in can be of a few types. It can also be a dictionary of str
-        being the name of the element to be replaced. The name can be snake case, camel
-        case, or pascal cased. The value can either be the parsed result of the component
-        from phml.utilities.parse_component() or the parsed ast of the component. Lastely,
-        the component can be a tuple. The first value is the name of the element to be
-        replaced; with the second value being either the parsed result of the component
-        or the component's ast.
+        Components passed in can be of a few types. It can also be a
+        dictionary of str being the name of the element to be replaced. The
+        name can be snake case, camel case, or pascal cased. The value can
+        either be the parsed result of the component from
+        phml.utilities.parse_component() or the parsed ast of the component.
+        Lastely, the component can be a tuple. The first value is the name of
+        the element to be replaced; with the second value being either the
+        parsed result of the component or the component's ast.
 
         Note:
             Any duplicate components will be replaced.
@@ -60,14 +70,17 @@ class Compiler:
             if isinstance(component, dict):
                 for key, value in component.items():
                     if isinstance(value, AST):
-                        self.components[key] = { "data": parse_component(value), "cache": None }
+                        self.components[key] = {"data": parse_component(value), "cache": None}
                     elif isinstance(value, dict) and valid_component_dict(value):
-                        self.components[key] = { "data": value, "cache": None }
+                        self.components[key] = {"data": value, "cache": None}
             elif isinstance(component, tuple):
                 if isinstance(component[0], str) and isinstance(component[1], AST):
-                    self.components[component[0]] = { "data": parse_component(component[1]), "cache": None }
+                    self.components[component[0]] = {
+                        "data": parse_component(component[1]),
+                        "cache": None,
+                    }
                 elif isinstance(component[0], str) and valid_component_dict(component[1]):
-                    self.components[component[0]] = { "data": component[1], "cache": None }
+                    self.components[component[0]] = {"data": component[1], "cache": None}
 
         return self
 
@@ -135,7 +148,13 @@ class Compiler:
         # Depending on the format parse with the appropriate function
         components = components or dict()
         cmpts = {**self.components, **components}
-        return to_format.compile(_ast, cmpts, safe_vars=safe_vars, **kwargs)
+        return to_format.compile(
+            _ast,
+            self.config,
+            cmpts,
+            safe_vars=safe_vars,
+            **kwargs
+        )
 
     def render(
         self,
@@ -169,4 +188,11 @@ class Compiler:
         # Depending on the format parse with the appropriate function
         components = components or dict()
         cmpts = {**self.components, **components}
-        return to_format.render(_ast, cmpts, indent, safe_vars=safe_vars, **kwargs)
+        return to_format.render(
+            _ast,
+            self.config,
+            cmpts,
+            indent,
+            safe_vars=safe_vars,
+            **kwargs
+        )
