@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 12.3.0"/>
+    <meta name="generator" content="pdoc 12.2.0"/>
     <title>phml.core.core API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -78,6 +78,30 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="class" href="#Compiler">Compiler</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#Compiler.__init__">Compiler</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Compiler.ast">ast</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Compiler.add">add</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Compiler.remove">remove</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Compiler.compile">compile</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Compiler.render">render</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -102,51 +126,51 @@
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">TextIOWrapper</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span> <span class="nn">phml.core.formats</span> <span class="kn">import</span> <span class="n">Format</span><span class="p">,</span> <span class="n">Formats</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">from</span> <span class="nn">phml.core.nodes</span> <span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">NODE</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span> <span class="nn">phml.utilities</span> <span class="kn">import</span> <span class="n">cmpt_name_from_path</span><span class="p">,</span> <span class="n">parse_component</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">from</span> <span class="nn">.compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">Parser</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
-</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PHML&quot;</span><span class="p">]</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="n">PathLike</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="n">CompiledComponent</span> <span class="o">=</span>  <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]</span> <span class="o">|</span> <span class="n">AST</span> <span class="o">|</span> <span class="n">PathLike</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="n">Component</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CompiledComponent</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CompiledComponent</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">PathLike</span><span class="p">]</span> <span class="o">|</span> <span class="n">PathLike</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>
-</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="k">class</span> <span class="nc">PHML</span><span class="p">:</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="sd">&quot;&quot;&quot;A helper class that bundles the functionality</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="sd">    of the parser and compiler together. Allows for loading source files,</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="sd">    parsing strings and dicts, rendering to a different format, and finally</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="sd">    writing the results of a render to a file.</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>    <span class="nd">@property</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>    <span class="k">def</span> <span class="nf">ast</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AST</span><span class="p">:</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>        <span class="sd">&quot;&quot;&quot;The parsed ast value.&quot;&quot;&quot;</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">ast</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>    <span class="nd">@ast</span><span class="o">.</span><span class="n">setter</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>    <span class="k">def</span> <span class="nf">ast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">):</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">ast</span> <span class="o">=</span> <span class="n">_ast</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>        
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>    <span class="nd">@property</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>        <span class="sd">&quot;&quot;&quot;The components currently stored in the compiler.&quot;&quot;&quot;</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span><span class="o">.</span><span class="n">components</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">from</span> <span class="nn">phml.core.defaults.config</span> <span class="kn">import</span> <span class="n">EnableDefault</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">from</span> <span class="nn">phml.core.formats</span> <span class="kn">import</span> <span class="n">Format</span><span class="p">,</span> <span class="n">Formats</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span> <span class="nn">phml.core.nodes</span> <span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">NODE</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">from</span> <span class="nn">phml.utilities</span> <span class="kn">import</span> <span class="n">cmpt_name_from_path</span><span class="p">,</span> <span class="n">parse_component</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">from</span> <span class="nn">phml.types</span> <span class="kn">import</span> <span class="n">Component</span><span class="p">,</span> <span class="n">Components</span><span class="p">,</span> <span class="n">PathLike</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="kn">from</span> <span class="nn">phml.types.config</span> <span class="kn">import</span> <span class="n">EnableKeys</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="kn">from</span> <span class="nn">.compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="kn">from</span> <span class="nn">.parser</span> <span class="kn">import</span> <span class="n">Parser</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PHML&quot;</span><span class="p">,</span> <span class="s2">&quot;Compiler&quot;</span><span class="p">]</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="k">class</span> <span class="nc">PHML</span><span class="p">:</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>    <span class="sd">&quot;&quot;&quot;A helper class that bundles the functionality</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="sd">    of the parser and compiler together. Allows for loading source files,</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="sd">    parsing strings and dicts, rendering to a different format, and finally</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="sd">    writing the results of a render to a file.</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="nd">@property</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>    <span class="k">def</span> <span class="nf">ast</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AST</span><span class="p">:</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>        <span class="sd">&quot;&quot;&quot;The parsed ast value.&quot;&quot;&quot;</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">ast</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>    <span class="nd">@ast</span><span class="o">.</span><span class="n">setter</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="k">def</span> <span class="nf">ast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">):</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">ast</span> <span class="o">=</span> <span class="n">_ast</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>        
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>    <span class="nd">@property</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>        <span class="sd">&quot;&quot;&quot;The components currently stored in the compiler.&quot;&quot;&quot;</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span><span class="o">.</span><span class="n">components</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Components</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>        <span class="n">enable</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">EnableKeys</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">EnableDefault</span><span class="p">,</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>        <span class="o">**</span><span class="n">contexts</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="p">):</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">()</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span> <span class="o">=</span> <span class="n">Compiler</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">)</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span> <span class="o">=</span> <span class="n">Compiler</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span> <span class="n">enable</span><span class="o">=</span><span class="n">enable</span><span class="p">)</span>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="n">scopes</span> <span class="ow">or</span> <span class="p">[]</span>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">contexts</span><span class="p">)</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>
@@ -398,35 +422,37 @@
 
     </div>
     <a class="headerlink" href="#PHML"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="PHML-21"><a href="#PHML-21"><span class="linenos"> 21</span></a><span class="k">class</span> <span class="nc">PHML</span><span class="p">:</span>
-</span><span id="PHML-22"><a href="#PHML-22"><span class="linenos"> 22</span></a>    <span class="sd">&quot;&quot;&quot;A helper class that bundles the functionality</span>
-</span><span id="PHML-23"><a href="#PHML-23"><span class="linenos"> 23</span></a><span class="sd">    of the parser and compiler together. Allows for loading source files,</span>
-</span><span id="PHML-24"><a href="#PHML-24"><span class="linenos"> 24</span></a><span class="sd">    parsing strings and dicts, rendering to a different format, and finally</span>
-</span><span id="PHML-25"><a href="#PHML-25"><span class="linenos"> 25</span></a><span class="sd">    writing the results of a render to a file.</span>
-</span><span id="PHML-26"><a href="#PHML-26"><span class="linenos"> 26</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="PHML-27"><a href="#PHML-27"><span class="linenos"> 27</span></a>
-</span><span id="PHML-28"><a href="#PHML-28"><span class="linenos"> 28</span></a>    <span class="nd">@property</span>
-</span><span id="PHML-29"><a href="#PHML-29"><span class="linenos"> 29</span></a>    <span class="k">def</span> <span class="nf">ast</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AST</span><span class="p">:</span>
-</span><span id="PHML-30"><a href="#PHML-30"><span class="linenos"> 30</span></a>        <span class="sd">&quot;&quot;&quot;The parsed ast value.&quot;&quot;&quot;</span>
-</span><span id="PHML-31"><a href="#PHML-31"><span class="linenos"> 31</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">ast</span>
-</span><span id="PHML-32"><a href="#PHML-32"><span class="linenos"> 32</span></a>
-</span><span id="PHML-33"><a href="#PHML-33"><span class="linenos"> 33</span></a>    <span class="nd">@ast</span><span class="o">.</span><span class="n">setter</span>
-</span><span id="PHML-34"><a href="#PHML-34"><span class="linenos"> 34</span></a>    <span class="k">def</span> <span class="nf">ast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">):</span>
-</span><span id="PHML-35"><a href="#PHML-35"><span class="linenos"> 35</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">ast</span> <span class="o">=</span> <span class="n">_ast</span>
-</span><span id="PHML-36"><a href="#PHML-36"><span class="linenos"> 36</span></a>        
-</span><span id="PHML-37"><a href="#PHML-37"><span class="linenos"> 37</span></a>    <span class="nd">@property</span>
-</span><span id="PHML-38"><a href="#PHML-38"><span class="linenos"> 38</span></a>    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="PHML-39"><a href="#PHML-39"><span class="linenos"> 39</span></a>        <span class="sd">&quot;&quot;&quot;The components currently stored in the compiler.&quot;&quot;&quot;</span>
-</span><span id="PHML-40"><a href="#PHML-40"><span class="linenos"> 40</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span><span class="o">.</span><span class="n">components</span>
-</span><span id="PHML-41"><a href="#PHML-41"><span class="linenos"> 41</span></a>
-</span><span id="PHML-42"><a href="#PHML-42"><span class="linenos"> 42</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="PHML-43"><a href="#PHML-43"><span class="linenos"> 43</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="PHML-44"><a href="#PHML-44"><span class="linenos"> 44</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="PHML-45"><a href="#PHML-45"><span class="linenos"> 45</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="PHML-19"><a href="#PHML-19"><span class="linenos"> 19</span></a><span class="k">class</span> <span class="nc">PHML</span><span class="p">:</span>
+</span><span id="PHML-20"><a href="#PHML-20"><span class="linenos"> 20</span></a>    <span class="sd">&quot;&quot;&quot;A helper class that bundles the functionality</span>
+</span><span id="PHML-21"><a href="#PHML-21"><span class="linenos"> 21</span></a><span class="sd">    of the parser and compiler together. Allows for loading source files,</span>
+</span><span id="PHML-22"><a href="#PHML-22"><span class="linenos"> 22</span></a><span class="sd">    parsing strings and dicts, rendering to a different format, and finally</span>
+</span><span id="PHML-23"><a href="#PHML-23"><span class="linenos"> 23</span></a><span class="sd">    writing the results of a render to a file.</span>
+</span><span id="PHML-24"><a href="#PHML-24"><span class="linenos"> 24</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="PHML-25"><a href="#PHML-25"><span class="linenos"> 25</span></a>
+</span><span id="PHML-26"><a href="#PHML-26"><span class="linenos"> 26</span></a>    <span class="nd">@property</span>
+</span><span id="PHML-27"><a href="#PHML-27"><span class="linenos"> 27</span></a>    <span class="k">def</span> <span class="nf">ast</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AST</span><span class="p">:</span>
+</span><span id="PHML-28"><a href="#PHML-28"><span class="linenos"> 28</span></a>        <span class="sd">&quot;&quot;&quot;The parsed ast value.&quot;&quot;&quot;</span>
+</span><span id="PHML-29"><a href="#PHML-29"><span class="linenos"> 29</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">ast</span>
+</span><span id="PHML-30"><a href="#PHML-30"><span class="linenos"> 30</span></a>
+</span><span id="PHML-31"><a href="#PHML-31"><span class="linenos"> 31</span></a>    <span class="nd">@ast</span><span class="o">.</span><span class="n">setter</span>
+</span><span id="PHML-32"><a href="#PHML-32"><span class="linenos"> 32</span></a>    <span class="k">def</span> <span class="nf">ast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_ast</span><span class="p">:</span> <span class="n">AST</span><span class="p">):</span>
+</span><span id="PHML-33"><a href="#PHML-33"><span class="linenos"> 33</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">ast</span> <span class="o">=</span> <span class="n">_ast</span>
+</span><span id="PHML-34"><a href="#PHML-34"><span class="linenos"> 34</span></a>        
+</span><span id="PHML-35"><a href="#PHML-35"><span class="linenos"> 35</span></a>    <span class="nd">@property</span>
+</span><span id="PHML-36"><a href="#PHML-36"><span class="linenos"> 36</span></a>    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="PHML-37"><a href="#PHML-37"><span class="linenos"> 37</span></a>        <span class="sd">&quot;&quot;&quot;The components currently stored in the compiler.&quot;&quot;&quot;</span>
+</span><span id="PHML-38"><a href="#PHML-38"><span class="linenos"> 38</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span><span class="o">.</span><span class="n">components</span>
+</span><span id="PHML-39"><a href="#PHML-39"><span class="linenos"> 39</span></a>
+</span><span id="PHML-40"><a href="#PHML-40"><span class="linenos"> 40</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="PHML-41"><a href="#PHML-41"><span class="linenos"> 41</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="PHML-42"><a href="#PHML-42"><span class="linenos"> 42</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="PHML-43"><a href="#PHML-43"><span class="linenos"> 43</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="PHML-44"><a href="#PHML-44"><span class="linenos"> 44</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Components</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="PHML-45"><a href="#PHML-45"><span class="linenos"> 45</span></a>        <span class="n">enable</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">EnableKeys</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">EnableDefault</span><span class="p">,</span>
 </span><span id="PHML-46"><a href="#PHML-46"><span class="linenos"> 46</span></a>        <span class="o">**</span><span class="n">contexts</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 </span><span id="PHML-47"><a href="#PHML-47"><span class="linenos"> 47</span></a>    <span class="p">):</span>
 </span><span id="PHML-48"><a href="#PHML-48"><span class="linenos"> 48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">()</span>
-</span><span id="PHML-49"><a href="#PHML-49"><span class="linenos"> 49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span> <span class="o">=</span> <span class="n">Compiler</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">)</span>
+</span><span id="PHML-49"><a href="#PHML-49"><span class="linenos"> 49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span> <span class="o">=</span> <span class="n">Compiler</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span> <span class="n">enable</span><span class="o">=</span><span class="n">enable</span><span class="p">)</span>
 </span><span id="PHML-50"><a href="#PHML-50"><span class="linenos"> 50</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="n">scopes</span> <span class="ow">or</span> <span class="p">[]</span>
 </span><span id="PHML-51"><a href="#PHML-51"><span class="linenos"> 51</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">contexts</span><span class="p">)</span>
 </span><span id="PHML-52"><a href="#PHML-52"><span class="linenos"> 52</span></a>
@@ -677,20 +703,22 @@ writing the results of a render to a file.</p>
                                         <input id="PHML.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">PHML</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="o">**</span><span class="n">contexts</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
+        <span class="name">PHML</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">scopes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">enable</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;markdown&#39;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;html&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;markdown&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;for&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>,</span><span class="param">	<span class="o">**</span><span class="n">contexts</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
 
                 <label class="view-source-button" for="PHML.__init__-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#PHML.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="PHML.__init__-42"><a href="#PHML.__init__-42"><span class="linenos">42</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="PHML.__init__-43"><a href="#PHML.__init__-43"><span class="linenos">43</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="PHML.__init__-44"><a href="#PHML.__init__-44"><span class="linenos">44</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="PHML.__init__-45"><a href="#PHML.__init__-45"><span class="linenos">45</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="PHML.__init__-40"><a href="#PHML.__init__-40"><span class="linenos">40</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="PHML.__init__-41"><a href="#PHML.__init__-41"><span class="linenos">41</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="PHML.__init__-42"><a href="#PHML.__init__-42"><span class="linenos">42</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="PHML.__init__-43"><a href="#PHML.__init__-43"><span class="linenos">43</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="PHML.__init__-44"><a href="#PHML.__init__-44"><span class="linenos">44</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Components</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="PHML.__init__-45"><a href="#PHML.__init__-45"><span class="linenos">45</span></a>        <span class="n">enable</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">EnableKeys</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">EnableDefault</span><span class="p">,</span>
 </span><span id="PHML.__init__-46"><a href="#PHML.__init__-46"><span class="linenos">46</span></a>        <span class="o">**</span><span class="n">contexts</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 </span><span id="PHML.__init__-47"><a href="#PHML.__init__-47"><span class="linenos">47</span></a>    <span class="p">):</span>
 </span><span id="PHML.__init__-48"><a href="#PHML.__init__-48"><span class="linenos">48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">()</span>
-</span><span id="PHML.__init__-49"><a href="#PHML.__init__-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span> <span class="o">=</span> <span class="n">Compiler</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">)</span>
+</span><span id="PHML.__init__-49"><a href="#PHML.__init__-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_compiler</span> <span class="o">=</span> <span class="n">Compiler</span><span class="p">(</span><span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span> <span class="n">enable</span><span class="o">=</span><span class="n">enable</span><span class="p">)</span>
 </span><span id="PHML.__init__-50"><a href="#PHML.__init__-50"><span class="linenos">50</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_scopes</span> <span class="o">=</span> <span class="n">scopes</span> <span class="ow">or</span> <span class="p">[]</span>
 </span><span id="PHML.__init__-51"><a href="#PHML.__init__-51"><span class="linenos">51</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">contexts</span><span class="p">)</span>
 </span></pre></div>
@@ -829,7 +857,7 @@ This prevents them from being added to the python path.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">add</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="o">*</span><span class="n">components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">strip</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></span><span class="return-annotation">):</span></span>
+        <span class="name">add</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="o">*</span><span class="n">components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>,</span><span class="param">	<span class="n">strip</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="PHML.add-view-source"><span>View Source</span></label>
 
@@ -903,13 +931,13 @@ parsed ast of the component. Lastely, the component can be a tuple. The first
 value is the name of the element to be replaced; with the second value being
 either the parsed result of the component or the component's ast.</p>
 
-<h6 id="note">Note:</h6>
+<h6 id="note">Note</h6>
 
 <blockquote>
   <p>Any duplicate components will be replaced.</p>
 </blockquote>
 
-<h6 id="arguments">Arguments:</h6>
+<h6 id="args">Args</h6>
 
 <ul>
 <li><strong>components:</strong>  Any number values indicating</li>
@@ -976,7 +1004,7 @@ it will attempt to find a matching node and remove it.</p>
 
             <div class="docstring"><p>Load a source files data and parse it to phml.</p>
 
-<h6 id="arguments">Arguments:</h6>
+<h6 id="args">Args</h6>
 
 <ul>
 <li><strong>file_path (str | Path):</strong>  The file path to the source file.</li>
@@ -1009,7 +1037,7 @@ it will attempt to find a matching node and remove it.</p>
 
             <div class="docstring"><p>Parse a str or dict object into phml.</p>
 
-<h6 id="arguments">Arguments:</h6>
+<h6 id="args">Args</h6>
 
 <ul>
 <li><strong>data (str | dict):</strong>  Object to parse to phml</li>
@@ -1065,7 +1093,7 @@ it will attempt to find a matching node and remove it.</p>
 
             <div class="docstring"><p>Compile the parsed ast into it's fully processed form.</p>
 
-<h6 id="arguments">Arguments:</h6>
+<h6 id="args">Args</h6>
 
 <ul>
 <li><strong>file_type (str):</strong>  The format to render to. Currently support html, phml, and json.</li>
@@ -1074,7 +1102,7 @@ it will attempt to find a matching node and remove it.</p>
 <li>has 2 spaces.</li>
 </ul>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="returns">Returns</h6>
 
 <blockquote>
   <p>AST: The processed ast. Ast is in the final format of the passed in file_type</p>
@@ -1132,7 +1160,7 @@ it will attempt to find a matching node and remove it.</p>
 
             <div class="docstring"><p>Render the parsed ast to a different format. Defaults to rendering to html.</p>
 
-<h6 id="arguments">Arguments:</h6>
+<h6 id="args">Args</h6>
 
 <ul>
 <li><strong>file_type (str):</strong>  The format to render to. Currently support html, phml, and json.</li>
@@ -1141,7 +1169,7 @@ it will attempt to find a matching node and remove it.</p>
 <li>has 2 spaces.</li>
 </ul>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="returns">Returns</h6>
 
 <blockquote>
   <p>str: The rendered content in the appropriate format.</p>
@@ -1228,7 +1256,7 @@ it will attempt to find a matching node and remove it.</p>
             <div class="docstring"><p>Renders the parsed ast to a different format, then writes
 it to a given file. Defaults to rendering and writing out as html.</p>
 
-<h6 id="arguments">Arguments:</h6>
+<h6 id="args">Args</h6>
 
 <ul>
 <li><strong>file (str | Path | TextIOWrapper):</strong>  The path to the file to be written to, or the opened</li>
@@ -1244,6 +1272,489 @@ it to a given file. Defaults to rendering and writing out as html.</p>
 <li><strong>kwargs:</strong>  Any additional data to pass to the compiler that will be exposed to the</li>
 <li>phml files.</li>
 </ul>
+</div>
+
+
+                            </div>
+                </section>
+                <section id="Compiler">
+                            <input id="Compiler-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">Compiler</span>:
+
+                <label class="view-source-button" for="Compiler-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Compiler"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Compiler-25"><a href="#Compiler-25"><span class="linenos"> 25</span></a><span class="k">class</span> <span class="nc">Compiler</span><span class="p">:</span>
+</span><span id="Compiler-26"><a href="#Compiler-26"><span class="linenos"> 26</span></a>    <span class="sd">&quot;&quot;&quot;Used to compile phml into other formats. HTML, PHML,</span>
+</span><span id="Compiler-27"><a href="#Compiler-27"><span class="linenos"> 27</span></a><span class="sd">    JSON, Markdown, etc...</span>
+</span><span id="Compiler-28"><a href="#Compiler-28"><span class="linenos"> 28</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="Compiler-29"><a href="#Compiler-29"><span class="linenos"> 29</span></a>
+</span><span id="Compiler-30"><a href="#Compiler-30"><span class="linenos"> 30</span></a>    <span class="n">ast</span><span class="p">:</span> <span class="n">AST</span>
+</span><span id="Compiler-31"><a href="#Compiler-31"><span class="linenos"> 31</span></a>    <span class="sd">&quot;&quot;&quot;phml ast used by the compiler to generate a new format.&quot;&quot;&quot;</span>
+</span><span id="Compiler-32"><a href="#Compiler-32"><span class="linenos"> 32</span></a>
+</span><span id="Compiler-33"><a href="#Compiler-33"><span class="linenos"> 33</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="Compiler-34"><a href="#Compiler-34"><span class="linenos"> 34</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Compiler-35"><a href="#Compiler-35"><span class="linenos"> 35</span></a>        <span class="n">_ast</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AST</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-36"><a href="#Compiler-36"><span class="linenos"> 36</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-37"><a href="#Compiler-37"><span class="linenos"> 37</span></a>        <span class="n">enable</span><span class="p">:</span> <span class="n">ConfigEnable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-38"><a href="#Compiler-38"><span class="linenos"> 38</span></a>    <span class="p">):</span>
+</span><span id="Compiler-39"><a href="#Compiler-39"><span class="linenos"> 39</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">ast</span> <span class="o">=</span> <span class="n">_ast</span>
+</span><span id="Compiler-40"><a href="#Compiler-40"><span class="linenos"> 40</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">components</span> <span class="ow">or</span> <span class="p">{}</span>
+</span><span id="Compiler-41"><a href="#Compiler-41"><span class="linenos"> 41</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="Compiler-42"><a href="#Compiler-42"><span class="linenos"> 42</span></a>            <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">enable</span> <span class="ow">or</span> <span class="n">EnableDefault</span>
+</span><span id="Compiler-43"><a href="#Compiler-43"><span class="linenos"> 43</span></a>        <span class="p">}</span>
+</span><span id="Compiler-44"><a href="#Compiler-44"><span class="linenos"> 44</span></a>
+</span><span id="Compiler-45"><a href="#Compiler-45"><span class="linenos"> 45</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
+</span><span id="Compiler-46"><a href="#Compiler-46"><span class="linenos"> 46</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Compiler-47"><a href="#Compiler-47"><span class="linenos"> 47</span></a>        <span class="o">*</span><span class="n">components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]</span> <span class="o">|</span> <span class="n">AST</span><span class="p">]</span>
+</span><span id="Compiler-48"><a href="#Compiler-48"><span class="linenos"> 48</span></a>        <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]</span> <span class="o">|</span> <span class="n">AST</span><span class="p">],</span>
+</span><span id="Compiler-49"><a href="#Compiler-49"><span class="linenos"> 49</span></a>    <span class="p">):</span>
+</span><span id="Compiler-50"><a href="#Compiler-50"><span class="linenos"> 50</span></a>        <span class="sd">&quot;&quot;&quot;Add a component to the compilers component list.</span>
+</span><span id="Compiler-51"><a href="#Compiler-51"><span class="linenos"> 51</span></a>
+</span><span id="Compiler-52"><a href="#Compiler-52"><span class="linenos"> 52</span></a><span class="sd">        Components passed in can be of a few types. It can also be a</span>
+</span><span id="Compiler-53"><a href="#Compiler-53"><span class="linenos"> 53</span></a><span class="sd">        dictionary of str being the name of the element to be replaced. The</span>
+</span><span id="Compiler-54"><a href="#Compiler-54"><span class="linenos"> 54</span></a><span class="sd">        name can be snake case, camel case, or pascal cased. The value can</span>
+</span><span id="Compiler-55"><a href="#Compiler-55"><span class="linenos"> 55</span></a><span class="sd">        either be the parsed result of the component from</span>
+</span><span id="Compiler-56"><a href="#Compiler-56"><span class="linenos"> 56</span></a><span class="sd">        phml.utilities.parse_component() or the parsed ast of the component.</span>
+</span><span id="Compiler-57"><a href="#Compiler-57"><span class="linenos"> 57</span></a><span class="sd">        Lastely, the component can be a tuple. The first value is the name of</span>
+</span><span id="Compiler-58"><a href="#Compiler-58"><span class="linenos"> 58</span></a><span class="sd">        the element to be replaced; with the second value being either the</span>
+</span><span id="Compiler-59"><a href="#Compiler-59"><span class="linenos"> 59</span></a><span class="sd">        parsed result of the component or the component&#39;s ast.</span>
+</span><span id="Compiler-60"><a href="#Compiler-60"><span class="linenos"> 60</span></a>
+</span><span id="Compiler-61"><a href="#Compiler-61"><span class="linenos"> 61</span></a><span class="sd">        Note:</span>
+</span><span id="Compiler-62"><a href="#Compiler-62"><span class="linenos"> 62</span></a><span class="sd">            Any duplicate components will be replaced.</span>
+</span><span id="Compiler-63"><a href="#Compiler-63"><span class="linenos"> 63</span></a>
+</span><span id="Compiler-64"><a href="#Compiler-64"><span class="linenos"> 64</span></a><span class="sd">        Args:</span>
+</span><span id="Compiler-65"><a href="#Compiler-65"><span class="linenos"> 65</span></a><span class="sd">            components: Any number values indicating</span>
+</span><span id="Compiler-66"><a href="#Compiler-66"><span class="linenos"> 66</span></a><span class="sd">            name of the component and the the component. The name is used</span>
+</span><span id="Compiler-67"><a href="#Compiler-67"><span class="linenos"> 67</span></a><span class="sd">            to replace a element with the tag==name.</span>
+</span><span id="Compiler-68"><a href="#Compiler-68"><span class="linenos"> 68</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Compiler-69"><a href="#Compiler-69"><span class="linenos"> 69</span></a>
+</span><span id="Compiler-70"><a href="#Compiler-70"><span class="linenos"> 70</span></a>        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+</span><span id="Compiler-71"><a href="#Compiler-71"><span class="linenos"> 71</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+</span><span id="Compiler-72"><a href="#Compiler-72"><span class="linenos"> 72</span></a>                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="Compiler-73"><a href="#Compiler-73"><span class="linenos"> 73</span></a>                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">AST</span><span class="p">):</span>
+</span><span id="Compiler-74"><a href="#Compiler-74"><span class="linenos"> 74</span></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">parse_component</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="s2">&quot;cache&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+</span><span id="Compiler-75"><a href="#Compiler-75"><span class="linenos"> 75</span></a>                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valid_component_dict</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+</span><span id="Compiler-76"><a href="#Compiler-76"><span class="linenos"> 76</span></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+</span><span id="Compiler-77"><a href="#Compiler-77"><span class="linenos"> 77</span></a>            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+</span><span id="Compiler-78"><a href="#Compiler-78"><span class="linenos"> 78</span></a>                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">AST</span><span class="p">):</span>
+</span><span id="Compiler-79"><a href="#Compiler-79"><span class="linenos"> 79</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">component</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="Compiler-80"><a href="#Compiler-80"><span class="linenos"> 80</span></a>                        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">parse_component</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+</span><span id="Compiler-81"><a href="#Compiler-81"><span class="linenos"> 81</span></a>                        <span class="s2">&quot;cache&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-82"><a href="#Compiler-82"><span class="linenos"> 82</span></a>                    <span class="p">}</span>
+</span><span id="Compiler-83"><a href="#Compiler-83"><span class="linenos"> 83</span></a>                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valid_component_dict</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+</span><span id="Compiler-84"><a href="#Compiler-84"><span class="linenos"> 84</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">component</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">component</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;cache&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+</span><span id="Compiler-85"><a href="#Compiler-85"><span class="linenos"> 85</span></a>
+</span><span id="Compiler-86"><a href="#Compiler-86"><span class="linenos"> 86</span></a>        <span class="k">return</span> <span class="bp">self</span>
+</span><span id="Compiler-87"><a href="#Compiler-87"><span class="linenos"> 87</span></a>
+</span><span id="Compiler-88"><a href="#Compiler-88"><span class="linenos"> 88</span></a>    <span class="k">def</span> <span class="nf">__construct_scope_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="Compiler-89"><a href="#Compiler-89"><span class="linenos"> 89</span></a>        <span class="sd">&quot;&quot;&quot;Get the individual sub directories to to the scopes path.&quot;&quot;&quot;</span>
+</span><span id="Compiler-90"><a href="#Compiler-90"><span class="linenos"> 90</span></a>        <span class="n">sub_dirs</span> <span class="o">=</span> <span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\.+\/?)+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">scope</span><span class="p">)</span>
+</span><span id="Compiler-91"><a href="#Compiler-91"><span class="linenos"> 91</span></a>        <span class="n">sub_dirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sub_dir</span> <span class="k">for</span> <span class="n">sub_dir</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sub_dirs</span><span class="p">)</span> <span class="k">if</span> <span class="n">sub_dir</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+</span><span id="Compiler-92"><a href="#Compiler-92"><span class="linenos"> 92</span></a>        <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="Compiler-93"><a href="#Compiler-93"><span class="linenos"> 93</span></a>        <span class="k">for</span> <span class="n">sub_dir</span> <span class="ow">in</span> <span class="n">sub_dirs</span><span class="p">:</span>
+</span><span id="Compiler-94"><a href="#Compiler-94"><span class="linenos"> 94</span></a>            <span class="k">if</span> <span class="n">sub_dir</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;**&quot;</span><span class="p">]:</span>
+</span><span id="Compiler-95"><a href="#Compiler-95"><span class="linenos"> 95</span></a>                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can not use wildcards in scopes: </span><span class="si">{</span><span class="n">scope</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="Compiler-96"><a href="#Compiler-96"><span class="linenos"> 96</span></a>            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_dir</span><span class="p">)</span>
+</span><span id="Compiler-97"><a href="#Compiler-97"><span class="linenos"> 97</span></a>        <span class="k">return</span> <span class="n">path</span>
+</span><span id="Compiler-98"><a href="#Compiler-98"><span class="linenos"> 98</span></a>
+</span><span id="Compiler-99"><a href="#Compiler-99"><span class="linenos"> 99</span></a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">components</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">):</span>
+</span><span id="Compiler-100"><a href="#Compiler-100"><span class="linenos">100</span></a>        <span class="sd">&quot;&quot;&quot;Takes either component names or components and removes them</span>
+</span><span id="Compiler-101"><a href="#Compiler-101"><span class="linenos">101</span></a><span class="sd">        from the dictionary.</span>
+</span><span id="Compiler-102"><a href="#Compiler-102"><span class="linenos">102</span></a>
+</span><span id="Compiler-103"><a href="#Compiler-103"><span class="linenos">103</span></a><span class="sd">        Args:</span>
+</span><span id="Compiler-104"><a href="#Compiler-104"><span class="linenos">104</span></a><span class="sd">            components (str | NODE): Any str name of components or</span>
+</span><span id="Compiler-105"><a href="#Compiler-105"><span class="linenos">105</span></a><span class="sd">            node value to remove from the components list in the compiler.</span>
+</span><span id="Compiler-106"><a href="#Compiler-106"><span class="linenos">106</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Compiler-107"><a href="#Compiler-107"><span class="linenos">107</span></a>        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+</span><span id="Compiler-108"><a href="#Compiler-108"><span class="linenos">108</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="Compiler-109"><a href="#Compiler-109"><span class="linenos">109</span></a>                <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+</span><span id="Compiler-110"><a href="#Compiler-110"><span class="linenos">110</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="Compiler-111"><a href="#Compiler-111"><span class="linenos">111</span></a>                <span class="k">else</span><span class="p">:</span>
+</span><span id="Compiler-112"><a href="#Compiler-112"><span class="linenos">112</span></a>                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid component name &#39;</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</span><span id="Compiler-113"><a href="#Compiler-113"><span class="linenos">113</span></a>            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">NODE</span><span class="p">):</span>
+</span><span id="Compiler-114"><a href="#Compiler-114"><span class="linenos">114</span></a>                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="Compiler-115"><a href="#Compiler-115"><span class="linenos">115</span></a>                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;component&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">component</span><span class="p">:</span>
+</span><span id="Compiler-116"><a href="#Compiler-116"><span class="linenos">116</span></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="Compiler-117"><a href="#Compiler-117"><span class="linenos">117</span></a>                        <span class="k">break</span>
+</span><span id="Compiler-118"><a href="#Compiler-118"><span class="linenos">118</span></a>
+</span><span id="Compiler-119"><a href="#Compiler-119"><span class="linenos">119</span></a>        <span class="k">return</span> <span class="bp">self</span>
+</span><span id="Compiler-120"><a href="#Compiler-120"><span class="linenos">120</span></a>
+</span><span id="Compiler-121"><a href="#Compiler-121"><span class="linenos">121</span></a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span>
+</span><span id="Compiler-122"><a href="#Compiler-122"><span class="linenos">122</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Compiler-123"><a href="#Compiler-123"><span class="linenos">123</span></a>        <span class="n">_ast</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AST</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-124"><a href="#Compiler-124"><span class="linenos">124</span></a>        <span class="n">to_format</span><span class="p">:</span> <span class="n">Format</span> <span class="o">=</span> <span class="n">Formats</span><span class="o">.</span><span class="n">HTML</span><span class="p">,</span>
+</span><span id="Compiler-125"><a href="#Compiler-125"><span class="linenos">125</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-126"><a href="#Compiler-126"><span class="linenos">126</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-127"><a href="#Compiler-127"><span class="linenos">127</span></a>        <span class="n">safe_vars</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="Compiler-128"><a href="#Compiler-128"><span class="linenos">128</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="Compiler-129"><a href="#Compiler-129"><span class="linenos">129</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AST</span><span class="p">:</span>
+</span><span id="Compiler-130"><a href="#Compiler-130"><span class="linenos">130</span></a>        <span class="sd">&quot;&quot;&quot;Execute compilation to a different format.&quot;&quot;&quot;</span>
+</span><span id="Compiler-131"><a href="#Compiler-131"><span class="linenos">131</span></a>
+</span><span id="Compiler-132"><a href="#Compiler-132"><span class="linenos">132</span></a>        <span class="n">_ast</span> <span class="o">=</span> <span class="n">_ast</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast</span>
+</span><span id="Compiler-133"><a href="#Compiler-133"><span class="linenos">133</span></a>
+</span><span id="Compiler-134"><a href="#Compiler-134"><span class="linenos">134</span></a>        <span class="k">if</span> <span class="n">_ast</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Compiler-135"><a href="#Compiler-135"><span class="linenos">135</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Must provide an ast to compile&quot;</span><span class="p">)</span>
+</span><span id="Compiler-136"><a href="#Compiler-136"><span class="linenos">136</span></a>
+</span><span id="Compiler-137"><a href="#Compiler-137"><span class="linenos">137</span></a>        <span class="c1"># Insert the scopes into the path</span>
+</span><span id="Compiler-138"><a href="#Compiler-138"><span class="linenos">138</span></a>        <span class="n">scopes</span> <span class="o">=</span> <span class="n">scopes</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;./&quot;</span><span class="p">]</span>
+</span><span id="Compiler-139"><a href="#Compiler-139"><span class="linenos">139</span></a>        <span class="k">if</span> <span class="n">scopes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Compiler-140"><a href="#Compiler-140"><span class="linenos">140</span></a>
+</span><span id="Compiler-141"><a href="#Compiler-141"><span class="linenos">141</span></a>            <span class="k">for</span> <span class="n">scope</span> <span class="ow">in</span> <span class="n">scopes</span><span class="p">:</span>
+</span><span id="Compiler-142"><a href="#Compiler-142"><span class="linenos">142</span></a>                <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="Compiler-143"><a href="#Compiler-143"><span class="linenos">143</span></a>                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+</span><span id="Compiler-144"><a href="#Compiler-144"><span class="linenos">144</span></a>                        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span><span id="Compiler-145"><a href="#Compiler-145"><span class="linenos">145</span></a>                        <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">__construct_scope_path</span><span class="p">(</span><span class="n">scope</span><span class="p">),</span>
+</span><span id="Compiler-146"><a href="#Compiler-146"><span class="linenos">146</span></a>                    <span class="p">)</span>
+</span><span id="Compiler-147"><a href="#Compiler-147"><span class="linenos">147</span></a>                <span class="p">)</span>
+</span><span id="Compiler-148"><a href="#Compiler-148"><span class="linenos">148</span></a>
+</span><span id="Compiler-149"><a href="#Compiler-149"><span class="linenos">149</span></a>        <span class="c1"># Depending on the format parse with the appropriate function</span>
+</span><span id="Compiler-150"><a href="#Compiler-150"><span class="linenos">150</span></a>        <span class="n">components</span> <span class="o">=</span> <span class="n">components</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
+</span><span id="Compiler-151"><a href="#Compiler-151"><span class="linenos">151</span></a>        <span class="n">cmpts</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">,</span> <span class="o">**</span><span class="n">components</span><span class="p">}</span>
+</span><span id="Compiler-152"><a href="#Compiler-152"><span class="linenos">152</span></a>        <span class="k">return</span> <span class="n">to_format</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+</span><span id="Compiler-153"><a href="#Compiler-153"><span class="linenos">153</span></a>            <span class="n">_ast</span><span class="p">,</span>
+</span><span id="Compiler-154"><a href="#Compiler-154"><span class="linenos">154</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+</span><span id="Compiler-155"><a href="#Compiler-155"><span class="linenos">155</span></a>            <span class="n">cmpts</span><span class="p">,</span>
+</span><span id="Compiler-156"><a href="#Compiler-156"><span class="linenos">156</span></a>            <span class="n">safe_vars</span><span class="o">=</span><span class="n">safe_vars</span><span class="p">,</span>
+</span><span id="Compiler-157"><a href="#Compiler-157"><span class="linenos">157</span></a>            <span class="o">**</span><span class="n">kwargs</span>
+</span><span id="Compiler-158"><a href="#Compiler-158"><span class="linenos">158</span></a>        <span class="p">)</span>
+</span><span id="Compiler-159"><a href="#Compiler-159"><span class="linenos">159</span></a>
+</span><span id="Compiler-160"><a href="#Compiler-160"><span class="linenos">160</span></a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span>
+</span><span id="Compiler-161"><a href="#Compiler-161"><span class="linenos">161</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Compiler-162"><a href="#Compiler-162"><span class="linenos">162</span></a>        <span class="n">_ast</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AST</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-163"><a href="#Compiler-163"><span class="linenos">163</span></a>        <span class="n">to_format</span><span class="p">:</span> <span class="n">Format</span> <span class="o">=</span> <span class="n">Formats</span><span class="o">.</span><span class="n">HTML</span><span class="p">,</span>
+</span><span id="Compiler-164"><a href="#Compiler-164"><span class="linenos">164</span></a>        <span class="n">indent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-165"><a href="#Compiler-165"><span class="linenos">165</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-166"><a href="#Compiler-166"><span class="linenos">166</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler-167"><a href="#Compiler-167"><span class="linenos">167</span></a>        <span class="n">safe_vars</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="Compiler-168"><a href="#Compiler-168"><span class="linenos">168</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="Compiler-169"><a href="#Compiler-169"><span class="linenos">169</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Compiler-170"><a href="#Compiler-170"><span class="linenos">170</span></a>        <span class="sd">&quot;&quot;&quot;Execute compilation to a different format.&quot;&quot;&quot;</span>
+</span><span id="Compiler-171"><a href="#Compiler-171"><span class="linenos">171</span></a>
+</span><span id="Compiler-172"><a href="#Compiler-172"><span class="linenos">172</span></a>        <span class="n">_ast</span> <span class="o">=</span> <span class="n">_ast</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast</span>
+</span><span id="Compiler-173"><a href="#Compiler-173"><span class="linenos">173</span></a>
+</span><span id="Compiler-174"><a href="#Compiler-174"><span class="linenos">174</span></a>        <span class="k">if</span> <span class="n">_ast</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Compiler-175"><a href="#Compiler-175"><span class="linenos">175</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Must provide an ast to compile&quot;</span><span class="p">)</span>
+</span><span id="Compiler-176"><a href="#Compiler-176"><span class="linenos">176</span></a>
+</span><span id="Compiler-177"><a href="#Compiler-177"><span class="linenos">177</span></a>        <span class="c1"># Insert the scopes into the path</span>
+</span><span id="Compiler-178"><a href="#Compiler-178"><span class="linenos">178</span></a>        <span class="n">scopes</span> <span class="o">=</span> <span class="n">scopes</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;./&quot;</span><span class="p">]</span>
+</span><span id="Compiler-179"><a href="#Compiler-179"><span class="linenos">179</span></a>        <span class="k">if</span> <span class="n">scopes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Compiler-180"><a href="#Compiler-180"><span class="linenos">180</span></a>
+</span><span id="Compiler-181"><a href="#Compiler-181"><span class="linenos">181</span></a>            <span class="k">for</span> <span class="n">scope</span> <span class="ow">in</span> <span class="n">scopes</span><span class="p">:</span>
+</span><span id="Compiler-182"><a href="#Compiler-182"><span class="linenos">182</span></a>                <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="Compiler-183"><a href="#Compiler-183"><span class="linenos">183</span></a>                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+</span><span id="Compiler-184"><a href="#Compiler-184"><span class="linenos">184</span></a>                        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span><span id="Compiler-185"><a href="#Compiler-185"><span class="linenos">185</span></a>                        <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">__construct_scope_path</span><span class="p">(</span><span class="n">scope</span><span class="p">),</span>
+</span><span id="Compiler-186"><a href="#Compiler-186"><span class="linenos">186</span></a>                    <span class="p">)</span>
+</span><span id="Compiler-187"><a href="#Compiler-187"><span class="linenos">187</span></a>                <span class="p">)</span>
+</span><span id="Compiler-188"><a href="#Compiler-188"><span class="linenos">188</span></a>
+</span><span id="Compiler-189"><a href="#Compiler-189"><span class="linenos">189</span></a>        <span class="c1"># Depending on the format parse with the appropriate function</span>
+</span><span id="Compiler-190"><a href="#Compiler-190"><span class="linenos">190</span></a>        <span class="n">components</span> <span class="o">=</span> <span class="n">components</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
+</span><span id="Compiler-191"><a href="#Compiler-191"><span class="linenos">191</span></a>        <span class="n">cmpts</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">,</span> <span class="o">**</span><span class="n">components</span><span class="p">}</span>
+</span><span id="Compiler-192"><a href="#Compiler-192"><span class="linenos">192</span></a>        <span class="k">return</span> <span class="n">to_format</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+</span><span id="Compiler-193"><a href="#Compiler-193"><span class="linenos">193</span></a>            <span class="n">_ast</span><span class="p">,</span>
+</span><span id="Compiler-194"><a href="#Compiler-194"><span class="linenos">194</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+</span><span id="Compiler-195"><a href="#Compiler-195"><span class="linenos">195</span></a>            <span class="n">cmpts</span><span class="p">,</span>
+</span><span id="Compiler-196"><a href="#Compiler-196"><span class="linenos">196</span></a>            <span class="n">indent</span><span class="p">,</span>
+</span><span id="Compiler-197"><a href="#Compiler-197"><span class="linenos">197</span></a>            <span class="n">safe_vars</span><span class="o">=</span><span class="n">safe_vars</span><span class="p">,</span>
+</span><span id="Compiler-198"><a href="#Compiler-198"><span class="linenos">198</span></a>            <span class="o">**</span><span class="n">kwargs</span>
+</span><span id="Compiler-199"><a href="#Compiler-199"><span class="linenos">199</span></a>        <span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Used to compile phml into other formats. HTML, PHML,
+JSON, Markdown, etc...</p>
+</div>
+
+
+                            <div id="Compiler.__init__" class="classattr">
+                                        <input id="Compiler.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="name">Compiler</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">_ast</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">enable</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;markdown&#39;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+
+                <label class="view-source-button" for="Compiler.__init__-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Compiler.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Compiler.__init__-33"><a href="#Compiler.__init__-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="Compiler.__init__-34"><a href="#Compiler.__init__-34"><span class="linenos">34</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Compiler.__init__-35"><a href="#Compiler.__init__-35"><span class="linenos">35</span></a>        <span class="n">_ast</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AST</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.__init__-36"><a href="#Compiler.__init__-36"><span class="linenos">36</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.__init__-37"><a href="#Compiler.__init__-37"><span class="linenos">37</span></a>        <span class="n">enable</span><span class="p">:</span> <span class="n">ConfigEnable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.__init__-38"><a href="#Compiler.__init__-38"><span class="linenos">38</span></a>    <span class="p">):</span>
+</span><span id="Compiler.__init__-39"><a href="#Compiler.__init__-39"><span class="linenos">39</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">ast</span> <span class="o">=</span> <span class="n">_ast</span>
+</span><span id="Compiler.__init__-40"><a href="#Compiler.__init__-40"><span class="linenos">40</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">components</span> <span class="ow">or</span> <span class="p">{}</span>
+</span><span id="Compiler.__init__-41"><a href="#Compiler.__init__-41"><span class="linenos">41</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="Compiler.__init__-42"><a href="#Compiler.__init__-42"><span class="linenos">42</span></a>            <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">enable</span> <span class="ow">or</span> <span class="n">EnableDefault</span>
+</span><span id="Compiler.__init__-43"><a href="#Compiler.__init__-43"><span class="linenos">43</span></a>        <span class="p">}</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
+                            <div id="Compiler.ast" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ast</span><span class="annotation">: <a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Compiler.ast"></a>
+    
+            <div class="docstring"><p>phml ast used by the compiler to generate a new format.</p>
+</div>
+
+
+                            </div>
+                            <div id="Compiler.add" class="classattr">
+                                        <input id="Compiler.add-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">add</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="o">*</span><span class="n">components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span><span class="p">]</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Compiler.add-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Compiler.add"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Compiler.add-45"><a href="#Compiler.add-45"><span class="linenos">45</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
+</span><span id="Compiler.add-46"><a href="#Compiler.add-46"><span class="linenos">46</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Compiler.add-47"><a href="#Compiler.add-47"><span class="linenos">47</span></a>        <span class="o">*</span><span class="n">components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]</span> <span class="o">|</span> <span class="n">AST</span><span class="p">]</span>
+</span><span id="Compiler.add-48"><a href="#Compiler.add-48"><span class="linenos">48</span></a>        <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">]</span> <span class="o">|</span> <span class="n">AST</span><span class="p">],</span>
+</span><span id="Compiler.add-49"><a href="#Compiler.add-49"><span class="linenos">49</span></a>    <span class="p">):</span>
+</span><span id="Compiler.add-50"><a href="#Compiler.add-50"><span class="linenos">50</span></a>        <span class="sd">&quot;&quot;&quot;Add a component to the compilers component list.</span>
+</span><span id="Compiler.add-51"><a href="#Compiler.add-51"><span class="linenos">51</span></a>
+</span><span id="Compiler.add-52"><a href="#Compiler.add-52"><span class="linenos">52</span></a><span class="sd">        Components passed in can be of a few types. It can also be a</span>
+</span><span id="Compiler.add-53"><a href="#Compiler.add-53"><span class="linenos">53</span></a><span class="sd">        dictionary of str being the name of the element to be replaced. The</span>
+</span><span id="Compiler.add-54"><a href="#Compiler.add-54"><span class="linenos">54</span></a><span class="sd">        name can be snake case, camel case, or pascal cased. The value can</span>
+</span><span id="Compiler.add-55"><a href="#Compiler.add-55"><span class="linenos">55</span></a><span class="sd">        either be the parsed result of the component from</span>
+</span><span id="Compiler.add-56"><a href="#Compiler.add-56"><span class="linenos">56</span></a><span class="sd">        phml.utilities.parse_component() or the parsed ast of the component.</span>
+</span><span id="Compiler.add-57"><a href="#Compiler.add-57"><span class="linenos">57</span></a><span class="sd">        Lastely, the component can be a tuple. The first value is the name of</span>
+</span><span id="Compiler.add-58"><a href="#Compiler.add-58"><span class="linenos">58</span></a><span class="sd">        the element to be replaced; with the second value being either the</span>
+</span><span id="Compiler.add-59"><a href="#Compiler.add-59"><span class="linenos">59</span></a><span class="sd">        parsed result of the component or the component&#39;s ast.</span>
+</span><span id="Compiler.add-60"><a href="#Compiler.add-60"><span class="linenos">60</span></a>
+</span><span id="Compiler.add-61"><a href="#Compiler.add-61"><span class="linenos">61</span></a><span class="sd">        Note:</span>
+</span><span id="Compiler.add-62"><a href="#Compiler.add-62"><span class="linenos">62</span></a><span class="sd">            Any duplicate components will be replaced.</span>
+</span><span id="Compiler.add-63"><a href="#Compiler.add-63"><span class="linenos">63</span></a>
+</span><span id="Compiler.add-64"><a href="#Compiler.add-64"><span class="linenos">64</span></a><span class="sd">        Args:</span>
+</span><span id="Compiler.add-65"><a href="#Compiler.add-65"><span class="linenos">65</span></a><span class="sd">            components: Any number values indicating</span>
+</span><span id="Compiler.add-66"><a href="#Compiler.add-66"><span class="linenos">66</span></a><span class="sd">            name of the component and the the component. The name is used</span>
+</span><span id="Compiler.add-67"><a href="#Compiler.add-67"><span class="linenos">67</span></a><span class="sd">            to replace a element with the tag==name.</span>
+</span><span id="Compiler.add-68"><a href="#Compiler.add-68"><span class="linenos">68</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Compiler.add-69"><a href="#Compiler.add-69"><span class="linenos">69</span></a>
+</span><span id="Compiler.add-70"><a href="#Compiler.add-70"><span class="linenos">70</span></a>        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+</span><span id="Compiler.add-71"><a href="#Compiler.add-71"><span class="linenos">71</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+</span><span id="Compiler.add-72"><a href="#Compiler.add-72"><span class="linenos">72</span></a>                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="Compiler.add-73"><a href="#Compiler.add-73"><span class="linenos">73</span></a>                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">AST</span><span class="p">):</span>
+</span><span id="Compiler.add-74"><a href="#Compiler.add-74"><span class="linenos">74</span></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">parse_component</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="s2">&quot;cache&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+</span><span id="Compiler.add-75"><a href="#Compiler.add-75"><span class="linenos">75</span></a>                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valid_component_dict</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+</span><span id="Compiler.add-76"><a href="#Compiler.add-76"><span class="linenos">76</span></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+</span><span id="Compiler.add-77"><a href="#Compiler.add-77"><span class="linenos">77</span></a>            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+</span><span id="Compiler.add-78"><a href="#Compiler.add-78"><span class="linenos">78</span></a>                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">AST</span><span class="p">):</span>
+</span><span id="Compiler.add-79"><a href="#Compiler.add-79"><span class="linenos">79</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">component</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="Compiler.add-80"><a href="#Compiler.add-80"><span class="linenos">80</span></a>                        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">parse_component</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+</span><span id="Compiler.add-81"><a href="#Compiler.add-81"><span class="linenos">81</span></a>                        <span class="s2">&quot;cache&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.add-82"><a href="#Compiler.add-82"><span class="linenos">82</span></a>                    <span class="p">}</span>
+</span><span id="Compiler.add-83"><a href="#Compiler.add-83"><span class="linenos">83</span></a>                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valid_component_dict</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+</span><span id="Compiler.add-84"><a href="#Compiler.add-84"><span class="linenos">84</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">component</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">component</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;cache&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+</span><span id="Compiler.add-85"><a href="#Compiler.add-85"><span class="linenos">85</span></a>
+</span><span id="Compiler.add-86"><a href="#Compiler.add-86"><span class="linenos">86</span></a>        <span class="k">return</span> <span class="bp">self</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Add a component to the compilers component list.</p>
+
+<p>Components passed in can be of a few types. It can also be a
+dictionary of str being the name of the element to be replaced. The
+name can be snake case, camel case, or pascal cased. The value can
+either be the parsed result of the component from
+phml.utilities.parse_component() or the parsed ast of the component.
+Lastely, the component can be a tuple. The first value is the name of
+the element to be replaced; with the second value being either the
+parsed result of the component or the component's ast.</p>
+
+<h6 id="note">Note</h6>
+
+<blockquote>
+  <p>Any duplicate components will be replaced.</p>
+</blockquote>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>components:</strong>  Any number values indicating</li>
+<li>name of the component and the the component. The name is used</li>
+<li>to replace a element with the tag==name.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Compiler.remove" class="classattr">
+                                        <input id="Compiler.remove-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">remove</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="o">*</span><span class="n">components</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Root">phml.core.nodes.nodes.Root</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Element">phml.core.nodes.nodes.Element</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Text">phml.core.nodes.nodes.Text</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Comment">phml.core.nodes.nodes.Comment</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#DocType">phml.core.nodes.nodes.DocType</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Parent">phml.core.nodes.nodes.Parent</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Node">phml.core.nodes.nodes.Node</a></span> <span class="o">|</span> <span class="n"><a href="nodes/nodes.html#Literal">phml.core.nodes.nodes.Literal</a></span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Compiler.remove-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Compiler.remove"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Compiler.remove-99"><a href="#Compiler.remove-99"><span class="linenos"> 99</span></a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">components</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">NODE</span><span class="p">):</span>
+</span><span id="Compiler.remove-100"><a href="#Compiler.remove-100"><span class="linenos">100</span></a>        <span class="sd">&quot;&quot;&quot;Takes either component names or components and removes them</span>
+</span><span id="Compiler.remove-101"><a href="#Compiler.remove-101"><span class="linenos">101</span></a><span class="sd">        from the dictionary.</span>
+</span><span id="Compiler.remove-102"><a href="#Compiler.remove-102"><span class="linenos">102</span></a>
+</span><span id="Compiler.remove-103"><a href="#Compiler.remove-103"><span class="linenos">103</span></a><span class="sd">        Args:</span>
+</span><span id="Compiler.remove-104"><a href="#Compiler.remove-104"><span class="linenos">104</span></a><span class="sd">            components (str | NODE): Any str name of components or</span>
+</span><span id="Compiler.remove-105"><a href="#Compiler.remove-105"><span class="linenos">105</span></a><span class="sd">            node value to remove from the components list in the compiler.</span>
+</span><span id="Compiler.remove-106"><a href="#Compiler.remove-106"><span class="linenos">106</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Compiler.remove-107"><a href="#Compiler.remove-107"><span class="linenos">107</span></a>        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+</span><span id="Compiler.remove-108"><a href="#Compiler.remove-108"><span class="linenos">108</span></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="Compiler.remove-109"><a href="#Compiler.remove-109"><span class="linenos">109</span></a>                <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+</span><span id="Compiler.remove-110"><a href="#Compiler.remove-110"><span class="linenos">110</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="Compiler.remove-111"><a href="#Compiler.remove-111"><span class="linenos">111</span></a>                <span class="k">else</span><span class="p">:</span>
+</span><span id="Compiler.remove-112"><a href="#Compiler.remove-112"><span class="linenos">112</span></a>                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid component name &#39;</span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</span><span id="Compiler.remove-113"><a href="#Compiler.remove-113"><span class="linenos">113</span></a>            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">NODE</span><span class="p">):</span>
+</span><span id="Compiler.remove-114"><a href="#Compiler.remove-114"><span class="linenos">114</span></a>                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="Compiler.remove-115"><a href="#Compiler.remove-115"><span class="linenos">115</span></a>                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;component&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">component</span><span class="p">:</span>
+</span><span id="Compiler.remove-116"><a href="#Compiler.remove-116"><span class="linenos">116</span></a>                        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="Compiler.remove-117"><a href="#Compiler.remove-117"><span class="linenos">117</span></a>                        <span class="k">break</span>
+</span><span id="Compiler.remove-118"><a href="#Compiler.remove-118"><span class="linenos">118</span></a>
+</span><span id="Compiler.remove-119"><a href="#Compiler.remove-119"><span class="linenos">119</span></a>        <span class="k">return</span> <span class="bp">self</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Takes either component names or components and removes them
+from the dictionary.</p>
+
+<h6 id="args">Args</h6>
+
+<ul>
+<li><strong>components (str | NODE):</strong>  Any str name of components or</li>
+<li>node value to remove from the components list in the compiler.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Compiler.compile" class="classattr">
+                                        <input id="Compiler.compile-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">compile</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">_ast</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	to_format: <a href="formats/format.html#Format">phml.core.formats.format.Format</a> = &lt;class &#x27;<a href="formats/html_format.html#HTMLFormat">phml.core.formats.html_format.HTMLFormat</a>&#x27;&gt;,</span><span class="param">	<span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">safe_vars</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span>:</span></span>
+
+                <label class="view-source-button" for="Compiler.compile-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Compiler.compile"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Compiler.compile-121"><a href="#Compiler.compile-121"><span class="linenos">121</span></a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span>
+</span><span id="Compiler.compile-122"><a href="#Compiler.compile-122"><span class="linenos">122</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Compiler.compile-123"><a href="#Compiler.compile-123"><span class="linenos">123</span></a>        <span class="n">_ast</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AST</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.compile-124"><a href="#Compiler.compile-124"><span class="linenos">124</span></a>        <span class="n">to_format</span><span class="p">:</span> <span class="n">Format</span> <span class="o">=</span> <span class="n">Formats</span><span class="o">.</span><span class="n">HTML</span><span class="p">,</span>
+</span><span id="Compiler.compile-125"><a href="#Compiler.compile-125"><span class="linenos">125</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.compile-126"><a href="#Compiler.compile-126"><span class="linenos">126</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.compile-127"><a href="#Compiler.compile-127"><span class="linenos">127</span></a>        <span class="n">safe_vars</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="Compiler.compile-128"><a href="#Compiler.compile-128"><span class="linenos">128</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="Compiler.compile-129"><a href="#Compiler.compile-129"><span class="linenos">129</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AST</span><span class="p">:</span>
+</span><span id="Compiler.compile-130"><a href="#Compiler.compile-130"><span class="linenos">130</span></a>        <span class="sd">&quot;&quot;&quot;Execute compilation to a different format.&quot;&quot;&quot;</span>
+</span><span id="Compiler.compile-131"><a href="#Compiler.compile-131"><span class="linenos">131</span></a>
+</span><span id="Compiler.compile-132"><a href="#Compiler.compile-132"><span class="linenos">132</span></a>        <span class="n">_ast</span> <span class="o">=</span> <span class="n">_ast</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast</span>
+</span><span id="Compiler.compile-133"><a href="#Compiler.compile-133"><span class="linenos">133</span></a>
+</span><span id="Compiler.compile-134"><a href="#Compiler.compile-134"><span class="linenos">134</span></a>        <span class="k">if</span> <span class="n">_ast</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Compiler.compile-135"><a href="#Compiler.compile-135"><span class="linenos">135</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Must provide an ast to compile&quot;</span><span class="p">)</span>
+</span><span id="Compiler.compile-136"><a href="#Compiler.compile-136"><span class="linenos">136</span></a>
+</span><span id="Compiler.compile-137"><a href="#Compiler.compile-137"><span class="linenos">137</span></a>        <span class="c1"># Insert the scopes into the path</span>
+</span><span id="Compiler.compile-138"><a href="#Compiler.compile-138"><span class="linenos">138</span></a>        <span class="n">scopes</span> <span class="o">=</span> <span class="n">scopes</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;./&quot;</span><span class="p">]</span>
+</span><span id="Compiler.compile-139"><a href="#Compiler.compile-139"><span class="linenos">139</span></a>        <span class="k">if</span> <span class="n">scopes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Compiler.compile-140"><a href="#Compiler.compile-140"><span class="linenos">140</span></a>
+</span><span id="Compiler.compile-141"><a href="#Compiler.compile-141"><span class="linenos">141</span></a>            <span class="k">for</span> <span class="n">scope</span> <span class="ow">in</span> <span class="n">scopes</span><span class="p">:</span>
+</span><span id="Compiler.compile-142"><a href="#Compiler.compile-142"><span class="linenos">142</span></a>                <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="Compiler.compile-143"><a href="#Compiler.compile-143"><span class="linenos">143</span></a>                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+</span><span id="Compiler.compile-144"><a href="#Compiler.compile-144"><span class="linenos">144</span></a>                        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span><span id="Compiler.compile-145"><a href="#Compiler.compile-145"><span class="linenos">145</span></a>                        <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">__construct_scope_path</span><span class="p">(</span><span class="n">scope</span><span class="p">),</span>
+</span><span id="Compiler.compile-146"><a href="#Compiler.compile-146"><span class="linenos">146</span></a>                    <span class="p">)</span>
+</span><span id="Compiler.compile-147"><a href="#Compiler.compile-147"><span class="linenos">147</span></a>                <span class="p">)</span>
+</span><span id="Compiler.compile-148"><a href="#Compiler.compile-148"><span class="linenos">148</span></a>
+</span><span id="Compiler.compile-149"><a href="#Compiler.compile-149"><span class="linenos">149</span></a>        <span class="c1"># Depending on the format parse with the appropriate function</span>
+</span><span id="Compiler.compile-150"><a href="#Compiler.compile-150"><span class="linenos">150</span></a>        <span class="n">components</span> <span class="o">=</span> <span class="n">components</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
+</span><span id="Compiler.compile-151"><a href="#Compiler.compile-151"><span class="linenos">151</span></a>        <span class="n">cmpts</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">,</span> <span class="o">**</span><span class="n">components</span><span class="p">}</span>
+</span><span id="Compiler.compile-152"><a href="#Compiler.compile-152"><span class="linenos">152</span></a>        <span class="k">return</span> <span class="n">to_format</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+</span><span id="Compiler.compile-153"><a href="#Compiler.compile-153"><span class="linenos">153</span></a>            <span class="n">_ast</span><span class="p">,</span>
+</span><span id="Compiler.compile-154"><a href="#Compiler.compile-154"><span class="linenos">154</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+</span><span id="Compiler.compile-155"><a href="#Compiler.compile-155"><span class="linenos">155</span></a>            <span class="n">cmpts</span><span class="p">,</span>
+</span><span id="Compiler.compile-156"><a href="#Compiler.compile-156"><span class="linenos">156</span></a>            <span class="n">safe_vars</span><span class="o">=</span><span class="n">safe_vars</span><span class="p">,</span>
+</span><span id="Compiler.compile-157"><a href="#Compiler.compile-157"><span class="linenos">157</span></a>            <span class="o">**</span><span class="n">kwargs</span>
+</span><span id="Compiler.compile-158"><a href="#Compiler.compile-158"><span class="linenos">158</span></a>        <span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Execute compilation to a different format.</p>
+</div>
+
+
+                            </div>
+                            <div id="Compiler.render" class="classattr">
+                                        <input id="Compiler.render-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">render</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">_ast</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="nodes/AST.html#AST">phml.core.nodes.AST.AST</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	to_format: <a href="formats/format.html#Format">phml.core.formats.format.Format</a> = &lt;class &#x27;<a href="formats/html_format.html#HTMLFormat">phml.core.formats.html_format.HTMLFormat</a>&#x27;&gt;,</span><span class="param">	<span class="n">indent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">safe_vars</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+                <label class="view-source-button" for="Compiler.render-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Compiler.render"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Compiler.render-160"><a href="#Compiler.render-160"><span class="linenos">160</span></a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span>
+</span><span id="Compiler.render-161"><a href="#Compiler.render-161"><span class="linenos">161</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Compiler.render-162"><a href="#Compiler.render-162"><span class="linenos">162</span></a>        <span class="n">_ast</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AST</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.render-163"><a href="#Compiler.render-163"><span class="linenos">163</span></a>        <span class="n">to_format</span><span class="p">:</span> <span class="n">Format</span> <span class="o">=</span> <span class="n">Formats</span><span class="o">.</span><span class="n">HTML</span><span class="p">,</span>
+</span><span id="Compiler.render-164"><a href="#Compiler.render-164"><span class="linenos">164</span></a>        <span class="n">indent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.render-165"><a href="#Compiler.render-165"><span class="linenos">165</span></a>        <span class="n">scopes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.render-166"><a href="#Compiler.render-166"><span class="linenos">166</span></a>        <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Compiler.render-167"><a href="#Compiler.render-167"><span class="linenos">167</span></a>        <span class="n">safe_vars</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="Compiler.render-168"><a href="#Compiler.render-168"><span class="linenos">168</span></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="Compiler.render-169"><a href="#Compiler.render-169"><span class="linenos">169</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Compiler.render-170"><a href="#Compiler.render-170"><span class="linenos">170</span></a>        <span class="sd">&quot;&quot;&quot;Execute compilation to a different format.&quot;&quot;&quot;</span>
+</span><span id="Compiler.render-171"><a href="#Compiler.render-171"><span class="linenos">171</span></a>
+</span><span id="Compiler.render-172"><a href="#Compiler.render-172"><span class="linenos">172</span></a>        <span class="n">_ast</span> <span class="o">=</span> <span class="n">_ast</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast</span>
+</span><span id="Compiler.render-173"><a href="#Compiler.render-173"><span class="linenos">173</span></a>
+</span><span id="Compiler.render-174"><a href="#Compiler.render-174"><span class="linenos">174</span></a>        <span class="k">if</span> <span class="n">_ast</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Compiler.render-175"><a href="#Compiler.render-175"><span class="linenos">175</span></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Must provide an ast to compile&quot;</span><span class="p">)</span>
+</span><span id="Compiler.render-176"><a href="#Compiler.render-176"><span class="linenos">176</span></a>
+</span><span id="Compiler.render-177"><a href="#Compiler.render-177"><span class="linenos">177</span></a>        <span class="c1"># Insert the scopes into the path</span>
+</span><span id="Compiler.render-178"><a href="#Compiler.render-178"><span class="linenos">178</span></a>        <span class="n">scopes</span> <span class="o">=</span> <span class="n">scopes</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;./&quot;</span><span class="p">]</span>
+</span><span id="Compiler.render-179"><a href="#Compiler.render-179"><span class="linenos">179</span></a>        <span class="k">if</span> <span class="n">scopes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Compiler.render-180"><a href="#Compiler.render-180"><span class="linenos">180</span></a>
+</span><span id="Compiler.render-181"><a href="#Compiler.render-181"><span class="linenos">181</span></a>            <span class="k">for</span> <span class="n">scope</span> <span class="ow">in</span> <span class="n">scopes</span><span class="p">:</span>
+</span><span id="Compiler.render-182"><a href="#Compiler.render-182"><span class="linenos">182</span></a>                <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="Compiler.render-183"><a href="#Compiler.render-183"><span class="linenos">183</span></a>                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+</span><span id="Compiler.render-184"><a href="#Compiler.render-184"><span class="linenos">184</span></a>                        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span><span id="Compiler.render-185"><a href="#Compiler.render-185"><span class="linenos">185</span></a>                        <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">__construct_scope_path</span><span class="p">(</span><span class="n">scope</span><span class="p">),</span>
+</span><span id="Compiler.render-186"><a href="#Compiler.render-186"><span class="linenos">186</span></a>                    <span class="p">)</span>
+</span><span id="Compiler.render-187"><a href="#Compiler.render-187"><span class="linenos">187</span></a>                <span class="p">)</span>
+</span><span id="Compiler.render-188"><a href="#Compiler.render-188"><span class="linenos">188</span></a>
+</span><span id="Compiler.render-189"><a href="#Compiler.render-189"><span class="linenos">189</span></a>        <span class="c1"># Depending on the format parse with the appropriate function</span>
+</span><span id="Compiler.render-190"><a href="#Compiler.render-190"><span class="linenos">190</span></a>        <span class="n">components</span> <span class="o">=</span> <span class="n">components</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
+</span><span id="Compiler.render-191"><a href="#Compiler.render-191"><span class="linenos">191</span></a>        <span class="n">cmpts</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">,</span> <span class="o">**</span><span class="n">components</span><span class="p">}</span>
+</span><span id="Compiler.render-192"><a href="#Compiler.render-192"><span class="linenos">192</span></a>        <span class="k">return</span> <span class="n">to_format</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+</span><span id="Compiler.render-193"><a href="#Compiler.render-193"><span class="linenos">193</span></a>            <span class="n">_ast</span><span class="p">,</span>
+</span><span id="Compiler.render-194"><a href="#Compiler.render-194"><span class="linenos">194</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+</span><span id="Compiler.render-195"><a href="#Compiler.render-195"><span class="linenos">195</span></a>            <span class="n">cmpts</span><span class="p">,</span>
+</span><span id="Compiler.render-196"><a href="#Compiler.render-196"><span class="linenos">196</span></a>            <span class="n">indent</span><span class="p">,</span>
+</span><span id="Compiler.render-197"><a href="#Compiler.render-197"><span class="linenos">197</span></a>            <span class="n">safe_vars</span><span class="o">=</span><span class="n">safe_vars</span><span class="p">,</span>
+</span><span id="Compiler.render-198"><a href="#Compiler.render-198"><span class="linenos">198</span></a>            <span class="o">**</span><span class="n">kwargs</span>
+</span><span id="Compiler.render-199"><a href="#Compiler.render-199"><span class="linenos">199</span></a>        <span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Execute compilation to a different format.</p>
 </div>
 
 
@@ -1350,7 +1861,7 @@ it to a given file. Defaults to rendering and writing out as html.</p>
                 }
 
                 let heading;
-                switch (result.doc.kind) {
+                switch (result.doc.type) {
                     case "function":
                         if (doc.fullname.endsWith(".__init__")) {
                             heading = `<span class="name">${doc.fullname.replace(/\.__init__$/, "")}</span>${doc.signature}`;
@@ -1377,7 +1888,7 @@ it to a given file. Defaults to rendering and writing out as html.</p>
                 }
                 html += `
                         <section class="search-result">
-                        <a href="${url}" class="attr ${doc.kind}">${heading}</a>
+                        <a href="${url}" class="attr ${doc.type}">${heading}</a>
                         <div class="docstring">${doc.doc}</div>
                         </section>
                     `;
