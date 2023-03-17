@@ -25,8 +25,8 @@
   <!--     Middle/Catch all -->
   <!-- </Data> -->
   <ul>
-    <For :each="error in errors">
-      <Error :message="error" />
+    <For :each="i, error in enumerate(errors)">
+        <Error id="error-{{ i }}" :message="error" style="color: blue;" />
     </For>
     <li @else>{{ for_except or 'No items in range' }}</li>
   </ul>

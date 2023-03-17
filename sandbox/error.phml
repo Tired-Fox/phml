@@ -1,10 +1,11 @@
 <python>
 Props = {
-    'message': ""
+    'message': "",
+    'id': ""
 }
 </python>
 
-<li class="text-danger">
+<li :id="id" class="text-danger">
   🗙 {{ message }}
 </li>
 
