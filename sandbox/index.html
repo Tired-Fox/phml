@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8"/>
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <title>Named Slots</title>
+        <style>
+            :is(ul, ol)>li {
+              list-style: none
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- <Data> -->
+        <!--     <p slot="bottom">Buttom</p> -->
+        <!--     <p slot="top">Top</p> -->
+        <!--     Middle/Catch all -->
+        <!-- </Data> -->
+        <ul>
+            <li class="text-danger">🗙 To Long</li>
+            <li class="text-danger">🗙 Invalid Format</li>
+            <style>
+                .text-danger {
+                  color: red;
+                }
+            </style>
+        </ul>
+    </body>
+
+</html>

@@ -32,7 +32,8 @@ class HTMLFormat(Format):
         cls,
         ast: AST,
         config: Config,
-        components: Optional[dict[str, dict[str, list | NODE]]] = None,
+        components: Optional[dict[str, dict[str, list | NODE]]],
+        compile_context: dict,
         **kwargs,
     ) -> AST:
         """Compile and process the given ast and return the resulting ast."""
@@ -62,7 +63,7 @@ class HTMLFormat(Format):
         # 3. Search each element and find @if, @elif, and @else
         #    - Execute those statements
 
-        apply_conditions(src, config, virtual_python, components, **kwargs)
+        apply_conditions(src, config, virtual_python, components, compile_context, **kwargs)
 
         for python_block in find_all(src, {"tag": "python"}):
             if (
@@ -88,8 +89,9 @@ class HTMLFormat(Format):
         cls,
         ast: AST,
         config: Config,
-        components: Optional[dict[str, dict[str, list | NODE]]] = None,
-        indent: int = 4,
+        components: Optional[dict[str, dict[str, list | NODE]]],
+        indent: int,
+        compile_context: dict,
         **kwargs,
     ) -> str:
         indent = indent or 4
@@ -113,7 +115,7 @@ class HTMLFormat(Format):
         # 3. Search each element and find @if, @elif, and @else
         #    - Execute those statements
 
-        apply_conditions(src, config, virtual_python, components, **kwargs)
+        apply_conditions(src, config, virtual_python, components, compile_context, **kwargs)
 
         for python_block in find_all(src, {"tag": "python"}):
             if len(python_block.children) == 1:

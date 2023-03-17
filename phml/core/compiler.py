@@ -124,6 +124,7 @@ class Compiler:
         scopes: Optional[list[str]] = None,
         components: Optional[dict] = None,
         safe_vars: bool = False,
+        compile_context: dict={},
         **kwargs: Any,
     ) -> AST:
         """Execute compilation to a different format."""
@@ -153,6 +154,7 @@ class Compiler:
             self.config,
             cmpts,
             safe_vars=safe_vars,
+            compile_context=compile_context,
             **kwargs
         )
 
@@ -164,6 +166,7 @@ class Compiler:
         scopes: Optional[list[str]] = None,
         components: Optional[dict] = None,
         safe_vars: bool = False,
+        compile_context: dict={},
         **kwargs: Any,
     ) -> str:
         """Execute compilation to a different format."""
@@ -192,7 +195,8 @@ class Compiler:
             _ast,
             self.config,
             cmpts,
-            indent,
+            indent or 0,
             safe_vars=safe_vars,
+            compile_context=compile_context,
             **kwargs
         )
