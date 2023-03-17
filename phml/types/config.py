@@ -1,6 +1,6 @@
 from typing import Literal, TypeAlias
 
-EnableKeys: TypeAlias = Literal["html", "markdown"]
+EnableKeys: TypeAlias = Literal["for", "markdown"]
 ConfigEnable: TypeAlias = dict[EnableKeys, bool]
 
 ConfigKeys: TypeAlias = Literal["enabled"]

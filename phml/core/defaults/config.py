@@ -1,1 +1,1 @@
-EnableDefault = { "html": False, "markdown": False, "for": True }
+EnableDefault = { "markdown": False, "for": True }
