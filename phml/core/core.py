@@ -9,6 +9,7 @@ from phml.utilities import cmpt_name_from_path, parse_component
 
 from phml.types import Component, Components, PathLike
 from phml.types.config import EnableKeys
+from phml.utilities.misc.inspect import inspect
 
 from .compiler import Compiler
 from .parser import Parser
@@ -41,11 +42,13 @@ class PHML:
         *,
         scopes: list[str] | None = None,
         components: Components | None = None,
-        enable: dict[EnableKeys, bool] = EnableDefault,
+        enable: dict[EnableKeys, bool] | None = None,
         **contexts: Any,
     ):
         self._parser = Parser()
+        enable = {**EnableDefault}.update(enable or {})
         self._compiler = Compiler(components=components, enable=enable)
+        self._compile_context = {}
         self._scopes = scopes or []
         self._context = dict(contexts)
 
@@ -143,6 +146,7 @@ str or pathlib.Path pointing to the file.")
         Args:
             file_path (str | Path): The file path to the source file.
         """
+        self._compile_context["file"] = str(file_path)
         self._parser.load(file_path, from_format, auto_close)
         return self
 
@@ -184,6 +188,7 @@ str or pathlib.Path pointing to the file.")
             to_format=file_type,
             scopes=scopes,
             components=components,
+            compile_context=self._compile_context,
             **{**self._context, **kwargs},
         )
 
@@ -218,6 +223,7 @@ str or pathlib.Path pointing to the file.")
             indent=indent,
             scopes=scopes,
             components=components,
+            compile_context=self._compile_context,
             **{**self._context, **kwargs},
         )
 

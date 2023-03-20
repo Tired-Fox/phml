@@ -2,9 +2,15 @@ from __future__ import annotations
 
 from enum import StrEnum, unique
 from json import dumps
-from typing import Iterator
-from v2.types import Attribute, Position
+from typing import Iterator, overload
+from type import Attribute
+from saimll import SAIML
 
+
+@unique
+class LiteralType(StrEnum):
+    Text = "text"
+    Comment = "comment"
 
 @unique
 class NodeType(StrEnum):
@@ -12,11 +18,135 @@ class NodeType(StrEnum):
     ELEMENT = "element"
     LITERAL = "literal"
 
+class Point:
+    """Represents one place in a source file.
 
-def position(start_line: int, start_col: int, end_line: int, end_col: int) -> Position:
-    return ((start_line, start_col), (end_line, end_col))
+    The line field (1-indexed integer) represents a line in a source file. The column field
+    (1-indexed integer) represents a column in a source file. The offset field (0-indexed integer)
+    represents a character in a source file.
+    """
+
+    def __init__(self, line: int, column: int, offset: int | None = None):
+        if line is None or line < 0:
+            raise IndexError(f"Point.line must be >= 0 but was {line}")
+
+        self.line = line
+
+        if column is None or column < 0:
+            raise IndexError(f"Point.column must be >= 0 but was {column}")
+
+        self.column = column
+
+        if offset is not None and offset < 0:
+            raise IndexError(f"Point.offset must be >= 0 or None but was {line}")
+
+        self.offset = offset
+
+    def __eq__(self, obj) -> bool:
+        return bool(
+            obj is not None
+            and isinstance(obj, self.__class__)
+            and self.line == obj.line
+            and self.column == obj.column
+        )
+
+    def __repr__(self) -> str:
+        return f"point(line: {self.line}, column: {self.column}, offset: {self.offset})"
+
+    def __str__(self) -> str:
+        return f"\x1b[38;5;244m{self.line}:{self.column}\x1b[39m"
 
 
+class Position:
+    """Position represents the location of a node in a source file.
+
+    The `start` field of `Position` represents the place of the first character
+    of the parsed source region. The `end` field of Position represents the place
+    of the first character after the parsed source region, whether it exists or not.
+    The value of the `start` and `end` fields implement the `Point` interface.
+
+    The `indent` field of `Position` represents the start column at each index
+    (plus start line) in the source region, for elements that span multiple lines.
+
+    If the syntactic unit represented by a node is not present in the source file at
+    the time of parsing, the node is said to be `generated` and it must not have positional
+    information.
+    """
+
+    @overload
+    def __init__(
+        self,
+        start: tuple[int, int, int | None],
+        end: tuple[int, int, int | None],
+        indent: int | None = None,
+    ):
+        """
+        Args:
+            start (tuple[int, int, int  |  None]): Tuple representing the line, column, and optional
+            offset of the start point.
+            end (tuple[int, int, int  |  None]): Tuple representing the line, column, and optional
+            offset of the end point.
+            indent (Optional[int], optional): The indent amount for the start of the position.
+        """
+        ...
+
+    def __init__(self, start: Point, end: Point, indent: int | None = None):
+        """
+        Args:
+            start (Point): Starting point of the position.
+            end (Point): End point of the position.
+            indent (int | None): The indent amount for the start of the position.
+        """
+
+        self.start = (
+            Point(start[0], start[1], start[2] if len(start) == 3 else None)
+            if isinstance(start, tuple)
+            else start
+        )
+        self.end = (
+            Point(end[0], end[1], end[2] if len(end) == 3 else None)
+            if isinstance(end, tuple)
+            else end
+        )
+
+        if indent is not None and indent < 0:
+            raise IndexError(
+                f"Position.indent value must be >= 0 or None but was {indent}"
+            )
+
+        self.indent = indent
+
+    def __eq__(self, obj) -> bool:
+        return bool(
+            obj is not None
+            and isinstance(obj, Position)
+            and self.start == obj.start
+            and self.end == obj.end
+        )
+
+    def as_dict(self) -> dict:
+        """Convert the position object to a dict."""
+        return {
+            "start": {
+                "line": self.start.line,
+                "column": self.start.column,
+                "offset": self.start.offset,
+            },
+            "end": {
+                "line": self.end.line,
+                "column": self.end.column,
+                "offset": self.end.offset,
+            },
+            "indent": self.indent,
+        }
+
+    def __repr__(self) -> str:
+        indent = f" ~ {self.indent}" if self.indent is not None else ""
+        return f"\x1b[38;5;8m<\x1b[39m{self.start}\x1b[38;5;8m-\x1b[39m{self.end}{indent}\x1b[38;5;8m>\x1b[39m"
+
+    def __str__(self) -> str:
+        return repr(self)
+    
 class Node:
     """Base phml node. Defines a type and basic interactions."""
 
@@ -46,19 +176,38 @@ class Node:
     def type(self, new_type: str):
         self._type = new_type
 
-    def pos_as_str(self) -> str:
+    def pos_as_str(self, color: bool = False) -> str:
         """Return the position formatted as a string."""
 
         position = ""
         if self.position is not None:
-            position = "<{}:{}-{}:{}>".format(*self.position[0], *self.position[1])
+            if color:
+                start = self.position.start
+                end = self.position.end
+                position = SAIML.parse(
+                    f"<[@F244]{start.line}[@F]-[@F244]{start.column}[@F]"
+                    f":[@F244]{end.line}[@F]-[@F244]{end.column}[@F]>"
+                )
+            else:
+                start = self.position.start
+                end = self.position.end
+                position = f"<{start.line}-{start.column}:{end.line}-{end.column}>"
         return position
+    
+    def pretty(self):
+        return "\n".join(self.__pretty__(color=True))
 
     def __repr__(self) -> str:
         return f"{self.type}()"
 
+    def __pretty__(self, indent: int = 0, color: bool = False):
+        if color:
+            return SAIML.parse(f"{' '*indent}[@Fred]{self.type}[@F]") + f" {self.pos_as_str(True)}"
+        return f"{' '*indent}{self.type} {self.pos_as_str()}"
+
+
     def __str__(self) -> str:
-        return f"{self.type} {self.pos_as_str()}"
+        return self.__pretty__()
 
 
 class Parent(Node):
@@ -111,21 +260,32 @@ class Parent(Node):
         else:
             raise ValueError("A node can not be inserted into a self closing element")
 
-    def len_as_str(self) -> str:
+    def len_as_str(self, color: bool = False) -> str:
+        if color:
+            return SAIML.parse(f"[@F66]{len(self) if self.children is not None else '/'}[@F]")
         return f"{len(self) if self.children is not None else '/'}"
 
     def __len__(self) -> int:
         return len(self.children) if self.children is not None else 0
 
     def __repr__(self) -> str:
-        pos = self.pos_as_str()
-        pos = " " + pos if pos != "" else ""
         return f"{self.type}(cldrn={self.len_as_str()})"
 
+    def __pretty__(self, indent: int = 0, color: bool = False):
+        output = [f"{' '*indent}{self.type} [{self.len_as_str()}]{self.pos_as_str()}"]
+        if color:
+            output[0] = (
+                SAIML.parse(f"{' '*indent}[@Fred]{self.type}[@F]")
+                + f" [{self.len_as_str(True)}]"
+                + f" {self.pos_as_str(True)}"
+            )
+        for child in self.children or []:
+            output.extend(child.__pretty__(indent+2, color))
+        return output
+
+
     def __str__(self) -> str:
-        pos = self.pos_as_str()
-        pos = " " + pos if pos != "" else ""
-        return f"{self.type} [{self.len_as_str()}]{pos}"
+        return "\n".join(self.__pretty__())
 
 
 class AST(Parent):
@@ -192,19 +352,62 @@ class Element(Parent):
             return self[key]
         return _default
 
-    def attrs_as_str(self) -> str:
+    def attrs_as_str(self, indent: int, color: bool = False) -> str:
         """Return a str representation of the attributes"""
-        attrs = [f"{key}: {value!r}" for key, value in self.attributes.items()]
-        return " ▸ " + "\n ▸ ".join(attrs)
+        if color:
+            attrs = (
+                f"\n{' '*(indent)}▸ "
+                + f"\n{' '*(indent)}▸ ".join(
+                    str(key)
+                    + ": "
+                    + (
+                        f"\x1b[32m{value!r}\x1b[39m"
+                        if isinstance(value, str) else
+                        f"\x1b[35m{value}\x1b[39m"
+                    )
+                    for key,value in self.attributes.items()
+                )
+            ) if len(self.attributes) > 0 else ""
+        else:
+            attrs = (
+                f"\n{' '*(indent)}▸ "
+                + f"\n{' '*(indent)}▸ ".join(
+                    f"{key}: {value!r}"
+                    for key,value in self.attributes.items()
+                )
+            ) if len(self.attributes) > 0 else ""
+
+        return attrs 
 
     def __repr__(self) -> str:
         return f"{self.type}.{self.tag}(cldrn={self.len_as_str()}, attrs={self.attributes})"
 
+    def __pretty__(self, indent: int = 0, color: bool = False) -> list[str]:
+        attrs = self.attrs_as_str(indent+2, color)
+        output: list[str] = []
+        if color:
+            output.append( 
+                f"{' '*indent}"
+                + SAIML.parse(
+                    f"[@Fred]{self.type}[@F]"
+                    + f".[@Fblue]{self.tag}[@F]"
+                )
+                + f" [{self.len_as_str(True)}]"
+                + f" {self.pos_as_str(True)}"
+                + f"{self.attrs_as_str(indent+2, True)}"
+            )
+        else:
+            output.append(
+                f"{' '*indent}{self.type}.{self.tag}"
+                + f" [{self.len_as_str()}]{self.pos_as_str()}{self.attrs_as_str(indent+2)}"
+            )
+
+        for child in self.children or []:
+            output.extend(child.__pretty__(indent+2, color))
+        return output
+
     def __str__(self) -> str:
-        pos = self.pos_as_str()
-        pos = " " + pos if pos != "" else ""
-        attrs = "\n  ".join(self.attrs_as_str().split("\n"))
-        return f"{self.type}.{self.tag} [{self.len_as_str()}]{pos}\n  {attrs}"
+        return "\n".join(self.__pretty__())
 
 
 class Literal(Node):
@@ -222,14 +425,26 @@ class Literal(Node):
     def __repr__(self) -> str:
         return f"{self.type}.{self.name}(len={len(self.content)})"
 
+    def __pretty__(self, indent: int = 0, color: bool = False):
+        if color:
+            return [SAIML.parse(f"{' '*indent}[@Fred]{self.type}[@F].[@Fblue]{self.name}[@F]")]
+        return [f"{' '*indent}{self.type}.{self.name}"]
+
     def __str__(self) -> str:
-        return f"{self.type}.{self.name}"
+        return self.__pretty__()[0]
 
     # TODO: methods to normalize content indent and strip blank lines
 
 
 if __name__ == "__main__":
-    ast = AST([], position(0, 0, 0, 0))
-    ast.append(Element("meta", {"size": "100"}, [], position=position(10, 0, 10, 34)))
+    ast = AST([], Position((0, 0), (0, 0)))
+    ast.append(Element(
+        "meta",
+        {
+            "size": "100",
+            "disabled": True,
+        },
+        position=Position((0, 0), (10, 5))
+    ))
 
-    print(ast)
+    print(ast.pretty())

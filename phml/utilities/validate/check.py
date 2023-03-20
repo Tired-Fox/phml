@@ -57,7 +57,7 @@ def check(
             or parent.children[index] != node
         ):
             return False
-        
+
     if isinstance(_test, NODE):
         return node == _test
 
@@ -68,11 +68,28 @@ def check(
     if isinstance(_test, dict):
         # If dict validate all items with properties are the same
         # Either in attributes or in
+        if strict:
+            return bool(
+                isinstance(node, Element)
+                and all(
+                    (hasattr(node, key) and value == getattr(node, key))
+                    or (
+                        hasattr(node, "properties")
+                        and key in node.properties
+                        and (value is True or value == node[key])
+                    )
+                    for key, value in _test.items()
+                )
+            )
         return bool(
             isinstance(node, Element)
-            and all(
+            and any(
                 (hasattr(node, key) and value == getattr(node, key))
-                or (hasattr(node, "properties") and key in node.properties and (value is True or value == node[key]))
+                or (
+                    hasattr(node, "properties")
+                    and key in node.properties
+                    and (value is True or value == node[key])
+                )
                 for key, value in _test.items()
             )
         )
@@ -81,11 +98,17 @@ def check(
         # If list then recursively apply tests
         if strict:
             return bool(
-                all(isinstance(cond, Test) and check(node, cond, index, parent) for cond in _test)
+                all(
+                    isinstance(cond, Test) and check(node, cond, index, parent)
+                    for cond in _test
+                )
             )
 
         return bool(
-            any(isinstance(cond, Test) and check(node, cond, index, parent) for cond in _test)
+            any(
+                isinstance(cond, Test) and check(node, cond, index, parent)
+                for cond in _test
+            )
         )
 
     if isinstance(_test, Callable):

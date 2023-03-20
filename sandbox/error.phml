@@ -1,0 +1,16 @@
+<python>
+Props = {
+    'message': "",
+    'id': ""
+}
+</python>
+
+<li :id="id" class="text-danger">
+  🗙 {{ message }}
+</li>
+
+<style>
+  .text-danger {
+    color: red;
+  }
+</style>

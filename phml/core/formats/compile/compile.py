@@ -111,6 +111,7 @@ def apply_conditions(
     config: Config,
     virtual_python: VirtualPython,
     components: dict,
+    compile_context: dict | None = None,
     **kwargs,
 ):
     """Applys all `py-if`, `py-elif`, and `py-else` to the node
@@ -123,17 +124,19 @@ def apply_conditions(
             elements.
     """
     from .component import replace_components
+    compile_context = compile_context or {}
 
     if isinstance(node, AST):
         node = node.tree
 
-    process_conditions(node, virtual_python, **kwargs)
     process_reserved_elements(
         node,
         virtual_python,
         config["enabled"],
+        compile_context,
         **kwargs
     )
+    process_conditions(node, virtual_python, **kwargs)
     replace_components(node, components, virtual_python, **kwargs)
 
     for child in node.children:
@@ -143,6 +146,7 @@ def apply_conditions(
                 config,
                 virtual_python,
                 components,
+                compile_context,
                 **kwargs
             )
 
@@ -151,6 +155,7 @@ def process_reserved_elements(
     node: Root | Element,
     virtual_python: VirtualPython,
     enabled: ConfigEnable,
+    compile_context: dict,
     **kwargs
 ):
     """Process all reserved elements and replace them with the results."""
@@ -160,7 +165,7 @@ def process_reserved_elements(
     for key, value in RESERVED.items():
         if key in tags:
             if key.lower() in enabled and enabled[key.lower()]:
-                value(node, virtual_python, **kwargs)
+                value(node, virtual_python, compile_context, **kwargs)
                 reserved_found = True
             else:
                 node.children = [
@@ -275,7 +280,7 @@ def __validate_previous_condition(child: Element) -> Optional[Element]:
     ]:
         raise Exception(
             f"Condition statements that are not @if must have @if or\
- @elif as a previous sibling.\n{child.start_tag(self.offset)}\
+ @elif as a previous sibling.\n{child.start_tag()}\
 {f' at {child.position}' if child.position is not None else ''}"
         )
     return previous, prev_cond
