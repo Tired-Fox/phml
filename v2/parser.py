@@ -97,6 +97,8 @@ class HypertextMarkupParser:
 
     tag_stack = []
     """Current stack of tags in order of when they are opened."""
+    in_pre: int = 0
+    """Whether the current element context is inside a pre element."""
 
     def __calc_line_col(self, source: str, start: int) -> tuple[int, int]:
         """Calculate the number of lines and columns that lead to the starting point int he source
@@ -137,11 +139,12 @@ class HypertextMarkupParser:
                     LiteralType.Text,
                     text[:comment.span()[0]],
                     position=deepcopy(pos)
+                    , in_pre=self.in_pre > 0
                 ))
 
             text = text[comment.span()[1]:]
             elements.append(
-                Literal(LiteralType.Comment, comment.group(1), position=deepcopy(pos))
+                Literal(LiteralType.Comment, comment.group(1), position=deepcopy(pos), in_pre=self.in_pre > 0)
             )
 
         # remaining text is added as a text element
@@ -156,7 +159,8 @@ class HypertextMarkupParser:
                 position=Position(
                     deepcopy(pos.end),
                     (pos.end.line + line, self.__calc_col(line, col, pos.end.column))
-                )
+                ),
+                in_pre=self.in_pre > 0
             ))
         return elements
 
@@ -256,7 +260,7 @@ class HypertextMarkupParser:
 
             if begin[2]["comment"] is not None:
                 current.append(
-                    Literal(LiteralType.Comment, attr['data'], position=deepcopy(position))
+                    Literal(LiteralType.Comment, attr['data'], position=deepcopy(position), in_pre=self.in_pre > 0)
                 )
             else:
                 name = begin[2]["name"] or ''
@@ -267,7 +271,9 @@ class HypertextMarkupParser:
                             f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}"
                         )
 
-                    self.tag_stack.pop()
+                    ptag = self.tag_stack.pop()
+                    if ptag == "pre":
+                        self.in_pre -= 1
                     current.position.end.line = position.end.line
                     current.position.end.column = position.end.column
 
@@ -284,10 +290,12 @@ class HypertextMarkupParser:
                     and begin[2]["opening"] is None
                 ):
                     self.tag_stack.append(name)
-                    current.append(Element(name, attr, [], position=deepcopy(position)))
+                    if name == "pre":
+                        self.in_pre += 1
+                    current.append(Element(name, attr, [], position=deepcopy(position), in_pre=self.in_pre > 0))
                     current = current.children[-1]
                 else:
-                    current.append(Element(name, attr, position=deepcopy(position)))
+                    current.append(Element(name, attr, position=deepcopy(position), in_pre=self.in_pre > 0))
 
             position.start = deepcopy(position.end)
 
@@ -296,9 +304,4 @@ class HypertextMarkupParser:
             current.extend(elems)
 
         return current
-if __name__ == "__main__":
-    parser = HypertextMarkupParser()
-    with open("sandbox/sample.phml", "r", encoding="utf-8") as file:
-        ast = parser.parse(file.read())
-    print(ast.pretty())
 

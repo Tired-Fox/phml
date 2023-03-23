@@ -155,10 +155,12 @@ class Node:
         _type: NodeType,
         position: Position | None = None,
         parent: Node | None = None,
+        in_pre: bool = False,
     ):
         self._position = position
         self.parent = parent
         self._type = _type
+        self.in_pre = in_pre
 
     @property
     def position(self) -> Position | None:
@@ -217,21 +219,22 @@ class Parent(Node):
         children: list[Node] | None,
         position: Position | None = None,
         parent: Node | None = None,
+        in_pre: bool = False
     ):
-        super().__init__(_type, position, parent)
+        super().__init__(_type, position, parent, in_pre)
         self.children = [] if children is not None else None
 
         if children is not None:
             self.extend(children)
 
-    def __iter__(self) -> Iterator[Node]:
+    def __iter__(self) -> Iterator[Parent|Literal]:
         if self.children is not None:
             for child in self.children:
                 yield child
         else:
             raise ValueError("A self closing element can not be iterated")
 
-    def __getitem__(self, key: int) -> Node:
+    def __getitem__(self, key: int) -> Parent | Literal:
         if self.children is not None:
             return self.children[key]
         raise ValueError("A self closing element can not be indexed")
@@ -289,8 +292,13 @@ class Parent(Node):
 
 
 class AST(Parent):
-    def __init__(self, children: list[Node] | None = None, position: Position | None = None):
-        super().__init__(NodeType.AST, children or [], position, None)
+    def __init__(
+        self,
+        children: list[Node] | None = None,
+        position: Position | None = None,
+        in_pre: bool = False,
+    ):
+        super().__init__(NodeType.AST, children or [], position, None, in_pre)
 
 
 class Element(Parent):
@@ -301,8 +309,9 @@ class Element(Parent):
         children: list[Node] | None = None,
         position: Position | None = None,
         parent: Node | None = None,
+        in_pre: bool = False,
     ):
-        super().__init__(NodeType.ELEMENT, children, position, parent)
+        super().__init__(NodeType.ELEMENT, children, position, parent, in_pre)
         self.tag = tag
         self.attributes = attributes
         self.parent = parent
@@ -323,7 +332,7 @@ class Element(Parent):
     def __contains__(self, _k: str) -> bool:
         return _k in self.attributes
 
-    def __getitem__(self, _k: str | int) -> Attribute:
+    def __getitem__(self, _k: str | int) -> Attribute | Parent | Literal:
         if isinstance(_k, str):
             return self.attributes[_k]
 
@@ -417,8 +426,9 @@ class Literal(Node):
         content: str,
         parent: Node | None = None,
         position: Position | None = None,
+        in_pre: bool = False,
     ):
-        super().__init__(NodeType.LITERAL, position, parent)
+        super().__init__(NodeType.LITERAL, position, parent, in_pre)
         self.name = name
         self.content = content
 
@@ -435,16 +445,3 @@ class Literal(Node):
 
     # TODO: methods to normalize content indent and strip blank lines
 
-
-if __name__ == "__main__":
-    ast = AST([], Position((0, 0), (0, 0)))
-    ast.append(Element(
-        "meta",
-        {
-            "size": "100",
-            "disabled": True,
-        },
-        position=Position((0, 0), (10, 5))
-    ))
-
-    print(ast.pretty())
