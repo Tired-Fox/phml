@@ -1,8 +1,8 @@
+from core import PHMCore
 if __name__ == "__main__":
-    from phml import inspect, PHML
+    # core = PHMCore()
+    # input(core.load("sandbox/sample.phml").render())
 
-    phml = PHML()
-
-    phml.load("sandbox/sample.phml")
-    print(inspect(phml.ast))
-    print(phml.render())
+    with PHMCore.open("sandbox/sample.phml", "sandbox/index.html") as phml:
+        print(phml.parse().render())
+        # print(phml.ast.pretty())

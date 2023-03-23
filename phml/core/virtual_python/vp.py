@@ -192,7 +192,7 @@ def get_python_result(expr: str, **kwargs) -> Any:
         return False
 
 
-def escape_args(args: dict) -> dict:
+def escape_args(args: dict):
     """Take a dictionary of args and escape the html inside string values.
 
     Args:
