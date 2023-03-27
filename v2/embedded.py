@@ -4,6 +4,7 @@ Embedded has all the logic for processing python elements, attributes, and text 
 from __future__ import annotations
 from html import escape
 from functools import cached_property
+from shutil import get_terminal_size
 import traceback
 
 from typing import Any
@@ -38,50 +39,96 @@ class EmbeddedTryCatch:
 
     def __exit__(self, _, exc_val, exc_tb):
         if exc_val is not None and not isinstance(exc_val, SystemExit):
-            fs: FrameSummary = extract_tb(exc_tb)[-1]
-            l_slice, c_slice = (fs.lineno or 0, fs.end_lineno or 0), (fs.colno or 0, fs.end_colno or 0) 
+            raise EmbeddedPythonException(
+                    self._path,
+                    self._content,
+                    self._pos,
+                    exc_val,
+                    exc_tb
+            ) from exc_val
 
-            message = ""
-            if self._path != "":
-                pos = (self._pos[0] + (l_slice[0] or 0), c_slice[0] or self._pos[1])
-                message = f"{self._path} [{pos[0]+1}:{pos[1]}]: Failed to execute phml embedded python"
-            if self._content != "":
-                lines = self._content.split("\n")
-                target_lines = lines[l_slice[0]-1:l_slice[1]]
-                if l_slice[0] == l_slice[1]:
+class EmbeddedPythonException(Exception):
+    def __init__(self, path, content, pos, exc_val, exc_tb) -> None:
+        self.max_width, _ = get_terminal_size((20, 0))
+        self.msg = exc_val.msg if hasattr(exc_val, "msg") else str(exc_val)
+        if isinstance(exc_val, SyntaxError):
+            self.l_slice = (exc_val.lineno or 0, exc_val.end_lineno or 0)
+            self.c_slice = (exc_val.offset or 0, exc_val.end_offset or 0)
+        else:
+            fs: FrameSummary = extract_tb(exc_tb)[-1]
+            self.l_slice = (fs.lineno or 0, fs.end_lineno or 0)
+            self.c_slice = (fs.colno or 0, fs.end_colno or 0) 
+
+        self._content = content
+        self._path = path
+        self._pos = pos
+
+    def format_line(self, line, c_width, leading: str = " "):
+        return f"{leading.ljust(c_width, ' ')}│{line}" 
+
+    def generate_exception_lines(self, lines: list[str], width: int):
+        max_width = self.max_width - width - 3
+        result = []
+        for i, line in enumerate(lines):
+            if len(line) > max_width:
+                parts = [line[j:j+max_width] for j in range(0, len(line), max_width)]
+                result.append(self.format_line(parts[0], width, str(i+1)))
+                for part in parts[1:]:
+                    result.append(self.format_line(part, width))
+            else:
+                result.append(self.format_line(line, width, str(i+1)))
+        return result
+
+    def __str__(self) -> str:
+        message = ""
+        if self._path != "":
+            pos = (self._pos[0] + (self.l_slice[0] or 0), self.c_slice[0] or self._pos[1])
+            message = f"[{pos[0]+1}:{pos[1]}] {self._path} Failed to execute phml embedded python"
+        if self._content != "":
+            lines = self._content.split("\n")
+            target_lines = lines[self.l_slice[0]-1:self.l_slice[1]]
+            if len(target_lines) > 0:
+                if self.l_slice[0] == self.l_slice[1]:
                     target_lines[0] = (
-                        target_lines[0][:c_slice[0]]
-                        + "\x1b[31;4m"
-                        + target_lines[0][c_slice[0]:c_slice[1]]
+                        target_lines[0][:self.c_slice[0]]
+                        + "\x1b[31m"
+                        + target_lines[0][self.c_slice[0]:self.c_slice[1]]
                         + "\x1b[0m"
-                        + target_lines[0][c_slice[1]:]
+                        + target_lines[0][self.c_slice[1]:]
                     )
                 else:
-                    target_lines[0] = target_lines[0][:c_slice[0]+1] + "\x1b[31:4m" + target_lines[0][c_slice[0]+1:]
-                    target_lines[-1] = target_lines[-1][:c_slice[-1]+1] + "\x1b[0m" + target_lines[-1][c_slice[-1]+1:]
+                    target_lines[0] = target_lines[0][:self.c_slice[0]+1] + "\x1b[31m" + target_lines[0][self.c_slice[0]+1:] + "\x1b[0m"
+                    for i, line in enumerate(target_lines[1:-1]):
+                        target_lines[i+1] = "\x1b[31m" + line + "\x1b[0m"
+                    target_lines[-1] = "\x1b[31m" + target_lines[-1][:self.c_slice[-1]+1] + "\x1b[0m" + target_lines[-1][self.c_slice[-1]+1:]
                 
                 lines = [
-                    *lines[:l_slice[0]-1],
+                    *lines[:self.l_slice[0]-1],
                     *target_lines,
-                    *lines[l_slice[1]:]
+                    *lines[self.l_slice[1]:]
                 ]
 
-                w_fmt = len(f"{len(lines)}")
-                content = "\n".join(
-                    f"{str(i+1).ljust(w_fmt, ' ')}│{line}"
-                    for i, line in enumerate(lines)
-                )
-                exception = f"{exc_val} at <{l_slice[0]}:{c_slice[0]}-{l_slice[1]}:{c_slice[1]}>"
-                message += (
-                    f"\n{'─'.ljust(w_fmt, '─')}┬─{'─'*(len(exception)+1)}\n"
-                    f"{'#'.ljust(w_fmt, ' ')}│ {exception}\n"
-                    + f"{'═'.ljust(w_fmt, '═')}╪═{'═'*(len(exception)+1)}\n"
-                    + f"{content}"
-                )
+            w_fmt = len(f"{len(lines)}")
+            content = "\n".join(
+                self.generate_exception_lines(lines, w_fmt)
+            )
+            line_width = self.max_width-w_fmt-2
 
-            print_tb(exc_tb)
-            print(message)
-            exit()
+            exception = f"{self.msg} at <{self.l_slice[0]}:{self.c_slice[0]}-{self.l_slice[1]}:{self.c_slice[1]}>"
+            ls = [exception[i:i+line_width] for i in range(0, len(exception), line_width)]
+            exception_line = self.format_line(ls[0], w_fmt, "#")
+            for l in ls[1:]:
+                exception_line += "\n" + self.format_line(l, w_fmt)
+
+            message += (
+                f"\n{'─'.ljust(w_fmt, '─')}┬─{'─'*(line_width)}\n"
+                + exception_line
+                + "\n"
+                + f"{'═'.ljust(w_fmt, '═')}╪═{'═'*(line_width)}\n"
+                + f"{content}"
+            )
+
+        return message
 
 
 def parse_import_values(_import: str) -> list[str]:
@@ -265,7 +312,7 @@ def _validate_kwargs(code: str, kwargs: dict[str, Any], esc_vars: bool = True):
     for var in (
         name.id
         for name in ast.walk(
-            ast.parse(code)
+            ast.parse(code, "_phml_get_used_vars_")
         )  # Iterate through entire ast of expression
         if isinstance(
             name, ast.Name
@@ -295,43 +342,14 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
         Any: The value of the last assignment or value defined
     """
     # last line must be an assignment or the value to be used
-    code = normalize_indent(code)
-    lines = code.split("\n")
-    lines[-1] = "_phml_result_ = " + lines[-1].lstrip()
-    code = "\n".join(lines)
+    with EmbeddedTryCatch(_path, code):
+        code = normalize_indent(code)
+        lines = code.split("\n")
+        lines[-1] = "_phml_result_ = " + lines[-1].lstrip()
+        code = "\n".join(lines)
 
-    _validate_kwargs(code, context)
-    exec_val = compile(code, _path or "_embedded_", "exec")
-    exec(exec_val, {}, context)
-    return context.get("_phml_result_", None)
+        _validate_kwargs(code, context)
+        exec_val = compile(code, _path or "_embedded_", "exec")
+        exec(exec_val, {}, context)
+        return context.get("_phml_result_", None)
 
-
-# if __name__ == "__main__":
-#     embedded_1 = Embedded("""\
-# from time import sleep
-
-# colors = {
-#     "red": "\x1b[31m",
-#     "reset": "\x1b[39m"
-# }
-
-# def pprint(data: str):
-#     print(colors['red'] + data + colors['reset'])
-# """)
-
-#     embedded_2 = Embedded("""\
-# class Temp:
-#     pass
-
-# message = 'Hello World!'
-# """)
-
-#     embedded_1 += embedded_2
-#     embedded_1["pprint"](embedded_1["message"])
-
-#     print(IMPORTS)
-#     print(FROM_IMPORTS)
-
-#     print(exec_embedded("""\
-# data = {"temp": True, "num": 10}
-# """, valid=True))

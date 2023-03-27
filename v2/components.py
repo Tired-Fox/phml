@@ -5,10 +5,11 @@ from typing import Any, Iterator, TypedDict
 from saimll import pprint
 
 from nodes import Element, Node, Parent
+from utils import iterate_nodes
 from parser import HypertextMarkupParser
 from embedded import Embedded
 
-__all__ = ["ComponentType", "HypertextComponentManager"]
+__all__ = ["ComponentType", "ComponentManager"]
 
 
 class ComponentType(TypedDict, total=False):
@@ -73,15 +74,9 @@ def _parse_cmpt_name(name: str) -> str:
     return "".join(tokens)
 
 
-def iterate_nodes(node: Parent) -> Iterator[Node]:
-    """Recursively iterate over nodes and their children."""
-    yield from node
-    for child in node:
-        if isinstance(child, Parent):
-            yield from iterate_nodes(child)
 
 
-class HypertextComponentManager:
+class ComponentManager:
     components: dict[str, ComponentType]
 
     def __init__(self) -> None:

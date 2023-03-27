@@ -1,6 +1,17 @@
 from pathlib import Path
+from typing import Iterator
 from traceback import print_tb
 
+from nodes import Parent, Node
+
+
+def iterate_nodes(node: Parent) -> Iterator[Node]:
+    """Recursively iterate over nodes and their children."""
+    yield from node
+    for child in node:
+        if isinstance(child, Parent):
+            yield from iterate_nodes(child)
+            
 def calc_offset(content: str | list[str]) -> int:
     """Get the leading offset of the first line of the string."""
     content = content.split("\n") if isinstance(content, str) else content

@@ -1,3 +1,8 @@
+from collections.abc import Callable
+from copy import deepcopy
+from functools import wraps
+from inspect import getfullargspec
+import re
 from typing import Any
 from embedded import Embedded
 from nodes import (
@@ -6,7 +11,11 @@ from nodes import (
     Element,
     Parent,
 )
-from components import HypertextComponentManager
+from components import ComponentManager
+from utils import iterate_nodes
+from compile_steps import (
+   compile_for_tags 
+)
 
 
 class HypertextMarkupCompiler:
@@ -27,28 +36,43 @@ class HypertextMarkupCompiler:
     def _process_scope(
         self,
         node: Parent,
-        components: HypertextComponentManager,
-        context: dict
+        components: ComponentManager,
+        context: dict,
     ):
-        pass
+        """Process steps for a given scope/parent node."""
+        core_steps: list[Callable] = [
+            compile_for_tags # TODO: Loop element fallback
+            # TODO: Steps:
+            # - conditional elements
+            # - python attributes / python blocks in text
+            # - components (with caching)
+            # - markdown
+        ]
+        
+        # PERF: Pre core compile step
 
-    def compile(self, node: Parent, **context: Any) -> Parent:
+        # Core compile steps
+        for step in core_steps:
+            step(node, components, context)
+
+        # PERF: Post core compile steps
+
+        # Recurse steps for each scope
+        if node.children is not None:
+            for child in node:
+                if isinstance(child, Element):
+                    self._process_scope(child, components, context)
+
+    def compile(self, node: Parent, _components: ComponentManager, **context: Any) -> Parent:
         # get all python elements and process them
         p_elems = self._get_python_elements(node)
         embedded = Embedded("")
         for p_elem in p_elems:
             embedded += Embedded(p_elem)
 
-        # TODO: recursively process scopes.
-        # For each scope apply list of steps
-        # - Each step takes; node, context, component manager
-        # - Each step mutates the current scope
-        # Steps:
-        # - For loops
-        # - conditional elements
-        # - python attributes / python blocks in text
-        # - components (with caching)
-        # - markdown
+        # Recursively process scopes
+        self._process_scope(node, _components, context)
+
         return node
 
     def _render_attribute(self, key: str, value: str | bool) -> str:
@@ -58,7 +82,7 @@ class HypertextMarkupCompiler:
             return str(key) if value else ""
 
     def _render_element(
-        self, element: Element, indent: int = 0, compress: str = "\n"
+        self, element: Element, components: ComponentManager, indent: int = 0, compress: str = "\n"
     ) -> str:
         attr_idt = 2
         attrs = ""
@@ -98,10 +122,10 @@ class HypertextMarkupCompiler:
                 and "\n" not in result
             )
         ):
-            children = self.render(element, _compress=compress)
+            children = self.render(element, components, _compress=compress)
             result += children + f"</{element.tag}>"
         else:
-            children = self.render(element, indent + 2, _compress=compress)
+            children = self.render(element, components, indent + 2, _compress=compress)
             result += compress + children
             result += f"{compress}{' '*indent}</{element.tag}>"
 
@@ -115,7 +139,6 @@ class HypertextMarkupCompiler:
             compress = ""
             content = literal.content
         else:
-            # TODO: Normalize indent and add offset
             content = literal.content.strip()
             lines = content.split("\n")
             offset = " " * indent
@@ -128,9 +151,14 @@ class HypertextMarkupCompiler:
         return ""
 
     def render(
-        self, node: Parent, indent: int = 0, _compress: str = "\n", **context: Any
+        self,
+        node: Parent,
+        _components: ComponentManager,
+        indent: int = 0,
+        _compress: str = "\n",
+        **context: Any
     ) -> str:
-        node = self.compile(node, **context)
+        node = self.compile(node, _components, **context)
 
         result = []
         for child in node:
@@ -138,7 +166,7 @@ class HypertextMarkupCompiler:
                 if child.tag == "doctype":
                     result.append(f"<!DOCTYPE html>")
                 else:
-                    result.append(self._render_element(child, indent, _compress))
+                    result.append(self._render_element(child, _components, indent, _compress))
             elif isinstance(child, Literal):
                 result.append(self._render_literal(child, indent, _compress))
 

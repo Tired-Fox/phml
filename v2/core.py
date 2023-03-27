@@ -10,14 +10,14 @@ from parser import HypertextMarkupParser
 from compiler import HypertextMarkupCompiler
 from nodes import Parent, AST
 from utils import PHMLTryCatch
-from components import HypertextComponentManager, ComponentType
+from components import ComponentManager, ComponentType
 
 class PHMCore:
     parser: HypertextMarkupParser
     """PHML parser."""
     compiler: HypertextMarkupCompiler
     """PHML compiler to HTML."""
-    components: HypertextComponentManager
+    components: ComponentManager
     """PHML component parser and manager."""
     context: dict[str, Any]
     """PHML global variables to expose to each phml file compiled with this instance.
@@ -27,7 +27,7 @@ class PHMCore:
     def __init__(self) -> None:
         self.parser = HypertextMarkupParser()
         self.compiler = HypertextMarkupCompiler()
-        self.components = HypertextComponentManager()
+        self.components = ComponentManager()
         self.context = {}
         self._ast = None
         self._from_path = None
@@ -88,7 +88,7 @@ class PHMCore:
         context = {**self.context, **context}
         if self._ast is not None:
             with PHMLTryCatch(self._from_path):
-                return self.compiler.compile(self._ast, **context)
+                return self.compiler.compile(self._ast, self.components, **context)
         raise ValueError("Must first parse a phml file before compiling to an AST")
 
     def render(self, _compress: bool = False, **context: Any) -> str | None:
@@ -98,7 +98,11 @@ class PHMCore:
         context = {**self.context, **context}
         if self._ast is not None:
             with PHMLTryCatch(self._from_path):
-                result = self.compiler.render(self._ast, _compress="" if _compress else "\n", **context)
+                result = self.compiler.render(
+                    self._ast,
+                    _components=self.components,
+                    _compress="" if _compress else "\n", **context
+                )
                 if self._to_file is not None:
                     self._to_file.write(result)
                 elif self._from_file is not None and self._from_path is not None:

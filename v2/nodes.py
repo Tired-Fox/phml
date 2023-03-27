@@ -256,10 +256,15 @@ class Parent(Node):
         else:
             raise ValueError("A self closing element can not have it's children extended")
 
-    def insert(self, index: int, node: Node):
-        """Insert a child node into a specific index of the children."""
+    def insert(self, index: int, nodes: Node | list[Node]):
+        """Insert a child node or nodes into a specific index of the children."""
         if self.children is not None:
-            self.children.insert(index, node)
+            if isinstance(nodes, list):
+                for n in nodes:
+                    n.parent = self
+                self.children[index:index] = nodes
+            else:
+                self.children.insert(index, nodes)
         else:
             raise ValueError("A child node can not be inserted into a self closing element")
 
@@ -340,7 +345,11 @@ class Element(Parent):
     def __contains__(self, _k: str) -> bool:
         return _k in self.attributes
 
-    def __getitem__(self, _k: str | int) -> Attribute | Parent | Literal:
+    @overload
+    def __getitem__(self, _k: int) -> Parent | Literal:
+        ...
+
+    def __getitem__(self, _k: str) -> Attribute:
         if isinstance(_k, str):
             return self.attributes[_k]
 
@@ -349,7 +358,11 @@ class Element(Parent):
 
         raise ValueError("A self closing element can not have it's children indexed")
 
-    def get(self, key: str, _default: Attribute | None = None) -> Attribute | None:
+    @overload
+    def get(self, key: str) -> Attribute | None:
+        ...
+
+    def get(self, key: str, _default: Attribute | None = None) -> Attribute:
         """Get a specific element attribute. Returns `None` if not found
         unless `_default` is defined.
 
