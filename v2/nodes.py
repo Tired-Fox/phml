@@ -154,7 +154,7 @@ class Node:
         self,
         _type: NodeType,
         position: Position | None = None,
-        parent: Node | None = None,
+        parent: Parent | None = None,
         in_pre: bool = False,
     ):
         self._position = position
@@ -240,12 +240,12 @@ class Parent(Node):
         raise ValueError("A self closing element can not be indexed")
 
     def append(self, node: Node):
-        """Append a node to the end of the children."""
+        """Append a child node to the end of the children."""
         if self.children is not None:
             node.parent = self
             self.children.append(node)
         else:
-            raise ValueError("A node can not be appended to a self closing element")
+            raise ValueError("A child node can not be appended to a self closing element")
 
     def extend(self, nodes: list[Node]):
         """Extend the children with a list of nodes."""
@@ -257,11 +257,20 @@ class Parent(Node):
             raise ValueError("A self closing element can not have it's children extended")
 
     def insert(self, index: int, node: Node):
-        """Insert a node into a specific index of the children."""
+        """Insert a child node into a specific index of the children."""
         if self.children is not None:
             self.children.insert(index, node)
         else:
-            raise ValueError("A node can not be inserted into a self closing element")
+            raise ValueError("A child node can not be inserted into a self closing element")
+
+    def remove(self, node: Node):
+        """Remove a child node from the children."""
+        if self.children is None:
+            raise ValueError("A child node can not be removed from a self closing element.")
+        if node not in self.children:
+            raise ValueError("Node does not exist in children")
+        self.children.remove(node)
+
 
     def len_as_str(self, color: bool = False) -> str:
         if color:
@@ -305,7 +314,7 @@ class Element(Parent):
     def __init__(
         self,
         tag: str,
-        attributes: dict[str, Attribute],
+        attributes: dict[str, Attribute] | None = None,
         children: list[Node] | None = None,
         position: Position | None = None,
         parent: Node | None = None,
@@ -313,8 +322,7 @@ class Element(Parent):
     ):
         super().__init__(NodeType.ELEMENT, children, position, parent, in_pre)
         self.tag = tag
-        self.attributes = attributes
-        self.parent = parent
+        self.attributes = attributes or {}
         self.context = {}
 
     @property

@@ -9,32 +9,26 @@ from typing import Any
 from parser import HypertextMarkupParser
 from compiler import HypertextMarkupCompiler
 from nodes import Parent, AST
-
-class PHMLTryCatch:
-    def __init__(self, path: str|Path|None = None):
-        self._path = str(path or "")
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_val is not None and not isinstance(exc_val, SystemExit):
-            print_tb(exc_tb)
-            if self._path != "":
-                print(f'[{self._path}]:', exc_val)
-            else:
-                print(exc_val)
-            exit()
+from utils import PHMLTryCatch
+from components import HypertextComponentManager, ComponentType
 
 class PHMCore:
     parser: HypertextMarkupParser
     """PHML parser."""
     compiler: HypertextMarkupCompiler
     """PHML compiler to HTML."""
+    components: HypertextComponentManager
+    """PHML component parser and manager."""
+    context: dict[str, Any]
+    """PHML global variables to expose to each phml file compiled with this instance.
+    This is the highest scope and is overridden by more specific scoped variables.
+    """
 
     def __init__(self) -> None:
         self.parser = HypertextMarkupParser()
         self.compiler = HypertextMarkupCompiler()
+        self.components = HypertextComponentManager()
+        self.context = {}
         self._ast = None
         self._from_path = None
         self._from_file = None
@@ -91,6 +85,7 @@ class PHMCore:
         """Compile the python blocks, python attributes, and phml components and return the resulting ast.
         The resulting ast replaces the core objects ast.
         """
+        context = {**self.context, **context}
         if self._ast is not None:
             with PHMLTryCatch(self._from_path):
                 return self.compiler.compile(self._ast, **context)
@@ -100,6 +95,7 @@ class PHMCore:
         """Renders the phml ast into an html string. If currently in a context manager
         the resulting string will also be output to an associated file.
         """
+        context = {**self.context, **context}
         if self._ast is not None:
             with PHMLTryCatch(self._from_path):
                 result = self.compiler.render(self._ast, _compress="" if _compress else "\n", **context)
@@ -110,3 +106,33 @@ class PHMCore:
                     self._to_file.write(result)
                 return result
         raise ValueError("Must first parse a phml file before rendering a phml AST")
+
+    def add(
+        self,
+        file: str | None = None,
+        *,
+        cmpt: tuple[str, str] | None = None,
+        data: tuple[str, ComponentType] | None = None,
+        ignore: str = "",
+    ):
+        """Add a component to the component manager. The components are used by the compiler
+        when generating html files from phml.
+        """
+        self.components.add(file, cmpt=cmpt, data=data, ignore=ignore)
+
+    def remove(self, key: str):
+        """Remove a component from the component manager based on the components name/tag.
+        """
+        self.components.remove(key)
+
+    def expose(self, _context: dict[str, Any] | None = None, **context: Any):
+        """Expose global variables to each phml file compiled with this instance.
+        This data is the highest scope and will be overridden by more specific
+        scoped variables with equivelant names.
+        """
+        self.context.update(_context or {})
+        self.context.update(context)
+
+    def redact(self, key: str):
+        """Remove global variable from this instance."""
+        del self.context[key]

@@ -1,0 +1,31 @@
+<python>
+Props = {
+  "links": {
+    "Home": "/",
+    "Blog": "/blog/"
+  }
+}
+</python>
+
+<nav>
+  <ul>
+    <For :each="name, link in links.items()">
+      <li>
+        <a :href="link">{{ name }}</a>  
+      </li>
+    </For>
+  </ul>
+</nav>
+
+<script>
+window.onload = () => {
+  console.warn('Hello World');
+}
+</script>
+
+<style>
+nav {
+  color: blue;
+  background-color: #e3e3e3;
+}
+</style>

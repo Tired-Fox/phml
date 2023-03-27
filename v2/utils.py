@@ -1,3 +1,6 @@
+from pathlib import Path
+from traceback import print_tb
+
 def calc_offset(content: str | list[str]) -> int:
     """Get the leading offset of the first line of the string."""
     content = content.split("\n") if isinstance(content, str) else content
@@ -46,3 +49,18 @@ def normalize_indent(content: str, indent: int = 0) -> str:
             lines.append(line)
     return "\n".join(strip_blank_lines(lines))
 
+class PHMLTryCatch:
+    def __init__(self, path: str|Path|None = None):
+        self._path = str(path or "")
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_val is not None and not isinstance(exc_val, SystemExit):
+            print_tb(exc_tb)
+            if self._path != "":
+                print(f'[{self._path}]:', exc_val)
+            else:
+                print(exc_val)
+            exit()
