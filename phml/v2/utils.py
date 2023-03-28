@@ -1,8 +1,25 @@
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Any
 from traceback import print_tb
 
-from .nodes import Parent, Node
+from .nodes import Parent, Node, AST, Element
+
+def build_recursive_context(node: Node, context: dict[str, Any]) -> dict[str, Any]:
+    """Build recursive context for the current node."""
+    parent = node.parent
+    parents = []
+    result = {**context}
+
+    while parent is not None and not isinstance(parent, AST):
+        parents.append(parent)
+        parent = parent.parent
+    
+    for parent in parents:
+        result.update(parent.context)
+
+    if isinstance(node, Element):
+        result.update(node.context)
+    return result
 
 
 def iterate_nodes(node: Parent) -> Iterator[Node]:

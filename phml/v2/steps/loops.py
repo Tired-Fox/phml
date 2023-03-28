@@ -1,13 +1,10 @@
-
-# TODO: For each scope apply list of steps
-# - Each step takes; node, context, component manager
-# - Each step mutates the current scope
 from copy import deepcopy
 import re
 from typing import Any
 
 from ..nodes import Parent, Element
 from ..embedded import exec_embedded
+from ..utils import build_recursive_context
 from .base import comp_step
 
 
@@ -37,6 +34,9 @@ def _get_fallbacks(node: Element) -> list[Element]:
     return fallbacks
 
 def replace_default(node: Element, exc: Exception, sub: Element = Element("", {"@if": "False"})):
+    """Set loop node to a False if condition and update all sibling fallbacks with the
+    loop failure exception.
+    """
     if node.parent is not None and node.parent.children is not None:
         node.attributes.pop("@elif", None)
         node.attributes.pop("@else", None)
@@ -51,6 +51,8 @@ def step_expand_loop_tags(
     node: Parent,
     context: dict[str, Any]
 ):
+    """Step to process and expand all loop (<For/>) elements. Will also set loop elements
+    to have a false condition attribute to allow for fallback sibling elements."""
     if node.children is None:
         return
 
@@ -90,7 +92,7 @@ def step_expand_loop_tags(
         dict_key = lambda a: f"'{a}':{a}"
         process = f"""\
 __children__ = []
-iterations = 0
+__iterations__ = 0
 for {loop.get(":each", loop.get("each"))}:
     __children__.extend(
         __gen_new_children__(
@@ -98,8 +100,8 @@ for {loop.get(":each", loop.get("each"))}:
             {{{','.join(dict_key(key) for key in captures)}}}
         )
     )
-    iterations += 1
-(iterations, __children__)
+    __iterations__ += 1
+(__iterations__, __children__)
 """
 
         if ":each" in loop:
@@ -113,7 +115,7 @@ for {loop.get(":each", loop.get("each"))}:
             iterations, new_nodes = exec_embedded(
                 process,
                 f"<For {_each}>",
-                **context,
+                **build_recursive_context(loop, context),
                 __gen_new_children__=gen_new_children,
                 __node__=loop,
             )

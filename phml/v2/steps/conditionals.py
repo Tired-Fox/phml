@@ -3,6 +3,7 @@ from typing import Any
 
 from ..nodes import Element
 from ..embedded import exec_embedded
+from ..utils import build_recursive_context
 from .base import comp_step
 
 
@@ -31,6 +32,11 @@ class Condition(EnumType):
         return "No Condition"
 
 def get_element_condition(node: Element) -> int:
+    """Get the single condition attribute on a given element.
+
+    Returns:
+        int: -1 - 2 for: No condition, If, Elif, and Else
+    """
     conditions = []
     if "@if" in node:
         conditions.append(Condition.IF)
@@ -65,6 +71,7 @@ def validate_condition(prev: int, cond: int, position) -> bool:
     raise ValueError(f"Invalid condition element order at {position!r}. Expected if -> (elif -> else) | else")
 
 def build_condition_trees(node: Element) -> list[list[Element]]:
+    """Iterates sibling nodes and creates condition trees from adjacent nodes with condition attributes."""
     condition_trees = []
     if node.children is not None:
         # 0 == if, 1 == elif, 2 == else
@@ -82,7 +89,11 @@ def build_condition_trees(node: Element) -> list[list[Element]]:
     return condition_trees 
 
 def get_condition_result(cond: tuple[int, Element], context: dict[str, Any], position) -> bool:
+    """Parse the python condition in the attribute and return the result.
 
+    Raises:
+        ValueError: When the condition result is not a boolean
+    """
     if cond[0] != Condition.ELSE:
         condition = Condition.to_str(cond[0])
         code = str(cond[1].get(condition)).strip()
@@ -90,7 +101,7 @@ def get_condition_result(cond: tuple[int, Element], context: dict[str, Any], pos
         result = exec_embedded(
             code,
             f"<{cond[1].tag} {condition}='{code}'>",
-            **context
+            **build_recursive_context(cond[1], context)
         )
 
         if not isinstance(result, bool):
@@ -103,6 +114,7 @@ def get_condition_result(cond: tuple[int, Element], context: dict[str, Any], pos
     return True
 
 def compile_condition_trees(node, trees: list[list[tuple[int, Element]]], context):
+    """Compiles the conditions. This will removed False condition nodes and keep True condition nodes."""
     for tree in trees:
         state = -1
         for i, cond in enumerate(tree):
@@ -122,5 +134,6 @@ def step_execute_conditions(
         node: Element,
         context: dict[str, Any]
 ):
+    """Step to process and compile condition attributes in sibling nodes."""
     cond_trees = build_condition_trees(node)
     compile_condition_trees(node, cond_trees, context)

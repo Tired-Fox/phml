@@ -6,6 +6,14 @@ from ..nodes import Parent
 from ..components import ComponentManager
 
 def comp_step(func: Callable):
+    """Wrapper for compilation steps. This wraps a function that takes a parent node,
+    the current context, and mutates the nodes children. It is expected that this is not recursive.
+
+    Args:
+        Node (Parent): The parent node that is the current scope
+        components (ComponentManager): The manager instance for the components
+        context (dict[str, Any]): Additional global context from parent objects
+    """
     @wraps(func)
     def inner(
         node: Parent,
