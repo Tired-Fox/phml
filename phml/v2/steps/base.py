@@ -13,6 +13,10 @@ def comp_step(func: Callable):
         Node (Parent): The parent node that is the current scope
         components (ComponentManager): The manager instance for the components
         context (dict[str, Any]): Additional global context from parent objects
+
+    Note:
+        There may be any combination of arguments, keyword only arguments, or catch alls with *arg and **kwarg.
+        This wrapper will predictably and automatically pass the arguments that are specified.
     """
     @wraps(func)
     def inner(

@@ -2,10 +2,8 @@
 Embedded has all the logic for processing python elements, attributes, and text blocks.
 """
 from __future__ import annotations
-from html import escape
 from functools import cached_property
 from shutil import get_terminal_size
-import traceback
 
 from typing import Any
 from traceback import FrameSummary, extract_tb 
@@ -290,22 +288,6 @@ class Embedded:
 
         self.context = context
 
-
-def escape_args(args: dict):
-    """Take a dictionary of args and escape the html inside string values.
-
-    Args:
-        args (dict): Collection of values to html escape.
-
-    Returns:
-        A html escaped collection of arguments.
-    """
-
-    for key in args:
-        if isinstance(args[key], str):
-            args[key] = escape(args[key], quote=False)
-
-
 def _validate_kwargs(code: str, kwargs: dict[str, Any], esc_vars: bool = True):
     exclude_list = [*built_in_funcs, *built_in_types]
     for var in (
@@ -320,9 +302,6 @@ def _validate_kwargs(code: str, kwargs: dict[str, Any], esc_vars: bool = True):
     ):
         if var not in kwargs:
             kwargs[var] = None
-
-    if esc_vars:
-        escape_args(kwargs)
 
 
 def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
@@ -352,3 +331,52 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
         exec(exec_val, {}, context)
         return context.get("_phml_result_", None)
 
+def exec_embedded_blocks(code: str, _path: str,  **context: dict[str, Any]):
+    """Execute embedded python inside `{{}}` blocks. The resulting values are subsituted
+    in for the found blocks.
+
+    Note:
+        No local or global variables will be retained from the embedded python code.
+
+    Args:
+        code (str): The embedded python code.
+        **context (Any): The additional context to provide to the embedded python.
+
+    Returns:
+        str: The value of the passed in string with the python blocks replaced.
+    """
+
+    result = "" 
+    data = []
+    next_block = re.search(r"\{\{", code)
+    while next_block is not None:
+        start = next_block.start()
+        if start > 0:
+            result += code[:start]
+        code = code[start+2:]
+
+        balance = 2
+        index = 0
+        while balance > 0 and index < len(code): 
+            if code[index] == "}":
+                balance -= 1
+            elif code[index] == "{":
+                balance += 1
+            index += 1
+
+        result += "{}"
+        print(result, code[:index-2])
+        input()
+        data.append(
+            str(
+               exec_embedded(
+                    code[:index-2],
+                    _path + f" block #{len(data)+1}",
+                    **context
+                ) 
+            )
+        )
+
+        next_block = re.search(r"(?<!\\)\{\{", code)
+                                          
+    return result.format(*data)

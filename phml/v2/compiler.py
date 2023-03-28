@@ -13,13 +13,14 @@ from .components import ComponentManager
 from .steps import (
    step_expand_loop_tags,
    step_execute_conditions,
+   step_execute_embedded_python,
 )
 
 STEPS: list[Callable] = [
     step_expand_loop_tags,
     step_execute_conditions,
+    step_execute_embedded_python,
     # TODO: Steps:
-    # - conditional elements
     # - python attributes / python blocks in text
     # - components (with caching)
     # - markdown
@@ -70,6 +71,7 @@ class HypertextMarkupCompiler:
             embedded += Embedded(p_elem)
 
         # Recursively process scopes
+        context.update(embedded.context)
         self._process_scope_(node, _components, context)
 
         return node
