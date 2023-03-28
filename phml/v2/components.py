@@ -2,7 +2,7 @@ from re import finditer
 from pathlib import Path
 from typing import Any, Iterator, TypedDict
 
-from nodes import Element
+from .nodes import Element, Literal, LiteralType
 from .utils import iterate_nodes
 from .parser import HypertextMarkupParser
 from .embedded import Embedded
@@ -10,14 +10,20 @@ from .embedded import Embedded
 __all__ = ["ComponentType", "ComponentManager"]
 
 
-class ComponentType(TypedDict, total=False):
+class ComponentType(TypedDict):
+    props: dict[str, Any]
     context: dict[str, Any]
     scripts: list[Element]
     styles: list[Element]
     element: Element
 
+class ComponentCacheType(TypedDict):
+    scripts: list[Element]
+    styles: list[Element]
+
 
 DEFAULT_COMPONENT: ComponentType = {
+    "props": {},
     "context": {},
     "scripts": [],
     "styles": [],
@@ -80,6 +86,7 @@ class ComponentManager:
     def __init__(self) -> None:
         self.components = {}
         self._parser = HypertextMarkupParser()
+        self._cache: dict[str, ComponentCacheType] = {}
 
     def generate_name(self, path: str, ignore: str = "") -> str:
         """Generate a component name based on it's path. Optionally strip part of the path
@@ -96,15 +103,24 @@ class ComponentManager:
             ]
         )
 
+    def get_cache(self) -> dict[str, ComponentCacheType]:
+        """Get the current cache of component scripts and styles"""
+        return self._cache
+
+    def cache(self, key: str, value: ComponentType):
+        """Add a cache for a specific component. Will only add the cache if
+        the component is new and unique.
+        """
+        if key not in self._cache:
+            self._cache[key] = {
+                "scripts": value["scripts"],
+                "styles": value["styles"],
+            }
+
     def parse(self, content: str, path: str = "") -> ComponentType:
         ast = self._parser.parse(content)
 
-        component: ComponentType = {
-            "context": {},
-            "scripts": [],
-            "styles": [],
-        }
-
+        component: ComponentType = {**DEFAULT_COMPONENT}
         element = None
         context = Embedded("", path)
 
@@ -116,18 +132,23 @@ class ComponentManager:
 
         for node in ast:
             if isinstance(node, Element):
-                if node.tag == "script":
+                if node.tag == "script" and len(node) == 1 and Literal.is_text(node[0]):
                     component["scripts"].append(node)
-                elif node.tag == "style":
+                elif node.tag == "style" and len(node) == 1 and Literal.is_text(node[0]):
                     component["styles"].append(node)
                 else:
                     if element is not None:
-                        input(repr(node))
                         raise ValueError(
                             "Can not have more than one root element in components"
                         )
+
+                    if node.tag == "For":
+                        raise ValueError(
+                            "Can not use 'For' tag for root component element"
+                        )
                     element = node
 
+        component["props"] = context.context.pop("Props", {})
         component["context"] = context.context
         if element is None:
             raise ValueError("Must have one root element in component")
@@ -221,15 +242,20 @@ class ComponentManager:
         del self.components[key]
 
     def validate(self, data: ComponentType):
-        if "context" in data and not isinstance(data["context"], dict):
+        if "props" not in data or not isinstance(data["props"], dict):
+            raise ValueError(
+                "Expected ComponentType 'props' that is a dict of str to any value"
+            )
+
+        if "context" not in data or not isinstance(data["context"], dict):
             raise ValueError(
                 "Expected ComponentType 'context' that is a dict of str to any value"
             )
 
         if (
-            "scripts" in data
-            and not isinstance(data["scripts"], list)
-            and all(
+            "scripts" not in data
+            or not isinstance(data["scripts"], list)
+            or not all(
                 isinstance(script, Element) and script.tag == "script"
                 for script in data["scripts"]
             )
@@ -239,9 +265,9 @@ class ComponentManager:
             )
 
         if (
-            "styles" in data
-            and not isinstance(data["styles"], list)
-            and all(
+            "styles" not in data
+            or not isinstance(data["styles"], list)
+            or not all(
                 isinstance(style, Element) and style.tag == "style"
                 for style in data["styles"]
             )

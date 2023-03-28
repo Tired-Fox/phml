@@ -1,7 +1,7 @@
 from enum import EnumType
 from typing import Any
 
-from ..nodes import Element
+from ..nodes import Element, Parent
 from ..embedded import exec_embedded
 from ..utils import build_recursive_context
 from .base import comp_step
@@ -131,7 +131,7 @@ def compile_condition_trees(node, trees: list[list[tuple[int, Element]]], contex
 @comp_step
 def step_execute_conditions(
         *,
-        node: Element,
+        node: Parent,
         context: dict[str, Any]
 ):
     """Step to process and compile condition attributes in sibling nodes."""

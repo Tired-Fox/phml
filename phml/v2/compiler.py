@@ -2,6 +2,7 @@ from collections.abc import Callable
 from typing import Any
 
 from .embedded import Embedded
+from .utils import normalize_indent
 from .nodes import (
     LiteralType,
     Literal,
@@ -13,17 +14,25 @@ from .components import ComponentManager
 from .steps import (
    step_expand_loop_tags,
    step_execute_conditions,
+   step_substitute_components,
    step_execute_embedded_python,
+    step_add_cached_component_elements,
+    step_ensure_doctype,
 )
+
+SETUP_STEPS: list[Callable] = []
 
 STEPS: list[Callable] = [
     step_expand_loop_tags,
     step_execute_conditions,
     step_execute_embedded_python,
+    step_substitute_components,
     # TODO: Steps:
-    # - python attributes / python blocks in text
-    # - components (with caching)
     # - markdown
+]
+POST_STEPS: list[Callable] = [
+    step_add_cached_component_elements,
+    step_ensure_doctype,
 ]
 
 class HypertextMarkupCompiler:
@@ -49,14 +58,10 @@ class HypertextMarkupCompiler:
     ):
         """Process steps for a given scope/parent node."""
         
-        # PERF: Pre core compile step
-
         # Core compile steps
         for _step in STEPS:
             _step(node, components, context)
         
-        # PERF: Post core compile steps
-
         # Recurse steps for each scope
         if node.children is not None:
             for child in node:
@@ -70,9 +75,17 @@ class HypertextMarkupCompiler:
         for p_elem in p_elems:
             embedded += Embedded(p_elem)
 
+        # Setup steps to collect data before comiling at different scopes
+        for step in SETUP_STEPS:
+            step(node, _components, context)
+
         # Recursively process scopes
         context.update(embedded.context)
         self._process_scope_(node, _components, context)
+
+        # Post compiling steps to finalize the ast
+        for step in POST_STEPS:
+            step(node, _components, context)
 
         return node
 
@@ -117,7 +130,8 @@ class HypertextMarkupCompiler:
             compress != "\n"
             or element.in_pre
             or (
-                len(element.children) == 1
+                element.tag not in ["script", "style"]
+                and len(element.children) == 1
                 and isinstance(element.children[0], Literal)
                 and element.children[0].name == LiteralType.Text
                 and "\n" not in result
@@ -135,15 +149,19 @@ class HypertextMarkupCompiler:
     def _render_literal(
         self, literal: Literal, indent: int = 0, compress: str = "\n"
     ) -> str:
+        offset = " " * indent
         if literal.in_pre:
             offset = ""
             compress = ""
             content = literal.content
         else:
             content = literal.content.strip()
-            lines = content.split("\n")
-            offset = " " * indent
-            f"{compress}{offset}".join(lines)
+            if compress == "\n":
+                content = normalize_indent(literal.content, indent)
+                content = content.strip()
+            else:
+                lines = content.split("\n")
+                content = f"{compress}{offset}".join(lines)
 
         if literal.name == LiteralType.Text:
             return offset + content

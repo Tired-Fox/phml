@@ -470,6 +470,16 @@ class Literal(Node):
         self.name = name
         self.content = content
 
+    @staticmethod
+    def is_text(node: Node) -> bool:
+        """Check if a node is a literal and a text node."""
+        return isinstance(node, Literal) and node.name == LiteralType.Text
+
+    @staticmethod
+    def is_comment(node: Node) -> bool:
+        """Check if a node is a literal and a comment."""
+        return isinstance(node, Literal) and node.name == LiteralType.Comment
+
     def __repr__(self) -> str:
         return f"{self.type}.{self.name}(len={len(self.content)})"
 

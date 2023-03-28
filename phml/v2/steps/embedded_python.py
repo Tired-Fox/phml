@@ -2,7 +2,7 @@ from typing import Any
 from html import escape
 
 from ..embedded import exec_embedded, exec_embedded_blocks
-from ..nodes import Element, Literal, LiteralType
+from ..nodes import Element, Literal, Parent
 from ..utils import build_recursive_context
 from .base import comp_step
 
@@ -45,7 +45,7 @@ def _process_attributes(node: Element, context: dict[str, Any]):
                 node[attribute] = escape(value, **ESCAPE_OPTIONS) 
 
 @comp_step
-def step_execute_embedded_python(*, node: Element, context: dict[str, Any]):
+def step_execute_embedded_python(*, node: Parent, context: dict[str, Any]):
     """Step to process embedded python inside of attributes and text nodes."""
     for child in node:
         if isinstance(child, Element):
@@ -53,7 +53,7 @@ def step_execute_embedded_python(*, node: Element, context: dict[str, Any]):
                     child, 
                     build_recursive_context(child, context)
             )
-        elif isinstance(child, Literal) and child.name == LiteralType.Text:
+        elif Literal.is_text(child):
             if "{{" in child.content:
                 child.content = escape(
                     exec_embedded_blocks(
@@ -63,10 +63,4 @@ def step_execute_embedded_python(*, node: Element, context: dict[str, Any]):
                     ),
                     **ESCAPE_OPTIONS
                 )
-    # TODO:
-    # - Process attributes:
-    #   - If it is a python attribute run hole value
-    #   - Else parse and look for '{{<python>}}' pattern
-    # - Process text nodes:
-    #   - Look for '{{<python>}}' pattern
-    # - Escape string values of html content
+

@@ -365,8 +365,6 @@ def exec_embedded_blocks(code: str, _path: str,  **context: dict[str, Any]):
             index += 1
 
         result += "{}"
-        print(result, code[:index-2])
-        input()
         data.append(
             str(
                exec_embedded(
@@ -376,7 +374,11 @@ def exec_embedded_blocks(code: str, _path: str,  **context: dict[str, Any]):
                 ) 
             )
         )
-
+        code = code[index+1:]
         next_block = re.search(r"(?<!\\)\{\{", code)
+
+
+    if len(code) > 0:
+        result += code
                                           
     return result.format(*data)

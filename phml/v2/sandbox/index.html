@@ -1,20 +1,42 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Sample</title>
+    <style>
+      nav {
+        color: blue;
+        background-color: #e3e3e3;
+      }
+    </style>
+    <script>
+      window.onload = () => {
+        console.warn('Hello World');
+      }
+    </script>
   </head>
   <body>
+    <nav>
+      <ul>
+        <li>
+          <a href="/" >Home</a>
+        </li>
+        <li>
+          <a href="/blog/" >Blog</a>
+        </li>
+      </ul>
+    </nav>
     <p>No iterations occured. Expected non empty iterator.</p>
     <!--Comment Example-->
     <h1>Hello</h1>
     <input
-      type=""
-      class=""
-      id=""
+      type="email"
+      class="email-input"
+      id="email-input"
       open
     />
     <div
-      role=""
-      aria-level=""
+      role="heading"
+      aria-level="2"
       data-message="Hello World"
     >
       heading 2
