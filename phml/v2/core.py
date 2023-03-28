@@ -1,16 +1,14 @@
 from __future__ import annotations
 from collections.abc import Iterator
-from os import write
 from pathlib import Path
 from contextlib import contextmanager
-from traceback import print_tb
 from typing import Any
 
-from parser import HypertextMarkupParser
-from compiler import HypertextMarkupCompiler
-from nodes import Parent, AST
-from utils import PHMLTryCatch
-from components import ComponentManager, ComponentType
+from .parser import HypertextMarkupParser
+from .compiler import HypertextMarkupCompiler
+from .nodes import Parent, AST
+from .utils import PHMLTryCatch
+from .components import ComponentManager, ComponentType
 
 class PHMCore:
     parser: HypertextMarkupParser

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Iterator
 from traceback import print_tb
 
-from nodes import Parent, Node
+from .nodes import Parent, Node
 
 
 def iterate_nodes(node: Parent) -> Iterator[Node]:

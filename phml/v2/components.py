@@ -2,12 +2,10 @@ from re import finditer
 from pathlib import Path
 from typing import Any, Iterator, TypedDict
 
-from saimll import pprint
-
-from nodes import Element, Node, Parent
-from utils import iterate_nodes
-from parser import HypertextMarkupParser
-from embedded import Embedded
+from nodes import Element
+from .utils import iterate_nodes
+from .parser import HypertextMarkupParser
+from .embedded import Embedded
 
 __all__ = ["ComponentType", "ComponentManager"]
 

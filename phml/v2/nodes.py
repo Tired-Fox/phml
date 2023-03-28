@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from enum import StrEnum, unique
-from json import dumps
-from typing import Iterator, overload
-from type import Attribute
+from typing import Any, Iterator, TypeAlias, overload
 from saimll import SAIML
 
+Attribute: TypeAlias = str|bool
+
+class Missing: pass
+MISSING = Missing()
 
 @unique
 class LiteralType(StrEnum):
@@ -51,7 +53,7 @@ class Point:
         )
 
     def __repr__(self) -> str:
-        return f"point(line: {self.line}, column: {self.column}, offset: {self.offset})"
+        return f"{self.line}:{self.column}"
 
     def __str__(self) -> str:
         return f"\x1b[38;5;244m{self.line}:{self.column}\x1b[39m"
@@ -141,11 +143,11 @@ class Position:
         }
 
     def __repr__(self) -> str:
-        indent = f" ~ {self.indent}" if self.indent is not None else ""
-        return f"\x1b[38;5;8m<\x1b[39m{self.start}\x1b[38;5;8m-\x1b[39m{self.end}{indent}\x1b[38;5;8m>\x1b[39m"
+        # indent = f" ~ {self.indent}" if self.indent is not None else ""
+        return f"<{self.start!r}-{self.end!r}>"
 
     def __str__(self) -> str:
-        return repr(self)
+        return f"\x1b[38;5;8m<\x1b[39m{self.start}\x1b[38;5;8m-\x1b[39m{self.end}\x1b[38;5;8m>\x1b[39m" 
     
 class Node:
     """Base phml node. Defines a type and basic interactions."""
@@ -357,6 +359,21 @@ class Element(Parent):
             return self.children[_k]
 
         raise ValueError("A self closing element can not have it's children indexed")
+
+    def __setitem__(self, key: str, value: Attribute):
+        self.attributes[key] = value
+
+    def __delitem__(self, key: str):
+        del self.attributes[key]
+
+    def pop(self, key: str, _default: Any = MISSING) -> Attribute:
+        """Pop a specific attribute from the elements attributes. A default value
+        can be provided for when the value is not found, otherwise an error is thrown.
+        """
+        if _default != MISSING:
+            return self.attributes.pop(key, _default)
+        return self.attributes.pop(key)
+
 
     @overload
     def get(self, key: str) -> Attribute | None:

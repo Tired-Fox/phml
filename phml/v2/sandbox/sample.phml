@@ -6,9 +6,9 @@
     </python>
   </head>
   <body>
-    <For :each="i in range(3)">
-      <p>{i}</p>
+    <For :each="i in range(0)"> <p>{i}</p>
     </For>
+    <p @else>{ _loop_fail_ }</p>
     <!-- Comment Example -->
     <h1>Hello</h1>
     <input

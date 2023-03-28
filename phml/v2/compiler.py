@@ -1,22 +1,29 @@
 from collections.abc import Callable
-from copy import deepcopy
-from functools import wraps
-from inspect import getfullargspec
-import re
 from typing import Any
-from embedded import Embedded
-from nodes import (
+
+from .embedded import Embedded
+from .nodes import (
     LiteralType,
     Literal,
     Element,
     Parent,
 )
-from components import ComponentManager
-from utils import iterate_nodes
-from compile_steps import (
-   compile_for_tags 
+from .components import ComponentManager
+
+from .steps import (
+   step_expand_loop_tags,
+   step_execute_conditions,
 )
 
+STEPS: list[Callable] = [
+    step_expand_loop_tags,
+    step_execute_conditions,
+    # TODO: Steps:
+    # - conditional elements
+    # - python attributes / python blocks in text
+    # - components (with caching)
+    # - markdown
+]
 
 class HypertextMarkupCompiler:
     def _get_python_elements(self, node: Parent) -> list[Element]:
@@ -33,35 +40,27 @@ class HypertextMarkupCompiler:
 
         return result
 
-    def _process_scope(
+    def _process_scope_(
         self,
         node: Parent,
         components: ComponentManager,
         context: dict,
     ):
         """Process steps for a given scope/parent node."""
-        core_steps: list[Callable] = [
-            compile_for_tags # TODO: Loop element fallback
-            # TODO: Steps:
-            # - conditional elements
-            # - python attributes / python blocks in text
-            # - components (with caching)
-            # - markdown
-        ]
         
         # PERF: Pre core compile step
 
         # Core compile steps
-        for step in core_steps:
-            step(node, components, context)
-
+        for _step in STEPS:
+            _step(node, components, context)
+        
         # PERF: Post core compile steps
 
         # Recurse steps for each scope
         if node.children is not None:
             for child in node:
-                if isinstance(child, Element):
-                    self._process_scope(child, components, context)
+                if isinstance(child, Element) and child.children is not None:
+                    self._process_scope_(child, components, context)
 
     def compile(self, node: Parent, _components: ComponentManager, **context: Any) -> Parent:
         # get all python elements and process them
@@ -71,7 +70,7 @@ class HypertextMarkupCompiler:
             embedded += Embedded(p_elem)
 
         # Recursively process scopes
-        self._process_scope(node, _components, context)
+        self._process_scope_(node, _components, context)
 
         return node
 
@@ -122,10 +121,10 @@ class HypertextMarkupCompiler:
                 and "\n" not in result
             )
         ):
-            children = self.render(element, components, _compress=compress)
+            children = self._render_tree_(element, components, _compress=compress)
             result += children + f"</{element.tag}>"
         else:
-            children = self.render(element, components, indent + 2, _compress=compress)
+            children = self._render_tree_(element, components, indent + 2, _compress=compress)
             result += compress + children
             result += f"{compress}{' '*indent}</{element.tag}>"
 
@@ -146,20 +145,18 @@ class HypertextMarkupCompiler:
 
         if literal.name == LiteralType.Text:
             return offset + content
-        elif literal.name == LiteralType.Comment:
+
+        if literal.name == LiteralType.Comment:
             return f"{offset}<!--" + content + "-->"
         return ""
 
-    def render(
+    def _render_tree_(
         self,
         node: Parent,
         _components: ComponentManager,
         indent: int = 0,
         _compress: str = "\n",
-        **context: Any
-    ) -> str:
-        node = self.compile(node, _components, **context)
-
+    ):
         result = []
         for child in node:
             if isinstance(child, Element):
@@ -171,3 +168,15 @@ class HypertextMarkupCompiler:
                 result.append(self._render_literal(child, indent, _compress))
 
         return _compress.join(result)
+
+
+    def render(
+        self,
+        node: Parent,
+        _components: ComponentManager,
+        indent: int = 0,
+        _compress: str = "\n",
+        **context: Any
+    ) -> str:
+        node = self.compile(node, _components, **context)
+        return self._render_tree_(node, _components, indent, _compress)
