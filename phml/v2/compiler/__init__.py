@@ -1,15 +1,15 @@
 from collections.abc import Callable
 from typing import Any
 
-from .embedded import Embedded
-from .utils import normalize_indent
-from .nodes import (
+from phml.v2.embedded import Embedded
+from phml.v2.utils import normalize_indent
+from phml.v2.nodes import (
     LiteralType,
     Literal,
     Element,
     Parent,
 )
-from .components import ComponentManager
+from phml.v2.components import ComponentManager
 
 from .steps import (
    step_expand_loop_tags,
@@ -19,6 +19,13 @@ from .steps import (
     step_add_cached_component_elements,
     step_ensure_doctype,
 )
+
+__all__ = [
+    "SETUP_STEPS",
+    "STEPS",
+    "POST_STEPS",
+    "HypertextMarkupCompiler",
+]
 
 SETUP_STEPS: list[Callable] = []
 

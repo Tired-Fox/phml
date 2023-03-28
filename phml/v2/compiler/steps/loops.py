@@ -2,9 +2,9 @@ from copy import deepcopy
 import re
 from typing import Any
 
-from ..nodes import Parent, Element
-from ..embedded import exec_embedded
-from ..utils import build_recursive_context
+from phml.v2.nodes import Parent, Element, Literal
+from phml.v2.embedded import exec_embedded
+from phml.v2.utils import build_recursive_context
 from .base import comp_step
 
 
@@ -30,7 +30,10 @@ def _get_fallbacks(node: Element) -> list[Element]:
                     continue
                 elif "@else" in node.parent[i]:
                     fallbacks.append(node.parent[i])
-            break
+            
+            # Ignore comments
+            if not Literal.is_comment(node.parent[i]):
+                break
     return fallbacks
 
 def replace_default(node: Element, exc: Exception, sub: Element = Element("", {"@if": "False"})):

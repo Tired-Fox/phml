@@ -7,8 +7,10 @@
   </head>
   <body>
     <Nav />
-    <For :each="i in range(0)"> <p>{i}</p>
+    <For :each="i in range(0)">
+      <p>{i}</p>
     </For>
+    <!--<p @if="True">Sample Text</p>-->
     <p @else>{{ _loop_fail_ }}</p>
     <!-- Comment Example -->
     <h1>Hello</h1>

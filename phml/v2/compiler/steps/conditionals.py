@@ -1,9 +1,9 @@
 from enum import EnumType
 from typing import Any
 
-from ..nodes import Element, Parent
-from ..embedded import exec_embedded
-from ..utils import build_recursive_context
+from phml.v2.nodes import Element, Parent
+from phml.v2.embedded import exec_embedded
+from phml.v2.utils import build_recursive_context
 from .base import comp_step
 
 
@@ -124,7 +124,7 @@ def compile_condition_trees(node, trees: list[list[tuple[int, Element]]], contex
             else:
                 cond[1].pop(Condition.to_str(cond[0]), None)
                 for c in tree[i+1:]:
-                    c.parent.remove(c)
+                    c[1].parent.remove(c[1])
                 break
         
 

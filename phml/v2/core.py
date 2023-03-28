@@ -10,7 +10,7 @@ from .nodes import Parent, AST
 from .utils import PHMLTryCatch
 from .components import ComponentManager, ComponentType
 
-class PHMCore:
+class Manager:
     parser: HypertextMarkupParser
     """PHML parser."""
     compiler: HypertextMarkupCompiler
@@ -34,9 +34,9 @@ class PHMCore:
 
     @staticmethod
     @contextmanager
-    def open(_from: str, _to: str | None = None) -> Iterator[PHMCore]:
+    def open(_from: str, _to: str | None = None) -> Iterator[Manager]:
         with PHMLTryCatch():
-            core = PHMCore()
+            core = Manager()
             core._from_file = Path(_from).open("r", encoding="utf-8")
             core._from_path = _from
             if _to is not None:
