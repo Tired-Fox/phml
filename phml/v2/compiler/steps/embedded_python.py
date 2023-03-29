@@ -3,7 +3,7 @@ from html import escape
 
 from phml.v2.embedded import exec_embedded, exec_embedded_blocks
 from phml.v2.nodes import Element, Literal, Parent
-from phml.v2.utils import build_recursive_context
+from phml.v2.helpers import build_recursive_context
 from .base import comp_step
 
 ESCAPE_OPTIONS = {

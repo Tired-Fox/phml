@@ -1,16 +1,21 @@
 from __future__ import annotations
 from collections.abc import Iterator
+from importlib import import_module
+import os
 from pathlib import Path
 from contextlib import contextmanager
+import re
+import sys
 from typing import Any
 
 from .parser import HypertextMarkupParser
 from .compiler import HypertextMarkupCompiler
 from .nodes import Parent, AST
-from .utils import PHMLTryCatch
+from .embedded import Module, EmbeddedImport, IMPORTS, FROM_IMPORTS
+from .helpers import PHMLTryCatch
 from .components import ComponentManager, ComponentType
 
-class Manager:
+class PHML:
     parser: HypertextMarkupParser
     """PHML parser."""
     compiler: HypertextMarkupCompiler
@@ -26,7 +31,9 @@ class Manager:
         self.parser = HypertextMarkupParser()
         self.compiler = HypertextMarkupCompiler()
         self.components = ComponentManager()
-        self.context = {}
+        self.context = {
+            "Module": Module
+        }
         self._ast = None
         self._from_path = None
         self._from_file = None
@@ -34,9 +41,9 @@ class Manager:
 
     @staticmethod
     @contextmanager
-    def open(_from: str, _to: str | None = None) -> Iterator[Manager]:
+    def open(_from: str, _to: str | None = None) -> Iterator[PHML]:
         with PHMLTryCatch():
-            core = Manager()
+            core = PHML()
             core._from_file = Path(_from).open("r", encoding="utf-8")
             core._from_path = _from
             if _to is not None:
@@ -45,6 +52,101 @@ class Manager:
             core._from_file.close()
             if core._to_file is not None:
                 core._to_file.close()
+
+    def add_module(self, module: str, *, name: str | None = None, imports: list[str] | None = None):
+        """Pass and imported a python file as a module. The modules are imported and added
+        to phml's cached imports. These modules are **ONLY** exposed to the python elements.
+        To use them in the python elements or the other scopes in the files you must use the python
+        import syntax `import <module>` or `from <module> import <...objects>`. PHML will parse
+        the imports first and remove them from the python elements. It then checks it's cache of
+        python modules that have been imported and adds those imported modules to the local context
+        for each embedded python execution.
+
+        Note:
+            - All imports will have a `.` prefixed to the module name. For example `current/file.py` gets the module
+            name `.current.file`. This helps seperate and indicate what imports are injected with this method.
+            Module import syntax will retain it's value, For example suppose the module `..module.name.here`
+            is added. It is in directory `module/` which is in a sibling directory to `current/`. The path
+            would look like `parent/ -> module/ -> name/ -> here.py` and the module would keep the name of
+            `..module.name.here`.
+
+            - All paths are resolved with the cwd in mind.
+        
+        Args:
+            module (str): Absolute or relative path to a module, or module syntax reference to a module.
+            name (str): Optional name for the module after it is imported.
+            imports (list[str]): Optional list of objects to import from the module. Turns the import to
+                `from <module> import <...objects>` from `import <module>`.
+        """
+    
+        if module.startswith("~"):
+            module = module.replace("~", str(Path.home()))
+
+        mod = None
+        file = Path(module)
+        cwd = os.getcwd()
+
+        if file.is_file():
+            current = Path(cwd).as_posix()
+            path = file.resolve().as_posix()
+            
+            cwd_p = current.split("/")
+            path_p = path.split("/")
+            index = 0
+            for cp, pp in zip(cwd_p, path_p):
+                if cp != pp:
+                    break
+                index += 1
+
+            name = re.sub(r"^(/?\.\./?)*", "", module).rsplit(".", 1)[0].replace("/", ".")
+            path = "/".join(path_p[:index])
+
+            # Make the path that is imported form the only path in sys.path
+            # this will prevent module conflicts and garuntees the correct module is imported
+            sys_path = list(sys.path)
+            sys.path = [path]
+            mod = import_module(name)
+            sys.path = sys_path
+
+            name = f".{name}"
+            
+        else:
+            if module.startswith(".."):
+                current = Path(os.getcwd()).as_posix()
+                cwd_p = current.split("/")
+                
+                path = "/".join(cwd_p[:-1])
+
+                sys_path = list(sys.path)
+                sys.path = [path]
+                mod = import_module(module.lstrip(".."))
+                sys.path = sys_path
+            else:
+                mod = import_module(module)
+            name = f".{module.lstrip('..')}"
+
+        if mod is None:
+            raise ValueError(f"Failed to import module {name}")
+
+        # Add imported module or module objects to appropriate collection
+        if imports is not None and len(imports) > 0:
+            for _import in imports:
+                FROM_IMPORTS.update({name: {_import: getattr(mod, _import)}})
+        else:
+            IMPORTS[name] = mod
+
+    def remove_module(self, module: str, imports: list[str] | None = None):
+        input(module)
+        if module in IMPORTS:
+            IMPORTS.pop(module, None)
+        if module in FROM_IMPORTS:
+            if imports is not None and len(imports) > 0:
+                for _import in imports:
+                    FROM_IMPORTS[module].pop(_import, None)
+                if len(FROM_IMPORTS[module]) == 0:
+                    FROM_IMPORTS.pop(module, None)
+            else:
+                FROM_IMPORTS.pop(module, None)
 
     @property
     def ast(self) -> AST:

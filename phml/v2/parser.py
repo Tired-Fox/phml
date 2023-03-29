@@ -10,48 +10,26 @@ from .nodes import (
     Literal,
     Point,
     Position,
-    LiteralType
+    LiteralType,
+    Attribute
 )
 
-def strip_blank_lines(data_lines: list[str]) -> list[str]:
-    """Strip the blank lines at the start and end of a list."""
-    data_lines = [line.replace("\r\n", "\n") for line in data_lines]
-    # remove leading blank lines
-    for idx in range(0, len(data_lines)):  # pylint: disable=consider-using-enumerate
-        if data_lines[idx].strip() != "":
-            data_lines = data_lines[idx:]
-            break
-        if idx == len(data_lines) - 1:
-            data_lines = []
-            break
-
-    # Remove trailing blank lines
-    if len(data_lines) > 0:
-        for idx in range(len(data_lines) - 1, -1, -1):
-            if data_lines[idx].replace("\n", " ").strip() != "":
-                data_lines = data_lines[: idx + 1]
-                break
-
-    return data_lines
-
-def strip(data: str, cur_tags: list[str]) -> tuple[str, int, int]:
-    """This function takes a possibly mutliline string and strips leading and trailing
-    blank lines. Given the current position it will also calculate the line and column
-    taht the data ends at.
+def strip(data: str, cur_tags: list[str]) -> str:
+    """This function takes a possibly multiline string and strips leading and trailing
+    blank lines. Given the current tag stack it will not strip the text if it is nested
+    in a `pre` tag.
     """
-    if "pre" not in cur_tags:
-        data_lines = data.split("\n")
-
-        # If multiline data block
-        if len(data_lines) > 1:
-            data_lines = strip_blank_lines(data_lines)
-
-            data = "\n".join(data_lines)
-        # Else it is a single line data block
-        else:
-            data = data_lines[0]
-
-    return data
+    if (
+        len(cur_tags) > 0
+        and (
+            "python" == cur_tags[-1]
+            or "script" == cur_tags[-1]
+            or "style" == cur_tags[-1]
+            or "pre" in cur_tags
+        )
+    ):
+        return data
+    return data.strip()
 
 
 self_closing = [
@@ -73,6 +51,7 @@ self_closing = [
     "keygen",
     "menuitem",
     "Slot",
+    "Markdown",
 ]
 
 # Main form of tokenization
@@ -137,34 +116,39 @@ class HypertextMarkupParser:
             if comment.start() > 0:
                 elements.append(Literal(
                     LiteralType.Text,
-                    text[:comment.span()[0]],
+                    strip(text[:comment.span()[0]], self.tag_stack),
                     position=deepcopy(pos)
                     , in_pre=self.in_pre > 0
                 ))
 
             text = text[comment.span()[1]:]
             elements.append(
-                Literal(LiteralType.Comment, comment.group(1), position=deepcopy(pos), in_pre=self.in_pre > 0)
+                Literal(
+                    LiteralType.Comment,
+                    comment.group(1).strip(),
+                    position=deepcopy(pos),
+                    in_pre=self.in_pre > 0
+                )
             )
 
         # remaining text is added as a text element
-        if len(text) > 0 and text.strip() != "":
+        if len(text) > 0 and strip(text, self.tag_stack) != "":
             line, col = self.__calc_line_col(text, len(text))
             pos.start.line += line
             pos.start.column = col
 
             elements.append(Literal(
                 LiteralType.Text,
-                text,
+                strip(text, self.tag_stack),
                 position=Position(
-                    deepcopy(pos.end),
-                    (pos.end.line + line, self.__calc_col(line, col, pos.end.column))
+                    (pos.end.line, pos.end.column, None),
+                    (pos.end.line + line, self.__calc_col(line, col, pos.end.column), None)
                 ),
                 in_pre=self.in_pre > 0
             ))
         return elements
 
-    def __parse_attributes(self, attrs: str) -> dict:
+    def __parse_attributes(self, attrs: str) -> dict[str, Attribute]:
         """Parse a tags attributes from the text found between the tag start and the tag end.
         
         Example:
@@ -215,7 +199,7 @@ class HypertextMarkupParser:
             if end is None:
                 raise Exception("Comment was not closed")
             end = (end.start(), end.group(0), end.groupdict())
-            attributes = {"data": source[:end[0]]}
+            attributes: dict[str, Attribute] = {"data": source[:end[0]]}
         else:
             begin[2]["opening"] = begin[2]["opening"] or begin[2]["opening2"]
 
@@ -238,7 +222,7 @@ class HypertextMarkupParser:
             return name in self_closing
         return False
 
-    def parse(self, source: str, auto_close: bool = True) -> AST:
+    def parse(self, source: str, auto_close: bool = True) -> AST | Node | None:
         """Parse a given html or phml string into it's corresponding phml ast.
 
         Args:
@@ -252,7 +236,7 @@ class HypertextMarkupParser:
         current = AST()
         position = Position((0, 0), (0, 0))
 
-        while RE.tag_start.search(source) is not None:
+        while RE.tag_start.search(source) is not None and current is not None:
             source, begin, attr, end, elems = self.__parse_tag(source, position)
 
             if len(elems) > 0:
@@ -260,7 +244,12 @@ class HypertextMarkupParser:
 
             if begin[2]["comment"] is not None:
                 current.append(
-                    Literal(LiteralType.Comment, attr['data'], position=deepcopy(position), in_pre=self.in_pre > 0)
+                    Literal(
+                        LiteralType.Comment,
+                        str(attr['data']),
+                        position=Position.from_pos(position),
+                        in_pre=self.in_pre > 0
+                    )
                 )
             else:
                 name = begin[2]["name"] or ''
@@ -274,15 +263,17 @@ class HypertextMarkupParser:
                     ptag = self.tag_stack.pop()
                     if ptag == "pre":
                         self.in_pre -= 1
-                    current.position.end.line = position.end.line
-                    current.position.end.column = position.end.column
+
+                    if current.position is not None:
+                        current.position.end.line = position.end.line
+                        current.position.end.column = position.end.column
 
                     current = current.parent
                 elif begin[2]["opening"] == "!":
                     current.append(Element(
                         "doctype",
                         {"lang": attr.get("lang", "html")},
-                        position=deepcopy(position)
+                        position=Position.from_pos(position)
                     ))
                 elif (
                     end[2]["closing"] != "/"
@@ -292,16 +283,24 @@ class HypertextMarkupParser:
                     self.tag_stack.append(name)
                     if name == "pre":
                         self.in_pre += 1
-                    current.append(Element(name, attr, [], position=deepcopy(position), in_pre=self.in_pre > 0))
-                    current = current.children[-1]
+                    current.append(Element(
+                        name,
+                        attr,
+                        [],
+                        position=Position.from_pos(position),
+                        in_pre=self.in_pre > 0
+                    ))
+                    if current.children is not None:
+                        current = current.children[-1]
                 else:
                     current.append(Element(name, attr, position=deepcopy(position), in_pre=self.in_pre > 0))
 
-            position.start = deepcopy(position.end)
+            position.start = Point(position.end.line, position.end.column)
 
         if len(source) > 0:
             elems = self.__parse_text_comment(source, position)
-            current.extend(elems)
+            if current is not None and current.children is not None:
+                current.extend(elems)
 
         return current
 

@@ -2,32 +2,38 @@
 Embedded has all the logic for processing python elements, attributes, and text blocks.
 """
 from __future__ import annotations
-from functools import cached_property
+from functools import cache, cached_property
 from shutil import get_terminal_size
+import sys
+import types
 
-from typing import Any
-from traceback import FrameSummary, extract_tb 
+from typing import Any, Iterator, Literal as Lit, TypedDict
+from traceback import FrameSummary, StackSummary, extract_stack, extract_tb, walk_tb 
 from pathlib import Path
 import ast
 import re
 
-from .nodes import Element, Literal, LiteralType
-from .utils import normalize_indent
-from .built_in import built_in_types, built_in_funcs
+from phml.v2.nodes import Element, Literal, LiteralType
+from phml.v2.helpers import normalize_indent
+from phml.v2.embedded.built_in import built_in_types, built_in_funcs
 
+# Global cached imports
 IMPORTS = {}
 FROM_IMPORTS = {}
 
-
 # PERF: Only allow assignments, methods, imports, and classes?
 class EmbeddedTryCatch:
+    """Context manager around embedded python execution. Will parse the traceback
+    and the content being executed to create a detailed error message. The final
+    error message is raised in a custom EmbeddedPythonException.
+    """
     def __init__(
         self,
         path: str | Path | None = None,
         content: str | None = None,
         pos: tuple[int, int] | None = None,
     ):
-        self._path = str(path or "_embedded_")
+        self._path = str(path or "<python>")
         self._content = content or ""
         self._pos = pos or (0, 0)
 
@@ -80,7 +86,10 @@ class EmbeddedPythonException(Exception):
         message = ""
         if self._path != "":
             pos = (self._pos[0] + (self.l_slice[0] or 0), self.c_slice[0] or self._pos[1])
-            message = f"[{pos[0]+1}:{pos[1]}] {self._path} Failed to execute phml embedded python"
+            if pos[0] > self._content.count("\n"):
+                message = f"{self._path} Failed to execute phml embedded python"
+            else:
+                message = f"[{pos[0]+1}:{pos[1]}] {self._path} Failed to execute phml embedded python"
         if self._content != "":
             lines = self._content.split("\n")
             target_lines = lines[self.l_slice[0]-1:self.l_slice[1]]
@@ -111,7 +120,9 @@ class EmbeddedPythonException(Exception):
             )
             line_width = self.max_width-w_fmt-2
 
-            exception = f"{self.msg} at <{self.l_slice[0]}:{self.c_slice[0]}-{self.l_slice[1]}:{self.c_slice[1]}>"
+            exception = f"{self.msg}"
+            if len(target_lines) > 0:
+                exception += f" at <{self.l_slice[0]}:{self.c_slice[0]}-{self.l_slice[1]}:{self.c_slice[1]}>"
             ls = [exception[i:i+line_width] for i in range(0, len(exception), line_width)]
             exception_line = self.format_line(ls[0], w_fmt, "#")
             for l in ls[1:]:
@@ -137,52 +148,129 @@ def parse_import_values(_import: str) -> list[str]:
             values.append(value.group(3))
     return values
 
+class ImportStruct(TypedDict):
+    key: str
+    values: str | list[str]
 
-class Import:
+class Module:
+    """Object used to access the gobal imports. Readonly data."""
+    def __init__(self, module: str, *, imports: list[str] | None = None) -> None:
+        self.objects = imports or []
+        if imports is not None and len(imports) > 0:
+            if module not in FROM_IMPORTS:
+                raise ValueError(f"Unkown module {module!r}")
+            try:
+                imports = {_import: FROM_IMPORTS[module][_import] for _import in imports}
+            except KeyError as kerr:
+                back_frame = kerr.__traceback__.tb_frame.f_back
+                back_tb = types.TracebackType(
+                    tb_next=None,
+                    tb_frame=back_frame,
+                    tb_lasti=back_frame.f_lasti,
+                    tb_lineno=back_frame.f_lineno
+                )
+                FrameSummary("", 2, "")
+                raise  ValueError(
+                        f"{', '.join(kerr.args)!r} {'arg' if len(kerr.args) > 1 else 'is'} not found in cached imported module {module!r}"
+                ).with_traceback(back_tb)
+
+            globals().update(imports)
+            locals().update(imports)
+            self.module = module
+        else:
+            if module not in IMPORTS:
+                raise ValueError(f"Unkown module {module!r}")
+
+            imports = {module: IMPORTS[module]}
+            locals().update(imports)
+            globals().update(imports)
+            self.module = module
+
+
+    def collect(self) -> Any:
+        """Collect the imports and return the single import or a tuple of multiple imports."""
+        if len(self.objects) > 0:
+            if len(self.objects) == 1:
+                return FROM_IMPORTS[self.module][self.objects[0]]
+            return tuple([FROM_IMPORTS[self.module][object] for object in self.objects])
+        return IMPORTS[self.module]
+
+
+class EmbeddedImport:
     """Data representation of an import."""
 
-    package: str | None
+    module: str
     """Package where the import(s) are from."""
 
-    values: list[str]
+    objects: list[str]
     """The imported objects."""
 
-    def __init__(self, _import: str, data: dict[str, str | Any]):
-        self._import = _import.strip()
-
-        values: str | None = data["values"]
-        value: str | None = data["value"]
-        self.package = data["key"]
-
-        if self.package is not None:
-            if values is None:
-                raise ValueError(
-                    "Invalid from <module> import <...objects> syntax. Expected objects"
-                )
-            self.values = parse_import_values(values)
+    def __init__(self, module: str, values: str | list[str] | None = None, *, push: bool =  False):
+        self.module = module
+            
+        if isinstance(values, list):
+            self.objects = values
         else:
-            if value is None:
-                raise ValueError("Invalid import <object> syntax. Expected object")
-            self.values = [value]
+            self.objects = parse_import_values(values or "")
+
+        if push:
+            self.data
+
+    def _parse_from_import(self):
+        if self.module in FROM_IMPORTS:
+            values = list(filter(lambda v: v not in FROM_IMPORTS[self.module], self.objects))
+        else:
+            values = self.objects
+
+        if len(values) > 0:
+            local_env = {}
+            exec_val = compile(str(self), "_embedded_import_", "exec")
+            exec(exec_val, {}, local_env)
+
+            if self.module not in FROM_IMPORTS:
+                FROM_IMPORTS[self.module] = {}
+            FROM_IMPORTS[self.module].update(local_env)
+
+        return {key: FROM_IMPORTS[self.module][key] for key in self.objects}
+
+    def _parse_import(self):
+        if self.module not in IMPORTS:
+            local_env = {}
+            exec_val = compile(str(self), "_embedded_import_", "exec")
+            exec(exec_val, {}, local_env)
+            IMPORTS.update(local_env)
+
+        return {self.module: IMPORTS[self.module]}
+
+    def __iter__(self) -> Iterator[tuple[str, Any]]:
+        if len(self.objects) > 0:
+            if self.module not in FROM_IMPORTS:
+                raise KeyError(f"{self.module} is not a known exposed module")
+            yield from FROM_IMPORTS[self.module].items() 
+        else:
+            if self.module not in IMPORTS:
+                raise KeyError(f"{self.module} is not a known exposed module")
+            yield IMPORTS[self.module]
 
     @cached_property
     def data(self) -> dict[str, Any]:
         """The actual imports stored by a name to value mapping."""
-        values = list(filter(lambda v: v not in IMPORTS, self.values))
-        if len(values) > 0:
-            local_env = {}
-            exec_val = compile(self._import, "_embedded_import_", "exec")
-            exec(exec_val, {}, local_env)
-            if self.package is not None:
-                if self.package not in FROM_IMPORTS:
-                    FROM_IMPORTS[self.package] = {}
-                FROM_IMPORTS[self.package].update(local_env)
-        if self.package is not None:
-            return {key: FROM_IMPORTS[self.package][key] for key in self.values}
-        return {key: IMPORTS[key] for key in self.values}
+        if len(self.objects) > 0:
+            return self._parse_from_import()
+        return self._parse_import()
 
     def __getitem__(self, key: str) -> Any:
         self.data[key]
+
+    def __repr__(self) -> str:
+        if len(self.objects) > 0:
+            return f"FROM({self.module}).IMPORT({', '.join(self.objects)})"
+        return f"IMPORT({self.module})"
+
+    def __str__(self) -> str:
+        if len(self.objects) > 0:
+            return f"from {self.module} import {', '.join(self.objects)}"
+        return f"import {self.module}"
 
 
 class Embedded:
@@ -191,19 +279,21 @@ class Embedded:
     context: dict[str, Any]
     """Variables and locals found in the python code block."""
 
-    imports: list[Import]
+    imports: list[EmbeddedImport]
     """Imports needed for the python in this scope. Imports are stored in the module globally
     to reduce duplicate imports.
     """
 
     def __init__(self, content: str | Element, path: str | None = None) -> None:
-        self._path = path or "_embedded_"
+        self._path = path or "<python>"
         self._pos = (0, 0)
         if isinstance(content, Element):
             if (
                 len(content) > 1
-                or not isinstance(content[0], Literal)
-                or content[0].name != LiteralType.Text
+                or (
+                    len(content) == 1
+                    and not Literal.is_text(content[0])
+                )
             ):
                 # TODO: Custom error
                 raise ValueError(
@@ -213,7 +303,7 @@ class Embedded:
                 start = content.position.start
                 self._pos = (start.line, start.column) 
             content = content[0].content
-        content = normalize_indent(content.strip())
+        content = normalize_indent(content)
         self.imports = []
         self.context = {}
         if len(content) > 0:
@@ -233,7 +323,7 @@ class Embedded:
 
         raise KeyError(f"Key is not in Embedded context or imports: {key}")
 
-    def split_contexts(self, content: str) -> tuple[list[str], list[Import]]:
+    def split_contexts(self, content: str) -> tuple[list[str], list[EmbeddedImport]]:
         re_context = re.compile(r"class.+|def.+")
         re_import = re.compile(
             r"from (?P<key>.+) import (?P<values>.+)|import (?P<value>.+)"
@@ -248,7 +338,8 @@ class Embedded:
         while i < len(lines):
             imp_match = re_import.match(lines[i])
             if imp_match is not None:
-                imports.append(Import(lines[i], imp_match.groupdict()))
+                data = imp_match.groupdict()
+                imports.append(EmbeddedImport(data["key"] or data["value"], data["values"]))
             elif re_context.match(lines[i]) is not None:
                 blocks.append("\n".join(current))
                 current = [lines[i]]
@@ -275,7 +366,7 @@ class Embedded:
         global_env = {
             key: value
             for _import in self.imports
-            for key, value in _import.data.items()
+            for key, value in _import
         }
         context = {**global_env}
 
@@ -327,7 +418,7 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
         code = "\n".join(lines)
 
         _validate_kwargs(code, context)
-        exec_val = compile(code, _path or "_embedded_", "exec")
+        exec_val = compile(code, _path or "<python>", "exec")
         exec(exec_val, {}, context)
         return context.get("_phml_result_", None)
 
@@ -382,3 +473,18 @@ def exec_embedded_blocks(code: str, _path: str,  **context: dict[str, Any]):
         result += code
                                           
     return result.format(*data)
+
+if __name__ == "__main__":
+    print(EmbeddedImport("time", ["sleep", "time"]).data)
+    print(EmbeddedImport("time").data)
+
+    # Add the import object(s) globals and locals and return the object(s)
+    sleep, time = Module("time", imports=["sleep", "time"]).collect()
+    print(sleep)
+    sleep(1)
+
+    # Add import module to globals and locals and return the module
+    time = Module(module="time").collect()
+    print(time)
+    time.sleep(1)
+

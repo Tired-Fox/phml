@@ -2,7 +2,7 @@ from collections.abc import Callable
 from typing import Any
 
 from phml.v2.embedded import Embedded
-from phml.v2.utils import normalize_indent
+from phml.v2.helpers import normalize_indent
 from phml.v2.nodes import (
     LiteralType,
     Literal,
@@ -35,7 +35,7 @@ STEPS: list[Callable] = [
     step_execute_embedded_python,
     step_substitute_components,
     # TODO: Steps:
-    # - markdown
+    # - markdown / Dynamic & safe content
 ]
 POST_STEPS: list[Callable] = [
     step_add_cached_component_elements,

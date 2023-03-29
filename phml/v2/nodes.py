@@ -4,6 +4,7 @@ from enum import StrEnum, unique
 from typing import Any, Iterator, TypeAlias, overload
 from saimll import SAIML
 
+
 Attribute: TypeAlias = str|bool
 
 class Missing: pass
@@ -118,6 +119,14 @@ class Position:
 
         self.indent = indent
 
+    @staticmethod
+    def from_pos(pos: Position) -> Position:
+        """Create a new position from another position object."""
+        return Position(
+            (pos.start.line, pos.start.column, pos.start.offset),
+            (pos.end.line, pos.end.column, pos.end.offset),
+        )
+
     def __eq__(self, obj) -> bool:
         return bool(
             obj is not None
@@ -198,20 +207,17 @@ class Node:
                 position = f"<{start.line}-{start.column}:{end.line}-{end.column}>"
         return position
     
-    def pretty(self):
-        return "\n".join(self.__pretty__(color=True))
-
     def __repr__(self) -> str:
         return f"{self.type}()"
 
-    def __pretty__(self, indent: int = 0, color: bool = False):
+    def __format__(self, indent: int = 0, color: bool = False, text: bool = False):
         if color:
             return SAIML.parse(f"{' '*indent}[@Fred]{self.type}[@F]") + f" {self.pos_as_str(True)}"
         return f"{' '*indent}{self.type} {self.pos_as_str()}"
 
 
     def __str__(self) -> str:
-        return self.__pretty__()
+        return self.__format__()
 
 
 class Parent(Node):
@@ -290,7 +296,7 @@ class Parent(Node):
     def __repr__(self) -> str:
         return f"{self.type}(cldrn={self.len_as_str()})"
 
-    def __pretty__(self, indent: int = 0, color: bool = False):
+    def __format__(self, indent: int = 0, color: bool = False, text: bool = False):
         output = [f"{' '*indent}{self.type} [{self.len_as_str()}]{self.pos_as_str()}"]
         if color:
             output[0] = (
@@ -299,12 +305,12 @@ class Parent(Node):
                 + f" {self.pos_as_str(True)}"
             )
         for child in self.children or []:
-            output.extend(child.__pretty__(indent+2, color))
+            output.extend(child.__format__(indent=indent+2, color=color, text=text))
         return output
 
 
     def __str__(self) -> str:
-        return "\n".join(self.__pretty__())
+        return "\n".join(self.__format__())
 
 
 class AST(Parent):
@@ -429,8 +435,7 @@ class Element(Parent):
     def __repr__(self) -> str:
         return f"{self.type}.{self.tag}(cldrn={self.len_as_str()}, attrs={self.attributes})"
 
-    def __pretty__(self, indent: int = 0, color: bool = False) -> list[str]:
-        attrs = self.attrs_as_str(indent+2, color)
+    def __format__(self, indent: int = 0, color: bool = False, text: bool = False) -> list[str]:
         output: list[str] = []
         if color:
             output.append( 
@@ -450,11 +455,11 @@ class Element(Parent):
             )
 
         for child in self.children or []:
-            output.extend(child.__pretty__(indent+2, color))
+            output.extend(child.__format__(indent=indent+2, color=color, text=text))
         return output
 
     def __str__(self) -> str:
-        return "\n".join(self.__pretty__())
+        return "\n".join(self.__format__())
 
 
 class Literal(Node):
@@ -483,13 +488,38 @@ class Literal(Node):
     def __repr__(self) -> str:
         return f"{self.type}.{self.name}(len={len(self.content)})"
 
-    def __pretty__(self, indent: int = 0, color: bool = False):
+    def __format__(self, indent: int = 0, color: bool = False, text: bool = False):
+        from .helpers import normalize_indent
+
+        content = ""
+        if text:
+            offset = " " * (indent+2)
+            content = f'{offset}"""\n{normalize_indent(self.content, indent+4)}\n{offset}"""' 
         if color:
-            return [SAIML.parse(f"{' '*indent}[@Fred]{self.type}[@F].[@Fblue]{self.name}[@F]")]
-        return [f"{' '*indent}{self.type}.{self.name}"]
+            return [
+                SAIML.parse(
+                    f"{' '*indent}[@Fred]{self.type}[@F].[@Fblue]{self.name}[@F]"
+                    + f"\n[@Fgreen]{content}[@F]" if text else ""
+                )
+            ]
+        return [
+            f"{' '*indent}{self.type}.{self.name}"
+            + f"\n{content}" if text else ""
+        ]
 
     def __str__(self) -> str:
-        return self.__pretty__()[0]
+        return self.__format__()[0]
 
-    # TODO: methods to normalize content indent and strip blank lines
+def inspect(node: Node, color: bool = False, text: bool = False) -> str:
+    """Inspected a given node recursively.
+
+    Args:
+        node (Node): Any type of node to inspect.
+        color (bool): Whether to return a string with ansi encoding. Default False.
+        text (bool): Whether to include the text from comment and text nodes. Default False.
+
+    Return:
+        A formatted multiline string representation of the node and it's children.
+    """
+    return "\n".join(node.__format__(color=color, text=text))
 

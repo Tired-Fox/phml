@@ -2,7 +2,10 @@
   <head>
     <title>Sample</title>
     <python>
+      from .sandbox.test import print_hello
       message = "Hello World"
+
+      print_hello()
     </python>
   </head>
   <body>

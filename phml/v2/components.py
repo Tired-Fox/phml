@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Iterator, TypedDict
 
 from .nodes import Element, Literal, LiteralType
-from .utils import iterate_nodes
+from .helpers import iterate_nodes
 from .parser import HypertextMarkupParser
 from .embedded import Embedded
 
