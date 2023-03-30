@@ -10,7 +10,7 @@
   </head>
   <body>
     <Markdown
-      src="sandbox/readme.md"
+      src="readme.md"
     />
     <Nav />
     <For :each="i in range(0)">

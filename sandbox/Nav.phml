@@ -23,7 +23,7 @@ window.onload = () => {
 }
 </script>
 
-<style>
+<style scoped>
 nav {
   color: blue;
   background-color: #e3e3e3;

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import StrEnum, unique
+from types import NoneType
 from typing import Any, Iterator, NoReturn, TypeAlias, overload
 from saimll import SAIML
 
@@ -242,10 +243,23 @@ class Parent(Node):
         else:
             raise ValueError("A self closing element can not be iterated")
 
-    def __setitem__(self, key: int, value: Node):
-        if isinstance(value, Node):
+    @overload
+    def __setitem__(self, key: int, value: Node) -> NoReturn:
+        ...
+
+    @overload
+    def __setitem__(self, key: slice, value: list) -> NoReturn:
+        ...
+
+    def __setitem__(self, key: int|slice, value: Node|list):
+        if isinstance(key, int) and isinstance(value, Node):
             self.insert(key, value)
-        raise ValueError("Invalid value type. Expected phml Node")
+        elif isinstance(key, slice) and isinstance(value, list):
+            if self.children is None:
+                raise ValueError("A self closing element can not have a subset of it's children assigned to")
+            self.children[key.start:key.stop] = value 
+        else:
+            raise ValueError("Invalid value type. Expected phml Node")
 
     @overload
     def __getitem__(self, _k: int) -> Parent | Literal:
@@ -408,15 +422,24 @@ class Element(Parent):
         ...
 
     @overload
+    def __setitem__(self, key: slice, value: list) -> NoReturn:
+        ...
+
+    @overload
     def __setitem__(self, key: str, value: Attribute) -> NoReturn:
         ...
 
-    def __setitem__(self, key: str|int, value: Attribute|Node):
+    def __setitem__(self, key: str|int|slice, value: Attribute|Node|list):
         if isinstance(key, str) and isinstance(value, Attribute):
             self.attributes[key] = value
         elif isinstance(key, int) and isinstance(value, Node):
             self.insert(key, value)
-        raise ValueError("Invalid value type. Expected <key:str> -> <value:Attribute> or <key:int> -> <value:Node>")
+        elif isinstance(key, slice) and isinstance(value, list):
+            if self.children is None:
+                raise ValueError("A self closing element can not have a subset of it's children assigned to")
+            self.children[key.start:key.stop] = value 
+        else:
+            raise ValueError("Invalid value type. Expected <key:str> -> <value:Attribute> or <key:int> -> <value:Node>")
 
     def __delitem__(self, key: str):
         del self.attributes[key]
@@ -456,8 +479,8 @@ class Element(Parent):
             str|bool|None: str or bool if the attribute exists or a default
                 was provided, else None
         """
-        if not isinstance(_default, Attribute) and _default is not None:
-            raise TypeError("_default value must be str, bool, or None")
+        if not isinstance(_default, (Attribute, NoneType)) and _default != MISSING:
+            raise TypeError("_default value must be str, bool, or MISSING")
 
         if key in self:
             return self[key]

@@ -1,9 +1,28 @@
+import re
 from typing import Any
 
-from phml.nodes import Parent, AST, Element, Literal, LiteralType
+from phml.nodes import Parent, AST, Element, Literal, LiteralType, inspect
 from phml.helpers import normalize_indent
 from phml.components import ComponentManager
 from .base import boundry_step, comp_step
+
+def scope_styles(styles: list[Element], hash: int) -> str:
+    """Parse styles and find selectors with regex. When a selector is found then add scoped
+    hashed data attribute to the selector.
+    """
+    result = []
+    for style in styles:
+        lines = normalize_indent(style[0].content).split('\n')
+        if "scoped" in style:
+            for i, line in enumerate(lines):
+                match = re.match(r"^(\s*)([^@{\n]+) *\{ *$", line)
+                if match is not None:
+                    offset, selector = match.groups()
+                    lines[i] = f"{offset}[data-phml-cmpt-scope='phml~{hash}'] {selector.strip()} {{"
+
+        result.extend(lines)
+
+    return "\n".join(result)
 
 @boundry_step
 def step_add_cached_component_elements(
@@ -24,8 +43,7 @@ def step_add_cached_component_elements(
     style = ""
     script = ""
     for cmpt in cache:
-        styles = "\n".join(normalize_indent(s[0].content) for s in cache[cmpt]["styles"])
-        style += f"\n{styles}"
+        style += f'\n{scope_styles(cache[cmpt]["styles"], cache[cmpt]["hash"])}'
 
         scripts = "\n".join(normalize_indent(s[0].content) for s in cache[cmpt]["scripts"])
         script += f"\n{scripts}"
@@ -77,8 +95,14 @@ def step_substitute_components(
                 if isinstance(elem, Element):
                     elem.context.update(context)
 
-            idx = child.parent.children.index(child)
-            child.parent.remove(child)
-            child.parent.children[idx:idx] = elements
+            if child.parent is not None:
+                idx = child.parent.index(child)
+                child.parent.remove(child)
+                child.parent[idx] = Element(
+                    "div",
+                    attributes={"data-phml-cmpt-scope": f"phml~{components[child.tag]['hash']}"},
+                    children=elements,
+                )
+               
 
             components.cache(child.tag, components[child.tag])

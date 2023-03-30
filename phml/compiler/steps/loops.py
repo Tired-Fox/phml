@@ -96,7 +96,7 @@ def step_expand_loop_tags(
         process = f"""\
 __children__ = []
 __iterations__ = 0
-for {loop.get(":each", loop.get("each"))}:
+for {loop.get(":each", loop.get("each", ""))}:
     __children__.extend(
         __gen_new_children__(
             __node__,

@@ -1,5 +1,6 @@
 from re import finditer
 from pathlib import Path
+from time import time
 from typing import Any, Iterator, TypedDict
 
 from .nodes import Element, Literal, LiteralType
@@ -11,6 +12,7 @@ __all__ = ["ComponentType", "ComponentManager"]
 
 
 class ComponentType(TypedDict):
+    hash: int
     props: dict[str, Any]
     context: dict[str, Any]
     scripts: list[Element]
@@ -18,11 +20,13 @@ class ComponentType(TypedDict):
     element: Element
 
 class ComponentCacheType(TypedDict):
+    hash: int
     scripts: list[Element]
     styles: list[Element]
 
 
 DEFAULT_COMPONENT: ComponentType = {
+    "hash": 0,
     "props": {},
     "context": {},
     "scripts": [],
@@ -78,6 +82,15 @@ def _parse_cmpt_name(name: str) -> str:
     return "".join(tokens)
 
 
+def hash_component(cmpt: ComponentType):
+    """Hash a component for applying unique scope identifier"""
+    return (
+        hash(cmpt["element"])
+        + sum(hash(style) for style in cmpt["styles"])
+        + sum(hash(script) for script in cmpt["scripts"])
+        + sum(hash(name) for name in cmpt["element"].attributes)
+        - int(str(time())[-5:])
+    )
 
 
 class ComponentManager:
@@ -113,6 +126,7 @@ class ComponentManager:
         """
         if key not in self._cache:
             self._cache[key] = {
+                "hash": value["hash"],
                 "scripts": value["scripts"],
                 "styles": value["styles"],
             }
@@ -153,6 +167,7 @@ class ComponentManager:
         if element is None:
             raise ValueError("Must have one root element in component")
         component["element"] = element
+        component["hash"] = hash_component(component)
 
         return component
 

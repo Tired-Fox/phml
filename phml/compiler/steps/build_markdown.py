@@ -35,8 +35,8 @@ def step_compile_markdown(*, node: Parent, components: ComponentManager, context
             if len(md) > 0:
                 raise ValueError("Cannot have children in <Markdown /> element")
 
-            extras = str(md.get(":extra") or md.get("extra") or "")
-            configs = md.get(":configs")
+            extras = str(md.pop(":extra", None) or md.pop("extra", None) or "")
+            configs = md.pop(":configs", None)
             if configs is not None:
                 configs = exec_embedded(
                     str(configs),
@@ -59,7 +59,7 @@ def step_compile_markdown(*, node: Parent, components: ComponentManager, context
                         "Expected ':extras' attribute to be a space seperated list as a str or a python list of str"
                     )
 
-            src = md.get(":src") or md.get("src")
+            src = md.get(":src", None) or md.get("src", None)
             if src is None or not isinstance(src, str):
                 raise ValueError(
                     "<Markdown /> element must have a 'src' or ':src' attribute that is a string"
@@ -76,10 +76,10 @@ def step_compile_markdown(*, node: Parent, components: ComponentManager, context
             # PERF: Sanatize the markdown
             phml = PHML()
             phml.components = components
-            ast = phml.parse(content).compile(**context)
+            ast = phml.parse(content).ast
 
             if len(ast) > 0 and md.parent is not None:
                 idx = md.parent.index(md)
                 md.parent.remove(md)
-                md.parent.insert(idx, ast.children or [])
+                md.parent.insert(idx, Element("article", attributes=md.attributes, children=ast.children))
 
