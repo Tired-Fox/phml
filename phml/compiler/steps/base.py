@@ -2,8 +2,8 @@ from typing import Callable, Any
 from functools import wraps
 from inspect import getfullargspec
 
-from phml.v2.nodes import Parent, AST
-from phml.v2.components import ComponentManager 
+from phml.nodes import Parent, AST
+from phml.components import ComponentManager 
 
 
 def comp_step(func: Callable):

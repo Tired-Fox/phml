@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import StrEnum, unique
-from typing import Any, Iterator, TypeAlias, overload
+from typing import Any, Iterator, NoReturn, TypeAlias, overload
 from saimll import SAIML
 
 
@@ -242,9 +242,36 @@ class Parent(Node):
         else:
             raise ValueError("A self closing element can not be iterated")
 
-    def __getitem__(self, key: int) -> Parent | Literal:
+    def __setitem__(self, key: int, value: Node):
+        if isinstance(value, Node):
+            self.insert(key, value)
+        raise ValueError("Invalid value type. Expected phml Node")
+
+    @overload
+    def __getitem__(self, _k: int) -> Parent | Literal:
+        ...
+
+    @overload
+    def __getitem__(self, _k: slice) -> list[Parent|Literal]:
+        ...
+
+    def __getitem__(self, key: int|slice) -> Parent | Literal | list[Parent|Literal]:
         if self.children is not None:
+            if isinstance(key, slice):
+                return self.children[key.start:key.stop:key.step]
             return self.children[key]
+        raise ValueError("A self closing element can not be indexed")
+
+    def pop(self, idx: int = 0) -> Node:
+        """Pop a node from the children. Defaults to index 0"""
+        if self.children is not None:
+            return self.children.pop(idx)
+        raise ValueError("A self closing element can not pop a child node")
+
+    def index(self, node: Node) -> int:
+        """Get the index of a node in the childre."""
+        if self.children is not None:
+            return self.children.index(node)
         raise ValueError("A self closing element can not be indexed")
 
     def append(self, node: Node):
@@ -258,8 +285,8 @@ class Parent(Node):
     def extend(self, nodes: list[Node]):
         """Extend the children with a list of nodes."""
         if self.children is not None:
-            for i, _ in enumerate(nodes):
-                nodes[i].parent = self
+            for child in nodes:
+                child.parent = self
             self.children.extend(nodes)
         else:
             raise ValueError("A self closing element can not have it's children extended")
@@ -357,35 +384,66 @@ class Element(Parent):
     def __getitem__(self, _k: int) -> Parent | Literal:
         ...
 
+    @overload
     def __getitem__(self, _k: str) -> Attribute:
+        ...
+
+    @overload
+    def __getitem__(self, _k: slice) -> list[Parent|Literal]:
+        ...
+
+    def __getitem__(self, _k: str|int|slice) -> Attribute | Parent | Literal | list[Parent|Literal]:
         if isinstance(_k, str):
             return self.attributes[_k]
 
         if self.children is not None:
+            if isinstance(_k, slice):
+                return self.children[_k.start:_k.stop:_k.step]
             return self.children[_k]
 
         raise ValueError("A self closing element can not have it's children indexed")
 
-    def __setitem__(self, key: str, value: Attribute):
-        self.attributes[key] = value
+    @overload
+    def __setitem__(self, key: int, value: Node) -> NoReturn:
+        ...
+
+    @overload
+    def __setitem__(self, key: str, value: Attribute) -> NoReturn:
+        ...
+
+    def __setitem__(self, key: str|int, value: Attribute|Node):
+        if isinstance(key, str) and isinstance(value, Attribute):
+            self.attributes[key] = value
+        elif isinstance(key, int) and isinstance(value, Node):
+            self.insert(key, value)
+        raise ValueError("Invalid value type. Expected <key:str> -> <value:Attribute> or <key:int> -> <value:Node>")
 
     def __delitem__(self, key: str):
         del self.attributes[key]
 
-    def pop(self, key: str, _default: Any = MISSING) -> Attribute:
+    @overload
+    def pop(self, idx: int) -> Node:
+        ...
+
+    @overload
+    def pop(self, idx: str, _default: Any = MISSING) -> Attribute:
+        ...
+
+    def pop(self, idx: str|int, _default: Any = MISSING) -> Attribute | Node:
         """Pop a specific attribute from the elements attributes. A default value
         can be provided for when the value is not found, otherwise an error is thrown.
         """
-        if _default != MISSING:
-            return self.attributes.pop(key, _default)
-        return self.attributes.pop(key)
+        if isinstance(idx, str):
+            if _default != MISSING:
+                return self.attributes.pop(idx, _default)
+            return self.attributes.pop(idx)
+        if self.children is not None:
+            return self.children.pop(idx)
+
+        raise ValueError("A self closing element can not pop a child node")
 
 
-    @overload
-    def get(self, key: str) -> Attribute | None:
-        ...
-
-    def get(self, key: str, _default: Attribute | None = None) -> Attribute:
+    def get(self, key: str, _default: Any = MISSING) -> Attribute:
         """Get a specific element attribute. Returns `None` if not found
         unless `_default` is defined.
 
@@ -403,7 +461,9 @@ class Element(Parent):
 
         if key in self:
             return self[key]
-        return _default
+        if _default != MISSING:
+            return _default
+        raise ValueError(f"Attribute {key!r} not found")
 
     def attrs_as_str(self, indent: int, color: bool = False) -> str:
         """Return a str representation of the attributes"""
@@ -499,12 +559,12 @@ class Literal(Node):
             return [
                 SAIML.parse(
                     f"{' '*indent}[@Fred]{self.type}[@F].[@Fblue]{self.name}[@F]"
-                    + f"\n[@Fgreen]{content}[@F]" if text else ""
+                    + (f"\n[@Fgreen]{content}[@F]" if text else "")
                 )
             ]
         return [
             f"{' '*indent}{self.type}.{self.name}"
-            + f"\n{content}" if text else ""
+            + (f"\n{content}" if text else "")
         ]
 
     def __str__(self) -> str:

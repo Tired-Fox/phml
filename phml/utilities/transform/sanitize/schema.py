@@ -186,7 +186,7 @@ class Schema:
             ],
         }
     )
-    required: dict[str, str | list[str]] = field(
+    required: dict[str, dict[str, str|bool]] = field(
         default_factory=lambda: {
             "input": {
                 "type": 'checkbox',

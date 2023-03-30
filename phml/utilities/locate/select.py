@@ -4,16 +4,22 @@ A collection of utilities around querying for specific
 types of data.
 """
 
+# PERF: Support for all `:` selectors from https://www.w3schools.com/cssref/css_selectors.php
+# - Strip all `::` selectors and `:` not supported by phml implementation 
+# - This will allow for parsing of css selectors and and adding scoping to component style elements
+# Add a data-phml-style-scope attribute to matching elements in the components. Edit the selector to then
+# have :is([data-phml-style-scope="phml-<hash>"])<selector>
+
 import re
 from typing import Callable
 
-from phml.core.nodes import AST, Element, Root
-from phml.utilities.travel.travel import visit_children, walk
+from phml.nodes import AST, Element, Parent, Node
+from phml.utilities.travel.travel import walk
 
 __all__ = ["query", "query_all", "matches", "parse_specifiers"]
 
 
-def query(tree: AST | Root | Element, specifier: str) -> Element:
+def query(tree: Parent, specifier: str) -> Element | None:
     """Same as javascripts querySelector. `#` indicates an id and `.`
     indicates a class. If they are used alone they match anything.
     Any tag can be used by itself or with `#` and/or `.`. You may use
@@ -37,49 +43,50 @@ def query(tree: AST | Root | Element, specifier: str) -> Element:
         found.
     """
 
-    def all_nodes(current: Element, rules: list, include_self: bool = True):
+    def all_nodes(current: Parent, rules: list, include_self: bool = True):
         """Get all nodes starting with the current node."""
 
         result = None
         for node in walk(current):
-            if node.type == "element" and (include_self or node != current):
+            if isinstance(node, Element) and (include_self or node != current):
                 result = branch(node, rules)
                 if result is not None:
                     break
         return result
 
-    def all_children(current: Element, rules: list):
+    def all_children(current: Parent, rules: list):
         """Get all children of the curret node."""
         result = None
-        for node in visit_children(current):
-            if node.type == "element":
-                result = branch(node, rules)
-                if result is not None:
-                    break
+        if len(current) > 0:
+            for node in current:
+                if isinstance(node, Element):
+                    result = branch(node, rules)
+                    if result is not None:
+                        break
         return result
 
-    def first_sibling(node: Element, rules: list):
+    def first_sibling(node: Parent, rules: list):
         """Get the first sibling following the node."""
         if node.parent is None:
             return None
 
-        idx = node.parent.children.index(node)
-        if idx + 1 < len(node.parent.children):
-            if node.parent.children[idx + 1].type == "element":
-                return branch(node.parent.children[idx + 1], rules)
+        idx = node.parent.index(node)
+        if idx + 1 < len(node.parent):
+            if isinstance(node.parent[idx+1], Element):
+                return branch(node.parent[idx + 1], rules)
         return None
 
-    def all_siblings(current: Element, rules: list):
+    def all_siblings(current: Parent, rules: list):
         """Get all siblings after the current node."""
         if current.parent is None:
             return None
 
         result = None
-        idx = current.parent.children.index(current)
-        if idx + 1 < len(current.parent.children):
-            for node in range(idx + 1, len(current.parent.children)):
-                if current.parent.children[node].type == "element":
-                    result = branch(current.parent.children[node], rules)
+        idx = current.parent.index(current)
+        if idx + 1 < len(current.parent):
+            for node in range(idx + 1, len(current.parent)):
+                if isinstance(current.parent[node], Element):
+                    result = branch(current.parent[node], rules)
                     if result is not None:
                         break
         return result
@@ -99,39 +106,37 @@ def query(tree: AST | Root | Element, specifier: str) -> Element:
             return branch(node, rules[1:])
         return None
 
-    def branch(node: Element, rules: list):  # pylint: disable=too-many-return-statements
+    def branch(node: Node, rules: list):  # pylint: disable=too-many-return-statements
         """Based on the current rule, recursively check the nodes.
         If on the last rule then return the current valid node.
         """
 
-        if len(rules) == 0:
-            return node
+        if isinstance(node, Parent):
+            if len(rules) == 0:
+                return node
 
-        if isinstance(rules[0], dict):
-            return process_dict(rules, node)
+            if isinstance(rules[0], dict) and isinstance(node, Element):
+                return process_dict(rules, node)
 
-        if rules[0] == "*":
-            return all_nodes(node, rules[1:])
+            if rules[0] == "*":
+                return all_nodes(node, rules[1:])
 
-        if rules[0] == ">":
-            return all_children(node, rules[1:])
+            if rules[0] == ">":
+                return all_children(node, rules[1:])
 
-        if rules[0] == "+":
-            return first_sibling(node, rules[1:])
+            if rules[0] == "+":
+                return first_sibling(node, rules[1:])
 
-        if rules[0] == "~":
-            return all_siblings(node, rules[1:])
+            if rules[0] == "~":
+                return all_siblings(node, rules[1:])
 
         return None
-
-    if isinstance(tree, AST):
-        tree = tree.tree
 
     rules = parse_specifiers(specifier)
     return all_nodes(tree, rules)
 
 
-def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
+def query_all(tree: Parent, specifier: str) -> list[Element]:
     """Same as javascripts querySelectorAll. `#` indicates an id and `.`
     indicates a class. If they are used alone they match anything.
     Any tag can be used by itself or with `#` and/or `.`. You may use
@@ -155,45 +160,46 @@ def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
         elements were found.
     """
 
-    def all_nodes(current: Element, rules: list, include_self: bool = True):
+    def all_nodes(current: Parent, rules: list, include_self: bool = True):
         """Get all nodes starting with the current node."""
         results = []
         for node in walk(current):
-            if node.type == "element" and (include_self or node != current):
-                results.extend(branch(node, rules))
+            if isinstance(node, Element) and (include_self or node != current):
+                results.extend(branch(node, rules) or [])
         return results
 
-    def all_children(current: Element, rules: list):
+    def all_children(current: Parent, rules: list):
         """Get all children of the curret node."""
         results = []
-        for node in visit_children(current):
-            if node.type == "element":
-                results.extend(branch(node, rules))
+        if len(current) > 0:
+            for node in current:
+                if isinstance(node, Element):
+                    results.extend(branch(node, rules) or [])
         return results
 
-    def first_sibling(node: Element, rules: list):
+    def first_sibling(node: Parent, rules: list):
         """Get the first sibling following the node."""
         if node.parent is None:
             return []
 
-        idx = node.parent.children.index(node)
-        if idx + 1 < len(node.parent.children):
-            if node.parent.children[idx + 1].type == "element":
-                result = branch(node.parent.children[idx + 1], rules)
+        idx = node.parent.index(node)
+        if idx + 1 < len(node.parent):
+            if node.parent[idx + 1].type == "element":
+                result = branch(node.parent[idx + 1], rules)
                 return result
         return []
 
-    def all_siblings(current: Element, rules: list):
+    def all_siblings(current: Parent, rules: list):
         """Get all siblings after the current node."""
         if current.parent is None:
             return []
 
         results = []
-        idx = current.parent.children.index(current)
-        if idx + 1 < len(current.parent.children):
-            for node in range(idx + 1, len(current.parent.children)):
-                if current.parent.children[node].type == "element":
-                    results.extend(branch(current.parent.children[node], rules))
+        idx = current.parent.index(current)
+        if idx + 1 < len(current.parent):
+            for node in range(idx + 1, len(current.parent)):
+                if current.parent[node].type == "element":
+                    results.extend(branch(current.parent[node], rules) or [])
         return results
 
     def process_dict(rules: list, node: Element):
@@ -211,37 +217,35 @@ def query_all(tree: AST | Root | Element, specifier: str) -> list[Element]:
             return branch(node, rules[1:])
         return []
 
-    def branch(node: Element, rules: list):  # pylint: disable=too-many-return-statements
+    def branch(node: Node, rules: list):  # pylint: disable=too-many-return-statements
         """Based on the current rule, recursively check the nodes.
         If on the last rule then return the current valid node.
         """
 
-        if len(rules) == 0:
-            return [node]
+        if isinstance(node, Parent):
+            if len(rules) == 0:
+                return [node]
 
-        if isinstance(rules[0], dict):
-            return process_dict(rules, node)
+            if isinstance(rules[0], dict) and isinstance(node, Element):
+                return process_dict(rules, node)
 
-        if rules[0] == "*":
-            return all_nodes(node, rules[1:])
+            if rules[0] == "*":
+                return all_nodes(node, rules[1:])
 
-        if rules[0] == ">":
-            return all_children(node, rules[1:])
+            if rules[0] == ">":
+                return all_children(node, rules[1:])
 
-        if rules[0] == "+":
-            return first_sibling(node, rules[1:])
+            if rules[0] == "+":
+                return first_sibling(node, rules[1:])
 
-        if rules[0] == "~":
-            return all_siblings(node, rules[1:])
+            if rules[0] == "~":
+                return all_siblings(node, rules[1:])
 
         return None
 
-    if isinstance(tree, AST):
-        tree = tree.tree
-
     rules = parse_specifiers(specifier)
-    result = all_nodes(tree, rules)
-    return [result[i] for i in range(len(result)) if i == result.index(result[i])]
+    return all_nodes(tree, rules)
+    # return [result[i] for i in range(len(result)) if i == result.index(result[i])]
 
 
 def matches(node: Element, specifier: str) -> bool:
@@ -274,7 +278,7 @@ Example: `li.red#sample[class^='form-'][title~='sample']`"
     return is_equal(rules[0], node)
 
 
-def is_equal(rule: dict, node: Element) -> bool:
+def is_equal(rule: dict, node: Node) -> bool:
     """Checks if a rule is valid on a node.
     A rule is a dictionary of possible values and each value must
     be valid on the node.
@@ -305,74 +309,99 @@ def is_equal(rule: dict, node: Element) -> bool:
         bool: Whether the node passes all the rules in the dictionary.
     """
 
+    if not isinstance(node, Element):
+        return False
+
     # Validate tag
     if rule["tag"] != "*" and rule["tag"] != node.tag:
         return False
 
     # Validate id
-    if rule["id"] is not None and ("id" not in node.properties or rule["id"] != node["id"]):
+    if rule["id"] is not None and ("id" not in node or rule["id"] != node["id"]):
         return False
 
     # Validate class list
     if len(rule["classList"]) > 0:
         for klass in rule["classList"]:
-            if "class" not in node.properties or klass not in node["class"].split(" "):
+            if "class" not in node or klass not in str(node["class"]).split(" "):
                 return False
 
     # Validate all attributes
     if len(rule["attributes"]) > 0:
         return all(
-            attr["name"] in node.properties.keys()
+            attr["name"] in node.attributes.keys()
             and __validate_attr(attr, node)
             for attr in rule["attributes"]
         )
-
+    
     return True
 
+def compare_equal(attr: str, c_value: str) -> bool:
+    return attr == c_value
+def compare_equal_or_start_with_value_dash(attr: str, c_value: str) -> bool:
+    return attr == c_value or attr.startswith(f"{c_value}-") 
+def compare_startswith(attr: str, c_value: str) -> bool:
+    return attr.startswith(c_value)
+def compare_endswith(attr: str, c_value: str) -> bool:
+    return attr.endswith(c_value)
+def compare_contains(attr: str, c_value: str) -> bool:
+    return c_value in attr
+def compare_exists(attr: str, _) -> bool:
+    return attr == "true"
 
 def __validate_attr(attr: dict, node: Element):
+    attribute = node[attr["name"]]
+    if isinstance(attribute, bool):
+        attribute = str(node[attr["name"]]).lower()
+
     if attr["compare"] == "=":
         return is_valid_attr(
-            attr=node[attr["name"]],
+            attr=attribute,
             sub=attr["value"],
             name=attr["name"],
-            validator=lambda x, y: x == y,
+            validator=compare_equal,
         )
 
-    if isinstance(node[attr["name"]], str):
-        if attr["compare"] == "|=":
-            return is_valid_attr(
-                attr=node[attr["name"]],
-                sub=attr["value"],
-                name=attr["name"],
-                validator=lambda x, y: x == y or x.startswith(f"{y}-"),
-            )
+    if attr["compare"] == "|=":
+        return is_valid_attr(
+            attr=attribute,
+            sub=attr["value"],
+            name=attr["name"],
+            validator=compare_equal_or_start_with_value_dash,
+        )
 
-        if attr["compare"] == "^=":
-            return is_valid_attr(
-                attr=node[attr["name"]],
-                sub=attr["value"],
-                name=attr["name"],
-                validator=lambda x, y: x.startswith(y),
-            )
+    if attr["compare"] == "^=":
+        return is_valid_attr(
+            attr=attribute,
+            sub=attr["value"],
+            name=attr["name"],
+            validator=compare_startswith,
+        )
 
-        if attr["compare"] == "$=":
-            return is_valid_attr(
-                attr=node[attr["name"]],
-                sub=attr["value"],
-                name=attr["name"],
-                validator=lambda x, y: x.endswith(y),
-            )
+    if attr["compare"] == "$=":
+        return is_valid_attr(
+            attr=attribute,
+            sub=attr["value"],
+            name=attr["name"],
+            validator=compare_endswith,
+        )
 
-        if attr["compare"] in ["*=", "~="]:
-            return is_valid_attr(
-                attr=node[attr["name"]],
-                sub=attr["value"],
-                name=attr["name"],
-                validator=lambda x, y: y in x,
-            )
+    if attr["compare"] in ["*=", "~="]:
+        return is_valid_attr(
+            attr=attribute,
+            sub=attr["value"],
+            name=attr["name"],
+            validator=compare_contains,
+        )
 
-        return True
+    if attr["compare"] == "" and attr["value"] == "":
+        return is_valid_attr(
+            attr=attribute,
+            sub=attr["value"],
+            name=attr["name"],
+            validator=compare_exists
+        )
+
     return False
 
 
@@ -395,9 +424,10 @@ def is_valid_attr(attr: str, sub: str, name: str, validator: Callable) -> bool:
 
 
 def __parse_el_with_attribute(item: str | None, attributes: str | None) -> dict:
-    el_from_class_from_id = re.compile(r"(#|\.)?([a-zA-Z0-9_-]+)")
+    el_from_class_from_id = re.compile(r"(#|\.)?([\w\-]+)")
 
-    attr_compare_val = re.compile(r"\[([a-zA-Z0-9\-_:@]+)([\~\|\^\$\*]?=)?(\"[^\"\]\[]+\"|'[^'\]\[]+'|[^\s\]\[]+)\]")
+    attr_compare_val = re.compile(r"\[\s*([\w\-:@]+)\s*([\~\|\^\$\*]?=)?\s*(\"[^\"\[\]=]*\"|\'[^\'\[\]=]*\'|[^\s\[\]=\"']+)?\s*\]")
+    test_attr = re.compile(r"\[\s*([\w\-:@]+)\]")
 
     element = {
         "tag": "*",
@@ -463,7 +493,7 @@ def __parse_attr_only_element(token: str) -> dict:
     return element
 
 
-def parse_specifiers(specifier: str) -> dict:
+def parse_specifiers(specifier: str) -> list:
     """
     Rules:
     * `*` = any element
@@ -493,3 +523,29 @@ def parse_specifiers(specifier: str) -> dict:
         elif just_attributes is not None:
             tokens.append(__parse_attr_only_element(just_attributes))
     return tokens
+
+
+if __name__ == "__main__":
+    from phml.builder import p
+    from phml.nodes import AST, inspect
+
+    ast: AST = p(
+        p("html",
+            p("head",
+                p("title", "test")
+            ),
+            p("body",
+                p("h1", "hello world!"),
+                p("div",
+                    {"id": "container"},
+                    p("div", {"class": "sample", "id": "sample-1"}),
+                    p("p", {"hidden": True}, "test text"),
+                    p("div", {"class": "sample", "id": "sample-2"}),
+                    p("div", {"class": "sample", "id": "sample-3"})
+                )
+            )
+        )
+    )
+
+    print(query_all(ast, "div p[hidden]"))
+

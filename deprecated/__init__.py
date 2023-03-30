@@ -2,9 +2,7 @@
 .. include:: ../README.md
 """
 from dataclasses import dataclass
-
-from .core import PHML
-
+from .core import PHML, Formats
 @dataclass
 class Version:
     """Version object for phml.

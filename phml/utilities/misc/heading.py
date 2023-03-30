@@ -1,7 +1,7 @@
 """Utility functions that do something with heading tags."""
 from re import match
 
-from phml.core.nodes import Element
+from phml.nodes import Element
 
 __all__ = ["heading_rank"]
 

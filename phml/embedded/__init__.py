@@ -2,24 +2,23 @@
 Embedded has all the logic for processing python elements, attributes, and text blocks.
 """
 from __future__ import annotations
-from functools import cache, cached_property
+from functools import cached_property
 from shutil import get_terminal_size
-import sys
 import types
 
-from typing import Any, Iterator, Literal as Lit, TypedDict
-from traceback import FrameSummary, StackSummary, extract_stack, extract_tb, walk_tb 
+from typing import Any, Iterator, TypedDict
+from traceback import FrameSummary, extract_tb 
 from pathlib import Path
 import ast
 import re
 
-from phml.v2.nodes import Element, Literal, LiteralType
-from phml.v2.helpers import normalize_indent
-from phml.v2.embedded.built_in import built_in_types, built_in_funcs
+from phml.nodes import Element, Literal
+from phml.helpers import normalize_indent
+from phml.embedded.built_in import built_in_types, built_in_funcs
 
 # Global cached imports
-IMPORTS = {}
-FROM_IMPORTS = {}
+__IMPORTS__ = {}
+__FROM_IMPORTS__ = {}
 
 # PERF: Only allow assignments, methods, imports, and classes?
 class EmbeddedTryCatch:
@@ -157,10 +156,10 @@ class Module:
     def __init__(self, module: str, *, imports: list[str] | None = None) -> None:
         self.objects = imports or []
         if imports is not None and len(imports) > 0:
-            if module not in FROM_IMPORTS:
+            if module not in __FROM_IMPORTS__:
                 raise ValueError(f"Unkown module {module!r}")
             try:
-                imports = {_import: FROM_IMPORTS[module][_import] for _import in imports}
+                imports = {_import: __FROM_IMPORTS__[module][_import] for _import in imports}
             except KeyError as kerr:
                 back_frame = kerr.__traceback__.tb_frame.f_back
                 back_tb = types.TracebackType(
@@ -178,10 +177,10 @@ class Module:
             locals().update(imports)
             self.module = module
         else:
-            if module not in IMPORTS:
+            if module not in __IMPORTS__:
                 raise ValueError(f"Unkown module {module!r}")
 
-            imports = {module: IMPORTS[module]}
+            imports = {module: __IMPORTS__[module]}
             locals().update(imports)
             globals().update(imports)
             self.module = module
@@ -191,9 +190,9 @@ class Module:
         """Collect the imports and return the single import or a tuple of multiple imports."""
         if len(self.objects) > 0:
             if len(self.objects) == 1:
-                return FROM_IMPORTS[self.module][self.objects[0]]
-            return tuple([FROM_IMPORTS[self.module][object] for object in self.objects])
-        return IMPORTS[self.module]
+                return __FROM_IMPORTS__[self.module][self.objects[0]]
+            return tuple([__FROM_IMPORTS__[self.module][object] for object in self.objects])
+        return __IMPORTS__[self.module]
 
 
 class EmbeddedImport:
@@ -217,8 +216,8 @@ class EmbeddedImport:
             self.data
 
     def _parse_from_import(self):
-        if self.module in FROM_IMPORTS:
-            values = list(filter(lambda v: v not in FROM_IMPORTS[self.module], self.objects))
+        if self.module in __FROM_IMPORTS__:
+            values = list(filter(lambda v: v not in __FROM_IMPORTS__[self.module], self.objects))
         else:
             values = self.objects
 
@@ -227,30 +226,30 @@ class EmbeddedImport:
             exec_val = compile(str(self), "_embedded_import_", "exec")
             exec(exec_val, {}, local_env)
 
-            if self.module not in FROM_IMPORTS:
-                FROM_IMPORTS[self.module] = {}
-            FROM_IMPORTS[self.module].update(local_env)
+            if self.module not in __FROM_IMPORTS__:
+                __FROM_IMPORTS__[self.module] = {}
+            __FROM_IMPORTS__[self.module].update(local_env)
 
-        return {key: FROM_IMPORTS[self.module][key] for key in self.objects}
+        return {key: __FROM_IMPORTS__[self.module][key] for key in self.objects}
 
     def _parse_import(self):
-        if self.module not in IMPORTS:
+        if self.module not in __IMPORTS__:
             local_env = {}
             exec_val = compile(str(self), "_embedded_import_", "exec")
             exec(exec_val, {}, local_env)
-            IMPORTS.update(local_env)
+            __IMPORTS__.update(local_env)
 
-        return {self.module: IMPORTS[self.module]}
+        return {self.module: __IMPORTS__[self.module]}
 
     def __iter__(self) -> Iterator[tuple[str, Any]]:
         if len(self.objects) > 0:
-            if self.module not in FROM_IMPORTS:
+            if self.module not in __FROM_IMPORTS__:
                 raise KeyError(f"{self.module} is not a known exposed module")
-            yield from FROM_IMPORTS[self.module].items() 
+            yield from __FROM_IMPORTS__[self.module].items() 
         else:
-            if self.module not in IMPORTS:
+            if self.module not in __IMPORTS__:
                 raise KeyError(f"{self.module} is not a known exposed module")
-            yield IMPORTS[self.module]
+            yield __IMPORTS__[self.module]
 
     @cached_property
     def data(self) -> dict[str, Any]:
@@ -319,7 +318,7 @@ class Embedded:
         if key in self.context:
             return self.context[key]
         elif key in self.imports:
-            return IMPORTS[key]
+            return __IMPORTS__[key]
 
         raise KeyError(f"Key is not in Embedded context or imports: {key}")
 
@@ -379,22 +378,30 @@ class Embedded:
 
         self.context = context
 
-def _validate_kwargs(code: str, kwargs: dict[str, Any], esc_vars: bool = True):
+def _validate_kwargs(code: ast.Module, kwargs: dict[str, Any]):
     exclude_list = [*built_in_funcs, *built_in_types]
     for var in (
         name.id
-        for name in ast.walk(
-            ast.parse(code, "_phml_get_used_vars_")
-        )  # Iterate through entire ast of expression
+        for name in ast.walk(code) 
         if isinstance(
             name, ast.Name
-        )  # Get all variables/names used this can be methods or values
+        )  # Get all variables/names used. This can be methods or values
         and name.id not in exclude_list
     ):
         if var not in kwargs:
             kwargs[var] = None
 
+def update_ast_node_pos(dest, source):
+    """Assign lineno, end_lineno, col_offset, and end_col_offset
+    from a source python ast node to a destination python ast node.
+    """
+    dest.lineno = source.lineno
+    dest.end_lineno = source.end_lineno
+    dest.col_offset = source.col_offset
+    dest.end_col_offset = source.end_col_offset
 
+
+RESULT = "_phml_embedded_result_"
 def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
     """Execute embedded python and return the extracted value. This is the last
     assignment in the embedded python. The embedded python must have the last line as a value
@@ -413,14 +420,40 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
     # last line must be an assignment or the value to be used
     with EmbeddedTryCatch(_path, code):
         code = normalize_indent(code)
-        lines = code.split("\n")
-        lines[-1] = "_phml_result_ = " + lines[-1].lstrip()
-        code = "\n".join(lines)
+        AST = ast.parse(code)
+        _validate_kwargs(AST, context)
 
-        _validate_kwargs(code, context)
-        exec_val = compile(code, _path or "<python>", "exec")
-        exec(exec_val, {}, context)
-        return context.get("_phml_result_", None)
+        last = AST.body[-1]
+        returns = [ret for ret in AST.body if isinstance(ret, ast.Return)]
+
+        if len(returns) > 0:
+            last = returns[0]
+            idx = AST.body.index(last)
+
+            n_expr = ast.Name(id=RESULT, ctx=ast.Store())
+            n_assign = ast.Assign(targets=[n_expr], value=last.value)
+
+            update_ast_node_pos(dest=n_expr, source=last)
+            update_ast_node_pos(dest=n_assign, source=last)
+
+            AST.body = [*AST.body[:idx], n_assign]
+        elif isinstance(last, ast.Expr):
+            n_expr = ast.Name(id=RESULT, ctx=ast.Store())
+            n_assign = ast.Assign(targets=[n_expr], value=last.value)
+
+            update_ast_node_pos(dest=n_expr, source=last)
+            update_ast_node_pos(dest=n_assign, source=last)
+
+            AST.body[-1] = n_assign
+        elif isinstance(last, ast.Assign):
+            n_expr = ast.Name(id=RESULT, ctx=ast.Store())
+            update_ast_node_pos(dest=n_expr, source=last)
+            last.targets.append(n_expr)
+
+        ccode = compile(AST, "_phml_embedded_", "exec")
+        local_env = {}
+        exec(ccode, {**context}, local_env)
+        return local_env[RESULT]
 
 def exec_embedded_blocks(code: str, _path: str,  **context: dict[str, Any]):
     """Execute embedded python inside `{{}}` blocks. The resulting values are subsituted

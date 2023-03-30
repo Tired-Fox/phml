@@ -1,14 +1,11 @@
 from re import match, split, sub
 from typing import Any
 
-from phml.core.nodes import NODE, Comment, Element, Literal, Parent, Root, Text
+from phml.nodes import Node, Element, Literal, Parent
 
 __all__ = [
     "validate",
-    "parent",
-    "literal",
     "generated",
-    "has_property",
     "is_heading",
     "is_css_link",
     "is_css_style",
@@ -22,74 +19,36 @@ __all__ = [
 ]
 
 
-def validate(node: NODE) -> bool:
+def validate(node: Node) -> bool:
     """Validate a node based on attributes and type."""
 
-    if hasattr(node, "children"):
-        if not hasattr(node, "type"):
-            raise AssertionError("Node should have a type")
-
-        if node.type not in ["root", "element"]:
-            raise AssertionError(
-                "Node should have a type of 'root' or 'element' to contain the 'children' attribute"
-            )
-
-        if not all(isinstance(child, NODE) for child in node.children):
+    if isinstance(node, Parent):
+        if not all(isinstance(child, Node) for child in node):
             raise AssertionError("Children must be a node type")
 
-    if hasattr(node, "properties"):
-        if hasattr(node, "type") and node.type != "element":
-            raise AssertionError("Node must be of type 'element' to contain 'properties'")
+    if isinstance(node, Element):
+        if not all(isinstance(node[prop], (bool, str)) for prop in node.attributes):
+            raise AssertionError("Element 'attributes' must be of type 'bool' or 'str'")
 
-        if not all(isinstance(node[prop], (int, str)) for prop in node.properties):
-            raise AssertionError("Node 'properties' must be of type 'int' or 'str'")
-
-    if hasattr(node, "value") and not isinstance(node.value, str):
-        raise AssertionError("Node 'value' must be of type 'str'")
+    if isinstance(node, Literal) and not isinstance(node.content, str):
+        raise AssertionError("Literal 'content' must be of type 'str'")
 
     return True
 
-
-def parent(node: Root | Element) -> bool:
-    """Validate a parent node based on attributes and type."""
-    if not issubclass(type(node), Parent):
-        raise AssertionError(
-            "Node must inherit from 'Parent'. 'Root' and 'Element' are most common."
-        )
-
-    if not hasattr(node, "children") or node.children is None:
-        raise AssertionError("Parent nodes should have the 'children' attribute")
-
-    if node.type == "element" and (not hasattr(node, "properties") or node.properties is None):
-        raise AssertionError("Parent element node shoudl have the 'properties' element.")
-
-
-def literal(node: Text | Comment) -> bool:
-    """Validate a literal node based on attributes."""
-
-    if not issubclass(type(node), Literal):
-        raise AssertionError(
-            "Node must inherit from 'Literal'. 'Text' and 'Comment' are most common."
-        )
-
-    if not hasattr(node, "value") or not isinstance(node.value, str):
-        raise AssertionError("Literal nodes 'value' type should be 'str'")
-
-
-def generated(node: NODE) -> bool:
+def generated(node: Node) -> bool:
     """Checks if a node has been generated. A node is concidered
     generated if it does not have a position.
 
     Args:
-        node (NODE): Node to check for position with.
+        node (Node): Node to check for position with.
 
     Returns:
         bool: Whether a node has a position or not.
     """
-    return not hasattr(node, "position") or node.position is None
+    return node.position is None
 
 
-def is_heading(node) -> bool:
+def is_heading(node: Element) -> bool:
     """Check if an element is a heading."""
 
     if node.type == "element":
@@ -99,7 +58,7 @@ def is_heading(node) -> bool:
     raise TypeError("Node must be an element.")
 
 
-def is_css_link(node) -> bool:
+def is_css_link(node: Element) -> bool:
     """Check if an element is a `link` to a css file.
 
     Returns `true` if `node` is a `<link>` element with a `rel` list that
@@ -111,17 +70,17 @@ def is_css_link(node) -> bool:
         # Verify it is a element with a `link` tag
         is_element(node, "link")
         # Must have a rel list with stylesheet
-        and has_property(node, "rel")
+        and "rel" in node
         and "stylesheet" in split(r" ", sub(r" +", " ", node["rel"]))
         and (
             # Can have a `type` of `text/css` or empty or no `type`
-            not has_property(node, "type")
-            or (has_property(node, "type") and (node["type"] == "text/css" or node["type"] == ""))
+            "type" not in node
+            or ("type" in node and (node["type"] in ["text/css", ""]))
         )
     )
 
 
-def is_css_style(node) -> bool:
+def is_css_style(node: Element) -> bool:
     """Check if an element is a css `style` element.
 
     Returns `true` if `node` is a `<style>` element that
@@ -129,12 +88,12 @@ def is_css_style(node) -> bool:
     """
 
     return is_element(node, "style") and (
-        not has_property(node, "type")
-        or (has_property(node, "type") and (node["type"] == "" or node["type"] == "text/css"))
+        "type" not in node
+        or ("type" in node and(node["type"] in ["", "text/css"]))
     )
 
 
-def is_javascript(node) -> bool:
+def is_javascript(node: Element) -> bool:
     """Check if an element is a javascript `script` element.
 
     Returns `true` if `node` is a `<script>` element that has a valid JavaScript `type`, has no
@@ -142,20 +101,20 @@ def is_javascript(node) -> bool:
     """
     return is_element(node, "script") and (
         (
-            has_property(node, "type")
+            "type" in node
             and node["type"] in ["text/ecmascript", "text/javascript"]
-            and not has_property(node, "language")
+            and "language" not in node
         )
         or (
-            has_property(node, "language")
+            "language" in node
             and node["language"] in ["ecmascript", "javascript"]
-            and not has_property(node, "type")
+            and "type" not in node
         )
-        or (not has_property(node, "type") and not has_property(node, "language"))
+        or ("type" not in node and "language" not in node)
     )
 
 
-def is_element(node, *conditions: str | list) -> bool:
+def is_element(node: Node, *conditions: str | list) -> bool:
     """Checks if the given node is a certain element.
 
     When providing a str it will check that the elements tag matches.
@@ -164,7 +123,7 @@ def is_element(node, *conditions: str | list) -> bool:
     """
 
     return bool(
-        node.type == "element"
+        isinstance(node, Element)
         and any(
             bool(
                 (isinstance(condition, str) and node.tag == condition)
@@ -180,16 +139,6 @@ def is_event_handler(attribute: str) -> bool:
     it starts with `on` and its length is `5` or more.
     """
     return attribute.startswith("on") and len(attribute) >= 5
-
-
-def has_property(node, attribute: str) -> bool:
-    """Check to see if an element has a certain property in properties."""
-    if node.type == "element":
-        if attribute in node.properties:
-            return True
-        return False
-    raise TypeError("Node must be an element.")
-
 
 def is_embedded(node: Element) -> bool:
     """Check to see if an element is an embedded element.
@@ -243,16 +192,16 @@ def is_interactive(node: Element) -> bool:
     """
 
     if is_element(node, "a"):
-        return has_property(node, "href")
+        return "href" in node
 
     if is_element(node, "input"):
-        return has_property(node, "type") and node["type"].lower() != "hidden"
+        return "type" in node and str(node["type"]).lower() != "hidden"
 
     if is_element(node, "img"):
-        return has_property(node, "usemap") and node["usemap"]
+        return "usemap" in node and node["usemap"] == True
 
     if is_element(node, "video"):
-        return has_property(node, "controls")
+        return "controls" in node
 
     if is_element(node, "button", "details", "embed", "iframe", "label", "select", "textarea"):
         return True
@@ -279,14 +228,14 @@ def is_phrasing(node: Element) -> bool:
         True if the element is phrasing text
     """
 
-    if isinstance(node, Text):
+    if Literal.is_text(node):
         return True
 
     if is_element(node, "area"):
         return node.parent is not None and is_element(node.parent, "map")
 
     if is_element(node, "meta"):
-        return has_property(node, "itemprop")
+        return "itemprop" in node
 
     if is_element(node, "link"):
         body_ok = [
@@ -301,10 +250,10 @@ def is_phrasing(node: Element) -> bool:
         ]
 
         return bool(
-            has_property(node, "itemprop")
+            "itemprop" in node
             or (
-                has_property(node, "rel")
-                and all(token.strip() in body_ok for token in node["rel"].split(" "))
+                "rel" in node
+                and all(token.strip() in body_ok for token in str(node["rel"]).split(" "))
             )
         )
 
@@ -382,12 +331,10 @@ def blank(value: Any) -> bool:
         bool: True if value is blank
     """
 
-    if value is not None:
-        if isinstance(value, str):
-            value = value.strip()
+    if value is None or not hasattr(value, "__len__"):
+        return True
 
-        if hasattr(value, "__len__"):
-            return len(value) == 0
-        return False
+    if isinstance(value, str):
+        value = value.strip()
 
-    return True
+    return len(value) == 0

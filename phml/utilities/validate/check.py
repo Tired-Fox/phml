@@ -5,28 +5,25 @@ Logic that allows nodes to be tested against a series of conditions.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import Callable
 
-from phml.core.nodes import Element, NODE
+from phml.nodes import Element, Node, Parent
 
-if TYPE_CHECKING:
-    from phml.core.nodes import Root
-
-Test = None | str | list | dict | Callable | NODE
+Test = None | list | str | dict | Callable | Node
 
 
 def check(
-    node: NODE,
+    node: Node,
     _test: Test,
-    index: Optional[int] = None,
-    parent: Optional[Root | Element] = None,
+    index: int | None = None,
+    parent: Parent | None = None,
     strict: bool = True,
 ) -> bool:
     """Test if a node passes the given test(s).
 
     Test Types:
         - `None`: Just checks that the node is a valid node.
-        - `str`: Checks that the test value is == the `node.type`.
+        - `str`: Checks that the node is an element and the condition == node.tag.
         - `dict`: Checks all items are valid attributes on the node.
         and that the values are strictly equal.
         - `Callable`: Passes the given function the node and it's index, if provided,
@@ -36,12 +33,12 @@ def check(
     If the `parent` arg is passed so should the `index` arg.
 
     Args:
-        node (NODE): Node to test. Can be any phml node.
+        node (Node): Node to test. Can be any phml node.
         test (Test): Test to apply to the node. See previous section
         for more info.
-        index (Optional[int], optional): Index in the parent where the
+        index (int, optional): Index in the parent where the
         node exists. Defaults to None.
-        parent (Optional[Root | Element], optional): The nodes parent. Defaults to None.
+        parent (Parent, optional): The nodes parent. Defaults to None.
 
     Returns:
         True if all tests pass.
@@ -52,18 +49,17 @@ def check(
         #   Validate index is correct in parent.children
         if (
             index is None
-            or len(parent.children) == 0
-            or index >= len(parent.children)
-            or parent.children[index] != node
+            or len(parent) == 0
+            or index >= len(parent)
+            or parent[index] != node
         ):
             return False
 
-    if isinstance(_test, NODE):
-        return node == _test
-
     if isinstance(_test, str):
-        # If string then validate that the type is the same
-        return hasattr(node, "type") and node.type == _test
+        return isinstance(node, Element) and node.tag == _test
+
+    if isinstance(_test, Node):
+        return node == _test
 
     if isinstance(_test, dict):
         # If dict validate all items with properties are the same
@@ -74,8 +70,7 @@ def check(
                 and all(
                     (hasattr(node, key) and value == getattr(node, key))
                     or (
-                        hasattr(node, "properties")
-                        and key in node.properties
+                        key in node
                         and (value is True or value == node[key])
                     )
                     for key, value in _test.items()
@@ -86,8 +81,7 @@ def check(
             and any(
                 (hasattr(node, key) and value == getattr(node, key))
                 or (
-                    hasattr(node, "properties")
-                    and key in node.properties
+                    key in node
                     and (value is True or value == node[key])
                 )
                 for key, value in _test.items()

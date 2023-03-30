@@ -1,9 +1,9 @@
 from enum import EnumType
 from typing import Any
 
-from phml.v2.nodes import Element, Parent
-from phml.v2.embedded import exec_embedded
-from phml.v2.helpers import build_recursive_context
+from phml.nodes import Element, Parent
+from phml.embedded import exec_embedded
+from phml.helpers import build_recursive_context
 from .base import comp_step
 
 
@@ -67,7 +67,6 @@ def validate_condition(prev: int, cond: int, position) -> bool:
         )
         ):
         return True
-    print(prev, cond)
     raise ValueError(f"Invalid condition element order at {position!r}. Expected if -> (elif -> else) | else")
 
 def build_condition_trees(node: Element) -> list[list[Element]]:

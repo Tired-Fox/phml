@@ -1,6 +1,7 @@
 # TODO
 
-- [x] html escape all string value returns from python blocks
-- [x] Allow for `@for` with `@if`, `@elif`, `@else` conditionals
-- [ ] `@debug` conditional?
-- [x] Add `<Markdown />` and `<HTML />` tags
+- [x] Rewrite `exec_embedded` to use python ast to find last expr, assignment, or first return statement
+- [x] Markdown to fully work
+- [ ] Utilities
+  - [ ] Refactor imports and basic usage
+  - [ ] Refactor builder

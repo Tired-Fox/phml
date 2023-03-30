@@ -11,7 +11,7 @@ from typing import Any
 from .parser import HypertextMarkupParser
 from .compiler import HypertextMarkupCompiler
 from .nodes import Parent, AST
-from .embedded import Module, EmbeddedImport, IMPORTS, FROM_IMPORTS
+from .embedded import Module, EmbeddedImport, __IMPORTS__, __FROM_IMPORTS__
 from .helpers import PHMLTryCatch
 from .components import ComponentManager, ComponentType
 
@@ -34,7 +34,7 @@ class PHML:
         self.context = {
             "Module": Module
         }
-        self._ast = None
+        self._ast: AST|None = None
         self._from_path = None
         self._from_file = None
         self._to_file = None
@@ -131,22 +131,21 @@ class PHML:
         # Add imported module or module objects to appropriate collection
         if imports is not None and len(imports) > 0:
             for _import in imports:
-                FROM_IMPORTS.update({name: {_import: getattr(mod, _import)}})
+                __FROM_IMPORTS__.update({name: {_import: getattr(mod, _import)}})
         else:
-            IMPORTS[name] = mod
+            __IMPORTS__[name] = mod
 
     def remove_module(self, module: str, imports: list[str] | None = None):
-        input(module)
-        if module in IMPORTS:
-            IMPORTS.pop(module, None)
-        if module in FROM_IMPORTS:
+        if module in __IMPORTS__:
+            __IMPORTS__.pop(module, None)
+        if module in __FROM_IMPORTS__:
             if imports is not None and len(imports) > 0:
                 for _import in imports:
-                    FROM_IMPORTS[module].pop(_import, None)
-                if len(FROM_IMPORTS[module]) == 0:
-                    FROM_IMPORTS.pop(module, None)
+                    __FROM_IMPORTS__[module].pop(_import, None)
+                if len(__FROM_IMPORTS__[module]) == 0:
+                    __FROM_IMPORTS__.pop(module, None)
             else:
-                FROM_IMPORTS.pop(module, None)
+                __FROM_IMPORTS__.pop(module, None)
 
     @property
     def ast(self) -> AST:

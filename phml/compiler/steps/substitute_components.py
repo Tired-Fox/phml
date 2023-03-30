@@ -1,8 +1,8 @@
 from typing import Any
 
-from phml.v2.nodes import Parent, AST, Element, Literal, LiteralType
-from phml.v2.helpers import normalize_indent
-from phml.v2.components import ComponentManager
+from phml.nodes import Parent, AST, Element, Literal, LiteralType
+from phml.helpers import normalize_indent
+from phml.components import ComponentManager
 from .base import boundry_step, comp_step
 
 @boundry_step

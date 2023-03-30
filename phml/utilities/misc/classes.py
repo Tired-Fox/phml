@@ -5,15 +5,15 @@ transforming, traveling, or validating nodes.
 """
 
 from re import split, sub
-from typing import Optional
 
-from phml.core.nodes import NODE, Element
+from phml.nodes import Node, Element
 
 __all__ = ["classnames", "ClassList"]
 
 
 def classnames(  # pylint: disable=keyword-arg-before-vararg
-    node: Optional[Element] = None, *conditionals: str | int | list | dict[str, bool]
+    node: Element | None = None,
+    *conditionals: str | int | list | dict[str, bool]
 ) -> str:
     """Concat a bunch of class names. Can take a str as a class,
     int which is cast to a str to be a class, a dict of conditional classes,
@@ -34,11 +34,11 @@ def classnames(  # pylint: disable=keyword-arg-before-vararg
         str: The concat string of classes after processing.
     """
 
-    node, conditionals = validate_node(node, conditionals)
+    node, conditions = validate_node(node, conditionals)
 
     classes = init_classes(node)
 
-    for condition in conditionals:
+    for condition in conditions:
         if isinstance(condition, str):
             classes.extend(
                 [
@@ -70,7 +70,7 @@ def classnames(  # pylint: disable=keyword-arg-before-vararg
         return " ".join(classes)
 
     node["class"] = " ".join(classes)
-    return None
+    return ""
 
 
 class ClassList:
@@ -82,7 +82,7 @@ class ClassList:
 
     def __init__(self, node: Element):
         self.node = node
-        self.classes = node["class"].split(" ") if "class" in node.properties else []
+        self.classes = str(node["class"]).split(" ") if "class" in node else []
 
     def contains(self, klass: str):
         """Check if `class` contains a certain class."""
@@ -130,7 +130,7 @@ class ClassList:
                 self.classes.remove(klass)
 
         if len(self.classes) == 0:
-            self.node.properties.pop("class", None)
+            self.node.attributes.pop("class", None)
         else:
             self.node["class"] = self.class_list()
 
@@ -139,10 +139,10 @@ class ClassList:
         return ' '.join(self.classes)
 
 
-def validate_node(node, conditionals: list) -> bool:
+def validate_node(node: Element | None, conditionals: tuple) -> tuple[Element|None, tuple]:
     """Validate a node is a node and that it is an element."""
-    if not isinstance(node, NODE):
-        return None, [node, *conditionals]
+    if not isinstance(node, Node):
+        return None, (node, *conditionals)
 
     if not isinstance(node, Element):
         raise TypeError("Node must be an element")

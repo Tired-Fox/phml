@@ -1,8 +1,9 @@
 from pathlib import Path
+import sys
 from typing import Iterator, Any
 from traceback import print_tb
 
-from phml.v2.nodes import Parent, Node, AST, Element
+from phml.nodes import Parent, Node, AST, Element
 
 def build_recursive_context(node: Node, context: dict[str, Any]) -> dict[str, Any]:
     """Build recursive context for the current node."""
@@ -82,12 +83,14 @@ class PHMLTryCatch:
     def __enter__(self):
         pass
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    #           (self, exc_type, exc_val, exc_tb)
+    def __exit__(self, _, exc_val, exc_tb):
         if exc_val is not None and not isinstance(exc_val, SystemExit):
             print_tb(exc_tb)
             if self._path != "":
-                print(f'[{self._path}]:', exc_val)
+                sys.stderr.write((f'[{self._path}]: {exc_val}'))
             else:
-                print(exc_val)
+                sys.stderr.write(str(exc_val))
+            sys.stderr.flush()
             exit()
 
