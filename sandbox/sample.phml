@@ -9,6 +9,11 @@
     </python>
   </head>
   <body>
+    <nav>
+      <ol>
+        <li>Test</li>
+      </ol>
+    </nav>
     <Markdown
       src="readme.md"
     />

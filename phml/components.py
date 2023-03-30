@@ -3,7 +3,7 @@ from pathlib import Path
 from time import time
 from typing import Any, Iterator, TypedDict
 
-from .nodes import Element, Literal, LiteralType
+from .nodes import Element, Literal
 from .helpers import iterate_nodes
 from .parser import HypertextMarkupParser
 from .embedded import Embedded
@@ -12,7 +12,7 @@ __all__ = ["ComponentType", "ComponentManager"]
 
 
 class ComponentType(TypedDict):
-    hash: int
+    hash: str
     props: dict[str, Any]
     context: dict[str, Any]
     scripts: list[Element]
@@ -20,13 +20,13 @@ class ComponentType(TypedDict):
     element: Element
 
 class ComponentCacheType(TypedDict):
-    hash: int
+    hash: str
     scripts: list[Element]
     styles: list[Element]
 
 
 DEFAULT_COMPONENT: ComponentType = {
-    "hash": 0,
+    "hash": "",
     "props": {},
     "context": {},
     "scripts": [],
@@ -167,7 +167,7 @@ class ComponentManager:
         if element is None:
             raise ValueError("Must have one root element in component")
         component["element"] = element
-        component["hash"] = hash_component(component)
+        component["hash"] = f"~{hash_component(component)}"
 
         return component
 
@@ -229,6 +229,7 @@ class ComponentManager:
                 content.update(self.parse(c_file.read(), file))
 
         self.validate(content)
+        content["hash"] = name + content["hash"]
         self.components[name] = content
 
     def __iter__(self) -> Iterator[tuple[str, ComponentType]]:

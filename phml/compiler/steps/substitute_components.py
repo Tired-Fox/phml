@@ -18,7 +18,7 @@ def scope_styles(styles: list[Element], hash: int) -> str:
                 match = re.match(r"^(\s*)([^@{\n]+) *\{ *$", line)
                 if match is not None:
                     offset, selector = match.groups()
-                    lines[i] = f"{offset}[data-phml-cmpt-scope='phml~{hash}'] {selector.strip()} {{"
+                    lines[i] = f"{offset}[data-phml-cmpt-scope='{hash}'] {selector.strip()} {{"
 
         result.extend(lines)
 
@@ -100,7 +100,7 @@ def step_substitute_components(
                 child.parent.remove(child)
                 child.parent[idx] = Element(
                     "div",
-                    attributes={"data-phml-cmpt-scope": f"phml~{components[child.tag]['hash']}"},
+                    attributes={"data-phml-cmpt-scope": f"{components[child.tag]['hash']}"},
                     children=elements,
                 )
                
