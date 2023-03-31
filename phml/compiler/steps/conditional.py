@@ -72,18 +72,17 @@ def validate_condition(prev: int, cond: int, position) -> bool:
 def build_condition_trees(node: Element) -> list[list[Element]]:
     """Iterates sibling nodes and creates condition trees from adjacent nodes with condition attributes."""
     condition_trees = []
-    if node.children is not None:
-        # 0 == if, 1 == elif, 2 == else
-        previous = Condition.NONE
-        for child in node:
-            if isinstance(child, Element):
-                condition = get_element_condition(child)
-                if condition > Condition.NONE and validate_condition(previous, condition, node.position):
-                    if condition == Condition.IF:
-                        condition_trees.append([(condition, child)])
-                    else:
-                        condition_trees[-1].append((condition, child))
-                previous = condition
+    # 0 == if, 1 == elif, 2 == else
+    previous = Condition.NONE
+    for child in node:
+        if isinstance(child, Element):
+            condition = get_element_condition(child)
+            if condition > Condition.NONE and validate_condition(previous, condition, node.position):
+                if condition == Condition.IF:
+                    condition_trees.append([(condition, child)])
+                else:
+                    condition_trees[-1].append((condition, child))
+            previous = condition
 
     return condition_trees 
 

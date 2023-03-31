@@ -4,11 +4,11 @@ from typing import Any
 from phml.embedded import Embedded
 from phml.helpers import normalize_indent
 from phml.nodes import (
-    AST,
     LiteralType,
     Literal,
     Element,
     Parent,
+    inspect
 )
 from phml.components import ComponentManager
 
@@ -38,15 +38,14 @@ POST: list[Callable] = [
 class HypertextMarkupCompiler:
     def _get_python_elements(self, node: Parent) -> list[Element]:
         result = []
-        if node.children is not None:
-            for child in node:
-                if isinstance(child, Element):
-                    if child.tag == "python":
-                        result.append(child)
-                        idx = node.children.index(child)
-                        del node.children[idx]
-                    else:
-                        result.extend(self._get_python_elements(child))
+        for child in node:
+            if isinstance(child, Element):
+                if child.tag == "python":
+                    result.append(child)
+                    idx = node.index(child)
+                    del node[idx]
+                else:
+                    result.extend(self._get_python_elements(child))
 
         return result
 
@@ -63,10 +62,9 @@ class HypertextMarkupCompiler:
             _step(node, components, context)
         
         # Recurse steps for each scope
-        if node.children is not None:
-            for child in node:
-                if isinstance(child, Element) and child.children is not None:
-                    self._process_scope_(child, components, context)
+        for child in node:
+            if isinstance(child, Element):
+                self._process_scope_(child, components, context)
 
     def compile(self, node: Parent, _components: ComponentManager, **context: Any) -> Parent:
         # get all python elements and process them
@@ -122,8 +120,8 @@ class HypertextMarkupCompiler:
             key, value = list(element.attributes.items())[0]
             attrs = " " + self._render_attribute(key, value)
 
-        result = f"{' '*indent if not element.in_pre else ''}<{element.tag}{attrs}{'/' if element.children is None else ''}>"
-        if element.children is None:
+        result = f"{' '*indent if not element.in_pre else ''}<{element.tag}{attrs}{'' if len(element) > 0 else '/'}>"
+        if len(element) == 0:
             return result
 
         if (
@@ -131,9 +129,9 @@ class HypertextMarkupCompiler:
             or element.in_pre
             or (
                 element.tag not in ["script", "style", "python"]
-                and len(element.children) == 1
-                and Literal.is_text(element.children[0])
-                and "\n" not in element.children[0].content
+                and len(element) == 1
+                and Literal.is_text(element[0])
+                and "\n" not in element[0].content
                 and "\n" not in result
             )
         ):
@@ -190,6 +188,8 @@ class HypertextMarkupCompiler:
                     result.append(self._render_element(child, _components, indent, _compress))
             elif isinstance(child, Literal):
                 result.append(self._render_literal(child, indent, _compress))
+            else:
+                raise TypeError(f"Unknown renderable node type {type(child)}")
 
         return _compress.join(result)
 

@@ -26,10 +26,9 @@ def build_recursive_context(node: Node, context: dict[str, Any]) -> dict[str, An
 def iterate_nodes(node: Parent) -> Iterator[Node]:
     """Recursively iterate over nodes and their children."""
     yield node
-    if len(node) > 0:
-        for child in node:
-            if isinstance(child, Parent):
-                yield from iterate_nodes(child)
+    for child in node:
+        if isinstance(child, Parent):
+            yield from iterate_nodes(child)
             
 def calc_offset(content: str) -> int:
     """Get the leading offset of the first line of the string."""
@@ -78,8 +77,10 @@ class PHMLTryCatch:
     it is caught here and the current file that is being handled is prepended
     to the exception message.
     """
-    def __init__(self, path: str|Path|None = None):
-        self._path = str(path or "")
+    def __init__(self, path: str|Path|None = None, fallback: str = ""):
+        if path is None or str(path) == "":
+            path = fallback
+        self._path = str(path or fallback)
 
     def __enter__(self):
         pass

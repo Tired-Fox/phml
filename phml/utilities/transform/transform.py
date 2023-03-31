@@ -44,7 +44,7 @@ def filter_nodes(
         children = []
         for i, child in enumerate(node):
             if isinstance(child, Parent):
-                node.children[i] = filter_children(node[i])
+                node[i] = filter_children(node[i])
                 if not check(child, condition, strict=strict):
                     for idx, _ in enumerate(child):
                         child[idx].parent = node
@@ -77,7 +77,7 @@ def remove_nodes(
 
     def filter_children(node):
         node.children = [n for n in node if not check(n, condition, strict=strict)]
-        for child in node.children:
+        for child in node:
             if isinstance(child, Parent):
                 filter_children(child)
 

@@ -125,18 +125,17 @@ def replace_slots(child: Element, component: Element):
                 slots["__blank__"] = node
 
     children: SlotChildren = {"__blank__": [], "named": {}}
-    if len(child) > 0:
-        for node in child:
-            if isinstance(node, Element) and "slot" in node:
-                slot = str(node["slot"])
-                if slot not in children["named"]:
-                    children["named"][slot] = []
-                node.pop("slot", None)
-                children["named"][slot].append(node)
-            elif isinstance(node, Element):
-                children["__blank__"].append(node)
-            elif isinstance(node, Literal):
-                children["__blank__"].append(node)
+    for node in child:
+        if isinstance(node, Element) and "slot" in node:
+            slot = str(node["slot"])
+            if slot not in children["named"]:
+                children["named"][slot] = []
+            node.pop("slot", None)
+            children["named"][slot].append(node)
+        elif isinstance(node, Element):
+            children["__blank__"].append(node)
+        elif isinstance(node, Literal):
+            children["__blank__"].append(node)
 
     if slots["__blank__"] is not None:
         slot = slots["__blank__"]
@@ -182,8 +181,8 @@ def step_substitute_components(
             elements = [element]
             # PERF:                 ˅ Not sure what to name this  
             if element.tag in ["", "Template"]: # wrapper tag
-                if element.children is not None:
-                    elements = element.children
+                if len(element) > 0:
+                    elements = element[:]
 
             for elem in elements:
                 elem.parent = child.parent

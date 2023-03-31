@@ -59,7 +59,7 @@ def step_compile_markdown(*, node: Parent, components: ComponentManager, context
                         "Expected ':extras' attribute to be a space seperated list as a str or a python list of str"
                     )
 
-            src = md.get(":src", None) or md.get("src", None)
+            src = md.pop(":src", None) or md.pop("src", None)
             if src is None or not isinstance(src, str):
                 raise ValueError(
                     "<Markdown /> element must have a 'src' or ':src' attribute that is a string"

@@ -60,12 +60,12 @@ def walk(node: Parent) -> Iterator:
 
     def get_children(n: Node) -> Iterator:
         yield n
-        if isinstance(n, Parent) and len(n) > 0:
+        if isinstance(n, Parent):
             for child in n:
                 yield from get_children(child)
 
     yield node
-    if isinstance(node, Parent) and len(node) > 0:
+    if isinstance(node, Parent):
         for child in node:
             yield from get_children(child)
 
@@ -76,7 +76,7 @@ def visit_all_after(start: Node) -> Iterator:
     def get_children(parent) -> Iterator:
         yield parent
         if parent.type in ["root", "element"]:
-            for child in parent.children:
+            for child in parent:
                 yield from get_children(child)
 
     parent = start.parent

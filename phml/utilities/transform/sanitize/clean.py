@@ -31,18 +31,18 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
 
     def recurse_check_tag(node: Parent):
         pop_els = []
-        for idx, child in enumerate(node):
+        for child in node:
             if check(child, "element") and not is_element(child, schema.tag_names):
                 pop_els.append(child)
-            elif isinstance(node[idx], Parent):
-                recurse_check_tag(node[idx])
+            elif isinstance(child, Parent):
+                recurse_check_tag(child)
 
         for element in pop_els:
             node.remove(element)
 
     def recurse_check_ancestor(node: Parent):
         pop_els = []
-        for idx, child in enumerate(node):
+        for child in node:
             if (
                 isinstance(child, Element)
                 and child.tag in schema.ancestors.keys()
@@ -52,8 +52,8 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
                 )
             ):
                 pop_els.append(child)
-            elif isinstance(node[idx], Element):
-                recurse_check_ancestor(node[idx])
+            elif isinstance(child, Element):
+                recurse_check_ancestor(child)
 
         for element in pop_els:
             node.remove(element)
@@ -69,7 +69,7 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
             )
         return valid_attrs
 
-    def build_remove_attr_list(properties: dict, attributes: dict, valid_attributes: list):
+    def build_remove_attr_list(properties: dict, attributes: list, valid_attributes: list):
         """Build the list of attributes to remove from a dict of attributes."""
         result = []
         for attribute in properties:
@@ -97,31 +97,32 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
         return result
 
     def recurse_check_attributes(node: Parent):
-        for idx, child in enumerate(node.children):
+        for child in node:
             if isinstance(child, Element):
                 if child.tag in schema.attributes:
                     valid_attributes = build_valid_attributes(schema.attributes[child.tag])
 
+                    # PERF: Not sure if the attributes are still being sanatized correctly
                     pop_attrs = build_remove_attr_list(
-                        node[idx].attributes,
+                        child.attributes,
                         schema.attributes[child.tag],
                         valid_attributes,
                     )
 
                     for attribute in pop_attrs:
-                        node[idx].attributes.pop(attribute, None)
+                        child.pop(attribute, None)
 
-                recurse_check_attributes(node[idx])
+                recurse_check_attributes(child)
 
     def recurse_check_required(node: Parent):
-        for idx, child in enumerate(node):
+        for child in node:
             if isinstance(child, Element) and child.tag in schema.required:
                 for attr, value in schema.required[child.tag].items():
                     if attr not in child.attributes:
-                        node[idx][attr] = value
+                        child[attr] = value
 
-            elif isinstance(node[idx], Element):
-                recurse_check_required(node[idx])
+            elif isinstance(child, Element):
+                recurse_check_required(child)
 
     def check_protocols(value: str, protocols: list[str]):
         for protocol in protocols:

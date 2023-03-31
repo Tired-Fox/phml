@@ -10,6 +10,7 @@ from .nodes import (
     Literal,
     Point,
     Position,
+    Parent,
     LiteralType,
     Attribute
 )
@@ -290,8 +291,8 @@ class HypertextMarkupParser:
                         position=Position.from_pos(position),
                         in_pre=self.in_pre > 0
                     ))
-                    if current.children is not None:
-                        current = current.children[-1]
+                    if len(current) > 0:
+                        current = current[-1]
                 else:
                     current.append(Element(name, attr, position=deepcopy(position), in_pre=self.in_pre > 0))
 
@@ -299,7 +300,7 @@ class HypertextMarkupParser:
 
         if len(source) > 0:
             elems = self.__parse_text_comment(source, position)
-            if current is not None and current.children is not None:
+            if current is not None and isinstance(current, Parent) and current.children is not None:
                 current.extend(elems)
 
         return current

@@ -57,12 +57,11 @@ def query(tree: Parent, specifier: str) -> Element | None:
     def all_children(current: Parent, rules: list):
         """Get all children of the curret node."""
         result = None
-        if len(current) > 0:
-            for node in current:
-                if isinstance(node, Element):
-                    result = branch(node, rules)
-                    if result is not None:
-                        break
+        for node in current:
+            if isinstance(node, Element):
+                result = branch(node, rules)
+                if result is not None:
+                    break
         return result
 
     def first_sibling(node: Parent, rules: list):
@@ -171,10 +170,9 @@ def query_all(tree: Parent, specifier: str) -> list[Element]:
     def all_children(current: Parent, rules: list):
         """Get all children of the curret node."""
         results = []
-        if len(current) > 0:
-            for node in current:
-                if isinstance(node, Element):
-                    results.extend(branch(node, rules) or [])
+        for node in current:
+            if isinstance(node, Element):
+                results.extend(branch(node, rules) or [])
         return results
 
     def first_sibling(node: Parent, rules: list):

@@ -99,7 +99,7 @@ class Schema:
             'input',
         ]
     )
-    attributes: dict[str, list[str | list[str]]] = field(
+    attributes: dict[str, list[str | list[str|bool]]] = field(
         default_factory=lambda: {
             "a": ['href'],
             "img": ['src', 'longDesc'],

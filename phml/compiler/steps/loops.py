@@ -22,7 +22,7 @@ def _remove_fallbacks(node: Element):
 def _get_fallbacks(node: Element) -> list[Element]:
     fallbacks = []
     if node.parent is not None:
-        idx = node.parent.children.index(node)
+        idx = node.parent.index(node)
         for i in range(idx+1, len(node.parent)):
             if isinstance(node.parent[i], Element):
                 if "@elif" in node.parent[i]:
@@ -40,7 +40,7 @@ def replace_default(node: Element, exc: Exception, sub: Element = Element("", {"
     """Set loop node to a False if condition and update all sibling fallbacks with the
     loop failure exception.
     """
-    if node.parent is not None and node.parent.children is not None:
+    if node.parent is not None and len(node.parent) > 0:
         node.attributes.pop("@elif", None)
         node.attributes.pop("@else", None)
         node.attributes["@if"] = "False"
@@ -56,18 +56,18 @@ def step_expand_loop_tags(
 ):
     """Step to process and expand all loop (<For/>) elements. Will also set loop elements
     to have a false condition attribute to allow for fallback sibling elements."""
-    if node.children is None:
+    if len(node) == 0:
         return
 
     for_loops = [
         child for child in node
         if isinstance(child, Element)
         and child.tag == "For"
-        and node.children is not None
+        and len(node) > 0
     ]
 
     def gen_new_children(node: Parent, context: dict[str, Any]) -> list:
-        new_children = deepcopy(node.children or [])
+        new_children = deepcopy(node[:])
         for child in new_children:
             if isinstance(child, Element):
                 child.context.update(context)
@@ -128,7 +128,7 @@ for {loop.get(":each", loop.get("each", ""))}:
             elif loop.parent is not None:
                 _remove_fallbacks(loop)
 
-                idx = loop.parent.children.index(loop)
+                idx = loop.parent.index(loop)
                 loop.parent.remove(loop)
                 loop.parent.insert(idx, new_nodes)
         except Exception as exec:
