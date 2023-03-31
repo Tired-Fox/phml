@@ -1,15 +1,24 @@
-from phml.core import PHML 
-from phml.nodes import inspect
+from phml.nodes import inspect, Node
+from phml import p, PHML
+from saimll import pprint
 
 if __name__ == "__main__":
-    # core = PHMCore()
-    # input(core.load("sandbox/sample.phml").render())
-
-    if True:
+    if False:
         with PHML.open("sample.phml", "index.html") as phml:
             phml.add("Nav.phml", ignore="sandbox")
             phml.add_module("util", imports=["print_hello"])
-            print(phml.parse().render())
-            # print(inspect(phml.ast, color=True, text=True))
+            # print(phml.parse().render())
     else:
-        PHML().format(file="index.html", compress=False)
+        data = p(
+            p("html",
+              p("head", p("title", "Example")),
+              p("body", p("h1", "Hello World"))
+            )
+        ).as_dict()
+        alt = p("html",
+              p("head", p("title", "Example")),
+              p("body", p("h1", "Hello World"))
+        ).as_dict()
+        print(PHML().parse(alt).render())
+        print(inspect(Node.from_dict(data), color=True))
+        # PHML().format(file="index.html", compress=False)

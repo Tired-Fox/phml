@@ -30,7 +30,7 @@ class Point:
     represents a character in a source file.
     """
 
-    def __init__(self, line: int, column: int, offset: int | None = None):
+    def __init__(self, line: int, column: int):
         if line is None or line < 0:
             raise IndexError(f"Point.line must be >= 0 but was {line}")
 
@@ -40,11 +40,10 @@ class Point:
             raise IndexError(f"Point.column must be >= 0 but was {column}")
 
         self.column = column
-
-        if offset is not None and offset < 0:
-            raise IndexError(f"Point.offset must be >= 0 or None but was {line}")
-
-        self.offset = offset
+    
+    @staticmethod
+    def from_dict(data: dict) -> Point:
+        return Point(data["line"], data["column"])
 
     def __eq__(self, obj) -> bool:
         return bool(
@@ -80,9 +79,8 @@ class Position:
     @overload
     def __init__(
         self,
-        start: tuple[int, int, int | None],
-        end: tuple[int, int, int | None],
-        indent: int | None = None,
+        start: Point,
+        end: Point,
     ):
         """
         Args:
@@ -94,7 +92,23 @@ class Position:
         """
         ...
 
-    def __init__(self, start: Point, end: Point, indent: int | None = None):
+    @overload
+    def __init__(
+        self,
+        start: tuple[int, int],
+        end: tuple[int, int],
+    ):
+        """
+        Args:
+            start (tuple[int, int, int  |  None]): Tuple representing the line, column, and optional
+            offset of the start point.
+            end (tuple[int, int, int  |  None]): Tuple representing the line, column, and optional
+            offset of the end point.
+            indent (Optional[int], optional): The indent amount for the start of the position.
+        """
+        ...
+
+    def __init__(self, start: Point|tuple[int, int], end: Point|tuple[int, int]):
         """
         Args:
             start (Point): Starting point of the position.
@@ -103,29 +117,22 @@ class Position:
         """
 
         self.start = (
-            Point(start[0], start[1], start[2] if len(start) == 3 else None)
+            Point(start[0], start[1])
             if isinstance(start, tuple)
             else start
         )
         self.end = (
-            Point(end[0], end[1], end[2] if len(end) == 3 else None)
+            Point(end[0], end[1])
             if isinstance(end, tuple)
             else end
         )
-
-        if indent is not None and indent < 0:
-            raise IndexError(
-                f"Position.indent value must be >= 0 or None but was {indent}"
-            )
-
-        self.indent = indent
 
     @staticmethod
     def from_pos(pos: Position) -> Position:
         """Create a new position from another position object."""
         return Position(
-            (pos.start.line, pos.start.column, pos.start.offset),
-            (pos.end.line, pos.end.column, pos.end.offset),
+            (pos.start.line, pos.start.column),
+            (pos.end.line, pos.end.column),
         )
 
     def __eq__(self, obj) -> bool:
@@ -136,20 +143,27 @@ class Position:
             and self.end == obj.end
         )
 
+    @staticmethod
+    def from_dict(data: dict) -> Position|None:
+        if data is None:
+            return None
+        return Position(
+                Point.from_dict(data["start"]),
+                Point.from_dict(data["end"])
+
+        )
+
     def as_dict(self) -> dict:
         """Convert the position object to a dict."""
         return {
             "start": {
                 "line": self.start.line,
                 "column": self.start.column,
-                "offset": self.start.offset,
             },
             "end": {
                 "line": self.end.line,
                 "column": self.end.column,
-                "offset": self.end.offset,
             },
-            "indent": self.indent,
         }
 
     def __repr__(self) -> str:
@@ -173,6 +187,37 @@ class Node:
         self.parent = parent
         self._type = _type
         self.in_pre = in_pre
+
+    def as_dict(self) -> dict:
+        return {
+            "type": str(self._type),
+            "position": self._position.as_dict()
+                if self._position is not None
+                else None,
+        }
+
+    @staticmethod
+    def from_dict(data: dict, in_pre: bool = False):
+        if data["type"] == NodeType.AST:
+            ast = AST(
+                position=Position.from_dict(data["position"]),
+                children=[] if data["children"] is not None else None
+            )
+            for child in data["children"]:
+                ast.append(Node.from_dict(child, in_pre))
+            return ast
+        elif data["type"] == NodeType.ELEMENT:
+            return Element.from_dict(data)
+        elif data["type"] == NodeType.LITERAL:
+            return Literal(
+                data["name"],
+                data["content"],
+                position=Position.from_dict(data["position"])
+            )
+        raise ValueError(
+            f"Phml ast dicts must have nodes with the following types: {NodeType.AST}, {NodeType.ELEMENT}, {NodeType.LITERAL}"
+        )
+        
 
     @property
     def position(self) -> Position | None:
@@ -227,7 +272,7 @@ class Parent(Node):
         _type: NodeType,
         children: list[Node] | None,
         position: Position | None = None,
-        parent: Node | None = None,
+        parent: Parent | None = None,
         in_pre: bool = False
     ):
         super().__init__(_type, position, parent, in_pre)
@@ -240,8 +285,6 @@ class Parent(Node):
         if self.children is not None:
             for child in self.children:
                 yield child
-        else:
-            raise ValueError("A self closing element can not be iterated")
 
     @overload
     def __setitem__(self, key: int, value: Node) -> NoReturn:
@@ -252,12 +295,15 @@ class Parent(Node):
         ...
 
     def __setitem__(self, key: int|slice, value: Node|list):
-        if isinstance(key, int) and isinstance(value, Node):
-            self.insert(key, value)
-        elif isinstance(key, slice) and isinstance(value, list):
-            if self.children is None:
-                raise ValueError("A self closing element can not have a subset of it's children assigned to")
-            self.children[key.start:key.stop] = value 
+        if self.children is not None:
+            if isinstance(key, int):
+                if not isinstance(value, Node):
+                    raise ValueError("Can not assign value that is not phml.Node to children")
+                self.children[key] = value
+            else:
+                if not isinstance(value, list):
+                    raise ValueError("Can not assign value that is not list[phml.Node] to slice of children")
+                self.children[key] = value
         else:
             raise ValueError("Invalid value type. Expected phml Node")
 
@@ -271,10 +317,21 @@ class Parent(Node):
 
     def __getitem__(self, key: int|slice) -> Parent | Literal | list[Parent|Literal]:
         if self.children is not None:
-            if isinstance(key, slice):
-                return self.children[key.start:key.stop:key.step]
             return self.children[key]
         raise ValueError("A self closing element can not be indexed")
+
+    @overload
+    def __delitem__(self, key: int) -> NoReturn:
+        ...
+
+    @overload
+    def __delitem__(self, key: slice) -> NoReturn:
+        ...
+
+    def __delitem__(self, key: int|slice):
+        if self.children is not None:
+            del self.children[key]
+        raise ValueError("Can not use del for a self closing elements children")
 
     def pop(self, idx: int = 0) -> Node:
         """Pop a node from the children. Defaults to index 0"""
@@ -353,6 +410,13 @@ class Parent(Node):
     def __str__(self) -> str:
         return "\n".join(self.__format__())
 
+    def as_dict(self) -> dict:
+        return {
+            "children": [child.as_dict() for child in self.children]
+            if self.children is not None else None,
+            **super().as_dict()  
+        }
+
 
 class AST(Parent):
     def __init__(
@@ -371,13 +435,36 @@ class Element(Parent):
         attributes: dict[str, Attribute] | None = None,
         children: list[Node] | None = None,
         position: Position | None = None,
-        parent: Node | None = None,
+        parent: Parent | None = None,
         in_pre: bool = False,
     ):
         super().__init__(NodeType.ELEMENT, children, position, parent, in_pre)
         self.tag = tag
         self.attributes = attributes or {}
         self.context = {}
+
+    def as_dict(self) -> dict:
+        return {
+            "tag": self.tag,
+            "attributes": self.attributes,
+            **super().as_dict()  
+        }
+
+    @staticmethod
+    def from_dict(data: dict, in_pre: bool = False) -> Element:
+        element = Element(
+            data["tag"],
+            attributes=data["attributes"],
+            children=[] if data["children"] is not None else None,
+            position=Position.from_dict(data["position"])
+        )
+        if data["children"] is not None:
+            element.children = [
+                Node.from_dict(child, in_pre or data["tag"] == "pre")
+                for child in data["children"]
+            ]
+        return element
+
 
     @property
     def tag_path(self) -> list[str]:
@@ -411,8 +498,6 @@ class Element(Parent):
             return self.attributes[_k]
 
         if self.children is not None:
-            if isinstance(_k, slice):
-                return self.children[_k.start:_k.stop:_k.step]
             return self.children[_k]
 
         raise ValueError("A self closing element can not have it's children indexed")
@@ -441,8 +526,25 @@ class Element(Parent):
         else:
             raise ValueError("Invalid value type. Expected <key:str> -> <value:Attribute> or <key:int> -> <value:Node>")
 
-    def __delitem__(self, key: str):
-        del self.attributes[key]
+    @overload
+    def __delitem__(self, key: int) -> NoReturn:
+        ...
+
+    @overload
+    def __delitem__(self, key: slice) -> NoReturn:
+        ...
+
+    @overload
+    def __delitem__(self, key: str) -> NoReturn:
+        ...
+
+    def __delitem__(self, key: str|int|slice):
+        if isinstance(key, str):
+            del self.attributes[key]
+        elif self.children is not None:
+            del self.children[key]
+        else:
+            raise ValueError("Can not use del for a self closing elements children")
 
     @overload
     def pop(self, idx: int) -> Node:
@@ -550,13 +652,20 @@ class Literal(Node):
         self,
         name: str,
         content: str,
-        parent: Node | None = None,
+        parent: Parent | None = None,
         position: Position | None = None,
         in_pre: bool = False,
     ):
         super().__init__(NodeType.LITERAL, position, parent, in_pre)
         self.name = name
         self.content = content
+
+    def as_dict(self) -> dict:
+        return {
+            "name": str(self.name),
+            "content": self.content,
+            **super().as_dict()  
+        }
 
     @staticmethod
     def is_text(node: Node) -> bool:

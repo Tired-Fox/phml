@@ -14,7 +14,10 @@
         <li>Test</li>
       </ol>
     </nav>
-    <Markdown src="readme.md"/>
+    <Markdown
+      src="readme.md"
+      class="prose"
+    />
     <Nav>
       <button
         onclick="alert('last')"

@@ -11,7 +11,7 @@ from typing import Any
 
 from .parser import HypertextMarkupParser
 from .compiler import HypertextMarkupCompiler
-from .nodes import Parent, AST
+from .nodes import NodeType, Parent, AST, Node
 from .embedded import Module, __IMPORTS__, __FROM_IMPORTS__
 from .helpers import PHMLTryCatch
 from .components import ComponentManager, ComponentType
@@ -136,6 +136,8 @@ class PHML:
         else:
             __IMPORTS__[name] = mod
 
+        return self
+
     def remove_module(self, module: str, imports: list[str] | None = None):
         if module in __IMPORTS__:
             __IMPORTS__.pop(module, None)
@@ -147,6 +149,8 @@ class PHML:
                     __FROM_IMPORTS__.pop(module, None)
             else:
                 __FROM_IMPORTS__.pop(module, None)
+
+        return self
 
     @property
     def ast(self) -> AST:
@@ -162,18 +166,23 @@ class PHML:
             self._ast = self.parser.parse(file.read())
         return self
 
-    def parse(self, data: str|None = None):
-        """Parse a given phml string into a phml ast.
+    def parse(self, data: str|dict|None = None):
+        """Parse a given phml string or dict into a phml ast.
         
         Returns:
             Instance of the core object for method chaining.
         """
 
         if data is None and self._from_file is None:
-            raise ValueError("Must either provide a phml str to parse or use parse in the open context manager")
+            raise ValueError("Must either provide a phml str/dict to parse or use parse in the open context manager")
 
-        with PHMLTryCatch(self._from_path):
-            if data is not None:
+        with PHMLTryCatch(self._from_path, "phml:__parse__"):
+            if isinstance(data, dict):
+                ast = Node.from_dict(data)
+                if not isinstance(ast, AST) and ast is not None:
+                    ast = AST([ast])
+                self._ast = ast
+            elif data is not None:
                 self._from_path = None
                 self._ast = self.parser.parse(data)
             elif self._from_file is not None:
@@ -227,7 +236,7 @@ class PHML:
         """
         context = {**self.context, **context}
         if self._ast is not None:
-            with PHMLTryCatch(self._from_path):
+            with PHMLTryCatch(self._from_path, "phml:__compile__"):
                 ast = self.compiler.compile(self._ast, self.components, **context)
             self._from_path = ""
             return ast
@@ -239,7 +248,7 @@ class PHML:
         """
         context = {**self.context, **context}
         if self._ast is not None:
-            with PHMLTryCatch(self._from_path):
+            with PHMLTryCatch(self._from_path, "phml:__render"):
                 result = self.compiler.render(
                     self.compile(**context),
                     _components=self.components,

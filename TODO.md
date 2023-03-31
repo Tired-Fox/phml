@@ -5,3 +5,8 @@
 - [ ] Utilities
   - [ ] Refactor imports and basic usage
   - [ ] Refactor builder
+- [ ] Full coverage testing
+  - [ ] Core library
+  - [ ] Utilities
+- [ ] Documentation
+- [ ] Examples
