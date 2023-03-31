@@ -2,7 +2,7 @@
   <head>
     <title>Sample</title>
     <python>
-      from .test import print_hello
+      from .util import print_hello
       message = "Hello World"
 
       print_hello()
@@ -17,7 +17,17 @@
     <Markdown
       src="readme.md"
     />
-    <Nav />
+    <Nav>
+      <button onclick="alert('last')" slot="last">
+        last
+      </button>
+      <button onclick="alert('first')" slot="first">
+        first
+      </button>
+      <button onclick="alert('middle')">
+        middle
+      </button>
+    </Nav>
     <For :each="i in range(0)">
       <p>{i}</p>
     </For>

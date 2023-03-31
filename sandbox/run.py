@@ -7,6 +7,6 @@ if __name__ == "__main__":
 
     with PHML.open("sample.phml", "index.html") as phml:
         phml.add("Nav.phml", ignore="sandbox")
-        phml.add_module("test", imports=["print_hello"])
-        print(phml.parse().render(True))
+        phml.add_module("util", imports=["print_hello"])
+        print(phml.parse().render())
         # print(inspect(phml.ast, color=True, text=True))

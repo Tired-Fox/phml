@@ -25,10 +25,11 @@ def build_recursive_context(node: Node, context: dict[str, Any]) -> dict[str, An
 
 def iterate_nodes(node: Parent) -> Iterator[Node]:
     """Recursively iterate over nodes and their children."""
-    yield from node
-    for child in node:
-        if isinstance(child, Parent):
-            yield from iterate_nodes(child)
+    yield node
+    if len(node) > 0:
+        for child in node:
+            if isinstance(child, Parent):
+                yield from iterate_nodes(child)
             
 def calc_offset(content: str) -> int:
     """Get the leading offset of the first line of the string."""

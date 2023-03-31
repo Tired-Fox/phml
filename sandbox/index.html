@@ -1,1 +1,85 @@
-<!DOCTYPE html><html><head><title>Sample</title><style>[data-phml-cmpt-scope='Nav~496201827485'] nav {  color: blue;  background-color: #e3e3e3;}</style><script>window.onload = () => {  console.warn('Hello World');}</script></head><body><nav><ol><li>Test</li></ol></nav><article src="readme.md" ><h1>Sample Markdown</h1><p>Hello markdown users!</p><div data-phml-cmpt-scope="Nav~496201827485" ><nav><ul><li><a href="/" >Home</a></li><li><a href="/blog/" >Blog</a></li></ul></nav></div></article><div data-phml-cmpt-scope="Nav~496201827485" ><nav><ul><li><a href="/" >Home</a></li><li><a href="/blog/" >Blog</a></li></ul></nav></div><!--<p @if="True">Sample Text</p>--><p>No iterations occured. Expected non empty iterator.</p><!--Comment Example--><h1>Hello</h1><input type="email" class="email-input" id="email-input" open/><div role="heading" aria-level="2" data-message="Hello World">heading 2</div></body></html>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sample</title>
+    <style>
+      nav {
+        color: blue;
+        background-color: #e3e3e3;
+      }
+    </style>
+    <script>
+      window.onload = () => {
+        console.warn('Hello World');
+      }
+    </script>
+  </head>
+  <body>
+    <nav>
+      <ol>
+        <li>Test</li>
+      </ol>
+    </nav>
+    <article src="readme.md" >
+      <h1>Sample Markdown</h1>
+      <p>Hello markdown users!</p>
+      <div data-phml-cmpt-scope="Nav~229272050352" >
+        <nav>
+          <ul>
+            <li>
+              <a href="/" >Home</a>
+            </li>
+            <li>
+              <a href="/blog/" >Blog</a>
+            </li>
+            <Slot name="first" />
+            <Slot/>
+            <Slot name="last" />
+          </ul>
+        </nav>
+      </div>
+    </article>
+    <div data-phml-cmpt-scope="Nav~229272050352" >
+      <nav>
+        <ul>
+          <li>
+            <a href="/" >Home</a>
+          </li>
+          <li>
+            <a href="/blog/" >Blog</a>
+          </li>
+          <button
+            onclick="alert('first')"
+            slot="first"
+          >
+            first
+          </button>
+          <button onclick="alert('middle')" >middle</button>
+          <button
+            onclick="alert('last')"
+            slot="last"
+          >
+            last
+          </button>
+        </ul>
+      </nav>
+    </div>
+    <!--<p @if="True">Sample Text</p>-->
+    <p>No iterations occured. Expected non empty iterator.</p>
+    <!--Comment Example-->
+    <h1>Hello</h1>
+    <input
+      type="email"
+      class="email-input"
+      id="email-input"
+      open
+    />
+    <div
+      role="heading"
+      aria-level="2"
+      data-message="Hello World"
+    >
+      heading 2
+    </div>
+  </body>
+</html>
