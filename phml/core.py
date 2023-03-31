@@ -1,6 +1,7 @@
 from __future__ import annotations
 from collections.abc import Iterator
 from importlib import import_module
+from itertools import compress
 import os
 from pathlib import Path
 from contextlib import contextmanager
@@ -11,7 +12,7 @@ from typing import Any
 from .parser import HypertextMarkupParser
 from .compiler import HypertextMarkupCompiler
 from .nodes import Parent, AST
-from .embedded import Module, EmbeddedImport, __IMPORTS__, __FROM_IMPORTS__
+from .embedded import Module, __IMPORTS__, __FROM_IMPORTS__
 from .helpers import PHMLTryCatch
 from .components import ComponentManager, ComponentType
 
@@ -180,6 +181,46 @@ class PHML:
 
         return self
 
+    def format(self, *, code: str = "", file: str|None=None, compress: bool = False) -> str|None:
+        """Format a phml str or file.
+
+        Args:
+            code (str, optional): The phml str to format.
+
+        Kwargs:
+            file (str, optional): Path to a phml file. Can be used instead of
+                `code` to parse and format a phml file.
+            compress (bool, optional): Flag to compress the file and remove new lines. Defaults to False.
+
+        Note:
+            If both `code` and `file` are passed in then both will be formatted with the formatted `code`
+            bing returned as a string and the formatted `file` being written to the files original location.
+
+        Returns:
+            str: When a phml str is passed in
+            None: When a file path is passed in. Instead the resulting formatted string is written back to the file.
+        """
+
+        result = None
+        if code != "":
+            self.parse(code)
+            result = self.compiler.render(
+                self._ast,
+                _components=self.components,
+                _compress=compress
+            )
+
+        if file is not None:
+            self.load(file)
+            with Path(file).open('+w', encoding="utf-8") as phml_file:
+                phml_file.write(self.compiler.render(
+                    self._ast,
+                    self.components,
+                    _compress="\n" if not compress else ""
+                ))
+
+        return result
+
     def compile(self, **context: Any) -> Parent:
         """Compile the python blocks, python attributes, and phml components and return the resulting ast.
         The resulting ast replaces the core objects ast.
@@ -187,7 +228,9 @@ class PHML:
         context = {**self.context, **context}
         if self._ast is not None:
             with PHMLTryCatch(self._from_path):
-                return self.compiler.compile(self._ast, self.components, **context)
+                ast = self.compiler.compile(self._ast, self.components, **context)
+            self._from_path = ""
+            return ast
         raise ValueError("Must first parse a phml file before compiling to an AST")
 
     def render(self, _compress: bool = False, **context: Any) -> str | None:
@@ -198,16 +241,17 @@ class PHML:
         if self._ast is not None:
             with PHMLTryCatch(self._from_path):
                 result = self.compiler.render(
-                    self._ast,
+                    self.compile(**context),
                     _components=self.components,
-                    _compress="" if _compress else "\n", **context
+                    _compress="" if _compress else "\n",
                 )
                 if self._to_file is not None:
                     self._to_file.write(result)
                 elif self._from_file is not None and self._from_path is not None:
                     self._to_file = Path(self._from_path).with_suffix(".html").open("+w", encoding="utf-8")
                     self._to_file.write(result)
-                return result
+            self._from_path = ""
+            return result
         raise ValueError("Must first parse a phml file before rendering a phml AST")
 
     def add(

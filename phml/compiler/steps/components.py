@@ -7,22 +7,60 @@ from phml.helpers import iterate_nodes, normalize_indent
 from phml.components import ComponentManager
 from .base import boundry_step, comp_step
 
+re_selector = re.compile(r"(\n|\}| *)([^}@/]+)(\s*{)")
+re_split_selector = re.compile(r"(?:\)(?:.|\s)*|(?<!\()(?:.|\s)*)(,)")
+
+def lstrip(value: str) -> tuple[str, str]:
+    offset = len(value) - len(value.lstrip())
+    return value[:offset], value[offset:]
+
+def scope_style(style: str, scope: str) -> str:
+    """Takes a styles string and adds a scope to the selectors."""
+
+    next_style = re_selector.search(style)
+    result = ""
+    while next_style is not None:
+        start, end = next_style.start(), next_style.start() + len(next_style.group(0))
+        leading, selector, trail = next_style.groups()
+        if start > 0:
+            result += style[:start]
+        result += leading
+
+        parts = [""]
+        balance = 0
+        for char in selector:
+            if char == "," and balance == 0:
+                parts.append("")
+                continue
+            elif char == "(":
+                balance += 1
+            elif char == ")":
+                balance = min(0, balance - 1)
+            parts[-1] += char
+
+        for i, part in enumerate(parts):
+            w, s = lstrip(part)
+            parts[i] = w + f"{scope} {s}"
+        result += ",".join(parts) + trail 
+
+        style = style[end:]
+        next_style = re_selector.search(style)
+    if len(style) > 0:
+        result+=style
+
+    return result
+
 def scope_styles(styles: list[Element], hash: int) -> str:
     """Parse styles and find selectors with regex. When a selector is found then add scoped
     hashed data attribute to the selector.
     """
     result = []
     for style in styles:
-        lines = normalize_indent(style[0].content).split('\n')
-        # PERF: More efficient and reliable way of grabbing start of selector
+        content = normalize_indent(style[0].content)
         if "scoped" in style:
-            for i, line in enumerate(lines):
-                match = re.match(r"^(\s*)([^@{\n]+) *\{ *$", line)
-                if match is not None:
-                    offset, selector = match.groups()
-                    lines[i] = f"{offset}[data-phml-cmpt-scope='{hash}'] {selector.strip()} {{"
+            content = scope_style(content, f"[data-phml-cmpt-scope='{hash}']")
 
-        result.extend(lines)
+        result.append(content)
 
     return "\n".join(result)
 
@@ -93,6 +131,7 @@ def replace_slots(child: Element, component: Element):
                 slot = str(node["slot"])
                 if slot not in children["named"]:
                     children["named"][slot] = []
+                node.pop("slot", None)
                 children["named"][slot].append(node)
             elif isinstance(node, Element):
                 children["__blank__"].append(node)
@@ -160,8 +199,7 @@ def step_substitute_components(
                     children=elements,
                 )
 
-                if len(child) > 0:
-                    replace_slots(child, component)
+                replace_slots(child, component)
 
                 child.parent[idx] = component
                

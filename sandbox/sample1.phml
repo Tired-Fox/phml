@@ -14,35 +14,33 @@
         <li>Test</li>
       </ol>
     </nav>
-    <Markdown src="readme.md"/>
+    <Markdown
+      src="readme.md"
+    />
     <Nav>
-      <button
-        onclick="alert('last')"
-        slot="last"
-      >
+      <button onclick="alert('last')" slot="last">
         last
       </button>
-      <button
-        onclick="alert('first')"
-        slot="first"
-      >
+      <button onclick="alert('first')" slot="first">
         first
       </button>
-      <button onclick="alert('middle')">middle</button>
+      <button onclick="alert('middle')">
+        middle
+      </button>
     </Nav>
     <For :each="i in range(0)">
       <p>{i}</p>
     </For>
     <!--<p @if="True">Sample Text</p>-->
     <p @else>{{ _loop_fail_ }}</p>
-    <!--Comment Example-->
+    <!-- Comment Example -->
     <h1>Hello</h1>
     <input
-      type="email"
+      type='email'
       class="email-input"
-      id="email-input"
+      id=email-input
       open
-    />
+    >
     <div
       role="heading"
       aria-level="2"

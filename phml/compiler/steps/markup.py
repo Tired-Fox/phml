@@ -82,4 +82,3 @@ def step_compile_markdown(*, node: Parent, components: ComponentManager, context
                 idx = md.parent.index(md)
                 md.parent.remove(md)
                 md.parent.insert(idx, Element("article", attributes=md.attributes, children=ast.children))
-

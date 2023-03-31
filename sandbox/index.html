@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html>
   <head>
     <title>Sample</title>
     <style>
-      nav {
+      [data-phml-cmpt-scope='Nav~268936855029'] nav {
         color: blue;
         background-color: #e3e3e3;
       }
@@ -20,48 +19,35 @@
         <li>Test</li>
       </ol>
     </nav>
-    <article src="readme.md" >
+    <article src="readme.md">
       <h1>Sample Markdown</h1>
       <p>Hello markdown users!</p>
-      <div data-phml-cmpt-scope="Nav~229272050352" >
+      <div data-phml-cmpt-scope="Nav~268936855029">
         <nav>
           <ul>
             <li>
-              <a href="/" >Home</a>
+              <a href="/">Home</a>
             </li>
             <li>
-              <a href="/blog/" >Blog</a>
+              <a href="/blog/">Blog</a>
             </li>
-            <Slot name="first" />
-            <Slot/>
-            <Slot name="last" />
           </ul>
         </nav>
       </div>
     </article>
-    <div data-phml-cmpt-scope="Nav~229272050352" >
+    <div data-phml-cmpt-scope="Nav~268936855029">
       <nav>
+        <button onclick="alert('first')">first</button>
         <ul>
           <li>
-            <a href="/" >Home</a>
+            <a href="/">Home</a>
           </li>
           <li>
-            <a href="/blog/" >Blog</a>
+            <a href="/blog/">Blog</a>
           </li>
-          <button
-            onclick="alert('first')"
-            slot="first"
-          >
-            first
-          </button>
-          <button onclick="alert('middle')" >middle</button>
-          <button
-            onclick="alert('last')"
-            slot="last"
-          >
-            last
-          </button>
+          <button onclick="alert('middle')">middle</button>
         </ul>
+        <button onclick="alert('last')">last</button>
       </nav>
     </div>
     <!--<p @if="True">Sample Text</p>-->

@@ -4,6 +4,7 @@ from typing import Any
 from phml.embedded import Embedded
 from phml.helpers import normalize_indent
 from phml.nodes import (
+    AST,
     LiteralType,
     Literal,
     Element,
@@ -11,24 +12,16 @@ from phml.nodes import (
 )
 from phml.components import ComponentManager
 
-from .steps import (
-   step_expand_loop_tags,
-   step_execute_conditions,
-   step_substitute_components,
-   step_execute_embedded_python,
-    step_add_cached_component_elements,
-    step_ensure_doctype,
-    step_compile_markdown,
-)
+from .steps import *
 
 __all__ = [
-    "SETUP_STEPS",
+    "SETUP",
     "STEPS",
-    "POST_STEPS",
+    "POST",
     "HypertextMarkupCompiler",
 ]
 
-SETUP_STEPS: list[Callable] = []
+SETUP: list[Callable] = []
 
 STEPS: list[Callable] = [
     step_expand_loop_tags,
@@ -38,9 +31,8 @@ STEPS: list[Callable] = [
     step_compile_markdown,
 ]
 
-POST_STEPS: list[Callable] = [
+POST: list[Callable] = [
     step_add_cached_component_elements,
-    step_ensure_doctype,
 ]
 
 class HypertextMarkupCompiler:
@@ -84,7 +76,7 @@ class HypertextMarkupCompiler:
             embedded += Embedded(p_elem)
 
         # Setup steps to collect data before comiling at different scopes
-        for step in SETUP_STEPS:
+        for step in SETUP:
             step(node, _components, context)
 
         # Recursively process scopes
@@ -92,7 +84,7 @@ class HypertextMarkupCompiler:
         self._process_scope_(node, _components, context)
 
         # Post compiling steps to finalize the ast
-        for step in POST_STEPS:
+        for step in POST:
             step(node, _components, context)
 
         return node
@@ -128,7 +120,7 @@ class HypertextMarkupCompiler:
             )
         elif len(element.attributes) == 1:
             key, value = list(element.attributes.items())[0]
-            attrs = " " + self._render_attribute(key, value) + " "
+            attrs = " " + self._render_attribute(key, value)
 
         result = f"{' '*indent if not element.in_pre else ''}<{element.tag}{attrs}{'/' if element.children is None else ''}>"
         if element.children is None:
@@ -138,10 +130,10 @@ class HypertextMarkupCompiler:
             compress != "\n"
             or element.in_pre
             or (
-                element.tag not in ["script", "style"]
+                element.tag not in ["script", "style", "python"]
                 and len(element.children) == 1
-                and isinstance(element.children[0], Literal)
-                and element.children[0].name == LiteralType.Text
+                and Literal.is_text(element.children[0])
+                and "\n" not in element.children[0].content
                 and "\n" not in result
             )
         ):
@@ -167,6 +159,10 @@ class HypertextMarkupCompiler:
             if compress == "\n":
                 content = normalize_indent(literal.content, indent)
                 content = content.strip()
+            elif literal.parent.tag in ["python", "script", "style"]:
+                content = normalize_indent(literal.content)
+                content = content.strip()
+                offset = ""
             else:
                 lines = content.split("\n")
                 content = f"{compress}{offset}".join(lines)
@@ -206,5 +202,4 @@ class HypertextMarkupCompiler:
         _compress: str = "\n",
         **context: Any
     ) -> str:
-        node = self.compile(node, _components, **context)
         return self._render_tree_(node, _components, indent, _compress)

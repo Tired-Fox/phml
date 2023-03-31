@@ -63,4 +63,3 @@ def step_execute_embedded_python(*, node: Parent, context: dict[str, Any]):
                     ),
                     **ESCAPE_OPTIONS
                 )
-
