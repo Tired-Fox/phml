@@ -12,22 +12,20 @@ from .nodes import (
     Position,
     Parent,
     LiteralType,
-    Attribute
+    Attribute,
 )
+
 
 def strip(data: str, cur_tags: list[str]) -> str:
     """This function takes a possibly multiline string and strips leading and trailing
     blank lines. Given the current tag stack it will not strip the text if it is nested
     in a `pre` tag.
     """
-    if (
-        len(cur_tags) > 0
-        and (
-            "python" == cur_tags[-1]
-            or "script" == cur_tags[-1]
-            or "style" == cur_tags[-1]
-            or "pre" in cur_tags
-        )
+    if len(cur_tags) > 0 and (
+        "python" == cur_tags[-1]
+        or "script" == cur_tags[-1]
+        or "style" == cur_tags[-1]
+        or "pre" in cur_tags
     ):
         return data
     return data.strip()
@@ -55,9 +53,12 @@ self_closing = [
     "Markdown",
 ]
 
+
 # Main form of tokenization
 class RE:
-    tag_start = re.compile(r"(?P<comment><!--)|<(?!!--)(?P<opening>!|\/)?(?P<name>([\w:\.]+\-?)+)|<(?P<opening2>/)?(?=\s+>|>)")
+    tag_start = re.compile(
+        r"(?P<comment><!--)|<(?!!--)(?P<opening>!|\/)?(?P<name>([\w:\.]+\-?)+)|<(?P<opening2>/)?(?=\s+>|>)"
+    )
     """Matches the start of a tag `<!name|</name|<name`"""
 
     tag_end = re.compile(r"(?P<closing>/?)>")
@@ -67,10 +68,13 @@ class RE:
     """Matches all html style comments `<!--Comment-->`."""
     comment_close = re.compile(r"-->")
 
-    attribute = re.compile(r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\/\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"\s]+)))?")
+    attribute = re.compile(
+        r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\/\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"\s]+)))?"
+    )
     """Matches a tags attributes `attr|attr=value|attr='value'|attr="value"`."""
-    
+
     bracket_attributte = re.compile(r"^\s*\{((?:\s|.)*)\/\}\s*$")
+
 
 class HypertextMarkupParser:
     """Parse html/xml like source code strings."""
@@ -85,7 +89,10 @@ class HypertextMarkupParser:
         string.
         """
         source = source[:start]
-        return source.count("\n"), len(source.split("\n")[-1]) if len(source.split("\n")) > 0 else 0
+        return (
+            source.count("\n"),
+            len(source.split("\n")[-1]) if len(source.split("\n")) > 0 else 0,
+        )
 
     def __calc_col(self, num_lines: int, num_cols: int, init_cols: int) -> int:
         """Calculate whether the number of columns should be added to the current column or be
@@ -93,85 +100,38 @@ class HypertextMarkupParser:
         """
         return num_cols if num_lines != 0 else init_cols + num_cols
 
-    def __parse_text_comment(self, text: str, pos: Position) -> list[Node]:
+    def __parse_text(self, text: str, pos: Position) -> Literal|None:
         """Parse the comments and general text found in the provided source."""
 
-        elements = [] # List of text and comment elements.
-
-        # For each comment add it to the list of elements
-        while RE.comment.search(text) is not None:
-            comment = RE.comment.search(text)
-            line_s, col_s = self.__calc_line_col(text, comment.start())
-            line_e, col_e = self.__calc_line_col(comment.group(0), len(comment.group(0)))
-
-            pos.start = Point(
-                pos.start.line + line_s,
-                self.__calc_col(line_s, col_s, pos.start.column)
-            )
-            pos.end = Point(
-                pos.start.line + line_e,
-                self.__calc_col(line_e, col_e, pos.start.column)
-            )
-
-            # If there is text between two comments then add a text element
-            if comment.start() > 0:
-                elements.append(Literal(
-                    LiteralType.Text,
-                    strip(text[:comment.span()[0]], self.tag_stack),
-                    position=deepcopy(pos)
-                    , in_pre=self.in_pre > 0
-                ))
-
-            text = text[comment.span()[1]:]
-            elements.append(
-                Literal(
-                    LiteralType.Comment,
-                    comment.group(1).strip(),
-                    position=deepcopy(pos),
-                    in_pre=self.in_pre > 0
-                )
-            )
-
-        # remaining text is added as a text element
         if len(text) > 0 and strip(text, self.tag_stack) != "":
             line, col = self.__calc_line_col(text, len(text))
             pos.start.line += line
             pos.start.column = col
 
-            elements.append(Literal(
+            pos.end.line += line
+            pos.end.column = self.__calc_col(line, col, pos.end.column)
+            return Literal(
                 LiteralType.Text,
                 strip(text, self.tag_stack),
-                position=Position(
-                    (pos.end.line, pos.end.column, None),
-                    (pos.end.line + line, self.__calc_col(line, col, pos.end.column), None)
-                ),
-                in_pre=self.in_pre > 0
-            ))
-        return elements
+                position=Position.from_pos(pos),
+                in_pre=self.in_pre > 0,
+            )
+
+        return None
 
     def __parse_attributes(self, attrs: str) -> dict[str, Attribute]:
         """Parse a tags attributes from the text found between the tag start and the tag end.
-        
+
         Example:
             `<name (attributes)>`
         """
         attributes = {}
         for attr in RE.attribute.finditer(attrs):
-            (
-                name,
-                value,
-                _,
-                double,
-                single,
-                no_bracket
-            ) = itemgetter('name', 'value', 'curly', 'double', 'single', 'open')(attr.groupdict())
+            (name, value, _, double, single, no_bracket) = itemgetter(
+                "name", "value", "curly", "double", "single", "open"
+            )(attr.groupdict())
 
-            if value is not None and RE.bracket_attributte.match(value) is not None:
-                if not name.startswith(":"):
-                    name = ":" + name
-                value = RE.bracket_attributte.match(value).group(1)
-            else:
-                value = double or single or no_bracket
+            value = double or single or no_bracket
 
             if value in ["yes", "true", None]:
                 value = True
@@ -189,39 +149,46 @@ class HypertextMarkupParser:
         begin = RE.tag_start.search(source)
         begin = (begin.start(), begin.group(0), begin.groupdict())
 
-        elems = []
+        elem = None
         if begin[0] > 0:
-            elems = self.__parse_text_comment(source[:begin[0]], position)
+            elem = self.__parse_text(source[: begin[0]], position)
+
         position.end.column = position.start.column + len(begin[1])
-        source = source[begin[0] + len(begin[1]):]
+        source = source[begin[0] + len(begin[1]) :]
 
         if begin[2]["comment"] is not None:
             end = RE.comment_close.search(source)
             if end is None:
                 raise Exception("Comment was not closed")
             end = (end.start(), end.group(0), end.groupdict())
-            attributes: dict[str, Attribute] = {"data": source[:end[0]]}
+            attributes: dict[str, Attribute] = {"data": source[: end[0]]}
         else:
             begin[2]["opening"] = begin[2]["opening"] or begin[2]["opening2"]
-
             end = RE.tag_end.search(source)
             if end is None:
-                raise Exception(f"Expected tag {begin} to be closed with symbol '>'. Was not closed.")
+                raise Exception(
+                    f"Expected tag {begin[1]} to be closed with symbol '>'. Was not closed."
+                )
             end = (end.start(), end.group(0), end.groupdict())
-            attributes = self.__parse_attributes(source[:end[0]])
+            if begin[2]["opening"] == "/" and "<" in source[:end[0]]:
+                line, col = self.__calc_line_col(source, end[0]+len(end[1]))
+                position.end.line = position.start.line + line
+                position.end.column = position.end.column + col
+                raise Exception(f"Closing tag {begin[1]!r} was not closed, maybe it is missing a '>' symbol")
+            attributes = self.__parse_attributes(source[: end[0]])
 
         line, col = self.__calc_line_col(source, end[0] + len(end[1]))
         position.end.line = position.start.line + line
         position.end.column = position.end.column + col
 
-        return source[end[0] + len(end[1]):], begin, attributes, end, elems
+        return source[end[0] + len(end[1]) :], begin, attributes, end, elem
 
     def is_self_closing(self, name: str, auto_closing: bool) -> bool:
         """Check if the tag is self closing. Only check if auto_closing is toggled on."""
 
         if auto_closing:
             return name in self_closing
-        return False
+        return False # pragma: no cover
 
     def parse(self, source: str, auto_close: bool = True) -> AST | Node | None:
         """Parse a given html or phml string into it's corresponding phml ast.
@@ -238,22 +205,22 @@ class HypertextMarkupParser:
         position = Position((0, 0), (0, 0))
 
         while RE.tag_start.search(source) is not None and current is not None:
-            source, begin, attr, end, elems = self.__parse_tag(source, position)
+            source, begin, attr, end, elem = self.__parse_tag(source, position)
 
-            if len(elems) > 0:
-                current.extend(elems)
+            if elem is not None:
+                current.append(elem)
 
             if begin[2]["comment"] is not None:
                 current.append(
                     Literal(
                         LiteralType.Comment,
-                        str(attr['data']),
+                        str(attr["data"]),
                         position=Position.from_pos(position),
-                        in_pre=self.in_pre > 0
+                        in_pre=self.in_pre > 0,
                     )
                 )
             else:
-                name = begin[2]["name"] or ''
+                name = begin[2]["name"] or ""
                 if begin[2]["opening"] == "/":
                     if name != self.tag_stack[-1]:
                         print("Tag Stack", self.tag_stack)
@@ -271,11 +238,13 @@ class HypertextMarkupParser:
 
                     current = current.parent
                 elif begin[2]["opening"] == "!":
-                    current.append(Element(
-                        "doctype",
-                        {"lang": attr.get("lang", "html")},
-                        position=Position.from_pos(position)
-                    ))
+                    current.append(
+                        Element(
+                            "doctype",
+                            {"lang": attr.get("lang", "html")},
+                            position=Position.from_pos(position),
+                        )
+                    )
                 elif (
                     end[2]["closing"] != "/"
                     and not self.is_self_closing(name, auto_close)
@@ -284,24 +253,41 @@ class HypertextMarkupParser:
                     self.tag_stack.append(name)
                     if name == "pre":
                         self.in_pre += 1
-                    current.append(Element(
-                        name,
-                        attr,
-                        [],
-                        position=Position.from_pos(position),
-                        in_pre=self.in_pre > 0
-                    ))
+                    current.append(
+                        Element(
+                            name,
+                            attr,
+                            [],
+                            position=Position.from_pos(position),
+                            in_pre=self.in_pre > 0,
+                        )
+                    )
                     if len(current) > 0:
                         current = current[-1]
                 else:
-                    current.append(Element(name, attr, position=deepcopy(position), in_pre=self.in_pre > 0))
+                    current.append(
+                        Element(
+                            name,
+                            attr,
+                            position=deepcopy(position),
+                            in_pre=self.in_pre > 0,
+                        )
+                    )
 
             position.start = Point(position.end.line, position.end.column)
 
         if len(source) > 0:
-            elems = self.__parse_text_comment(source, position)
-            if current is not None and isinstance(current, Parent) and current.children is not None:
-                current.extend(elems)
+            elem = self.__parse_text(source, position)
+            if (
+                current is not None
+                and isinstance(current, Parent)
+                and current.children is not None
+                and elem is not None
+            ):
+                current.append(elem)
 
+        if len(self.tag_stack) > 0:
+            raise Exception(
+                f"The following tags where expected to be closed but where not: {', '.join(repr(tag) for tag in self.tag_stack)}"
+            )
         return current
-

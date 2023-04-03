@@ -205,8 +205,7 @@ def find_all_before(
 
 def find_all_between(
     parent: Parent,
-    start: int = 0,
-    end: int | None = None,
+    segment: tuple[int, int|None] = (0, None),
     condition: Test | None = None,
     strict: bool = True,
 ) -> list[Node]:
@@ -222,11 +221,11 @@ def find_all_between(
     Returns:
         list[Node]: List of all matching nodes or an empty list if none were found.
     """
-    end = end or len(parent)
+    _range = slice(segment[0], segment[1] or len(parent))
 
     results = []
-    if start < len(parent) and end <= len(parent):
-        for node in parent[start:end]:
+    if _range.start < len(parent) and _range.stop <= len(parent):
+        for node in parent[_range]:
             if condition is not None:
                 if check(node, condition, strict=strict):
                     results.append(node)

@@ -1,0 +1,5 @@
+<div>
+  <p>Sub component</p>
+  <Slot>
+  <Slot name="extra">
+</div>

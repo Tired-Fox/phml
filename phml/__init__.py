@@ -3,7 +3,7 @@
 """
 from dataclasses import dataclass
 
-from .core import PHML
+from .core import HypertextManager 
 from .builder import p
 
 @dataclass

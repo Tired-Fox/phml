@@ -25,7 +25,7 @@ except ImportError:
 @comp_step
 def step_compile_markdown(*, node: Parent, components: ComponentManager, context: dict[str, Any]):
     """Step to compile markdown. This step only works when you have `markdown` installed."""
-    from phml.core import PHML
+    from phml.core import HypertextManager 
 
     md_tags = [child for child in node if isinstance(child, Element) and child.tag == "Markdown"]
 
@@ -74,7 +74,7 @@ def step_compile_markdown(*, node: Parent, components: ComponentManager, context
 
             # TODO:
             # PERF: Sanatize the markdown
-            phml = PHML()
+            phml = HypertextManager()
             phml.components = components
             ast = phml.parse(content).ast
 

@@ -28,6 +28,21 @@ def query(tree: Parent, specifier: str) -> Element | None:
     have space seperated specifiers indicating nesting or a parent child
     relationship.
 
+    Rules:
+    * `*` = any element
+    * `>` = direct child of the current element 
+    * `+` = first sibling
+    * `~` = elements after the current element
+    * `.` = class
+    * `#` = id
+    * `[attribute]` = elements with attribute
+    * `[attribute=value]` = elements with attribute=value
+    * `[attribute~=value]` = elements with attribute containing value
+    * `[attribute|=value]` = elements with attribute=value or attribute starting with value-
+    * `[attribute^=value]` = elements with an attribute starting with value
+    * `[attribute$=value]` = elements with an attribute ending with value
+    * `[attribute*=value]` = elements with an attribute containing value
+
     Examles:
     * `.some-example` matches the first element with the class `some-example`
     * `#some-example` matches the first element with the id `some-example`
@@ -97,7 +112,7 @@ def query(tree: Parent, specifier: str) -> Element | None:
 
             if isinstance(rules[1], dict) or rules[1] == "*":
                 return (
-                    all_nodes(node, rules[1:])
+                    all_nodes(node, rules[1:], False)
                     if isinstance(rules[1], dict)
                     else all_nodes(node, rules[2:], False)
                 )
@@ -129,8 +144,6 @@ def query(tree: Parent, specifier: str) -> Element | None:
             if rules[0] == "~":
                 return all_siblings(node, rules[1:])
 
-        return None
-
     rules = parse_specifiers(specifier)
     return all_nodes(tree, rules)
 
@@ -143,6 +156,21 @@ def query_all(tree: Parent, specifier: str) -> list[Element]:
     tag name. Complex specifiers are accepted are allowed meaning you can
     have space seperated specifiers indicating nesting or a parent child
     relationship.
+
+    Rules:
+    * `*` = any element
+    * `>` = direct child of the current element 
+    * `+` = first sibling
+    * `~` = elements after the current element
+    * `.` = class
+    * `#` = id
+    * `[attribute]` = elements with attribute
+    * `[attribute=value]` = elements with attribute=value
+    * `[attribute~=value]` = elements with attribute containing value
+    * `[attribute|=value]` = elements with attribute=value or attribute starting with value-
+    * `[attribute^=value]` = elements with an attribute starting with value
+    * `[attribute$=value]` = elements with an attribute ending with value
+    * `[attribute*=value]` = elements with an attribute containing value
 
     Examles:
     * `.some-example` matches the first element with the class `some-example`
@@ -239,8 +267,6 @@ def query_all(tree: Parent, specifier: str) -> list[Element]:
             if rules[0] == "~":
                 return all_siblings(node, rules[1:])
 
-        return None
-
     rules = parse_specifiers(specifier)
     return all_nodes(tree, rules)
     # return [result[i] for i in range(len(result)) if i == result.index(result[i])]
@@ -254,13 +280,24 @@ def matches(node: Element, specifier: str) -> bool:
     tag name. Complex specifiers are not supported. Everything in the specifier
     must relate to one element/tag.
 
+    Rules:
+    * `.` = class
+    * `#` = id
+    * `[attribute]` = elements with attribute
+    * `[attribute=value]` = elements with attribute=value
+    * `[attribute~=value]` = elements with attribute containing value
+    * `[attribute|=value]` = elements with attribute=value or attribute starting with value-
+    * `[attribute^=value]` = elements with an attribute starting with value
+    * `[attribute$=value]` = elements with an attribute ending with value
+    * `[attribute*=value]` = elements with an attribute containing value
+
     Examles:
-    * `.some-example` matches the first element with the class `some-example`
-    * `#some-example` matches the first element with the id `some-example`
-    * `li` matches the first `li` element
-    * `li.red` matches the first `li` with the class `red`
-    * `li#red` matches the first `li` with the id `red`
-    * `input[type="checkbox"]` matches the first `input` with the attribute `type="checkbox"`
+    * `.some-example` matches the element with the class `some-example`
+    * `#some-example` matches the element with the id `some-example`
+    * `li` matches an `li` element
+    * `li.red` matches the an `li` with the class `red`
+    * `li#red` matches the an `li` with the id `red`
+    * `input[type="checkbox"]` matches the `input` element with the attribute `type="checkbox"`
     """
 
     rules = parse_specifiers(specifier)
@@ -306,10 +343,6 @@ def is_equal(rule: dict, node: Node) -> bool:
     Returns:
         bool: Whether the node passes all the rules in the dictionary.
     """
-
-    if not isinstance(node, Element):
-        return False
-
     # Validate tag
     if rule["tag"] != "*" and rule["tag"] != node.tag:
         return False
@@ -400,9 +433,6 @@ def __validate_attr(attr: dict, node: Element):
             validator=compare_exists
         )
 
-    return False
-
-
 def is_valid_attr(attr: str, sub: str, name: str, validator: Callable) -> bool:
     """Validate an attribute value with a given string and a validator callable.
     If classlist, create list with attribute value seperated on spaces. Otherwise,
@@ -421,14 +451,14 @@ def is_valid_attr(attr: str, sub: str, name: str, validator: Callable) -> bool:
     return bool(len([item for item in compare_values if validator(item, sub)]) > 0)
 
 
-def __parse_el_with_attribute(item: str | None, attributes: str | None) -> dict:
-    el_from_class_from_id = re.compile(r"(#|\.)?([\w\-]+)")
+def __parse_el_with_attribute(tag: str | None, context: str | None, attributes: str | None) -> dict:
+    el_from_class_from_id = re.compile(r"(#|\.)([\w\-]+)")
 
     attr_compare_val = re.compile(r"\[\s*([\w\-:@]+)\s*([\~\|\^\$\*]?=)?\s*(\"[^\"\[\]=]*\"|\'[^\'\[\]=]*\'|[^\s\[\]=\"']+)?\s*\]")
     test_attr = re.compile(r"\[\s*([\w\-:@]+)\]")
 
     element = {
-        "tag": "*",
+        "tag": tag or "*",
         "classList": [],
         "id": None,
         "attributes": [],
@@ -447,8 +477,8 @@ def __parse_el_with_attribute(item: str | None, attributes: str | None) -> dict:
                 }
             )
 
-    if item is not None:
-        for part in el_from_class_from_id.finditer(item):
+    if context is not None:
+        for part in el_from_class_from_id.finditer(context):
             if part.group(1) == ".":
                 if part.group(2) not in element["classList"]:
                     element["classList"].append(part.group(2))
@@ -456,10 +486,9 @@ def __parse_el_with_attribute(item: str | None, attributes: str | None) -> dict:
                 if element["id"] is None:
                     element["id"] = part.group(2)
                 else:
-                    raise Exception(f"There may only be one id per element specifier.\n{item}{attributes}")
-            else:
-                element["tag"] = part.group(2) or "*"
-
+                    raise Exception(
+                        f"There may only be one id per element specifier.\n{tag or '' + context}{attributes}"
+                    )
     return element
 
 
@@ -495,55 +524,29 @@ def parse_specifiers(specifier: str) -> list:
     """
     Rules:
     * `*` = any element
-    * `>` = Everything with certain parent child relationship
+    * `>` = direct child of the current element 
     * `+` = first sibling
-    * `~` = All after
+    * `~` = elements after the current element
     * `.` = class
     * `#` = id
-    * `[attribute]` = all elements with attribute
-    * `[attribute=value]` = all elements with attribute=value
-    * `[attribute~=value]` = all elements with attribute containing value
-    * `[attribute|=value]` = all elements with attribute=value or attribute starting with value-
-    * `node[attribute^=value]` = all elements with attribute starting with value
-    * `node[attribute$=value]` = all elements with attribute ending with value
-    * `node[attribute*=value]` = all elements with attribute containing value
-
+    * `[attribute]` = elements with attribute
+    * `[attribute=value]` = elements with attribute=value
+    * `[attribute~=value]` = elements with attribute containing value
+    * `[attribute|=value]` = elements with attribute=value or attribute starting with value-
+    * `[attribute^=value]` = elements with an attribute starting with value
+    * `[attribute$=value]` = elements with an attribute ending with value
+    * `[attribute*=value]` = elements with an attribute containing value
     """
-    splitter = re.compile(r"([~>\*+])|(([.#]?[a-zA-Z0-9_-]+)+((\[[^\[\]]+\])*))|(\[[^\[\]]+\])+")
+    splitter = re.compile(r"([~>\*+])|((?:\[[^\[\]]+\])+)|([^.#\[\]\s]+)?((?:(?:\.|#)[^.#\[\]\s]+)+)?((?:\[[^\[\]]+\])+)?")
 
     tokens = []
     for token in splitter.finditer(specifier):
-        sibling, _, item, attributes, _, just_attributes = token.groups()
+        sibling, just_attributes, tag, context, attributes, = token.groups()
         if sibling in ["*", ">", "+", "~"]:
             tokens.append(sibling)
-        elif item is not None or attributes is not None:
-            tokens.append(__parse_el_with_attribute(item, attributes))
+        elif tag is not None or context is not None or attributes is not None:
+            tokens.append(__parse_el_with_attribute(tag, context, attributes))
         elif just_attributes is not None:
             tokens.append(__parse_attr_only_element(just_attributes))
     return tokens
-
-
-if __name__ == "__main__":
-    from phml.builder import p
-    from phml.nodes import AST, inspect
-
-    ast: AST = p(
-        p("html",
-            p("head",
-                p("title", "test")
-            ),
-            p("body",
-                p("h1", "hello world!"),
-                p("div",
-                    {"id": "container"},
-                    p("div", {"class": "sample", "id": "sample-1"}),
-                    p("p", {"hidden": True}, "test text"),
-                    p("div", {"class": "sample", "id": "sample-2"}),
-                    p("div", {"class": "sample", "id": "sample-3"})
-                )
-            )
-        )
-    )
-
-    print(query_all(ast, "div p[hidden]"))
 

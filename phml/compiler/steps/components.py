@@ -201,6 +201,5 @@ def step_substitute_components(
                 replace_slots(child, component)
 
                 child.parent[idx] = component
-               
 
             components.cache(child.tag, components[child.tag])

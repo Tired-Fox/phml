@@ -34,7 +34,10 @@ def _process_attributes(node: Element, context: dict[str, Any]):
                 **context
             )
             node.pop(attribute, None)
-            node[attribute.lstrip(":")] = str(escape(result, **ESCAPE_OPTIONS))
+            if isinstance(result, str):
+                node[attribute.lstrip(":")] = escape(result, **ESCAPE_OPTIONS)
+            else:
+                node[attribute.lstrip(":")] = result
         else:
             if isinstance(node[attribute], str):
                 value = exec_embedded_blocks(

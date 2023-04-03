@@ -6,21 +6,41 @@ from typing import Any, Iterator, NoReturn, TypeAlias, overload
 from saimll import SAIML
 
 
-Attribute: TypeAlias = str|bool
+Attribute: TypeAlias = str | bool
 
-class Missing: pass
+
+class Missing:
+    pass
+
+
 MISSING = Missing()
+
+def p_code(value) -> str:
+    """Get python code representation of phml nodes."""
+    if value is None:
+        return 'None'
+    return value.__p_code__()
+
 
 @unique
 class LiteralType(StrEnum):
     Text = "text"
     Comment = "comment"
 
+    @staticmethod
+    def From(type: str) -> str:
+        types = ["text", "comment"]
+        if type in types:
+            return type
+        raise ValueError(f"Expected on of {', '.join(types)}")
+
+
 @unique
 class NodeType(StrEnum):
     AST = "ast"
     ELEMENT = "element"
     LITERAL = "literal"
+
 
 class Point:
     """Represents one place in a source file.
@@ -40,18 +60,20 @@ class Point:
             raise IndexError(f"Point.column must be >= 0 but was {column}")
 
         self.column = column
-    
+
+    def __eq__(self, _o) -> bool:
+        return (
+            isinstance(_o, self.__class__)
+            and _o.line == self.line
+            and _o.column == self.column
+        )
+
     @staticmethod
     def from_dict(data: dict) -> Point:
         return Point(data["line"], data["column"])
 
-    def __eq__(self, obj) -> bool:
-        return bool(
-            obj is not None
-            and isinstance(obj, self.__class__)
-            and self.line == obj.line
-            and self.column == obj.column
-        )
+    def __p_code__(self) -> str:
+        return f"Point({self.line}, {self.column})"
 
     def __repr__(self) -> str:
         return f"{self.line}:{self.column}"
@@ -108,7 +130,7 @@ class Position:
         """
         ...
 
-    def __init__(self, start: Point|tuple[int, int], end: Point|tuple[int, int]):
+    def __init__(self, start: Point | tuple[int, int], end: Point | tuple[int, int]):
         """
         Args:
             start (Point): Starting point of the position.
@@ -116,15 +138,15 @@ class Position:
             indent (int | None): The indent amount for the start of the position.
         """
 
-        self.start = (
-            Point(start[0], start[1])
-            if isinstance(start, tuple)
-            else start
-        )
-        self.end = (
-            Point(end[0], end[1])
-            if isinstance(end, tuple)
-            else end
+        self.start = Point(start[0], start[1]) if isinstance(start, tuple) else start
+        self.end = Point(end[0], end[1]) if isinstance(end, tuple) else end
+
+    def __p_code__(self) -> str:
+        return f"Position({p_code(self.start)}, {p_code(self.end)})"
+
+    def __eq__(self, _o):
+        return (
+            isinstance(_o, Position) and _o.start == self.start and _o.end == self.end
         )
 
     @staticmethod
@@ -135,23 +157,11 @@ class Position:
             (pos.end.line, pos.end.column),
         )
 
-    def __eq__(self, obj) -> bool:
-        return bool(
-            obj is not None
-            and isinstance(obj, Position)
-            and self.start == obj.start
-            and self.end == obj.end
-        )
-
     @staticmethod
-    def from_dict(data: dict) -> Position|None:
+    def from_dict(data: dict) -> Position | None:
         if data is None:
             return None
-        return Position(
-                Point.from_dict(data["start"]),
-                Point.from_dict(data["end"])
-
-        )
+        return Position(Point.from_dict(data["start"]), Point.from_dict(data["end"]))
 
     def as_dict(self) -> dict:
         """Convert the position object to a dict."""
@@ -171,8 +181,9 @@ class Position:
         return f"<{self.start!r}-{self.end!r}>"
 
     def __str__(self) -> str:
-        return f"\x1b[38;5;8m<\x1b[39m{self.start}\x1b[38;5;8m-\x1b[39m{self.end}\x1b[38;5;8m>\x1b[39m" 
-    
+        return f"\x1b[38;5;8m<\x1b[39m{self.start}\x1b[38;5;8m-\x1b[39m{self.end}\x1b[38;5;8m>\x1b[39m"
+
+
 class Node:
     """Base phml node. Defines a type and basic interactions."""
 
@@ -188,12 +199,16 @@ class Node:
         self._type = _type
         self.in_pre = in_pre
 
+        def __p_code__(self) -> str:
+            in_pre = f", in_pre={self.in_pre}" if self.in_pre else ""
+            return f"Node({self.type!r}, position={p_code(self.position)}{in_pre})"
+
     def as_dict(self) -> dict:
         return {
             "type": str(self._type),
             "position": self._position.as_dict()
-                if self._position is not None
-                else None,
+            if self._position is not None
+            else None,
         }
 
     @staticmethod
@@ -201,23 +216,23 @@ class Node:
         if data["type"] == NodeType.AST:
             ast = AST(
                 position=Position.from_dict(data["position"]),
-                children=[] if data["children"] is not None else None
+                children=[] if data["children"] is not None else None,
             )
-            for child in data["children"]:
-                ast.append(Node.from_dict(child, in_pre))
+            if data["children"] is not None:
+                for child in data["children"]:
+                    ast.append(Node.from_dict(child, in_pre))
             return ast
         elif data["type"] == NodeType.ELEMENT:
             return Element.from_dict(data)
         elif data["type"] == NodeType.LITERAL:
             return Literal(
-                data["name"],
+                LiteralType.From(data["name"]),
                 data["content"],
-                position=Position.from_dict(data["position"])
+                position=Position.from_dict(data["position"]),
             )
         raise ValueError(
             f"Phml ast dicts must have nodes with the following types: {NodeType.AST}, {NodeType.ELEMENT}, {NodeType.LITERAL}"
         )
-        
 
     @property
     def position(self) -> Position | None:
@@ -231,11 +246,7 @@ class Node:
         """The node type. Either root, element, or litera."""
         return self._type
 
-    @type.setter
-    def type(self, new_type: str):
-        self._type = new_type
-
-    def pos_as_str(self, color: bool = False) -> str:
+    def pos_as_str(self, color: bool = False) -> str:  # pragma: no cover
         """Return the position formatted as a string."""
 
         position = ""
@@ -252,15 +263,17 @@ class Node:
                 end = self.position.end
                 position = f"<{start.line}-{start.column}:{end.line}-{end.column}>"
         return position
-    
+
     def __repr__(self) -> str:
         return f"{self.type}()"
 
     def __format__(self, indent: int = 0, color: bool = False, text: bool = False):
         if color:
-            return SAIML.parse(f"{' '*indent}[@Fred]{self.type}[@F]") + f" {self.pos_as_str(True)}"
+            return (
+                SAIML.parse(f"{' '*indent}[@Fred]{self.type}[@F]")
+                + f" {self.pos_as_str(True)}"
+            )
         return f"{' '*indent}{self.type} {self.pos_as_str()}"
-
 
     def __str__(self) -> str:
         return self.__format__()
@@ -273,7 +286,7 @@ class Parent(Node):
         children: list[Node] | None,
         position: Position | None = None,
         parent: Parent | None = None,
-        in_pre: bool = False
+        in_pre: bool = False,
     ):
         super().__init__(_type, position, parent, in_pre)
         self.children = [] if children is not None else None
@@ -281,7 +294,12 @@ class Parent(Node):
         if children is not None:
             self.extend(children)
 
-    def __iter__(self) -> Iterator[Parent|Literal]:
+    def __p_code__(self) -> str:
+        children = 'None' if self.children is None else f"[{', '.join([p_code(child) for child in self])}]"
+        in_pre = f", in_pre={self.in_pre}" if self.in_pre else ""
+        return f"Parent({self.type!r}, position={p_code(self.position)}{in_pre}, children={children})"
+
+    def __iter__(self) -> Iterator[Parent | Literal]:
         if self.children is not None:
             for child in self.children:
                 yield child
@@ -294,15 +312,22 @@ class Parent(Node):
     def __setitem__(self, key: slice, value: list) -> NoReturn:
         ...
 
-    def __setitem__(self, key: int|slice, value: Node|list):
+    def __setitem__(self, key: int | slice, value: Node | list):
         if self.children is not None:
             if isinstance(key, int):
                 if not isinstance(value, Node):
-                    raise ValueError("Can not assign value that is not phml.Node to children")
+                    raise ValueError(
+                        "Can not assign value that is not phml.Node to children"
+                    )
+                value.parent = self
                 self.children[key] = value
             else:
                 if not isinstance(value, list):
-                    raise ValueError("Can not assign value that is not list[phml.Node] to slice of children")
+                    raise ValueError(
+                        "Can not assign value that is not list[phml.Node] to slice of children"
+                    )
+                for v in value:
+                    v.parent = self
                 self.children[key] = value
         else:
             raise ValueError("Invalid value type. Expected phml Node")
@@ -312,10 +337,12 @@ class Parent(Node):
         ...
 
     @overload
-    def __getitem__(self, _k: slice) -> list[Parent|Literal]:
+    def __getitem__(self, _k: slice) -> list[Parent | Literal]:
         ...
 
-    def __getitem__(self, key: int|slice) -> Parent | Literal | list[Parent|Literal]:
+    def __getitem__(
+        self, key: int | slice
+    ) -> Parent | Literal | list[Parent | Literal]:
         if self.children is not None:
             return self.children[key]
         raise ValueError("A self closing element can not be indexed")
@@ -328,10 +355,11 @@ class Parent(Node):
     def __delitem__(self, key: slice) -> NoReturn:
         ...
 
-    def __delitem__(self, key: int|slice):
+    def __delitem__(self, key: int | slice):
         if self.children is not None:
             del self.children[key]
-        raise ValueError("Can not use del for a self closing elements children")
+        else:
+            raise ValueError("Can not use del for a self closing elements children")
 
     def pop(self, idx: int = 0) -> Node:
         """Pop a node from the children. Defaults to index 0"""
@@ -351,7 +379,9 @@ class Parent(Node):
             node.parent = self
             self.children.append(node)
         else:
-            raise ValueError("A child node can not be appended to a self closing element")
+            raise ValueError(
+                "A child node can not be appended to a self closing element"
+            )
 
     def extend(self, nodes: list[Node]):
         """Extend the children with a list of nodes."""
@@ -360,7 +390,9 @@ class Parent(Node):
                 child.parent = self
             self.children.extend(nodes)
         else:
-            raise ValueError("A self closing element can not have it's children extended")
+            raise ValueError(
+                "A self closing element can not have it's children extended"
+            )
 
     def insert(self, index: int, nodes: Node | list[Node]):
         """Insert a child node or nodes into a specific index of the children."""
@@ -372,20 +404,23 @@ class Parent(Node):
             else:
                 self.children.insert(index, nodes)
         else:
-            raise ValueError("A child node can not be inserted into a self closing element")
+            raise ValueError(
+                "A child node can not be inserted into a self closing element"
+            )
 
     def remove(self, node: Node):
         """Remove a child node from the children."""
         if self.children is None:
-            raise ValueError("A child node can not be removed from a self closing element.")
-        if node not in self.children:
-            raise ValueError("Node does not exist in children")
+            raise ValueError(
+                "A child node can not be removed from a self closing element."
+            )
         self.children.remove(node)
 
-
-    def len_as_str(self, color: bool = False) -> str:
+    def len_as_str(self, color: bool = False) -> str:  # pragma: no cover
         if color:
-            return SAIML.parse(f"[@F66]{len(self) if self.children is not None else '/'}[@F]")
+            return SAIML.parse(
+                f"[@F66]{len(self) if self.children is not None else '/'}[@F]"
+            )
         return f"{len(self) if self.children is not None else '/'}"
 
     def __len__(self) -> int:
@@ -403,9 +438,8 @@ class Parent(Node):
                 + f" {self.pos_as_str(True)}"
             )
         for child in self.children or []:
-            output.extend(child.__format__(indent=indent+2, color=color, text=text))
+            output.extend(child.__format__(indent=indent + 2, color=color, text=text))
         return output
-
 
     def __str__(self) -> str:
         return "\n".join(self.__format__())
@@ -413,8 +447,9 @@ class Parent(Node):
     def as_dict(self) -> dict:
         return {
             "children": [child.as_dict() for child in self.children]
-            if self.children is not None else None,
-            **super().as_dict()  
+            if self.children is not None
+            else None,
+            **super().as_dict(),
         }
 
 
@@ -427,6 +462,16 @@ class AST(Parent):
     ):
         super().__init__(NodeType.AST, children or [], position, None, in_pre)
 
+    def __eq__(self, _o):
+        return isinstance(_o, AST) and (
+            (_o.children is None and self.children is None)
+            or (len(_o) == len(self) and all(c1 == c2 for c1, c2 in zip(_o, self)))
+        )
+
+    def __p_code__(self) -> str:
+        children = 'None' if self.children is None else f"[{', '.join([p_code(child) for child in self])}]"
+        in_pre = f", in_pre={self.in_pre}" if self.in_pre else ""
+        return f"AST(position={p_code(self.position)}, children={children}{in_pre})"
 
 class Element(Parent):
     def __init__(
@@ -443,12 +488,23 @@ class Element(Parent):
         self.attributes = attributes or {}
         self.context = {}
 
+    def __p_code__(self) -> str:
+        children = 'None' if self.children is None else f"[{', '.join([p_code(child) for child in self])}]"
+        in_pre = f", in_pre={self.in_pre}" if self.in_pre else ""
+        return f"Element({self.tag!r}, position={p_code(self.position)}, attributes={self.attributes}, children={children}{in_pre})"
+
+    def __eq__(self, _o) -> bool:
+        return (
+            isinstance(_o, Element)
+            and _o.attributes == self.attributes
+            and (
+                (_o.children is None and self.children is None)
+                or (len(_o) == len(self) and all(c1 == c2 for c1, c2 in zip(_o, self)))
+            )
+        )
+
     def as_dict(self) -> dict:
-        return {
-            "tag": self.tag,
-            "attributes": self.attributes,
-            **super().as_dict()  
-        }
+        return {"tag": self.tag, "attributes": self.attributes, **super().as_dict()}
 
     @staticmethod
     def from_dict(data: dict, in_pre: bool = False) -> Element:
@@ -456,7 +512,7 @@ class Element(Parent):
             data["tag"],
             attributes=data["attributes"],
             children=[] if data["children"] is not None else None,
-            position=Position.from_dict(data["position"])
+            position=Position.from_dict(data["position"]),
         )
         if data["children"] is not None:
             element.children = [
@@ -464,7 +520,6 @@ class Element(Parent):
                 for child in data["children"]
             ]
         return element
-
 
     @property
     def tag_path(self) -> list[str]:
@@ -478,6 +533,9 @@ class Element(Parent):
         path.reverse()
         return path
 
+    def __hash__(self) -> int:
+        return hash(self.tag) + sum(hash(attr) for attr in self.attributes.values()) + hash(len(self))
+
     def __contains__(self, _k: str) -> bool:
         return _k in self.attributes
 
@@ -490,10 +548,12 @@ class Element(Parent):
         ...
 
     @overload
-    def __getitem__(self, _k: slice) -> list[Parent|Literal]:
+    def __getitem__(self, _k: slice) -> list[Parent | Literal]:
         ...
 
-    def __getitem__(self, _k: str|int|slice) -> Attribute | Parent | Literal | list[Parent|Literal]:
+    def __getitem__(
+        self, _k: str | int | slice
+    ) -> Attribute | Parent | Literal | list[Parent | Literal]:
         if isinstance(_k, str):
             return self.attributes[_k]
 
@@ -514,17 +574,21 @@ class Element(Parent):
     def __setitem__(self, key: str, value: Attribute) -> NoReturn:
         ...
 
-    def __setitem__(self, key: str|int|slice, value: Attribute|Node|list):
+    def __setitem__(self, key: str | int | slice, value: Attribute | Node | list):
         if isinstance(key, str) and isinstance(value, Attribute):
             self.attributes[key] = value
         elif isinstance(key, int) and isinstance(value, Node):
             self.insert(key, value)
         elif isinstance(key, slice) and isinstance(value, list):
             if self.children is None:
-                raise ValueError("A self closing element can not have a subset of it's children assigned to")
-            self.children[key.start:key.stop] = value 
+                raise ValueError(
+                    "A self closing element can not have a subset of it's children assigned to"
+                )
+            self.children[key.start : key.stop] = value
         else:
-            raise ValueError("Invalid value type. Expected <key:str> -> <value:Attribute> or <key:int> -> <value:Node>")
+            raise ValueError(
+                "Invalid value type. Expected <key:str> -> <value:Attribute> or <key:int> -> <value:Node>"
+            )
 
     @overload
     def __delitem__(self, key: int) -> NoReturn:
@@ -538,7 +602,7 @@ class Element(Parent):
     def __delitem__(self, key: str) -> NoReturn:
         ...
 
-    def __delitem__(self, key: str|int|slice):
+    def __delitem__(self, key: str | int | slice):
         if isinstance(key, str):
             del self.attributes[key]
         elif self.children is not None:
@@ -547,14 +611,14 @@ class Element(Parent):
             raise ValueError("Can not use del for a self closing elements children")
 
     @overload
-    def pop(self, idx: int) -> Node:
+    def pop(self, idx: int = 0) -> Node:
         ...
 
     @overload
     def pop(self, idx: str, _default: Any = MISSING) -> Attribute:
         ...
 
-    def pop(self, idx: str|int, _default: Any = MISSING) -> Attribute | Node:
+    def pop(self, idx: str | int = 0, _default: Any = MISSING) -> Attribute | Node:
         """Pop a specific attribute from the elements attributes. A default value
         can be provided for when the value is not found, otherwise an error is thrown.
         """
@@ -566,7 +630,6 @@ class Element(Parent):
             return self.children.pop(idx)
 
         raise ValueError("A self closing element can not pop a child node")
-
 
     def get(self, key: str, _default: Any = MISSING) -> Attribute:
         """Get a specific element attribute. Returns `None` if not found
@@ -590,45 +653,51 @@ class Element(Parent):
             return _default
         raise ValueError(f"Attribute {key!r} not found")
 
-    def attrs_as_str(self, indent: int, color: bool = False) -> str:
+    def attrs_as_str(self, indent: int, color: bool = False) -> str:  # pragma: no cover
         """Return a str representation of the attributes"""
         if color:
             attrs = (
-                f"\n{' '*(indent)}▸ "
-                + f"\n{' '*(indent)}▸ ".join(
-                    str(key)
-                    + ": "
-                    + (
-                        f"\x1b[32m{value!r}\x1b[39m"
-                        if isinstance(value, str) else
-                        f"\x1b[35m{value}\x1b[39m"
+                (
+                    f"\n{' '*(indent)}▸ "
+                    + f"\n{' '*(indent)}▸ ".join(
+                        str(key)
+                        + ": "
+                        + (
+                            f"\x1b[32m{value!r}\x1b[39m"
+                            if isinstance(value, str)
+                            else f"\x1b[35m{value}\x1b[39m"
+                        )
+                        for key, value in self.attributes.items()
                     )
-                    for key,value in self.attributes.items()
                 )
-            ) if len(self.attributes) > 0 else ""
+                if len(self.attributes) > 0
+                else ""
+            )
         else:
             attrs = (
-                f"\n{' '*(indent)}▸ "
-                + f"\n{' '*(indent)}▸ ".join(
-                    f"{key}: {value!r}"
-                    for key,value in self.attributes.items()
+                (
+                    f"\n{' '*(indent)}▸ "
+                    + f"\n{' '*(indent)}▸ ".join(
+                        f"{key}: {value!r}" for key, value in self.attributes.items()
+                    )
                 )
-            ) if len(self.attributes) > 0 else ""
+                if len(self.attributes) > 0
+                else ""
+            )
 
-        return attrs 
+        return attrs
 
     def __repr__(self) -> str:
         return f"{self.type}.{self.tag}(cldrn={self.len_as_str()}, attrs={self.attributes})"
 
-    def __format__(self, indent: int = 0, color: bool = False, text: bool = False) -> list[str]:
+    def __format__(
+        self, indent: int = 0, color: bool = False, text: bool = False
+    ) -> list[str]:
         output: list[str] = []
         if color:
-            output.append( 
+            output.append(
                 f"{' '*indent}"
-                + SAIML.parse(
-                    f"[@Fred]{self.type}[@F]"
-                    + f".[@Fblue]{self.tag}[@F]"
-                )
+                + SAIML.parse(f"[@Fred]{self.type}[@F]" + f".[@Fblue]{self.tag}[@F]")
                 + f" [{self.len_as_str(True)}]"
                 + f" {self.pos_as_str(True)}"
                 + f"{self.attrs_as_str(indent+2, True)}"
@@ -640,7 +709,7 @@ class Element(Parent):
             )
 
         for child in self.children or []:
-            output.extend(child.__format__(indent=indent+2, color=color, text=text))
+            output.extend(child.__format__(indent=indent + 2, color=color, text=text))
         return output
 
     def __str__(self) -> str:
@@ -660,12 +729,18 @@ class Literal(Node):
         self.name = name
         self.content = content
 
+    def __p_code__(self) -> str:
+        return f"Literal({str(self.name)!r}, {self.content!r})"
+
+    def __eq__(self, _o) -> bool:
+        return (
+            isinstance(_o, Literal)
+            and _o.type == self.type
+            and self.content == _o.content
+        )
+
     def as_dict(self) -> dict:
-        return {
-            "name": str(self.name),
-            "content": self.content,
-            **super().as_dict()  
-        }
+        return {"name": str(self.name), "content": self.content, **super().as_dict()}
 
     @staticmethod
     def is_text(node: Node) -> bool:
@@ -677,16 +752,20 @@ class Literal(Node):
         """Check if a node is a literal and a comment."""
         return isinstance(node, Literal) and node.name == LiteralType.Comment
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> str:  # pragma: no cover
         return f"{self.type}.{self.name}(len={len(self.content)})"
 
-    def __format__(self, indent: int = 0, color: bool = False, text: bool = False):
+    def __format__(
+        self, indent: int = 0, color: bool = False, text: bool = False
+    ):  # pragma: no cover
         from .helpers import normalize_indent
 
         content = ""
         if text:
-            offset = " " * (indent+2)
-            content = f'{offset}"""\n{normalize_indent(self.content, indent+4)}\n{offset}"""' 
+            offset = " " * (indent + 2)
+            content = (
+                f'{offset}"""\n{normalize_indent(self.content, indent+4)}\n{offset}"""'
+            )
         if color:
             return [
                 SAIML.parse(
@@ -695,14 +774,16 @@ class Literal(Node):
                 )
             ]
         return [
-            f"{' '*indent}{self.type}.{self.name}"
-            + (f"\n{content}" if text else "")
+            f"{' '*indent}{self.type}.{self.name}" + (f"\n{content}" if text else "")
         ]
 
-    def __str__(self) -> str:
+    def __str__(self) -> str:  # pragma: no cover
         return self.__format__()[0]
 
-def inspect(node: Node, color: bool = False, text: bool = False) -> str:
+
+def inspect(
+    node: Node, color: bool = False, text: bool = False
+) -> str:  # pragma: no cover
     """Inspected a given node recursively.
 
     Args:
@@ -714,4 +795,3 @@ def inspect(node: Node, color: bool = False, text: bool = False) -> str:
         A formatted multiline string representation of the node and it's children.
     """
     return "\n".join(node.__format__(color=color, text=text))
-

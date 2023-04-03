@@ -8,5 +8,5 @@
 - [ ] Full coverage testing
   - [ ] Core library
   - [ ] Utilities
-- [ ] Documentation
 - [ ] Examples
+- [ ] Documentation

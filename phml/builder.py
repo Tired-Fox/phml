@@ -4,8 +4,9 @@ This module serves as a utility to make building elements and ast's easier.
 """
 
 from __future__ import annotations
+from typing import overload, Literal as Lit
 
-from phml.nodes import Node, Element, Literal, LiteralType, AST
+from phml.nodes import Node, Element, Literal, LiteralType, AST, Parent
 
 __all__ = ["p"]
 
@@ -13,13 +14,21 @@ __all__ = ["p"]
 def __process_children(node, children: list[str | list | int | Node]):
     for child in children:
         if isinstance(child, (str, float, int)):
-            node.append(Literal(LiteralType.Text, str(child)))
+            if isinstance(child, str) and child.startswith("<!--") and child.endswith("-->"):
+                child = child.strip()
+                node.append(Literal(LiteralType.Comment, child.lstrip("<!--").rstrip("-->")))
+            else:
+                node.append(Literal(LiteralType.Text, str(child)))
         elif isinstance(child, Node):
             node.append(child)
         elif isinstance(child, list):
             for nested_child in child:
                 if isinstance(nested_child, (str, float, int)):
-                    node.append(Literal(LiteralType.Text, str(nested_child)))
+                    if isinstance(nested_child, str) and nested_child.startswith("<!--") and nested_child.endswith("-->"):
+                        nested_child = nested_child.strip()
+                        node.append(Literal(LiteralType.Comment, nested_child.lstrip("<!--").rstrip("-->")))
+                    else:
+                        node.append(Literal(LiteralType.Text, str(nested_child)))
                 elif isinstance(nested_child, Node):
                     node.append(nested_child)
                 else:
@@ -28,11 +37,26 @@ def __process_children(node, children: list[str | list | int | Node]):
  {nested_child}"
                     )
 
+@overload
+def p(selector: Node|None=None, *args: str | list | dict | int | Node) -> AST:
+    ...
+
+@overload
+def p(selector: str, *args: str | list | dict | int | Node) -> Element:
+    ...
+
+@overload
+def p(selector: Lit["text"], *args: str) -> Literal:
+    ...
+
+@overload
+def p(selector: Lit["comment"], *args: str) -> Literal:
+    ...
 
 def p(  # pylint: disable=[invalid-name,keyword-arg-before-vararg]
     selector: str | Node | None = None,
-    *args: str | list | dict | int | Node,
-) -> Node:
+    *args: str | list | dict | int | Node | None,
+) -> Node|AST|Parent:
     """Generic factory for creating phml nodes."""
 
     # Get all children | non dict objects
@@ -43,15 +67,15 @@ def p(  # pylint: disable=[invalid-name,keyword-arg-before-vararg]
 
     if selector is not None:
         # Is a comment
-        if isinstance(selector, str) and selector.startswith("<!--"):
-            return Literal(LiteralType.Comment, selector.replace("<!--", "").replace("-->", ""))
+        # if isinstance(selector, str) and selector.startswith("<!--"):
+        #     return Literal(LiteralType.Comment, selector.replace("<!--", "").replace("-->", ""))
         # Is a text node
-        if (
-            isinstance(selector, str)
-            and (len(selector.split(" ")) > 1 or len(selector.split("\n")) > 1)
-            and len(args) == 0
-        ):
-            return Literal(LiteralType.Text, selector)
+        # if (
+        #     isinstance(selector, str)
+        #     and (len(selector.split(" ")) > 1 or len(selector.split("\n")) > 1)
+        #     and len(args) == 0
+        # ):
+        #     return Literal(LiteralType.Text, selector)
         if not isinstance(selector, str):
             args = (selector, *args)
             selector = None

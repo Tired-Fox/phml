@@ -116,7 +116,7 @@ PHML includes a powerful component system. The components are partial phml files
 </script>
 ```
 
-Components can be added to the compiler by using `PHML.add('path/to/component.phml')`. You can define a components name when adding it to the compiler like this `PHML.add(('Component', 'path/to/component.phml'))`, or you can just let the compiler figure it out for you. Each directory in the path given along with the file name are combine to create the components name. So if you pass a component path that is `path/to/component.phml` it will create a components name of `Path.To.Component` which is then used as `<Path.To.Component />`. The compiler will try to parse and understand the component name and make it Pascal case. So if you have a file name of `CoMP_onEnt.phml` it will result in `CoMPOnEnt`. It uses `_` as a seperator between words along with capital letters. It will also recognize an all caps word bordering a new word with a capital letter.
+Components can be added to the compiler by using `HypertextManager.add('path/to/component.phml')`. You can define a components name when adding it to the compiler like this `HypertextManager.add(('Component', 'path/to/component.phml'))`, or you can just let the compiler figure it out for you. Each directory in the path given along with the file name are combine to create the components name. So if you pass a component path that is `path/to/component.phml` it will create a components name of `Path.To.Component` which is then used as `<Path.To.Component />`. The compiler will try to parse and understand the component name and make it Pascal case. So if you have a file name of `CoMP_onEnt.phml` it will result in `CoMPOnEnt`. It uses `_` as a seperator between words along with capital letters. It will also recognize an all caps word bordering a new word with a capital letter.
 
 Great now you have components. But what if you have a few components that are siblings and you don't want them to be nested in a parent element. PHML provides a `<>` element which is a placeholder element. All children are treated as they are at the root of the component.
 
@@ -228,18 +228,16 @@ The current version is able to parse phml using an html parser. This creates a p
 
 **Use**
 
-PHML provides file type variables for better ease of use. The types include `HTML`, `PHML`, `JSON`, and `XML`. They can be used with the import `from phml import Formats`. Then all you need to do is use `Formats.HTML` or any other format. If you want to compile to `html` then there is no need to use the `Formats` import.
-
-First import the core parser and compiler, `from phml import PHML`. Then you can do the following:
+First import the core parser and compiler, `from phml import HypertextManager`. Then you can do the following:
 
 ```python
-phml = PHML().load("path/to/file.phml")
+phml = HypertextManager().load("path/to/file.phml")
 print(phml.render())
 ```
 
 There is method chaining so most if not all methods can be chained. The obvious exception being any method that returns a value.
 
-By default `PHML.render()` will return the `html` string. If you want to get a `json` string you may pass `Formats.JSON`. `PHML.render(file_type=Formats.JSON)`.
+By default `HypertextManager.render()` will return the `html` string. If you want to get a `json` string you may pass `Formats.JSON`. `HypertextManager.render(file_type=Formats.JSON)`.
 
 If you want to write to a file you can call `phml.write("path/to/output/file.phml")`. Same with `render` it defaults to html. You can change this the same way as `render`. `core.write("path/to/otuput/file.json", file_type=Formats.JSON)`.
 

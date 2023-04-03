@@ -24,15 +24,15 @@ class ComponentCacheType(TypedDict):
     scripts: list[Element]
     styles: list[Element]
 
-
-DEFAULT_COMPONENT: ComponentType = {
-    "hash": "",
-    "props": {},
-    "context": {},
-    "scripts": [],
-    "styles": [],
-    "element": Element(""),
-}
+def DEFAULT_COMPONENT() -> ComponentType:
+    return {
+        "hash": "",
+        "props": {},
+        "context": {},
+        "scripts": [],
+        "styles": [],
+        "element": Element(""),
+    }
 
 
 def tokenize_name(
@@ -134,7 +134,7 @@ class ComponentManager:
     def parse(self, content: str, path: str = "") -> ComponentType:
         ast = self._parser.parse(content)
 
-        component: ComponentType = {**DEFAULT_COMPONENT}
+        component: ComponentType = DEFAULT_COMPONENT()
         element = None
         context = Embedded("", path)
 
@@ -194,7 +194,7 @@ class ComponentManager:
                 as is for the component data.
         """
 
-        content: ComponentType = {**DEFAULT_COMPONENT}
+        content: ComponentType = DEFAULT_COMPONENT()
         if file is None:
             if cmpt is not None and cmpt != "":
                 if (
@@ -206,6 +206,7 @@ class ComponentManager:
                     raise TypeError("Expected component tuple (<name:str>, <cmpt:str>)")
                 name = cmpt[0]
                 content.update(self.parse(cmpt[1], "_cmpt_"))
+
             elif data is not None:
                 if (
                     not isinstance(data, tuple)

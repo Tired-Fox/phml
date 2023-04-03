@@ -417,6 +417,13 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
     Returns:
         Any: The value of the last assignment or value defined
     """
+    from phml.utilities import blank
+
+    context = {
+        "blank": blank,
+        **context
+    }
+
     # last line must be an assignment or the value to be used
     with EmbeddedTryCatch(_path, code):
         code = normalize_indent(code)

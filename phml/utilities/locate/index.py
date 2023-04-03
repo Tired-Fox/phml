@@ -1,6 +1,6 @@
-from typing import Any, Callable
+from typing import Any, Callable, overload
 
-from phml.nodes import AST, Element, Parent
+from phml.nodes import Element, Parent, MISSING
 from phml.utilities.validate.check import Test
 
 
@@ -15,7 +15,10 @@ class Index:
     """The indexed collection of elements"""
 
     def __init__(
-        self, key: str | Callable, start: Parent, condition: Test | None = None
+        self,
+        start: Parent,
+        key: str | Callable[[Element], str],
+        condition: Test | None = None
     ):
         """
         Args:
@@ -41,18 +44,21 @@ class Index:
     def __iter__(self):
         return iter(self.indexed_tree)
 
+    def __contains__(self, _key: str) -> bool:
+        return _key in self.indexed_tree
+
     def __str__(self):
         return str(self.indexed_tree)
 
-    def items(self):
+    def items(self): # pragma: no cover
         """Get the key value pairs of all indexes."""
         return self.indexed_tree.items()
 
-    def values(self):
+    def values(self): # pragma: no cover
         """Get all the values in the collection."""
         return self.indexed_tree.values()
 
-    def keys(self):
+    def keys(self): # pragma: no cover
         """Get all the keys in the collection."""
         return self.indexed_tree.keys()
 
@@ -78,14 +84,24 @@ class Index:
     def __getitem__(self, key: Any) -> list[Element]:
         return self.indexed_tree[key]
 
+    @overload
+    def get(self, _key: str, _default: Any = MISSING) -> list[Element] | Any:
+        ...
+
+    @overload
     def get(self, _key: str) -> list[Element] | None:
+        ...
+
+    def get(self, _key: str, _default: Any = MISSING) -> list[Element] | None: # pragma: no cover
         """Get a specific index from the indexed tree."""
-        return self.indexed_tree.get(_key)
+        if _default != MISSING:
+            return self.indexed_tree.get(_key, _default)
+        return self.indexed_tree.get(_key, None)
 
     # Built in key functions
 
-    @classmethod
-    def key_by_tag(cls, node: Element) -> str:
+    @staticmethod
+    def key_by_tag(node: Element) -> str:
         """Builds the key from an elements tag. If the node is not an element
         then the node's type is returned."""
 
