@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Sample title</title>
@@ -8,18 +9,10 @@
       [data-phml-cmpt-scope='Component~3090413834174898802'] div {
         color: red
       }
-    </style>
-    <script>
-      window.onload = () => {
-        alert("Test");
-      };
-    </script>
-    <style>
-      div {
-        margin: 0;
-      }
-      [data-phml-cmpt-scope='Component~3090413834174898802'] div {
-        color: red
+
+      [data-phml-cmpt-scope='Component~3090413834174898802'] :is(.card),
+      [data-phml-cmpt-scope='Component~3090413834174898802'] span {
+        border: 1px solid black;
       }
     </style>
     <script>
@@ -40,6 +33,7 @@
       <div>
         <p>Sub component</p>
         <p>Child</p>
+        Generic text
         <p>Extra</p>
       </div>
     </div>
@@ -47,13 +41,19 @@
       type="text"
       max="100"
       value="Startwith this, not end."
+      data-is-active="false"
       hidden
     />
     <p>Hello World!</p>
+<pre>text</pre>
     <ul>
       <li>1</li>
       <li>2</li>
     </ul>
+    <article>
+      <h1>Sample Markdown</h1>
+      <p>Markdown text here</p>
+    </article>
   </body>
 </html>
 <!--Extra comment at end of file-->

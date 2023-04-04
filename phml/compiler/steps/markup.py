@@ -6,10 +6,10 @@ from phml.embedded import exec_embedded
 from phml.components import ComponentManager
 from .base import comp_step
 
-try:
+try: # pragma: no cover
     from markdown import Markdown as PyMarkdown
     MARKDOWN = PyMarkdown
-except ImportError:
+except ImportError: # pragma: no cover
     error = Exception(
         "You do not have the package 'markdown' installed. Install it to be able to use <Markdown /> tags"
     )
@@ -32,10 +32,7 @@ def step_compile_markdown(*, node: Parent, components: ComponentManager, context
     if len(md_tags) > 0:
         markdown = MARKDOWN(extensions=["codehilite", "tables", "fenced_code"])
         for md in md_tags:
-            if len(md) > 0:
-                raise ValueError("Cannot have children in <Markdown /> element")
-
-            extras = str(md.pop(":extra", None) or md.pop("extra", None) or "")
+            extras = str(md.get(":extras", None) or md.pop("extras", None) or "")
             configs = md.pop(":configs", None)
             if configs is not None:
                 configs = exec_embedded(
@@ -44,9 +41,9 @@ def step_compile_markdown(*, node: Parent, components: ComponentManager, context
                     **context
                 ) 
             if extras is not None:
-                if ":extra" in md:
+                if ":extras" in md:
                     extras = exec_embedded(
-                        extras,
+                        str(md.pop(":extras")),
                         "<Markdown :extras='<list|str>'",
                         **context
                     ) 

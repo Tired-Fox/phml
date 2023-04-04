@@ -25,4 +25,9 @@ window.onload = () => {
   div {
     color: red
   }
+
+  :is(.card),
+  span {
+    border: 1px solid black;
+  }
 </style>

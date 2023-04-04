@@ -1,17 +1,16 @@
 from __future__ import annotations
 from collections.abc import Iterator
 from importlib import import_module
-from itertools import compress
 import os
 from pathlib import Path
 from contextlib import contextmanager
 import re
 import sys
-from typing import Any
+from typing import Any, overload
 
 from .parser import HypertextMarkupParser
 from .compiler import HypertextMarkupCompiler
-from .nodes import NodeType, Parent, AST, Node
+from .nodes import Parent, AST, Node
 from .embedded import Module, __IMPORTS__, __FROM_IMPORTS__
 from .helpers import PHMLTryCatch
 from .components import ComponentManager, ComponentType
@@ -41,7 +40,7 @@ class HypertextManager:
 
     @staticmethod
     @contextmanager
-    def open(_from: str, _to: str | None = None) -> Iterator[HypertextManager]:
+    def open(_from: str|Path, _to: str | Path | None = None) -> Iterator[HypertextManager]:
         with PHMLTryCatch():
             core = HypertextManager()
             core._from_file = Path(_from).open("r", encoding="utf-8")
@@ -53,6 +52,14 @@ class HypertextManager:
             core._from_file.close()
             if core._to_file is not None:
                 core._to_file.close()
+
+    @property
+    def imports(self) -> dict:
+        return dict(__IMPORTS__)
+
+    @property
+    def from_imports(self) -> dict:
+        return dict(__FROM_IMPORTS__)
 
     def add_module(
         self, module: str, *, name: str | None = None, imports: list[str] | None = None
@@ -80,13 +87,16 @@ class HypertextManager:
             name (str): Optional name for the module after it is imported.
             imports (list[str]): Optional list of objects to import from the module. Turns the import to
                 `from <module> import <...objects>` from `import <module>`.
+
+        Returns:
+            str: Name of the imported module. The key to use for indexing imported modules
         """
 
         if module.startswith("~"):
             module = module.replace("~", str(Path.home()))
 
         mod = None
-        file = Path(module)
+        file = Path(module).with_suffix(".py")
         cwd = os.getcwd()
 
         if file.is_file():
@@ -102,7 +112,7 @@ class HypertextManager:
                 index += 1
 
             name = (
-                re.sub(r"^(/?\.\./?)*", "", module).rsplit(".", 1)[0].replace("/", ".")
+                "/".join(path_p[index:]).rsplit(".", 1)[0].replace("/", ".")
             )
             path = "/".join(path_p[:index])
 
@@ -114,7 +124,6 @@ class HypertextManager:
             sys.path = sys_path
 
             name = f".{name}"
-
         else:
             if module.startswith(".."):
                 current = Path(os.getcwd()).as_posix()
@@ -130,20 +139,21 @@ class HypertextManager:
                 mod = import_module(module)
             name = f".{module.lstrip('..')}"
 
-        if mod is None:
-            raise ValueError(f"Failed to import module {name}")
-
         # Add imported module or module objects to appropriate collection
         if imports is not None and len(imports) > 0:
             for _import in imports:
-                __FROM_IMPORTS__.update({name: {_import: getattr(mod, _import)}})
+                if name not in __FROM_IMPORTS__:
+                    __FROM_IMPORTS__[name] = {}
+                __FROM_IMPORTS__[name].update({_import: getattr(mod, _import)})
         else:
             __IMPORTS__[name] = mod
 
-        return self
+        return name
 
     def remove_module(self, module: str, imports: list[str] | None = None):
-        if module in __IMPORTS__:
+        if not module.startswith("."):
+            module = f".{module}"
+        if module in __IMPORTS__ and len(imports or []) == 0:
             __IMPORTS__.pop(module, None)
         if module in __FROM_IMPORTS__:
             if imports is not None and len(imports) > 0:
@@ -196,7 +206,7 @@ class HypertextManager:
         return self
 
     def format(
-        self, *, code: str = "", file: str | None = None, compress: bool = False
+        self, *, code: str = "", file: str | Path | None = None, compress: bool = False
     ) -> str | None:
         """Format a phml str or file.
 
@@ -221,7 +231,7 @@ class HypertextManager:
         if code != "":
             self.parse(code)
             result = self.compiler.render(
-                self._ast, _components=self.components, _compress=compress
+                self._ast, compress
             )
 
         if file is not None:
@@ -230,8 +240,7 @@ class HypertextManager:
                 phml_file.write(
                     self.compiler.render(
                         self._ast,
-                        self.components,
-                        _compress="\n" if not compress else "",
+                        compress,
                     )
                 )
 
@@ -257,8 +266,7 @@ class HypertextManager:
             with PHMLTryCatch(self._from_path, "phml:__render"):
                 result = self.compiler.render(
                     self.compile(**context),
-                    _components=self.components,
-                    _compress="" if _compress else "\n",
+                    _compress,
                 )
                 if self._to_file is not None:
                     self._to_file.write(result)
@@ -272,28 +280,60 @@ class HypertextManager:
             return result
         raise ValueError("Must first parse a phml file before rendering a phml AST")
 
+    def write(self, _path: str|Path, _compress: bool = False, **context: Any):
+        """Render and write the current ast to a file.
+
+        Args:
+            path (str): The output path for the rendered html.
+            compress (bool): Whether to compress the output. Defaults to False.
+        """
+        with Path(_path).open("+w", encoding="utf-8") as file:
+            file.write(self.compiler.render(self.compile(**context), _compress))
+        return self
+
+    @overload
+    def add(self, file: str, *, ignore: str = ""):
+        """Add a component to the component manager with a file path. Also, componetes can be added to
+        the component manager with a name and str or an already parsed component dict.
+
+        Args:
+            file (str): The file path to the component.
+            ignore (str): The path prefix to remove before creating the comopnent name.
+            name (str): The name of the component. This is the index/key in the component manager.
+                This is also the name of the element in phml. Ex: `Some.Component` == `<Some.Component />`
+            data (str | ComponentType): This is the data that is assigned in the manager. It can be a string
+                representation of the component, or an already parsed component type dict.
+        """
+        ...
+
+    @overload
+    def add(self, *, name: str, data: str | ComponentType):
+        """Add a component to the component manager with a file path. Also, componetes can be added to
+        the component manager with a name and str or an already parsed component dict.
+
+        Args:
+            file (str): The file path to the component.
+            ignore (str): The path prefix to remove before creating the comopnent name.
+            name (str): The name of the component. This is the index/key in the component manager.
+                This is also the name of the element in phml. Ex: `Some.Component` == `<Some.Component />`
+            data (str | ComponentType): This is the data that is assigned in the manager. It can be a string
+                representation of the component, or an already parsed component type dict.
+        """
+        ...
+
     def add(
         self,
         file: str | None = None,
         *,
-        cmpt: tuple[str, str] | None = None,
-        data: tuple[str, ComponentType] | None = None,
+        name: str | None = None,
+        data: ComponentType | None = None,
         ignore: str = "",
     ):
         """Add a component to the component manager. The components are used by the compiler
         when generating html files from phml.
         """
-        with PHMLTryCatch(
-            file
-            or (
-                cmpt[0]
-                if cmpt is not None
-                else data[0]
-                if data is not None
-                else "_cmpt_"
-            )
-        ):
-            self.components.add(file, cmpt=cmpt, data=data, ignore=ignore)
+        with PHMLTryCatch(file or name or "_cmpt_"):
+            self.components.add(file, name=name, data=data, ignore=ignore)
 
     def remove(self, key: str):
         """Remove a component from the component manager based on the components name/tag."""
@@ -304,9 +344,12 @@ class HypertextManager:
         This data is the highest scope and will be overridden by more specific
         scoped variables with equivelant names.
         """
-        self.context.update(_context or {})
+
+        if _context:
+            self.context.update(_context or {})
         self.context.update(context)
 
-    def redact(self, key: str):
+    def redact(self, *keys: str):
         """Remove global variable from this instance."""
-        del self.context[key]
+        for key in keys:
+            self.context.pop(key, None)

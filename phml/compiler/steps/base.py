@@ -6,7 +6,7 @@ from phml.nodes import Parent, AST
 from phml.components import ComponentManager 
 
 
-def comp_step(func: Callable):
+def comp_step(func: Callable): # pragma: no cover
     """Wrapper for compilation steps. This wraps a function that takes a parent node,
     the current context, and component manager. The function is expected to mutate the children nodes.
     It is also expected that the function is not recursive and only mutates the direct children of the node
@@ -50,7 +50,7 @@ def comp_step(func: Callable):
     return inner
 
 
-def boundry_step(func: Callable):
+def boundry_step(func: Callable): # pragma: no cover
     """Wrapper for setup and post compile steps. This wraps a function that takes an AST node,
     the current context, and the component manager. The funciton is expected to mutate the AST recursively
 

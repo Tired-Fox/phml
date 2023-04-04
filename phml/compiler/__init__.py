@@ -1,5 +1,8 @@
 from collections.abc import Callable
-from typing import Any
+from copy import deepcopy
+from typing import Any, NoReturn, TypeAlias
+
+from .steps.base import comp_step
 
 from phml.embedded import Embedded
 from phml.helpers import normalize_indent
@@ -8,7 +11,7 @@ from phml.nodes import (
     Literal,
     Element,
     Parent,
-    inspect
+    AST
 )
 from phml.components import ComponentManager
 
@@ -24,11 +27,12 @@ __all__ = [
 SETUP: list[Callable] = []
 
 STEPS: list[Callable] = [
+    step_replace_phml_wrapper,
     step_expand_loop_tags,
     step_execute_conditions,
+    step_compile_markdown,
     step_execute_embedded_python,
     step_substitute_components,
-    step_compile_markdown,
 ]
 
 POST: list[Callable] = [
@@ -68,6 +72,7 @@ class HypertextMarkupCompiler:
 
     def compile(self, node: Parent, _components: ComponentManager, **context: Any) -> Parent:
         # get all python elements and process them
+        node = deepcopy(node)
         p_elems = self._get_python_elements(node)
         embedded = Embedded("")
         for p_elem in p_elems:
@@ -91,18 +96,18 @@ class HypertextMarkupCompiler:
         if isinstance(value, str):
             return f'{key}="{value}"'
         else:
-            return str(key) if value else ""
+            return str(key) if value else f'{key}="false"'
 
     def _render_element(
-        self, element: Element, components: ComponentManager, indent: int = 0, compress: str = "\n"
+        self, element: Element, indent: int = 0, compress: str = "\n"
     ) -> str:
         attr_idt = 2
         attrs = ""
+        lead_space = " " if len(element.attributes) > 0 else ""
         if element.in_pre:
-            attrs = " " + " ".join(
+            attrs = lead_space + " ".join(
                 self._render_attribute(key, value)
                 for key, value in element.attributes.items()
-                if value != False
             )
         elif len(element.attributes) > 1:
             idt = indent + attr_idt if compress == "\n" else 1
@@ -112,13 +117,12 @@ class HypertextMarkupCompiler:
                 + f'{compress}{" "*(idt)}'.join(
                     self._render_attribute(key, value)
                     for key, value in element.attributes.items()
-                    if value != False
                 )
                 + f"{compress}{' '*(indent)}"
             )
         elif len(element.attributes) == 1:
             key, value = list(element.attributes.items())[0]
-            attrs = " " + self._render_attribute(key, value)
+            attrs = lead_space + self._render_attribute(key, value)
 
         result = f"{' '*indent if not element.in_pre else ''}<{element.tag}{attrs}{'' if len(element) > 0 else '/'}>"
         if len(element) == 0:
@@ -135,10 +139,10 @@ class HypertextMarkupCompiler:
                 and "\n" not in result
             )
         ):
-            children = self._render_tree_(element, components, _compress=compress)
+            children = self._render_tree_(element, _compress=compress)
             result += children + f"</{element.tag}>"
         else:
-            children = self._render_tree_(element, components, indent + 2, _compress=compress)
+            children = self._render_tree_(element, indent + 2, _compress=compress)
             result += compress + children
             result += f"{compress}{' '*indent}</{element.tag}>"
 
@@ -157,7 +161,7 @@ class HypertextMarkupCompiler:
             if compress == "\n":
                 content = normalize_indent(literal.content, indent)
                 content = content.strip()
-            elif literal.parent.tag in ["python", "script", "style"]:
+            elif not isinstance(literal.parent, AST) and literal.parent.tag in ["python", "script", "style"]:
                 content = normalize_indent(literal.content)
                 content = content.strip()
                 offset = ""
@@ -170,12 +174,11 @@ class HypertextMarkupCompiler:
 
         if literal.name == LiteralType.Comment:
             return f"{offset}<!--" + content + "-->"
-        return ""
+        return "" # pragma: no cover
 
     def _render_tree_(
         self,
         node: Parent,
-        _components: ComponentManager,
         indent: int = 0,
         _compress: str = "\n",
     ):
@@ -185,7 +188,7 @@ class HypertextMarkupCompiler:
                 if child.tag == "doctype":
                     result.append(f"<!DOCTYPE html>")
                 else:
-                    result.append(self._render_element(child, _components, indent, _compress))
+                    result.append(self._render_element(child, indent, _compress))
             elif isinstance(child, Literal):
                 result.append(self._render_literal(child, indent, _compress))
             else:
@@ -197,9 +200,7 @@ class HypertextMarkupCompiler:
     def render(
         self,
         node: Parent,
-        _components: ComponentManager,
+        _compress: bool = False,
         indent: int = 0,
-        _compress: str = "\n",
-        **context: Any
     ) -> str:
-        return self._render_tree_(node, _components, indent, _compress)
+        return self._render_tree_(node, indent, "" if _compress else "\n")

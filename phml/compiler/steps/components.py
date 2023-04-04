@@ -167,7 +167,7 @@ def step_substitute_components(
     for child in node:
         if isinstance(child, Element) and child.tag in components:
             # Need a deep copy of the component as to not manipulate the cached comonent data
-            element = deepcopy(components[child.tag]["element"])
+            elements = deepcopy(components[child.tag]["elements"])
             props = components[child.tag]["props"]
             context = {**child.context, **components[child.tag]["context"]}
 
@@ -178,28 +178,23 @@ def step_substitute_components(
             props.update(attrs)
             context.update(props)
 
-            elements = [element]
-            # PERF:                 ˅ Not sure what to name this  
-            if element.tag in ["", "Template"]: # wrapper tag
-                if len(element) > 0:
-                    elements = element[:]
+            component = Element(
+                "div",
+                attributes={"data-phml-cmpt-scope": f"{components[child.tag]['hash']}"},
+                children=[]
+            )
 
             for elem in elements:
-                elem.parent = child.parent
+                elem.parent = component
                 if isinstance(elem, Element):
                     elem.context.update(context)
 
+            component.extend(elements)
+
             if child.parent is not None:
                 idx = child.parent.index(child)
-                child.parent.remove(child)
-                component = Element(
-                    "div",
-                    attributes={"data-phml-cmpt-scope": f"{components[child.tag]['hash']}"},
-                    children=elements,
-                )
-
                 replace_slots(child, component)
-
+                del child.parent[idx]
                 child.parent[idx] = component
 
             components.cache(child.tag, components[child.tag])

@@ -1,14 +1,15 @@
-from re import finditer
+import os
+from re import findall, finditer
 from pathlib import Path
 from time import time
-from typing import Any, Iterator, TypedDict
+from typing import Any, Iterator, TypedDict, overload
 
 from .nodes import Element, Literal
 from .helpers import iterate_nodes
 from .parser import HypertextMarkupParser
 from .embedded import Embedded
 
-__all__ = ["ComponentType", "ComponentManager"]
+__all__ = ["ComponentType", "ComponentManager", "tokenize_name"]
 
 
 class ComponentType(TypedDict):
@@ -17,12 +18,14 @@ class ComponentType(TypedDict):
     context: dict[str, Any]
     scripts: list[Element]
     styles: list[Element]
-    element: Element
+    elements: list[Element|Literal]
+
 
 class ComponentCacheType(TypedDict):
     hash: str
     scripts: list[Element]
     styles: list[Element]
+
 
 def DEFAULT_COMPONENT() -> ComponentType:
     return {
@@ -31,12 +34,12 @@ def DEFAULT_COMPONENT() -> ComponentType:
         "context": {},
         "scripts": [],
         "styles": [],
-        "element": Element(""),
+        "elements": [],
     }
 
 
 def tokenize_name(
-    name: str, *, normalize: bool = True, title_case: bool = False
+    name: str, *, normalize: bool = False, title_case: bool = False
 ) -> list[str]:
     """Generates name tokens `some name tokanized` from a filename.
     Assumes filenames is one of:
@@ -53,27 +56,27 @@ def tokenize_name(
     """
     tokens = []
     for token in finditer(
-        r"(\b|[A-Z]|_|-|\.)([a-z]+)|([0-9]+)|([A-Z]+)(?=[^a-z])", name
+        r"([A-Z])?([a-z]+)|([0-9]+)|([A-Z]+)(?=[^a-z])", name.strip()
     ):
         first, rest, nums, cap = token.groups()
 
-        if first is not None and first.isupper():
-            # First char was capitalized. Append it to full token capture
-            rest = first + rest
-        elif cap is not None and cap.isupper():
+        result = ""
+        if rest is not None:
+            result = (first or "") + rest
+        elif cap is not None:
             # Token is all caps. Set to full capture
-            rest = cap
-        elif nums is not None and nums.isnumeric():
+            result = cap
+        elif nums is not None:
             # Token is all numbers. Set to full capture
-            rest = str(nums)
+            result = str(nums)
 
         if normalize:
-            rest = rest.lower()
+            result = result.lower()
 
-        if title_case:
-            rest = rest[0].upper() + rest[1:]
-
-        tokens.append(rest)
+        if len(result) > 0:
+            if title_case:
+                result = result[0].upper() + result[1:]
+            tokens.append(result)
     return tokens
 
 
@@ -85,10 +88,9 @@ def _parse_cmpt_name(name: str) -> str:
 def hash_component(cmpt: ComponentType):
     """Hash a component for applying unique scope identifier"""
     return (
-        hash(cmpt["element"])
+        sum(hash(element) for element in cmpt["elements"])
         + sum(hash(style) for style in cmpt["styles"])
         + sum(hash(script) for script in cmpt["scripts"])
-        + sum(hash(name) for name in cmpt["element"].attributes)
         - int(str(time())[-5:])
     )
 
@@ -106,7 +108,7 @@ class ComponentManager:
         from the beginning.
         """
 
-        path = Path(path).as_posix().lstrip(Path(ignore).as_posix()).lstrip("/")
+        path = Path(os.path.relpath(path, ignore)).as_posix()
         parts = path.split("/")
 
         return ".".join(
@@ -148,81 +150,89 @@ class ComponentManager:
             if isinstance(node, Element):
                 if node.tag == "script" and len(node) == 1 and Literal.is_text(node[0]):
                     component["scripts"].append(node)
-                elif node.tag == "style" and len(node) == 1 and Literal.is_text(node[0]):
+                elif (
+                    node.tag == "style" and len(node) == 1 and Literal.is_text(node[0])
+                ):
                     component["styles"].append(node)
                 else:
-                    if element is not None:
-                        raise ValueError(
-                            "Can not have more than one root element in components"
-                        )
-
-                    if node.tag == "For":
-                        raise ValueError(
-                            "Can not use 'For' tag for root component element"
-                        )
-                    element = node
+                    component["elements"].append(node)
+            elif isinstance(node, Literal):
+                component["elements"].append(node)
 
         component["props"] = context.context.pop("Props", {})
         component["context"] = context.context
-        if element is None:
-            raise ValueError("Must have one root element in component")
-        component["element"] = element
+        if len(component["elements"]) == 0:
+            raise ValueError("Must have at least one root element in component")
         component["hash"] = f"~{hash_component(component)}"
 
         return component
+
+    @overload
+    def add(self, file: str, *, ignore: str = ""):
+        """Add a component to the component manager with a file path. Also, componetes can be added to
+        the component manager with a name and str or an already parsed component dict.
+
+        Args:
+            file (str): The file path to the component.
+            ignore (str): The path prefix to remove before creating the comopnent name.
+            name (str): The name of the component. This is the index/key in the component manager.
+                This is also the name of the element in phml. Ex: `Some.Component` == `<Some.Component />`
+            data (str | ComponentType): This is the data that is assigned in the manager. It can be a string
+                representation of the component, or an already parsed component type dict.
+        """
+        ...
+
+    @overload
+    def add(self, *, name: str, data: str | ComponentType):
+        """Add a component to the component manager with a file path. Also, componetes can be added to
+        the component manager with a name and str or an already parsed component dict.
+
+        Args:
+            file (str): The file path to the component.
+            ignore (str): The path prefix to remove before creating the comopnent name.
+            name (str): The name of the component. This is the index/key in the component manager.
+                This is also the name of the element in phml. Ex: `Some.Component` == `<Some.Component />`
+            data (str | ComponentType): This is the data that is assigned in the manager. It can be a string
+                representation of the component, or an already parsed component type dict.
+        """
+        ...
 
     def add(
         self,
         file: str | None = None,
         *,
-        cmpt: tuple[str, str] | None = None,
-        data: tuple[str, ComponentType] | None = None,
+        name: str | None = None,
+        data: str | ComponentType | None = None,
         ignore: str = "",
     ):
-        """Add a component to the component manager.
+        """Add a component to the component manager with a file path. Also, componetes can be added to
+        the component manager with a name and str or an already parsed component dict.
 
         Args:
-            file (str | None): Path to the component to be added. Pair with `ignore`
-                to ignore part of the parent path.
-
-        Optional Kwargs:
-            cmpt (tuple[str, str]): Tuple of the component name and component str to parse.
-                The first str is kept as is for the name and the seconds str is parsed as a
-                component.
-            data (tuple[str, ComponentType]): Tuple of the component name and the already parsed
-                components. The str is kept as is for the name and the ComponentType, dict, is kept
-                as is for the component data.
+            file (str): The file path to the component.
+            ignore (str): The path prefix to remove before creating the comopnent name.
+            name (str): The name of the component. This is the index/key in the component manager.
+                This is also the name of the element in phml. Ex: `Some.Component` == `<Some.Component />`
+            data (str | ComponentType): This is the data that is assigned in the manager. It can be a string
+                representation of the component, or an already parsed component type dict.
         """
-
         content: ComponentType = DEFAULT_COMPONENT()
         if file is None:
-            if cmpt is not None and cmpt != "":
-                if (
-                    not isinstance(cmpt, tuple)
-                    or len(cmpt) != 2
-                    or not isinstance(cmpt[0], str)
-                    or not isinstance(cmpt[1], str)
-                ):
-                    raise TypeError("Expected component tuple (<name:str>, <cmpt:str>)")
-                name = cmpt[0]
-                content.update(self.parse(cmpt[1], "_cmpt_"))
-
-            elif data is not None:
-                if (
-                    not isinstance(data, tuple)
-                    or len(data) != 2
-                    or not isinstance(data[0], str)
-                    or not isinstance(data[1], dict)
-                ):
-                    raise TypeError(
-                        "Expected data tuple (<name:str>, <data:ComponentType>)"
+            if name is None:
+                raise ValueError(
+                    "Expected both 'name' and 'data' kwargs to be used together"
+                )
+            if isinstance(data, str):
+                if data == "":
+                    raise ValueError(
+                        "Expected component data to be a string of length longer that 0"
                     )
-
-                name = data[0]
-                content.update(data[1])
+                content.update(self.parse(data, "_cmpt_"))
+            elif isinstance(data, dict):
+                content.update(data)
             else:
                 raise ValueError(
-                    "Expected a string, file path, or a pre parsed component"
+                    "Expected component data to be a string or a ComponentType dict"
                 )
         else:
             with Path(file).open("r", encoding="utf-8") as c_file:
@@ -293,8 +303,12 @@ class ComponentManager:
                 "Expected ComponentType 'styles' that is a list of phml elements with a tag of 'style'"
             )
 
-        if "element" not in data or not isinstance(data["element"], Element):
+        if (
+            "elements" not in data
+            or not isinstance(data["elements"], list)
+            or len(data["elements"]) == 0
+            or not all(isinstance(element, (Element, Literal)) for element in data["elements"])
+        ):
             raise ValueError(
-                "Expected ComponentType 'element' that is single phml element"
+                "Expected ComponentType 'elements' to be a list of at least one Element or Literal"
             )
-

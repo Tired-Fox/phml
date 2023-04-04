@@ -4,3 +4,6 @@ exclude_lines =
     if TYPE_CHECKING:
     def __.+__
     @overload
+    keys
+    values
+    items

@@ -15,10 +15,11 @@ class Missing:
 
 MISSING = Missing()
 
-def p_code(value) -> str:
+
+def p_code(value) -> str:  # pragma: no cover
     """Get python code representation of phml nodes."""
     if value is None:
-        return 'None'
+        return "None"
     return value.__p_code__()
 
 
@@ -295,7 +296,11 @@ class Parent(Node):
             self.extend(children)
 
     def __p_code__(self) -> str:
-        children = 'None' if self.children is None else f"[{', '.join([p_code(child) for child in self])}]"
+        children = (
+            "None"
+            if self.children is None
+            else f"[{', '.join([p_code(child) for child in self])}]"
+        )
         in_pre = f", in_pre={self.in_pre}" if self.in_pre else ""
         return f"Parent({self.type!r}, position={p_code(self.position)}{in_pre}, children={children})"
 
@@ -383,7 +388,7 @@ class Parent(Node):
                 "A child node can not be appended to a self closing element"
             )
 
-    def extend(self, nodes: list[Node]):
+    def extend(self, nodes: list):
         """Extend the children with a list of nodes."""
         if self.children is not None:
             for child in nodes:
@@ -394,7 +399,7 @@ class Parent(Node):
                 "A self closing element can not have it's children extended"
             )
 
-    def insert(self, index: int, nodes: Node | list[Node]):
+    def insert(self, index: int, nodes: Node | list):
         """Insert a child node or nodes into a specific index of the children."""
         if self.children is not None:
             if isinstance(nodes, list):
@@ -469,9 +474,14 @@ class AST(Parent):
         )
 
     def __p_code__(self) -> str:
-        children = 'None' if self.children is None else f"[{', '.join([p_code(child) for child in self])}]"
+        children = (
+            "None"
+            if self.children is None
+            else f"[{', '.join([p_code(child) for child in self])}]"
+        )
         in_pre = f", in_pre={self.in_pre}" if self.in_pre else ""
         return f"AST(position={p_code(self.position)}, children={children}{in_pre})"
+
 
 class Element(Parent):
     def __init__(
@@ -489,7 +499,11 @@ class Element(Parent):
         self.context = {}
 
     def __p_code__(self) -> str:
-        children = 'None' if self.children is None else f"[{', '.join([p_code(child) for child in self])}]"
+        children = (
+            "None"
+            if self.children is None
+            else f"[{', '.join([p_code(child) for child in self])}]"
+        )
         in_pre = f", in_pre={self.in_pre}" if self.in_pre else ""
         return f"Element({self.tag!r}, position={p_code(self.position)}, attributes={self.attributes}, children={children}{in_pre})"
 
@@ -534,7 +548,11 @@ class Element(Parent):
         return path
 
     def __hash__(self) -> int:
-        return hash(self.tag) + sum(hash(attr) for attr in self.attributes.values()) + hash(len(self))
+        return (
+            hash(self.tag)
+            + sum(hash(attr) for attr in self.attributes.values())
+            + hash(len(self))
+        )
 
     def __contains__(self, _k: str) -> bool:
         return _k in self.attributes
@@ -692,7 +710,7 @@ class Element(Parent):
 
     def __format__(
         self, indent: int = 0, color: bool = False, text: bool = False
-    ) -> list[str]:
+    ) -> list[str]: # pragma: no cover
         output: list[str] = []
         if color:
             output.append(
@@ -729,8 +747,15 @@ class Literal(Node):
         self.name = name
         self.content = content
 
+    def __hash__(self) -> int:
+        return (
+            hash(self.content)
+            + hash(str(self.name))
+        )
+
     def __p_code__(self) -> str:
-        return f"Literal({str(self.name)!r}, {self.content!r})"
+        in_pre = f", in_pre=True" if self.in_pre else ""
+        return f"Literal({str(self.name)!r}, {self.content!r}{in_pre})"
 
     def __eq__(self, _o) -> bool:
         return (

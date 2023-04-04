@@ -190,7 +190,7 @@ class HypertextMarkupParser:
             return name in self_closing
         return False # pragma: no cover
 
-    def parse(self, source: str, auto_close: bool = True) -> AST | Node | None:
+    def parse(self, source: str, auto_close: bool = True) -> AST:
         """Parse a given html or phml string into it's corresponding phml ast.
 
         Args:
@@ -222,7 +222,11 @@ class HypertextMarkupParser:
             else:
                 name = begin[2]["name"] or ""
                 if begin[2]["opening"] == "/":
-                    if name != self.tag_stack[-1]:
+                    if len(self.tag_stack) == 0:
+                        raise Exception(
+                            f"Unbalanced tags: Tag was closed without first being opened at {position}"
+                        )
+                    elif name != self.tag_stack[-1]:
                         print("Tag Stack", self.tag_stack)
                         raise Exception(
                             f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}"
@@ -288,6 +292,6 @@ class HypertextMarkupParser:
 
         if len(self.tag_stack) > 0:
             raise Exception(
-                f"The following tags where expected to be closed but where not: {', '.join(repr(tag) for tag in self.tag_stack)}"
+                f"The following tags where expected to be closed: {', '.join(repr(tag) for tag in self.tag_stack)}"
             )
         return current

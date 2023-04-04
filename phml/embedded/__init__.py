@@ -138,11 +138,11 @@ class EmbeddedPythonException(Exception):
         return message
 
 
-def parse_import_values(_import: str) -> list[str]:
+def parse_import_values(_import: str) -> list[str|tuple[str,str]]:
     values = []
     for value in re.finditer(r"(?:([^,\s]+) as (.+)|([^,\s]+))(?=\s*,)?", _import):
         if value.group(1) is not None:
-            values.append(value.group(1))
+            values.append((value.group(1), value.group(2)))
         elif value.groups(3) is not None:
             values.append(value.group(3))
     return values
@@ -217,7 +217,7 @@ class EmbeddedImport:
 
     def _parse_from_import(self):
         if self.module in __FROM_IMPORTS__:
-            values = list(filter(lambda v: v not in __FROM_IMPORTS__[self.module], self.objects))
+            values = list(filter(lambda v: (v if isinstance(v, str) else v[0]) not in __FROM_IMPORTS__[self.module], self.objects))
         else:
             values = self.objects
 
@@ -230,7 +230,8 @@ class EmbeddedImport:
                 __FROM_IMPORTS__[self.module] = {}
             __FROM_IMPORTS__[self.module].update(local_env)
 
-        return {key: __FROM_IMPORTS__[self.module][key] for key in self.objects}
+        keys = [key if isinstance(key, str) else key[1] for key in self.objects]
+        return {key: __FROM_IMPORTS__[self.module][key] for key in keys} 
 
     def _parse_import(self):
         if self.module not in __IMPORTS__:
@@ -268,7 +269,7 @@ class EmbeddedImport:
 
     def __str__(self) -> str:
         if len(self.objects) > 0:
-            return f"from {self.module} import {', '.join(self.objects)}"
+            return f"from {self.module} import {', '.join(obj if isinstance(obj, str) else f'{obj[0]} as {obj[1]}' for obj in self.objects)}"
         return f"import {self.module}"
 
 
@@ -313,6 +314,9 @@ class Embedded:
         self.imports.extend(_o.imports)
         self.context.update(_o.context)
         return self
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.context
 
     def __getitem__(self, key: str) -> Any:
         if key in self.context:
@@ -462,7 +466,7 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
         exec(ccode, {**context}, local_env)
         return local_env[RESULT]
 
-def exec_embedded_blocks(code: str, _path: str,  **context: dict[str, Any]):
+def exec_embedded_blocks(code: str, _path: str="",  **context: dict[str, Any]):
     """Execute embedded python inside `{{}}` blocks. The resulting values are subsituted
     in for the found blocks.
 
@@ -513,18 +517,4 @@ def exec_embedded_blocks(code: str, _path: str,  **context: dict[str, Any]):
         result += code
                                           
     return result.format(*data)
-
-if __name__ == "__main__":
-    print(EmbeddedImport("time", ["sleep", "time"]).data)
-    print(EmbeddedImport("time").data)
-
-    # Add the import object(s) globals and locals and return the object(s)
-    sleep, time = Module("time", imports=["sleep", "time"]).collect()
-    print(sleep)
-    sleep(1)
-
-    # Add import module to globals and locals and return the module
-    time = Module(module="time").collect()
-    print(time)
-    time.sleep(1)
 

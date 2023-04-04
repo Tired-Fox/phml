@@ -78,8 +78,8 @@ def step_expand_loop_tags(
 
     for loop in for_loops:
         parsed_loop = re.match(
-                r"(?:for\s*)?(?P<captures>.+) in (?P<source>.+):?",
-                loop.get(":each", loop.get("each", ""))
+            r"(?:for\\s*)?(?P<captures>.+) in (?P<source>.+):?",
+            str(loop.get(":each", loop.get("each", "")))
         )
 
         if parsed_loop is None:
@@ -109,10 +109,8 @@ for {loop.get(":each", loop.get("each", ""))}:
 
         if ":each" in loop:
             _each = f':each="{loop[":each"]}"'
-        elif "each" in loop:
-            _each = f':each="{loop[":each"]}"'
         else:
-            _each = ""
+            _each = f'each="{loop["each"]}"'
 
         try:
             iterations, new_nodes = exec_embedded(

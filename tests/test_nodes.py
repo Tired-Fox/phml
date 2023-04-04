@@ -85,6 +85,8 @@ def test_parent():
     with raises(ValueError, match="A self closing element can not pop a child node"):
         parent.pop(0)
     with raises(ValueError, match="A self closing element can not be indexed"):
+        parent[0]
+    with raises(ValueError, match="A self closing element can not be indexed"):
         parent.index(AST())
     with raises(
         ValueError, match="A child node can not be appended to a self closing element"
@@ -161,6 +163,8 @@ def test_element():
         element_nc.get("invalid", 3)
     with raises(ValueError, match="Attribute '.+' not found"):
         element_nc.get("invalid")
+    with raises(ValueError, match="A self closing element can not have it's children indexed"):
+        element_nc[0]
 
     el = {
         "type": "element",

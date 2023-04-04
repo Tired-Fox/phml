@@ -2,4 +2,5 @@
   <p>Sub component</p>
   <Slot>
   <Slot name="extra">
+  <Slot name="not-used">
 </div>

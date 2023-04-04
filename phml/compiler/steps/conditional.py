@@ -29,7 +29,7 @@ class Condition(EnumType):
             return "@elif"
         elif condition == 2:
             return "@else"
-        return "No Condition"
+        return "No Condition" # pragma: no cover
 
 def get_element_condition(node: Element) -> int:
     """Get the single condition attribute on a given element.
