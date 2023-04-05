@@ -1,11 +1,10 @@
 <!-- Badges -->
 
-![Made with Python](http://ForTheBadge.com/images/badges/made-with-python.svg)
-![Built with love](http://ForTheBadge.com/images/badges/built-with-love.svg)
-![version](assets/badges/version.svg)
-[![License](https://img.shields.io/github/license/tired-fox/phml.svg?style=flat-square)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
 ![Forks](https://img.shields.io/github/forks/tired-fox/phml.svg?style=social)
 ![Stars](https://img.shields.io/github/stars/tired-fox/phml.svg?style=social)
+
+![version](assets/badges/version.svg)
+[![License](https://img.shields.io/github/license/tired-fox/phml.svg?style=flat-square)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
 ![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=flat-square)
 [![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square)](https://github.com/Tired-Fox/phml/releases)
 [![Issues](https://img.shields.io/github/issues/tired-fox/phml.svg?style=flat-square)](https://github.com/Tired-Fox/phml/issues)
@@ -232,3 +231,8 @@ Every time `phml.parse` or `phml.load` is called it will overwrite the stored as
 There are many more features such as globally exposed variables, components, slots, exposing python files to be used in phml files, etc...
 
 For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
+
+<div align="center">
+  ![Made with Python](http://ForTheBadge.com/images/badges/made-with-python.svg)
+  ![Built with love](http://ForTheBadge.com/images/badges/built-with-love.svg)
+</div>
