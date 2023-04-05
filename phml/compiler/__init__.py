@@ -1,19 +1,13 @@
 from collections.abc import Callable
 from copy import deepcopy
-from typing import Any, NoReturn, TypeAlias
+from typing import Any
 
-from .steps.base import comp_step
-
+from phml.components import ComponentManager
 from phml.embedded import Embedded
 from phml.helpers import normalize_indent
-from phml.nodes import (
-    LiteralType,
-    Literal,
-    Element,
-    Parent,
-    AST
-)
-from phml.components import ComponentManager
+from phml.nodes import AST, Element, Literal, LiteralType, Parent
+
+from .steps.base import comp_step
 
 from .steps import *
 
@@ -22,6 +16,7 @@ __all__ = [
     "STEPS",
     "POST",
     "HypertextMarkupCompiler",
+    "comp_step"
 ]
 
 SETUP: list[Callable] = []
@@ -38,6 +33,7 @@ STEPS: list[Callable] = [
 POST: list[Callable] = [
     step_add_cached_component_elements,
 ]
+
 
 class HypertextMarkupCompiler:
     def _get_python_elements(self, node: Parent) -> list[Element]:
@@ -60,17 +56,19 @@ class HypertextMarkupCompiler:
         context: dict,
     ):
         """Process steps for a given scope/parent node."""
-        
+
         # Core compile steps
         for _step in STEPS:
             _step(node, components, context)
-        
+
         # Recurse steps for each scope
         for child in node:
             if isinstance(child, Element):
                 self._process_scope_(child, components, context)
 
-    def compile(self, node: Parent, _components: ComponentManager, **context: Any) -> Parent:
+    def compile(
+        self, node: Parent, _components: ComponentManager, **context: Any
+    ) -> Parent:
         # get all python elements and process them
         node = deepcopy(node)
         p_elems = self._get_python_elements(node)
@@ -99,7 +97,10 @@ class HypertextMarkupCompiler:
             return str(key) if value else f'{key}="false"'
 
     def _render_element(
-        self, element: Element, indent: int = 0, compress: str = "\n"
+        self,
+        element: Element,
+        indent: int = 0,
+        compress: str = "\n",
     ) -> str:
         attr_idt = 2
         attrs = ""
@@ -149,7 +150,10 @@ class HypertextMarkupCompiler:
         return result
 
     def _render_literal(
-        self, literal: Literal, indent: int = 0, compress: str = "\n"
+        self,
+        literal: Literal,
+        indent: int = 0,
+        compress: str = "\n",
     ) -> str:
         offset = " " * indent
         if literal.in_pre:
@@ -161,7 +165,11 @@ class HypertextMarkupCompiler:
             if compress == "\n":
                 content = normalize_indent(literal.content, indent)
                 content = content.strip()
-            elif not isinstance(literal.parent, AST) and literal.parent.tag in ["python", "script", "style"]:
+            elif not isinstance(literal.parent, AST) and literal.parent.tag in [
+                "python",
+                "script",
+                "style",
+            ]:
                 content = normalize_indent(literal.content)
                 content = content.strip()
                 offset = ""
@@ -174,7 +182,7 @@ class HypertextMarkupCompiler:
 
         if literal.name == LiteralType.Comment:
             return f"{offset}<!--" + content + "-->"
-        return "" # pragma: no cover
+        return ""  # pragma: no cover
 
     def _render_tree_(
         self,
@@ -186,7 +194,7 @@ class HypertextMarkupCompiler:
         for child in node:
             if isinstance(child, Element):
                 if child.tag == "doctype":
-                    result.append(f"<!DOCTYPE html>")
+                    result.append("<!DOCTYPE html>")
                 else:
                     result.append(self._render_element(child, indent, _compress))
             elif isinstance(child, Literal):
@@ -195,7 +203,6 @@ class HypertextMarkupCompiler:
                 raise TypeError(f"Unknown renderable node type {type(child)}")
 
         return _compress.join(result)
-
 
     def render(
         self,

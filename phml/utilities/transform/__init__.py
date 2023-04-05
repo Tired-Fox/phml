@@ -7,4 +7,3 @@ ast or a specific nodes.
 from .extract import *
 from .sanitize import *
 from .transform import *
-

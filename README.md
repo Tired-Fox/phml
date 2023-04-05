@@ -1,21 +1,31 @@
-![version](assets/badges/version.svg) [![License](https://img.shields.io/badge/License-MIT-9cf)](https://github.com/Tired-Fox/phml/blob/main/LICENSE) [![tired-fox - phml](https://img.shields.io/static/v1?label=tired-fox&message=phml&color=9cf&logo=github)](https://github.com/tired-fox/phml "Go to GitHub repo")
-[![stars - phml](https://img.shields.io/github/stars/tired-fox/phml?style=social)](https://github.com/tired-fox/phml)
-[![forks - phml](https://img.shields.io/github/forks/tired-fox/phml?style=social)](https://github.com/tired-fox/phml)
+<!-- Badges -->
+
+![Made with Python](http://ForTheBadge.com/images/badges/made-with-python.svg)
+![Built with love](http://ForTheBadge.com/images/badges/built-with-love.svg)
+![version](assets/badges/version.svg)
+[![License](https://img.shields.io/github/license/tired-fox/phml.svg)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
+![Forks](https://img.shields.io/github/forks/tired-fox/phml.svg)
+![Stars](https://img.shields.io/github/stars/tired-fox/phml.svg)
+![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+[![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg)](https://github.com/Tired-Fox/phml/releases)
+[![Issues](https://img.shields.io/github/issues/tired-fox/phml.svg)](https://github.com/Tired-Fox/phml/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/tired-fox/phml.svg)](https://github.com/Tired-Fox/phml/pulls)
+![testing](assets/badges/tests.svg)
+![test coverage](assets/badges/coverage.svg)
 
 # Python Hypertext Markup Language (phml)
 
-[![Deploy Docs](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml) [![GitHub release](https://img.shields.io/github/release/tired-fox/phml?include_prereleases=&sort=semver&color=brightgreen)](https://github.com/tired-fox/phml/releases/) 
-[![issues - phml](https://img.shields.io/github/issues/tired-fox/phml)](https://github.com/tired-fox/phml/issues) ![quality](assets/badges/quality.svg) ![testing](assets/badges/testing.svg) ![test coverage](assets/badges/test_cov.svg)
+[![Deploy Docs](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml/badge.svg?style=flat-square&logo=appveyor)](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml)
 
 **TOC**
+
 - [Python Hypertext Markup Language (phml)](#python-hypertext-markup-language-phml)
   - [Overview](#overview)
   - [How to use](#how-to-use)
 
-
 <div align="center">
 
-[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://tired-fox.github.io/phml/phml.html "Go to project documentation")
+[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://tired-fox.github.io/phml/phml.html 'Go to project documentation')
 
 </div>
 
@@ -27,11 +37,7 @@ Let's start with the new `python` element. Python is a whitespace language. As s
 has the challenge of maintaining the indentation in an appropriate way as to preserve the intended whitespace. The key focus is the indended whitespace. While this can be tricky the first line with content serves as a reference. The amount of indentation for the first line is removed from each line and the remaining whitespace is left alone. For example if there is a python block that looks like this.
 
 ```html
-<python>
-  message = "hello world"
-  if "hello" in message:
-    print(message)
-</python>
+<python> message = "hello world" if "hello" in message: print(message) </python>
 ```
 
 The resulting python code would look like this.
@@ -47,20 +53,13 @@ how you normally would and they are now available to the scope of the entire fil
 
 ```html
 <python>
-def URL(link: str) -> str:
-    links = {
-        "youtube": "https://youtube.com"
-    }
-    if link in links:
-        return links[link]
-    else:
-        return ""
+  def URL(link: str) -> str: links = { "youtube": "https://youtube.com" } if
+  link in links: return links[link] else: return ""
 </python>
 
 ...
 
 <a href="{URL('youtube')}">Youtube</a>
-
 ```
 
 phml combines all `python` elements and treats them as one python file. This is of the likes of the `script` or `style` tags. With the fact that you can write any code in the python element and used it anywhere else in the file you of the full power of the python programming language at your desposal.
@@ -69,7 +68,7 @@ Next up is inline python blocks. These are represented with `{{}}` in text eleme
 and it contains `Hello World!`. Now this variable can be used like this, `<p>{{ message }}</p>`,
 which renders to, `<p>Hello World!</p>`.
 
-> Note:  Inline python blocks are only rendered in a Text element or inside an html attribute.
+> Note: Inline python blocks are only rendered in a Text element or inside an html attribute.
 
 Conditional rendering with `@if`, `@elif`, and `@else` is an extremely helpful tool in phml.
 `@if` can be used alone and the python inside it's value must be truthy for the element to be rendered. `@elif` requires an element with a `@if` or `@elif` attribute immediately before it, and it's condition is rendered the same as `@if` but only rendered if a `@if` or `@elif` first fails. `@else` requires there to be either a `@if` or a `@else` immediately before it. It only renders if the previous element's condition fails. If `@elif` or `@else` is on an element, but the previous element isn't a `@if` or `@elif` then an exception will occur. Most importantly, the first element in a chain of conditions must be a `@if`.
@@ -89,30 +88,26 @@ The compiled html will be:
 
 ```html
 <ul>
-    <li>1</li>
-    <li>2</li>
-    <li>3</li>
+  <li>1</li>
+  <li>2</li>
+  <li>3</li>
 </ul>
 ```
 
 Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in phml, you would inject python logic into an attribute similar to this `src="{url('youtube')}"`. If you would like to make the whole attribute value a python expression you may prefix any attribute with a `:`. This keeps the attribute name the same after the prefix, but tells the parser that the entire value should be processed as python. So the previous example with `URL` can also be expressed as `<a :href="URL('youtube')>Youtube</a>"`.
 
-PHML includes a powerful component system. The components are partial phml files and are added to the core compiler. After adding the component whenever an element with the same name as the component is found, it is replaced. Components have scoped `python` elements, while all `style` and `script` elements are global to the file they are injected into. Components require that there is only one element, that isn't a `python`, `script`, or `style` tag, to be present. A sample component can look something like the example below. 
+PHML includes a powerful component system. The components are partial phml files and are added to the core compiler. After adding the component whenever an element with the same name as the component is found, it is replaced. Components have scoped `python` elements, while all `style` and `script` elements are global to the file they are injected into. Components require that there is only one element, that isn't a `python`, `script`, or `style` tag, to be present. A sample component can look something like the example below.
 
 ```html
 <!-- Component.phml -->
-<div>
- # content goes here
-</div>
+<div># content goes here</div>
 
-<python>
-# python code goes here
-</python>
+<python> # python code goes here </python>
 <style>
-/* styles go here */
+  /* styles go here */
 </style>
 <script>
-// js goes here
+  // js goes here
 </script>
 ```
 
@@ -129,8 +124,8 @@ Great now you have components. But what if you have a few components that are si
 ...
 <!-- Component.phml -->
 <>
-  <p>Hello</p>
-  <p>World</p>
+<p>Hello</p>
+<p>World</p>
 <>
 ```
 
@@ -150,11 +145,7 @@ Now how do you pass information to component to use in rendering? That is where 
 
 ```html
 <!-- component.phml -->
-<python>
-Props = {
-  message: ""
-}
-</python>
+<python> Props = { message: "" } </python>
 
 <p>{{ message }}</p>
 
@@ -167,15 +158,11 @@ Props = {
 Both normal attribute values and python attributes can be used for props. The above example really only works for self closing components. What if you want to pass children to the component? That is where slots come in.
 
 ```html
-<python>
-Props = {
-  message: ""
-}
-</python>
+<python> Props = { message: "" } </python>
 
 <div class="callout">
   <p @if="message is not None">{{ message }}</p>
-  <Slot />
+  <slot />
 </div>
 ```
 
@@ -184,17 +171,17 @@ The `Slot` element must be capitalized. When a `Slot` element is present any chi
 ```html
 <!-- component.phml -->
 <div>
-  <Slot name="top" />
-  <Slot />
-  <Slot name="bottom" />
+  <slot name="top" />
+  <slot />
+  <slot name="bottom" />
 </div>
 
 <!-- file.phml -->
 ...
 <Component>
-<p slot="bottom">Bottom</p>
-<p slot="top">Top</p>
-Middle
+  <p slot="bottom">Bottom</p>
+  <p slot="top">Top</p>
+  Middle
 </Component>
 ...
 
@@ -210,10 +197,7 @@ PHML also has very basic markdown support. You may use the `Markdown` element to
 
 ```html
 <!-- file.phml -->
-<Markdown
-  src="# Sample markdown"
-  file="../markdown/file.md"
->
+<Markdown src="# Sample markdown" file="../markdown/file.md">
   This is samle markdown text.
 </Markdown>
 ```

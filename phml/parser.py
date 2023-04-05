@@ -1,18 +1,17 @@
 """Pythonic Hypertext Markup Language (phml) parser."""
+import re
 from copy import deepcopy
 from operator import itemgetter
-import re
 
 from .nodes import (
     AST,
-    Node,
+    Attribute,
     Element,
     Literal,
+    LiteralType,
+    Parent,
     Point,
     Position,
-    Parent,
-    LiteralType,
-    Attribute,
 )
 
 
@@ -22,9 +21,9 @@ def strip(data: str, cur_tags: list[str]) -> str:
     in a `pre` tag.
     """
     if len(cur_tags) > 0 and (
-        "python" == cur_tags[-1]
-        or "script" == cur_tags[-1]
-        or "style" == cur_tags[-1]
+        cur_tags[-1] == "python"
+        or cur_tags[-1] == "script"
+        or cur_tags[-1] == "style"
         or "pre" in cur_tags
     ):
         return data
@@ -57,7 +56,7 @@ self_closing = [
 # Main form of tokenization
 class RE:
     tag_start = re.compile(
-        r"(?P<comment><!--)|<(?!!--)(?P<opening>!|\/)?(?P<name>([\w:\.]+\-?)+)|<(?P<opening2>/)?(?=\s+>|>)"
+        r"(?P<comment><!--)|<(?!!--)(?P<opening>!|\/)?(?P<name>([\w:\.]+\-?)+)|<(?P<opening2>/)?(?=\s+>|>)",
     )
     """Matches the start of a tag `<!name|</name|<name`"""
 
@@ -69,7 +68,7 @@ class RE:
     comment_close = re.compile(r"-->")
 
     attribute = re.compile(
-        r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\/\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"\s]+)))?"
+        r"(?P<name>[\w:\-@]+)(?:=(?P<value>\{(?P<curly>[^\}]*)\/\}|\"(?P<double>[^\"]*)\"|'(?P<single>[^']*)'|(?P<open>[^>'\"\s]+)))?",
     )
     """Matches a tags attributes `attr|attr=value|attr='value'|attr="value"`."""
 
@@ -100,7 +99,7 @@ class HypertextMarkupParser:
         """
         return num_cols if num_lines != 0 else init_cols + num_cols
 
-    def __parse_text(self, text: str, pos: Position) -> Literal|None:
+    def __parse_text(self, text: str, pos: Position) -> Literal | None:
         """Parse the comments and general text found in the provided source."""
 
         if len(text) > 0 and strip(text, self.tag_stack) != "":
@@ -128,7 +127,12 @@ class HypertextMarkupParser:
         attributes = {}
         for attr in RE.attribute.finditer(attrs):
             (name, value, _, double, single, no_bracket) = itemgetter(
-                "name", "value", "curly", "double", "single", "open"
+                "name",
+                "value",
+                "curly",
+                "double",
+                "single",
+                "open",
             )(attr.groupdict())
 
             value = double or single or no_bracket
@@ -167,14 +171,16 @@ class HypertextMarkupParser:
             end = RE.tag_end.search(source)
             if end is None:
                 raise Exception(
-                    f"Expected tag {begin[1]} to be closed with symbol '>'. Was not closed."
+                    f"Expected tag {begin[1]} to be closed with symbol '>'. Was not closed.",
                 )
             end = (end.start(), end.group(0), end.groupdict())
-            if begin[2]["opening"] == "/" and "<" in source[:end[0]]:
-                line, col = self.__calc_line_col(source, end[0]+len(end[1]))
+            if begin[2]["opening"] == "/" and "<" in source[: end[0]]:
+                line, col = self.__calc_line_col(source, end[0] + len(end[1]))
                 position.end.line = position.start.line + line
                 position.end.column = position.end.column + col
-                raise Exception(f"Closing tag {begin[1]!r} was not closed, maybe it is missing a '>' symbol")
+                raise Exception(
+                    f"Closing tag {begin[1]!r} was not closed, maybe it is missing a '>' symbol"
+                )
             attributes = self.__parse_attributes(source[: end[0]])
 
         line, col = self.__calc_line_col(source, end[0] + len(end[1]))
@@ -188,7 +194,7 @@ class HypertextMarkupParser:
 
         if auto_closing:
             return name in self_closing
-        return False # pragma: no cover
+        return False  # pragma: no cover
 
     def parse(self, source: str, auto_close: bool = True) -> AST:
         """Parse a given html or phml string into it's corresponding phml ast.
@@ -217,19 +223,19 @@ class HypertextMarkupParser:
                         str(attr["data"]),
                         position=Position.from_pos(position),
                         in_pre=self.in_pre > 0,
-                    )
+                    ),
                 )
             else:
                 name = begin[2]["name"] or ""
                 if begin[2]["opening"] == "/":
                     if len(self.tag_stack) == 0:
                         raise Exception(
-                            f"Unbalanced tags: Tag was closed without first being opened at {position}"
+                            f"Unbalanced tags: Tag was closed without first being opened at {position}",
                         )
                     elif name != self.tag_stack[-1]:
                         print("Tag Stack", self.tag_stack)
                         raise Exception(
-                            f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}"
+                            f"Unbalanced tags: {name!r} | {self.tag_stack[-1]!r} at {position}",
                         )
 
                     ptag = self.tag_stack.pop()
@@ -247,7 +253,7 @@ class HypertextMarkupParser:
                             "doctype",
                             {"lang": attr.get("lang", "html")},
                             position=Position.from_pos(position),
-                        )
+                        ),
                     )
                 elif (
                     end[2]["closing"] != "/"
@@ -264,7 +270,7 @@ class HypertextMarkupParser:
                             [],
                             position=Position.from_pos(position),
                             in_pre=self.in_pre > 0,
-                        )
+                        ),
                     )
                     if len(current) > 0:
                         current = current[-1]
@@ -275,7 +281,7 @@ class HypertextMarkupParser:
                             attr,
                             position=deepcopy(position),
                             in_pre=self.in_pre > 0,
-                        )
+                        ),
                     )
 
             position.start = Point(position.end.line, position.end.column)
@@ -292,6 +298,6 @@ class HypertextMarkupParser:
 
         if len(self.tag_stack) > 0:
             raise Exception(
-                f"The following tags where expected to be closed: {', '.join(repr(tag) for tag in self.tag_stack)}"
+                f"The following tags where expected to be closed: {', '.join(repr(tag) for tag in self.tag_stack)}",
             )
         return current

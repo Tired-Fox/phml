@@ -1,7 +1,7 @@
 from re import match, split, sub
 from typing import Any
 
-from phml.nodes import Node, Element, Literal, Parent
+from phml.nodes import Element, Literal, Node, Parent
 
 __all__ = [
     "validate",
@@ -22,9 +22,8 @@ __all__ = [
 def validate(node: Node) -> bool:
     """Validate a node based on attributes and type."""
 
-    if isinstance(node, Parent):
-        if not all(isinstance(child, Node) for child in node):
-            raise AssertionError("Children must be a node type")
+    if isinstance(node, Parent) and not all(isinstance(child, Node) for child in node):
+        raise AssertionError("Children must be a node type")
 
     if isinstance(node, Element):
         if not all(isinstance(node[prop], (bool, str)) for prop in node.attributes):
@@ -34,6 +33,7 @@ def validate(node: Node) -> bool:
         raise AssertionError("Literal 'content' must be of type 'str'")
 
     return True
+
 
 def generated(node: Node) -> bool:
     """Checks if a node has been generated. A node is concidered
@@ -88,8 +88,7 @@ def is_css_style(node: Element) -> bool:
     """
 
     return is_element(node, "style") and (
-        "type" not in node
-        or ("type" in node and(node["type"] in ["", "text/css"]))
+        "type" not in node or ("type" in node and (node["type"] in ["", "text/css"]))
     )
 
 
@@ -127,10 +126,13 @@ def is_element(node: Node, *conditions: str | list) -> bool:
         and any(
             bool(
                 (isinstance(condition, str) and node.tag == condition)
-                or (isinstance(condition, list) and any(node.tag == nested for nested in condition))
+                or (
+                    isinstance(condition, list)
+                    and any(node.tag == nested for nested in condition)
+                ),
             )
             for condition in conditions
-        )
+        ),
     )
 
 
@@ -139,6 +141,7 @@ def is_event_handler(attribute: str) -> bool:
     it starts with `on` and its length is `5` or more.
     """
     return attribute.startswith("on") and len(attribute) >= 5
+
 
 def is_embedded(node: Element) -> bool:
     """Check to see if an element is an embedded element.
@@ -198,12 +201,14 @@ def is_interactive(node: Element) -> bool:
         return "type" in node and str(node["type"]).lower() != "hidden"
 
     if is_element(node, "img"):
-        return "usemap" in node and node["usemap"] == True
+        return "usemap" in node and node["usemap"] is True
 
     if is_element(node, "video"):
         return "controls" in node
 
-    if is_element(node, "button", "details", "embed", "iframe", "label", "select", "textarea"):
+    if is_element(
+        node, "button", "details", "embed", "iframe", "label", "select", "textarea"
+    ):
         return True
 
     return False
@@ -253,8 +258,10 @@ def is_phrasing(node: Element) -> bool:
             "itemprop" in node
             or (
                 "rel" in node
-                and all(token.strip() in body_ok for token in str(node["rel"]).split(" "))
-            )
+                and all(
+                    token.strip() in body_ok for token in str(node["rel"]).split(" ")
+                )
+            ),
         )
 
     if is_element(

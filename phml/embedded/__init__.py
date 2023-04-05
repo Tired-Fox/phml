@@ -2,19 +2,19 @@
 Embedded has all the logic for processing python elements, attributes, and text blocks.
 """
 from __future__ import annotations
-from functools import cached_property
-from shutil import get_terminal_size
-import types
 
-from typing import Any, Iterator, TypedDict
-from traceback import FrameSummary, extract_tb 
-from pathlib import Path
 import ast
 import re
+import types
+from functools import cached_property
+from pathlib import Path
+from shutil import get_terminal_size
+from traceback import FrameSummary, extract_tb
+from typing import Any, Iterator, TypedDict
 
-from phml.nodes import Element, Literal
+from phml.embedded.built_in import built_in_funcs, built_in_types
 from phml.helpers import normalize_indent
-from phml.embedded.built_in import built_in_types, built_in_funcs
+from phml.nodes import Element, Literal
 
 # Global cached imports
 __IMPORTS__ = {}
@@ -26,12 +26,13 @@ class EmbeddedTryCatch:
     and the content being executed to create a detailed error message. The final
     error message is raised in a custom EmbeddedPythonException.
     """
+
     def __init__(
         self,
         path: str | Path | None = None,
         content: str | None = None,
         pos: tuple[int, int] | None = None,
-    ):
+    ) -> None:
         self._path = str(path or "<python>")
         self._content = content or ""
         self._pos = pos or (0, 0)
@@ -42,12 +43,13 @@ class EmbeddedTryCatch:
     def __exit__(self, _, exc_val, exc_tb):
         if exc_val is not None and not isinstance(exc_val, SystemExit):
             raise EmbeddedPythonException(
-                    self._path,
-                    self._content,
-                    self._pos,
-                    exc_val,
-                    exc_tb
+                self._path,
+                self._content,
+                self._pos,
+                exc_val,
+                exc_tb,
             ) from exc_val
+
 
 class EmbeddedPythonException(Exception):
     def __init__(self, path, content, pos, exc_val, exc_tb) -> None:
@@ -59,70 +61,88 @@ class EmbeddedPythonException(Exception):
         else:
             fs: FrameSummary = extract_tb(exc_tb)[-1]
             self.l_slice = (fs.lineno or 0, fs.end_lineno or 0)
-            self.c_slice = (fs.colno or 0, fs.end_colno or 0) 
+            self.c_slice = (fs.colno or 0, fs.end_colno or 0)
 
         self._content = content
         self._path = path
         self._pos = pos
 
     def format_line(self, line, c_width, leading: str = " "):
-        return f"{leading.ljust(c_width, ' ')}│{line}" 
+        return f"{leading.ljust(c_width, ' ')}│{line}"
 
     def generate_exception_lines(self, lines: list[str], width: int):
         max_width = self.max_width - width - 3
         result = []
         for i, line in enumerate(lines):
             if len(line) > max_width:
-                parts = [line[j:j+max_width] for j in range(0, len(line), max_width)]
-                result.append(self.format_line(parts[0], width, str(i+1)))
+                parts = [
+                    line[j : j + max_width] for j in range(0, len(line), max_width)
+                ]
+                result.append(self.format_line(parts[0], width, str(i + 1)))
                 for part in parts[1:]:
                     result.append(self.format_line(part, width))
             else:
-                result.append(self.format_line(line, width, str(i+1)))
+                result.append(self.format_line(line, width, str(i + 1)))
         return result
 
     def __str__(self) -> str:
         message = ""
         if self._path != "":
-            pos = (self._pos[0] + (self.l_slice[0] or 0), self.c_slice[0] or self._pos[1])
+            pos = (
+                self._pos[0] + (self.l_slice[0] or 0),
+                self.c_slice[0] or self._pos[1],
+            )
             if pos[0] > self._content.count("\n"):
                 message = f"{self._path} Failed to execute phml embedded python"
             else:
                 message = f"[{pos[0]+1}:{pos[1]}] {self._path} Failed to execute phml embedded python"
         if self._content != "":
             lines = self._content.split("\n")
-            target_lines = lines[self.l_slice[0]-1:self.l_slice[1]]
+            target_lines = lines[self.l_slice[0] - 1 : self.l_slice[1]]
             if len(target_lines) > 0:
                 if self.l_slice[0] == self.l_slice[1]:
                     target_lines[0] = (
-                        target_lines[0][:self.c_slice[0]]
+                        target_lines[0][: self.c_slice[0]]
                         + "\x1b[31m"
-                        + target_lines[0][self.c_slice[0]:self.c_slice[1]]
+                        + target_lines[0][self.c_slice[0] : self.c_slice[1]]
                         + "\x1b[0m"
-                        + target_lines[0][self.c_slice[1]:]
+                        + target_lines[0][self.c_slice[1] :]
                     )
                 else:
-                    target_lines[0] = target_lines[0][:self.c_slice[0]+1] + "\x1b[31m" + target_lines[0][self.c_slice[0]+1:] + "\x1b[0m"
+                    target_lines[0] = (
+                        target_lines[0][: self.c_slice[0] + 1]
+                        + "\x1b[31m"
+                        + target_lines[0][self.c_slice[0] + 1 :]
+                        + "\x1b[0m"
+                    )
                     for i, line in enumerate(target_lines[1:-1]):
-                        target_lines[i+1] = "\x1b[31m" + line + "\x1b[0m"
-                    target_lines[-1] = "\x1b[31m" + target_lines[-1][:self.c_slice[-1]+1] + "\x1b[0m" + target_lines[-1][self.c_slice[-1]+1:]
-                
+                        target_lines[i + 1] = "\x1b[31m" + line + "\x1b[0m"
+                    target_lines[-1] = (
+                        "\x1b[31m"
+                        + target_lines[-1][: self.c_slice[-1] + 1]
+                        + "\x1b[0m"
+                        + target_lines[-1][self.c_slice[-1] + 1 :]
+                    )
+
                 lines = [
-                    *lines[:self.l_slice[0]-1],
+                    *lines[: self.l_slice[0] - 1],
                     *target_lines,
-                    *lines[self.l_slice[1]:]
+                    *lines[self.l_slice[1] :],
                 ]
 
             w_fmt = len(f"{len(lines)}")
             content = "\n".join(
-                self.generate_exception_lines(lines, w_fmt)
+                self.generate_exception_lines(lines, w_fmt),
             )
-            line_width = self.max_width-w_fmt-2
+            line_width = self.max_width - w_fmt - 2
 
             exception = f"{self.msg}"
             if len(target_lines) > 0:
                 exception += f" at <{self.l_slice[0]}:{self.c_slice[0]}-{self.l_slice[1]}:{self.c_slice[1]}>"
-            ls = [exception[i:i+line_width] for i in range(0, len(exception), line_width)]
+            ls = [
+                exception[i : i + line_width]
+                for i in range(0, len(exception), line_width)
+            ]
             exception_line = self.format_line(ls[0], w_fmt, "#")
             for l in ls[1:]:
                 exception_line += "\n" + self.format_line(l, w_fmt)
@@ -138,7 +158,7 @@ class EmbeddedPythonException(Exception):
         return message
 
 
-def parse_import_values(_import: str) -> list[str|tuple[str,str]]:
+def parse_import_values(_import: str) -> list[str | tuple[str, str]]:
     values = []
     for value in re.finditer(r"(?:([^,\s]+) as (.+)|([^,\s]+))(?=\s*,)?", _import):
         if value.group(1) is not None:
@@ -147,30 +167,35 @@ def parse_import_values(_import: str) -> list[str|tuple[str,str]]:
             values.append(value.group(3))
     return values
 
+
 class ImportStruct(TypedDict):
     key: str
     values: str | list[str]
 
+
 class Module:
     """Object used to access the gobal imports. Readonly data."""
+
     def __init__(self, module: str, *, imports: list[str] | None = None) -> None:
         self.objects = imports or []
         if imports is not None and len(imports) > 0:
             if module not in __FROM_IMPORTS__:
                 raise ValueError(f"Unkown module {module!r}")
             try:
-                imports = {_import: __FROM_IMPORTS__[module][_import] for _import in imports}
+                imports = {
+                    _import: __FROM_IMPORTS__[module][_import] for _import in imports
+                }
             except KeyError as kerr:
                 back_frame = kerr.__traceback__.tb_frame.f_back
                 back_tb = types.TracebackType(
                     tb_next=None,
                     tb_frame=back_frame,
                     tb_lasti=back_frame.f_lasti,
-                    tb_lineno=back_frame.f_lineno
+                    tb_lineno=back_frame.f_lineno,
                 )
                 FrameSummary("", 2, "")
-                raise  ValueError(
-                        f"{', '.join(kerr.args)!r} {'arg' if len(kerr.args) > 1 else 'is'} not found in cached imported module {module!r}"
+                raise ValueError(
+                    f"{', '.join(kerr.args)!r} {'arg' if len(kerr.args) > 1 else 'is'} not found in cached imported module {module!r}",
                 ).with_traceback(back_tb)
 
             globals().update(imports)
@@ -185,13 +210,14 @@ class Module:
             globals().update(imports)
             self.module = module
 
-
     def collect(self) -> Any:
         """Collect the imports and return the single import or a tuple of multiple imports."""
         if len(self.objects) > 0:
             if len(self.objects) == 1:
                 return __FROM_IMPORTS__[self.module][self.objects[0]]
-            return tuple([__FROM_IMPORTS__[self.module][object] for object in self.objects])
+            return tuple(
+                [__FROM_IMPORTS__[self.module][object] for object in self.objects]
+            )
         return __IMPORTS__[self.module]
 
 
@@ -204,9 +230,11 @@ class EmbeddedImport:
     objects: list[str]
     """The imported objects."""
 
-    def __init__(self, module: str, values: str | list[str] | None = None, *, push: bool =  False):
+    def __init__(
+        self, module: str, values: str | list[str] | None = None, *, push: bool = False
+    ) -> None:
         self.module = module
-            
+
         if isinstance(values, list):
             self.objects = values
         else:
@@ -217,7 +245,13 @@ class EmbeddedImport:
 
     def _parse_from_import(self):
         if self.module in __FROM_IMPORTS__:
-            values = list(filter(lambda v: (v if isinstance(v, str) else v[0]) not in __FROM_IMPORTS__[self.module], self.objects))
+            values = list(
+                filter(
+                    lambda v: (v if isinstance(v, str) else v[0])
+                    not in __FROM_IMPORTS__[self.module],
+                    self.objects,
+                )
+            )
         else:
             values = self.objects
 
@@ -231,7 +265,7 @@ class EmbeddedImport:
             __FROM_IMPORTS__[self.module].update(local_env)
 
         keys = [key if isinstance(key, str) else key[1] for key in self.objects]
-        return {key: __FROM_IMPORTS__[self.module][key] for key in keys} 
+        return {key: __FROM_IMPORTS__[self.module][key] for key in keys}
 
     def _parse_import(self):
         if self.module not in __IMPORTS__:
@@ -246,7 +280,7 @@ class EmbeddedImport:
         if len(self.objects) > 0:
             if self.module not in __FROM_IMPORTS__:
                 raise KeyError(f"{self.module} is not a known exposed module")
-            yield from __FROM_IMPORTS__[self.module].items() 
+            yield from __FROM_IMPORTS__[self.module].items()
         else:
             if self.module not in __IMPORTS__:
                 raise KeyError(f"{self.module} is not a known exposed module")
@@ -288,20 +322,16 @@ class Embedded:
         self._path = path or "<python>"
         self._pos = (0, 0)
         if isinstance(content, Element):
-            if (
-                len(content) > 1
-                or (
-                    len(content) == 1
-                    and not Literal.is_text(content[0])
-                )
+            if len(content) > 1 or (
+                len(content) == 1 and not Literal.is_text(content[0])
             ):
                 # TODO: Custom error
                 raise ValueError(
-                    "Expected python elements to contain one text node or nothing"
+                    "Expected python elements to contain one text node or nothing",
                 )
             if content.position is not None:
                 start = content.position.start
-                self._pos = (start.line, start.column) 
+                self._pos = (start.line, start.column)
             content = content[0].content
         content = normalize_indent(content)
         self.imports = []
@@ -329,7 +359,7 @@ class Embedded:
     def split_contexts(self, content: str) -> tuple[list[str], list[EmbeddedImport]]:
         re_context = re.compile(r"class.+|def.+")
         re_import = re.compile(
-            r"from (?P<key>.+) import (?P<values>.+)|import (?P<value>.+)"
+            r"from (?P<key>.+) import (?P<values>.+)|import (?P<value>.+)",
         )
 
         imports = []
@@ -342,7 +372,9 @@ class Embedded:
             imp_match = re_import.match(lines[i])
             if imp_match is not None:
                 data = imp_match.groupdict()
-                imports.append(EmbeddedImport(data["key"] or data["value"], data["values"]))
+                imports.append(
+                    EmbeddedImport(data["key"] or data["value"], data["values"])
+                )
             elif re_context.match(lines[i]) is not None:
                 blocks.append("\n".join(current))
                 current = [lines[i]]
@@ -366,11 +398,7 @@ class Embedded:
         blocks, self.imports = self.split_contexts(content)
 
         local_env = {}
-        global_env = {
-            key: value
-            for _import in self.imports
-            for key, value in _import
-        }
+        global_env = {key: value for _import in self.imports for key, value in _import}
         context = {**global_env}
 
         for block in blocks:
@@ -382,18 +410,21 @@ class Embedded:
 
         self.context = context
 
+
 def _validate_kwargs(code: ast.Module, kwargs: dict[str, Any]):
     exclude_list = [*built_in_funcs, *built_in_types]
     for var in (
         name.id
-        for name in ast.walk(code) 
+        for name in ast.walk(code)
         if isinstance(
-            name, ast.Name
+            name,
+            ast.Name,
         )  # Get all variables/names used. This can be methods or values
         and name.id not in exclude_list
     ):
         if var not in kwargs:
             kwargs[var] = None
+
 
 def update_ast_node_pos(dest, source):
     """Assign lineno, end_lineno, col_offset, and end_col_offset
@@ -406,6 +437,8 @@ def update_ast_node_pos(dest, source):
 
 
 RESULT = "_phml_embedded_result_"
+
+
 def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
     """Execute embedded python and return the extracted value. This is the last
     assignment in the embedded python. The embedded python must have the last line as a value
@@ -425,7 +458,7 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
 
     context = {
         "blank": blank,
-        **context
+        **context,
     }
 
     # last line must be an assignment or the value to be used
@@ -466,7 +499,8 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
         exec(ccode, {**context}, local_env)
         return local_env[RESULT]
 
-def exec_embedded_blocks(code: str, _path: str="",  **context: dict[str, Any]):
+
+def exec_embedded_blocks(code: str, _path: str = "", **context: dict[str, Any]):
     """Execute embedded python inside `{{}}` blocks. The resulting values are subsituted
     in for the found blocks.
 
@@ -481,18 +515,18 @@ def exec_embedded_blocks(code: str, _path: str="",  **context: dict[str, Any]):
         str: The value of the passed in string with the python blocks replaced.
     """
 
-    result = "" 
+    result = ""
     data = []
     next_block = re.search(r"\{\{", code)
     while next_block is not None:
         start = next_block.start()
         if start > 0:
             result += code[:start]
-        code = code[start+2:]
+        code = code[start + 2 :]
 
         balance = 2
         index = 0
-        while balance > 0 and index < len(code): 
+        while balance > 0 and index < len(code):
             if code[index] == "}":
                 balance -= 1
             elif code[index] == "{":
@@ -502,19 +536,17 @@ def exec_embedded_blocks(code: str, _path: str="",  **context: dict[str, Any]):
         result += "{}"
         data.append(
             str(
-               exec_embedded(
-                    code[:index-2],
+                exec_embedded(
+                    code[: index - 2],
                     _path + f" block #{len(data)+1}",
-                    **context
-                ) 
-            )
+                    **context,
+                ),
+            ),
         )
-        code = code[index+1:]
+        code = code[index + 1 :]
         next_block = re.search(r"(?<!\\)\{\{", code)
-
 
     if len(code) > 0:
         result += code
-                                          
-    return result.format(*data)
 
+    return result.format(*data)

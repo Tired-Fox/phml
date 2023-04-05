@@ -1,5 +1,4 @@
 from pytest import raises
-from phml.nodes import inspect
 from phml.parser import HypertextMarkupParser
 from data import *
 
@@ -10,7 +9,7 @@ class TestHyperTextParser:
         ast = self.parser.parse(phml_file)
         assert ast == phml_ast, "Invalid parsed AST"
 
-    def test_parse_raise_parse_tag(self):
+    def test_parse_tag(self):
         with raises(Exception, match="Comment was not closed"):
             self.parser.parse("<!-- some comment\n<div>Next Element</div>")
 
@@ -20,7 +19,7 @@ class TestHyperTextParser:
         with raises(Exception, match="Closing tag .+ was not closed, maybe it is missing a '>' symbol"):
             self.parser.parse("<div>Some text </div<div>Next Element</div>")
 
-    def test_parse_raise_parse(self):
+    def test_parse_exceptions(self):
         with raises(Exception, match="Unbalanced tags: .+ \\| .+ at .+"):
             self.parser.parse("<div>element<p>para</div></p>")
 

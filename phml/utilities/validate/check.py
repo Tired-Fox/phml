@@ -69,23 +69,17 @@ def check(
                 isinstance(node, Element)
                 and all(
                     (hasattr(node, key) and value == getattr(node, key))
-                    or (
-                        key in node
-                        and (value is True or value == node[key])
-                    )
+                    or (key in node and (value is True or value == node[key]))
                     for key, value in _test.items()
-                )
+                ),
             )
         return bool(
             isinstance(node, Element)
             and any(
                 (hasattr(node, key) and value == getattr(node, key))
-                or (
-                    key in node
-                    and (value is True or value == node[key])
-                )
+                or (key in node and (value is True or value == node[key]))
                 for key, value in _test.items()
-            )
+            ),
         )
 
     if isinstance(_test, list):
@@ -95,14 +89,14 @@ def check(
                 all(
                     isinstance(cond, Test) and check(node, cond, index, parent)
                     for cond in _test
-                )
+                ),
             )
 
         return bool(
             any(
                 isinstance(cond, Test) and check(node, cond, index, parent)
                 for cond in _test
-            )
+            ),
         )
 
     if isinstance(_test, Callable):

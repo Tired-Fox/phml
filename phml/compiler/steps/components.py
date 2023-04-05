@@ -1,18 +1,21 @@
-from copy import deepcopy
 import re
+from copy import deepcopy
 from typing import Any, TypedDict
 
-from phml.nodes import Parent, AST, Element, Literal, LiteralType, Node
-from phml.helpers import iterate_nodes, normalize_indent
 from phml.components import ComponentManager
+from phml.helpers import iterate_nodes, normalize_indent
+from phml.nodes import AST, Element, Literal, LiteralType, Node, Parent
+
 from .base import boundry_step, comp_step
 
 re_selector = re.compile(r"(\n|\}| *)([^}@/]+)(\s*{)")
 re_split_selector = re.compile(r"(?:\)(?:.|\s)*|(?<!\()(?:.|\s)*)(,)")
 
+
 def lstrip(value: str) -> tuple[str, str]:
     offset = len(value) - len(value.lstrip())
     return value[:offset], value[offset:]
+
 
 def scope_style(style: str, scope: str) -> str:
     """Takes a styles string and adds a scope to the selectors."""
@@ -41,14 +44,15 @@ def scope_style(style: str, scope: str) -> str:
         for i, part in enumerate(parts):
             w, s = lstrip(part)
             parts[i] = w + f"{scope} {s}"
-        result += ",".join(parts) + trail 
+        result += ",".join(parts) + trail
 
         style = style[end:]
         next_style = re_selector.search(style)
     if len(style) > 0:
-        result+=style
+        result += style
 
     return result
+
 
 def scope_styles(styles: list[Element], hash: int) -> str:
     """Parse styles and find selectors with regex. When a selector is found then add scoped
@@ -64,11 +68,12 @@ def scope_styles(styles: list[Element], hash: int) -> str:
 
     return "\n".join(result)
 
+
 @boundry_step
 def step_add_cached_component_elements(
     *,
     node: AST,
-    components: ComponentManager
+    components: ComponentManager,
 ):
     """Step to add the cached script and style elements from components."""
     target = None
@@ -85,7 +90,9 @@ def step_add_cached_component_elements(
     for cmpt in cache:
         style += f'\n{scope_styles(cache[cmpt]["styles"], cache[cmpt]["hash"])}'
 
-        scripts = "\n".join(normalize_indent(s[0].content) for s in cache[cmpt]["scripts"])
+        scripts = "\n".join(
+            normalize_indent(s[0].content) for s in cache[cmpt]["scripts"]
+        )
         script += f"\n{scripts}"
 
     if len(style.strip()) > 0:
@@ -102,26 +109,33 @@ def step_add_cached_component_elements(
         else:
             node.append(script)
 
+
 class SlotNames(TypedDict):
     __blank__: Node | None
     named: dict[str, Node]
+
 
 class SlotChildren(TypedDict):
     __blank__: list[Node]
     named: dict[str, list[Node]]
 
+
 def replace_slots(child: Element, component: Element):
     slots: SlotNames = {"__blank__": None, "named": {}}
     for node in iterate_nodes(component):
         if isinstance(node, Element) and node.tag == "Slot":
-            if "name" in node: 
+            if "name" in node:
                 name = str(node["name"])
                 if name in slots["named"]:
-                    raise ValueError("Can not have more that one of the same named slot in a component")
+                    raise ValueError(
+                        "Can not have more that one of the same named slot in a component"
+                    )
                 slots["named"][name] = node
             else:
                 if slots["__blank__"] is not None:
-                    raise ValueError("Can not have more that one catch all slot in a component")
+                    raise ValueError(
+                        "Can not have more that one catch all slot in a component"
+                    )
                 slots["__blank__"] = node
 
     children: SlotChildren = {"__blank__": [], "named": {}}
@@ -156,11 +170,12 @@ def replace_slots(child: Element, component: Element):
             else:
                 parent.remove(node)
 
+
 @comp_step
 def step_substitute_components(
     node: Parent,
     components: ComponentManager,
-    context: dict[str, Any]
+    context: dict[str, Any],
 ):
     """Step to substitute components in for matching nodes."""
 
@@ -172,7 +187,8 @@ def step_substitute_components(
             context = {**child.context, **components[child.tag]["context"]}
 
             attrs = {
-                key: value for key, value in child.attributes.items()
+                key: value
+                for key, value in child.attributes.items()
                 if key.lstrip(":") in props
             }
             props.update(attrs)
@@ -181,7 +197,7 @@ def step_substitute_components(
             component = Element(
                 "div",
                 attributes={"data-phml-cmpt-scope": f"{components[child.tag]['hash']}"},
-                children=[]
+                children=[],
             )
 
             for elem in elements:

@@ -3,7 +3,7 @@ from pytest import raises
 from phml.compiler import HypertextMarkupCompiler, SETUP, comp_step
 from phml.parser import HypertextMarkupParser
 from phml.components import ComponentManager
-from phml.nodes import Element, AST, Literal, LiteralType, inspect
+from phml.nodes import Element, AST, Literal, LiteralType
 
 from data import *
 
@@ -14,7 +14,6 @@ components["Component"]["hash"] = hashes["Component"]
 components["Sub.Component"]["hash"] = hashes["Sub.Component"]
 
 html_exists = False
-
 
 @comp_step
 def step_collect_html(*, node):
@@ -30,28 +29,30 @@ SETUP.append(step_collect_html)
 class TestHyperTextMarkupCompiler:
     compiler = HypertextMarkupCompiler()
 
-    def test_compiler_normal(self):
+    def test_compile(self):
         ast = self.compiler.compile(phml_ast, components, message=message)
         assert ast == html_ast
 
+        assert html_exists
+
+    def test_render(self):
+        ast = self.compiler.compile(phml_ast, components, message=message)
         result = self.compiler.render(ast)
         assert result == html_file
-
-        assert html_exists
 
     def test_compiler_compressed(self):
         ast = self.compiler.compile(phml_ast, components, message=message)
         result = self.compiler.render(ast, True)
         assert result == html_file_compressed
 
-    def test_compiler_unkown_renderable(self):
+    def test_compiler_unknown_renderable(self):
         ast = self.compiler.compile(phml_ast, components, message=message)
         ast.append(AST())
         with raises(TypeError, match="Unknown renderable node type .+"):
             self.compiler.render(ast)
 
 
-class TestCompilerSteps:
+class TestCompilerStepExceptions:
     compiler = HypertextMarkupCompiler()
     parser = HypertextMarkupParser()
     components = ComponentManager()

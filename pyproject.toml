@@ -12,17 +12,22 @@ authors = [
     { name="Tired Fox", email="zboehm104@gmail.com"}
 ]
 classifiers = [
-
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "saimll>=0.3.0",
+  "saimll>=0.3.0",
 ]
 
 [project.optional-dependencies]
 tests = [
-    "pytest",
-    "markdown"
+  "pytest",
+]
+dev = [
+  "black",
+  "ruff"
 ]
 markdown = [
   "markdown"
@@ -35,6 +40,9 @@ markdown = [
 [project.scripts]
 
 [tool.ruff]
+ignore = [
+  "ANN101"
+]
 extend-select = [
     'E',
     'F',
@@ -42,7 +50,6 @@ extend-select = [
     "C90",
     "I",
     "N",
-    "D",
     "UP",
     "ANN",
     "S",

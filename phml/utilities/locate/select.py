@@ -5,7 +5,7 @@ types of data.
 """
 
 # PERF: Support for all `:` selectors from https://www.w3schools.com/cssref/css_selectors.php
-# - Strip all `::` selectors and `:` not supported by phml implementation 
+# - Strip all `::` selectors and `:` not supported by phml implementation
 # - This will allow for parsing of css selectors and and adding scoping to component style elements
 # Add a data-phml-style-scope attribute to matching elements in the components. Edit the selector to then
 # have :is([data-phml-style-scope="phml-<hash>"])<selector>
@@ -13,7 +13,7 @@ types of data.
 import re
 from typing import Callable
 
-from phml.nodes import AST, Element, Parent, Node
+from phml.nodes import Element, Node, Parent
 from phml.utilities.travel.travel import walk
 
 __all__ = ["query", "query_all", "matches", "parse_specifiers"]
@@ -30,7 +30,7 @@ def query(tree: Parent, specifier: str) -> Element | None:
 
     Rules:
     * `*` = any element
-    * `>` = direct child of the current element 
+    * `>` = direct child of the current element
     * `+` = first sibling
     * `~` = elements after the current element
     * `.` = class
@@ -85,9 +85,8 @@ def query(tree: Parent, specifier: str) -> Element | None:
             return None
 
         idx = node.parent.index(node)
-        if idx + 1 < len(node.parent):
-            if isinstance(node.parent[idx+1], Element):
-                return branch(node.parent[idx + 1], rules)
+        if idx + 1 < len(node.parent) and isinstance(node.parent[idx + 1], Element):
+            return branch(node.parent[idx + 1], rules)
         return None
 
     def all_siblings(current: Parent, rules: list):
@@ -159,7 +158,7 @@ def query_all(tree: Parent, specifier: str) -> list[Element]:
 
     Rules:
     * `*` = any element
-    * `>` = direct child of the current element 
+    * `>` = direct child of the current element
     * `+` = first sibling
     * `~` = elements after the current element
     * `.` = class
@@ -209,10 +208,9 @@ def query_all(tree: Parent, specifier: str) -> list[Element]:
             return []
 
         idx = node.parent.index(node)
-        if idx + 1 < len(node.parent):
-            if node.parent[idx + 1].type == "element":
-                result = branch(node.parent[idx + 1], rules)
-                return result
+        if idx + 1 < len(node.parent) and node.parent[idx + 1].type == "element":
+            result = branch(node.parent[idx + 1], rules)
+            return result
         return []
 
     def all_siblings(current: Parent, rules: list):
@@ -307,7 +305,7 @@ def matches(node: Element, specifier: str) -> bool:
     if not isinstance(rules[0], dict):
         raise Exception(
             "Specifier must only include tag name, classes, id, and or attribute specfiers.\n\
-Example: `li.red#sample[class^='form-'][title~='sample']`"
+Example: `li.red#sample[class^='form-'][title~='sample']`",
         )
 
     return is_equal(rules[0], node)
@@ -360,25 +358,36 @@ def is_equal(rule: dict, node: Node) -> bool:
     # Validate all attributes
     if len(rule["attributes"]) > 0:
         return all(
-            attr["name"] in node.attributes.keys()
-            and __validate_attr(attr, node)
+            attr["name"] in node.attributes and __validate_attr(attr, node)
             for attr in rule["attributes"]
         )
-    
+
     return True
+
 
 def compare_equal(attr: str, c_value: str) -> bool:
     return attr == c_value
+
+
 def compare_equal_or_start_with_value_dash(attr: str, c_value: str) -> bool:
-    return attr == c_value or attr.startswith(f"{c_value}-") 
+    return attr == c_value or attr.startswith(f"{c_value}-")
+
+
 def compare_startswith(attr: str, c_value: str) -> bool:
     return attr.startswith(c_value)
+
+
 def compare_endswith(attr: str, c_value: str) -> bool:
     return attr.endswith(c_value)
+
+
 def compare_contains(attr: str, c_value: str) -> bool:
     return c_value in attr
+
+
 def compare_exists(attr: str, _) -> bool:
     return attr == "true"
+
 
 def __validate_attr(attr: dict, node: Element):
     attribute = node[attr["name"]]
@@ -430,8 +439,9 @@ def __validate_attr(attr: dict, node: Element):
             attr=attribute,
             sub=attr["value"],
             name=attr["name"],
-            validator=compare_exists
+            validator=compare_exists,
         )
+
 
 def is_valid_attr(attr: str, sub: str, name: str, validator: Callable) -> bool:
     """Validate an attribute value with a given string and a validator callable.
@@ -451,11 +461,15 @@ def is_valid_attr(attr: str, sub: str, name: str, validator: Callable) -> bool:
     return bool(len([item for item in compare_values if validator(item, sub)]) > 0)
 
 
-def __parse_el_with_attribute(tag: str | None, context: str | None, attributes: str | None) -> dict:
+def __parse_el_with_attribute(
+    tag: str | None, context: str | None, attributes: str | None
+) -> dict:
     el_from_class_from_id = re.compile(r"(#|\.)([\w\-]+)")
 
-    attr_compare_val = re.compile(r"\[\s*([\w\-:@]+)\s*([\~\|\^\$\*]?=)?\s*(\"[^\"\[\]=]*\"|\'[^\'\[\]=]*\'|[^\s\[\]=\"']+)?\s*\]")
-    test_attr = re.compile(r"\[\s*([\w\-:@]+)\]")
+    attr_compare_val = re.compile(
+        r"\[\s*([\w\-:@]+)\s*([\~\|\^\$\*]?=)?\s*(\"[^\"\[\]=]*\"|\'[^\'\[\]=]*\'|[^\s\[\]=\"']+)?\s*\]"
+    )
+    re.compile(r"\[\s*([\w\-:@]+)\]")
 
     element = {
         "tag": tag or "*",
@@ -474,7 +488,7 @@ def __parse_el_with_attribute(tag: str | None, context: str | None, attributes: 
                     "name": name,
                     "compare": compare,
                     "value": value,
-                }
+                },
             )
 
     if context is not None:
@@ -487,13 +501,15 @@ def __parse_el_with_attribute(tag: str | None, context: str | None, attributes: 
                     element["id"] = part.group(2)
                 else:
                     raise Exception(
-                        f"There may only be one id per element specifier.\n{tag or '' + context}{attributes}"
+                        f"There may only be one id per element specifier. '{(tag or '') + (context or '')}{attributes or ''}'",
                     )
     return element
 
 
 def __parse_attr_only_element(token: str) -> dict:
-    attr_compare_val = re.compile(r"\[([a-zA-Z0-9_:\-]+)([~|^$*]?=)?(\"[^\"]+\"|'[^']+'|[^'\"]+)?\]")
+    attr_compare_val = re.compile(
+        r"\[([a-zA-Z0-9_:\-]+)([~|^$*]?=)?(\"[^\"]+\"|'[^']+'|[^'\"]+)?\]"
+    )
 
     element = {
         "tag": None,
@@ -514,7 +530,7 @@ def __parse_attr_only_element(token: str) -> dict:
                     "name": name,
                     "compare": compare,
                     "value": value,
-                }
+                },
             )
 
     return element
@@ -524,7 +540,7 @@ def parse_specifiers(specifier: str) -> list:
     """
     Rules:
     * `*` = any element
-    * `>` = direct child of the current element 
+    * `>` = direct child of the current element
     * `+` = first sibling
     * `~` = elements after the current element
     * `.` = class
@@ -537,11 +553,19 @@ def parse_specifiers(specifier: str) -> list:
     * `[attribute$=value]` = elements with an attribute ending with value
     * `[attribute*=value]` = elements with an attribute containing value
     """
-    splitter = re.compile(r"([~>\*+])|((?:\[[^\[\]]+\])+)|([^.#\[\]\s]+)?((?:(?:\.|#)[^.#\[\]\s]+)+)?((?:\[[^\[\]]+\])+)?")
+    splitter = re.compile(
+        r"([~>\*+])|((?:\[[^\[\]]+\])+)|([^.#\[\]\s]+)?((?:(?:\.|#)[^.#\[\]\s]+)+)?((?:\[[^\[\]]+\])+)?"
+    )
 
     tokens = []
     for token in splitter.finditer(specifier):
-        sibling, just_attributes, tag, context, attributes, = token.groups()
+        (
+            sibling,
+            just_attributes,
+            tag,
+            context,
+            attributes,
+        ) = token.groups()
         if sibling in ["*", ">", "+", "~"]:
             tokens.append(sibling)
         elif tag is not None or context is not None or attributes is not None:
@@ -549,4 +573,3 @@ def parse_specifiers(specifier: str) -> list:
         elif just_attributes is not None:
             tokens.append(__parse_attr_only_element(just_attributes))
     return tokens
-

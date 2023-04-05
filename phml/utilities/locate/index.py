@@ -1,6 +1,6 @@
 from typing import Any, Callable, overload
 
-from phml.nodes import Element, Parent, MISSING
+from phml.nodes import MISSING, Element, Parent
 from phml.utilities.validate.check import Test
 
 
@@ -18,8 +18,8 @@ class Index:
         self,
         start: Parent,
         key: str | Callable[[Element], str],
-        condition: Test | None = None
-    ):
+        condition: Test | None = None,
+    ) -> None:
         """
         Args:
             `key` (str | Callable): Str represents the attribute to use as an index. Callable
@@ -29,7 +29,11 @@ class Index:
             `test` (Test): The test to apply to each node. Only valid/passing nodes
             will be indexed
         """
-        from phml.utilities import check, walk  # pylint: disable=import-outside-toplevel
+        from phml.utilities import (  # pylint: disable=import-outside-toplevel
+            check,
+            walk,
+        )
+
         self.indexed_tree = {}
         self.key = key
 
@@ -50,15 +54,15 @@ class Index:
     def __str__(self):
         return str(self.indexed_tree)
 
-    def items(self): # pragma: no cover
+    def items(self):  # pragma: no cover
         """Get the key value pairs of all indexes."""
         return self.indexed_tree.items()
 
-    def values(self): # pragma: no cover
+    def values(self):  # pragma: no cover
         """Get all the values in the collection."""
         return self.indexed_tree.values()
 
-    def keys(self): # pragma: no cover
+    def keys(self):  # pragma: no cover
         """Get all the keys in the collection."""
         return self.indexed_tree.keys()
 
@@ -92,7 +96,9 @@ class Index:
     def get(self, _key: str) -> list[Element] | None:
         ...
 
-    def get(self, _key: str, _default: Any = MISSING) -> list[Element] | None: # pragma: no cover
+    def get(
+        self, _key: str, _default: Any = MISSING
+    ) -> list[Element] | None:  # pragma: no cover
         """Get a specific index from the indexed tree."""
         if _default != MISSING:
             return self.indexed_tree.get(_key, _default)
@@ -106,4 +112,3 @@ class Index:
         then the node's type is returned."""
 
         return node.tag
-

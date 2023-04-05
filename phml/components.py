@@ -1,13 +1,13 @@
 import os
-from re import findall, finditer
 from pathlib import Path
+from re import finditer
 from time import time
 from typing import Any, Iterator, TypedDict, overload
 
-from .nodes import Element, Literal
-from .helpers import iterate_nodes
-from .parser import HypertextMarkupParser
 from .embedded import Embedded
+from .helpers import iterate_nodes
+from .nodes import Element, Literal
+from .parser import HypertextMarkupParser
 
 __all__ = ["ComponentType", "ComponentManager", "tokenize_name"]
 
@@ -18,7 +18,7 @@ class ComponentType(TypedDict):
     context: dict[str, Any]
     scripts: list[Element]
     styles: list[Element]
-    elements: list[Element|Literal]
+    elements: list[Element | Literal]
 
 
 class ComponentCacheType(TypedDict):
@@ -39,7 +39,10 @@ def DEFAULT_COMPONENT() -> ComponentType:
 
 
 def tokenize_name(
-    name: str, *, normalize: bool = False, title_case: bool = False
+    name: str,
+    *,
+    normalize: bool = False,
+    title_case: bool = False,
 ) -> list[str]:
     """Generates name tokens `some name tokanized` from a filename.
     Assumes filenames is one of:
@@ -56,7 +59,8 @@ def tokenize_name(
     """
     tokens = []
     for token in finditer(
-        r"([A-Z])?([a-z]+)|([0-9]+)|([A-Z]+)(?=[^a-z])", name.strip()
+        r"([A-Z])?([a-z]+)|([0-9]+)|([A-Z]+)(?=[^a-z])",
+        name.strip(),
     ):
         first, rest, nums, cap = token.groups()
 
@@ -115,7 +119,7 @@ class ComponentManager:
             [
                 *[part[0].upper() + part[1:].lower() for part in parts[:-1]],
                 _parse_cmpt_name(parts[-1]),
-            ]
+            ],
         )
 
     def get_cache(self) -> dict[str, ComponentCacheType]:
@@ -137,7 +141,6 @@ class ComponentManager:
         ast = self._parser.parse(content)
 
         component: ComponentType = DEFAULT_COMPONENT()
-        element = None
         context = Embedded("", path)
 
         for node in iterate_nodes(ast):
@@ -220,19 +223,19 @@ class ComponentManager:
         if file is None:
             if name is None:
                 raise ValueError(
-                    "Expected both 'name' and 'data' kwargs to be used together"
+                    "Expected both 'name' and 'data' kwargs to be used together",
                 )
             if isinstance(data, str):
                 if data == "":
                     raise ValueError(
-                        "Expected component data to be a string of length longer that 0"
+                        "Expected component data to be a string of length longer that 0",
                     )
                 content.update(self.parse(data, "_cmpt_"))
             elif isinstance(data, dict):
                 content.update(data)
             else:
                 raise ValueError(
-                    "Expected component data to be a string or a ComponentType dict"
+                    "Expected component data to be a string or a ComponentType dict",
                 )
         else:
             with Path(file).open("r", encoding="utf-8") as c_file:
@@ -271,12 +274,12 @@ class ComponentManager:
     def validate(self, data: ComponentType):
         if "props" not in data or not isinstance(data["props"], dict):
             raise ValueError(
-                "Expected ComponentType 'props' that is a dict of str to any value"
+                "Expected ComponentType 'props' that is a dict of str to any value",
             )
 
         if "context" not in data or not isinstance(data["context"], dict):
             raise ValueError(
-                "Expected ComponentType 'context' that is a dict of str to any value"
+                "Expected ComponentType 'context' that is a dict of str to any value",
             )
 
         if (
@@ -288,7 +291,7 @@ class ComponentManager:
             )
         ):
             raise ValueError(
-                "Expected ComponentType 'script' that is alist of phml elements with a tag of 'script'"
+                "Expected ComponentType 'script' that is alist of phml elements with a tag of 'script'",
             )
 
         if (
@@ -300,15 +303,17 @@ class ComponentManager:
             )
         ):
             raise ValueError(
-                "Expected ComponentType 'styles' that is a list of phml elements with a tag of 'style'"
+                "Expected ComponentType 'styles' that is a list of phml elements with a tag of 'style'",
             )
 
         if (
             "elements" not in data
             or not isinstance(data["elements"], list)
             or len(data["elements"]) == 0
-            or not all(isinstance(element, (Element, Literal)) for element in data["elements"])
+            or not all(
+                isinstance(element, (Element, Literal)) for element in data["elements"]
+            )
         ):
             raise ValueError(
-                "Expected ComponentType 'elements' to be a list of at least one Element or Literal"
+                "Expected ComponentType 'elements' to be a list of at least one Element or Literal",
             )

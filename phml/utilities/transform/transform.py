@@ -3,9 +3,9 @@
 Utility methods that revolve around transforming or manipulating the ast.
 """
 
-from typing import Callable, Optional
+from typing import Callable
 
-from phml.nodes import AST, Node, Element, Parent 
+from phml.nodes import Element, Node, Parent
 from phml.utilities.misc import heading_rank
 from phml.utilities.travel.travel import walk
 from phml.utilities.validate.check import Test, check
@@ -143,14 +143,14 @@ def replace_node(
                         parent.children = [
                             *node.parent[:idx],
                             replacement,
-                            *node.parent[idx + 1 :]
+                            *node.parent[idx + 1 :],
                         ]
                     else:
                         replacement.parent = node.parent
                         parent.children = [
                             *node.parent[:idx],
                             replacement,
-                            *node.parent[idx + 1 :]
+                            *node.parent[idx + 1 :],
                         ]
                 else:
                     parent = node.parent
@@ -177,7 +177,9 @@ def find_and_replace(start: Parent, *replacements: tuple[str, str | Callable]):
                 if isinstance(replacement[1], str):
                     for match in finditer(replacement[0], node.value):
                         node.value = (
-                            node.value[: match.start()] + replacement[1] + node.value[match.end() :]
+                            node.value[: match.start()]
+                            + replacement[1]
+                            + node.value[match.end() :]
                         )
 
 

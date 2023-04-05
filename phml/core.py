@@ -1,19 +1,21 @@
 from __future__ import annotations
-from collections.abc import Iterator
-from importlib import import_module
-import os
-from pathlib import Path
-from contextlib import contextmanager
-import re
-import sys
-from typing import Any, overload
 
-from .parser import HypertextMarkupParser
+import os
+import sys
+from contextlib import contextmanager
+from importlib import import_module
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, overload
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 from .compiler import HypertextMarkupCompiler
-from .nodes import Parent, AST, Node
-from .embedded import Module, __IMPORTS__, __FROM_IMPORTS__
-from .helpers import PHMLTryCatch
 from .components import ComponentManager, ComponentType
+from .embedded import __FROM_IMPORTS__, __IMPORTS__, Module
+from .helpers import PHMLTryCatch
+from .nodes import AST, Node, Parent
+from .parser import HypertextMarkupParser
 
 
 class HypertextManager:
@@ -40,7 +42,10 @@ class HypertextManager:
 
     @staticmethod
     @contextmanager
-    def open(_from: str|Path, _to: str | Path | None = None) -> Iterator[HypertextManager]:
+    def open(
+        _from: str | Path,
+        _to: str | Path | None = None,
+    ) -> Iterator[HypertextManager]:
         with PHMLTryCatch():
             core = HypertextManager()
             core._from_file = Path(_from).open("r", encoding="utf-8")
@@ -62,8 +67,12 @@ class HypertextManager:
         return dict(__FROM_IMPORTS__)
 
     def add_module(
-        self, module: str, *, name: str | None = None, imports: list[str] | None = None
-    ):
+        self,
+        module: str,
+        *,
+        name: str | None = None,
+        imports: list[str] | None = None,
+    ) -> NoReturn:
         """Pass and imported a python file as a module. The modules are imported and added
         to phml's cached imports. These modules are **ONLY** exposed to the python elements.
         To use them in the python elements or the other scopes in the files you must use the python
@@ -111,9 +120,7 @@ class HypertextManager:
                     break
                 index += 1
 
-            name = (
-                "/".join(path_p[index:]).rsplit(".", 1)[0].replace("/", ".")
-            )
+            name = "/".join(path_p[index:]).rsplit(".", 1)[0].replace("/", ".")
             path = "/".join(path_p[:index])
 
             # Make the path that is imported form the only path in sys.path
@@ -189,7 +196,7 @@ class HypertextManager:
 
         if data is None and self._from_file is None:
             raise ValueError(
-                "Must either provide a phml str/dict to parse or use parse in the open context manager"
+                "Must either provide a phml str/dict to parse or use parse in the open context manager",
             )
 
         with PHMLTryCatch(self._from_path, "phml:__parse__"):
@@ -206,7 +213,11 @@ class HypertextManager:
         return self
 
     def format(
-        self, *, code: str = "", file: str | Path | None = None, compress: bool = False
+        self,
+        *,
+        code: str = "",
+        file: str | Path | None = None,
+        compress: bool = False,
     ) -> str | None:
         """Format a phml str or file.
 
@@ -231,7 +242,8 @@ class HypertextManager:
         if code != "":
             self.parse(code)
             result = self.compiler.render(
-                self._ast, compress
+                self._ast,
+                compress,
             )
 
         if file is not None:
@@ -241,7 +253,7 @@ class HypertextManager:
                     self.compiler.render(
                         self._ast,
                         compress,
-                    )
+                    ),
                 )
 
         return result
@@ -280,7 +292,7 @@ class HypertextManager:
             return result
         raise ValueError("Must first parse a phml file before rendering a phml AST")
 
-    def write(self, _path: str|Path, _compress: bool = False, **context: Any):
+    def write(self, _path: str | Path, _compress: bool = False, **context: Any):
         """Render and write the current ast to a file.
 
         Args:

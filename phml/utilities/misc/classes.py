@@ -6,14 +6,14 @@ transforming, traveling, or validating nodes.
 
 from re import split, sub
 
-from phml.nodes import Node, Element
+from phml.nodes import Element, Node
 
 __all__ = ["classnames", "ClassList"]
 
 
 def classnames(  # pylint: disable=keyword-arg-before-vararg
     node: Element | None = None,
-    *conditionals: str | int | list | dict[str, bool]
+    *conditionals: str | int | list | dict[str, bool],
 ) -> str:
     """Concat a bunch of class names. Can take a str as a class,
     int which is cast to a str to be a class, a dict of conditional classes,
@@ -45,7 +45,7 @@ def classnames(  # pylint: disable=keyword-arg-before-vararg
                     klass
                     for klass in split(r" ", sub(r" +", "", condition.strip()))
                     if klass not in classes
-                ]
+                ],
             )
         elif isinstance(condition, int) and str(condition) not in classes:
             classes.append(str(condition))
@@ -57,11 +57,15 @@ def classnames(  # pylint: disable=keyword-arg-before-vararg
                             klass
                             for klass in split(r" ", sub(r" +", "", key.strip()))
                             if klass not in classes
-                        ]
+                        ],
                     )
         elif isinstance(condition, list):
             classes.extend(
-                [klass for klass in classnames(*condition).split(" ") if klass not in classes]
+                [
+                    klass
+                    for klass in classnames(*condition).split(" ")
+                    if klass not in classes
+                ],
             )
         else:
             raise TypeError(f"Unkown conditional statement: {condition}")
@@ -80,7 +84,7 @@ class ClassList:
     https://github.com/brechtcs/hast-util-class-list
     """
 
-    def __init__(self, node: Element):
+    def __init__(self, node: Element) -> None:
         self.node = node
         self.classes = str(node["class"]).split(" ") if "class" in node else []
 
@@ -136,10 +140,12 @@ class ClassList:
 
     def class_list(self) -> str:
         """Return the formatted string of classes."""
-        return ' '.join(self.classes)
+        return " ".join(self.classes)
 
 
-def validate_node(node: Element | None, conditionals: tuple) -> tuple[Element|None, tuple]:
+def validate_node(
+    node: Element | None, conditionals: tuple
+) -> tuple[Element | None, tuple]:
     """Validate a node is a node and that it is an element."""
     if not isinstance(node, Node):
         return None, (node, *conditionals)

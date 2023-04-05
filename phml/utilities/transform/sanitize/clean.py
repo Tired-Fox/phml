@@ -24,7 +24,11 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
         schema (Schema, optional): User defined schema. Defaults to github schema.
     """
 
-    from phml.utilities import check, is_element, remove_nodes  # pylint: disable=import-outside-toplevel
+    from phml.utilities import (  # pylint: disable=import-outside-toplevel
+        check,
+        is_element,
+        remove_nodes,
+    )
 
     for strip in schema.strip:
         remove_nodes(tree, ["element", {"tag": strip}])
@@ -45,7 +49,7 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
         for child in node:
             if (
                 isinstance(child, Element)
-                and child.tag in schema.ancestors.keys()
+                and child.tag in schema.ancestors
                 and (
                     isinstance(child.parent, Element)
                     and child.parent.tag not in schema.ancestors[child.tag]
@@ -69,7 +73,9 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
             )
         return valid_attrs
 
-    def build_remove_attr_list(properties: dict, attributes: list, valid_attributes: list):
+    def build_remove_attr_list(
+        properties: dict, attributes: list, valid_attributes: list
+    ):
         """Build the list of attributes to remove from a dict of attributes."""
         result = []
         for attribute in properties:
@@ -77,11 +83,18 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
                 result.append(attribute)
             else:
                 for attr in attributes:
-                    if isinstance(attr, list) and attr[0] == attribute and len(attr) > 1:
-                        if not all(val == properties[attribute] for val in attr[1:]) or (
+                    if (
+                        isinstance(attr, list)
+                        and attr[0] == attribute
+                        and len(attr) > 1
+                    ):
+                        if not all(
+                            val == properties[attribute] for val in attr[1:]
+                        ) or (
                             attribute in schema.protocols
                             and not check_protocols(
-                                properties[attribute], schema.protocols[attribute]
+                                properties[attribute],
+                                schema.protocols[attribute],
                             )
                         ):
                             result.append(attribute)
@@ -89,7 +102,9 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
                     elif (
                         attr == attribute
                         and attr in schema.protocols
-                        and not check_protocols(properties[attribute], schema.protocols[attribute])
+                        and not check_protocols(
+                            properties[attribute], schema.protocols[attribute]
+                        )
                     ):
                         result.append(attribute)
                         break
@@ -100,7 +115,9 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
         for child in node:
             if isinstance(child, Element):
                 if child.tag in schema.attributes:
-                    valid_attributes = build_valid_attributes(schema.attributes[child.tag])
+                    valid_attributes = build_valid_attributes(
+                        schema.attributes[child.tag]
+                    )
 
                     # PERF: Not sure if the attributes are still being sanatized correctly
                     pop_attrs = build_remove_attr_list(
@@ -125,10 +142,7 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
                 recurse_check_required(child)
 
     def check_protocols(value: str, protocols: list[str]):
-        for protocol in protocols:
-            if match(f"{protocol}:.*", value) is not None:
-                return True
-        return False
+        return any(match(f"{protocol}:.*", value) is not None for protocol in protocols)
 
     recurse_check_tag(tree)
     recurse_check_ancestor(tree)

@@ -3,10 +3,11 @@
 Helpful utilities for different tasks that doesn't have a place in the other categories.
 """
 
-from phml.nodes import Parent 
+from phml.nodes import Parent
 
 from .classes import *
 from .heading import *
+
 
 def depth(node) -> int:
     """Get the depth in the tree for a given node.
@@ -33,4 +34,3 @@ def size(node: Parent) -> int:
         count += 1
 
     return count
-

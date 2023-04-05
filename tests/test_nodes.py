@@ -16,184 +16,277 @@ from phml.nodes import (
 def test_point():
     with raises(IndexError, match="Point.line must be >= 0 but was .+"):
         Point(-1, 0)
+
     with raises(IndexError, match="Point.column must be >= 0 but was .+"):
         Point(0, -1)
 
     assert Point.from_dict({"line": 0, "column": 0}) == Point(0, 0), "Expected from_dict to produce Point(0, 0)"
 
 
-def test_position():
+class TestPosition:
     position = Position((0, 0), (0, 0))
     pos_dict = {"start": {"line": 0, "column": 0}, "end": {"line": 0, "column": 0}}
-    assert position == Position(Point(0, 0), Point(0, 0)), "Expected that both forms of constructor create the same object"
-    assert Position.from_pos(position) == position, "Expected from_pos to create a copy of another position"
-    assert Position.from_dict(pos_dict) == position, "Expected from_dict to produce Position((0, 0), (0, 0))"
-    assert position.as_dict() == pos_dict, "Invalid dict produced form as_dict"
+
+    def test_alt_constructor(self):
+        assert self.position == Position(Point(0, 0), Point(0, 0))
+
+    def test_from_pos(self):
+        assert Position.from_pos(self.position) == self.position
+
+    def test_dict(self):
+        assert Position.from_dict(self.pos_dict) == self.position
+        assert self.position.as_dict() == self.pos_dict
 
 
-def test_node():
-    node = Node(NodeType.AST, None, None, False)
-    assert node.type == NodeType.AST, "Expected node.type to be 'ast'"
-    assert node.position == None, "Expected position to be None"
-    assert node.as_dict() == {"type": "ast", "position": None}, "Invalid dict produced from as_dict"
-    element = {
-        "type": "element",
-        "children": None,
-        "position": None,
-        "attributes": {},
-        "tag": "div",
-    }
-    assert isinstance(Node.from_dict(element), Element), "Expected from_dict to produce an Element"
-    assert isinstance(
-        Node.from_dict({"type": "ast", "position": None, "children": None}), AST
-    ), "Expected from_dict to produce an AST without children"
-
-    assert isinstance(
-        Node.from_dict(
-            {
-                "type": "ast",
-                "position": None,
-                "children": [
-                    {"type": "literal", "position": None, "name": "text", "content": ""}
-                ],
-            }
-        ),
-        AST,
-    ), "Expected from_dict to produce an AST with children"
-    literal = Node.from_dict(
-        {"type": "literal", "position": None, "name": "text", "content": ""}
-    )
-    assert isinstance(literal, Literal) and Literal.is_text(
-        literal
-    ), "Expected from_dict to produce a text literal"
-    with raises(
-        ValueError, match="Phml ast dicts must have nodes with the following types: .+"
-    ):
-        Node.from_dict({"type": "invalid", "position": None})
+class TestNode:
+    def test_constructor(self):
+        node = Node(NodeType.AST, None, None, False)
+        assert node.type == NodeType.AST, "Expected node.type to be 'ast'"
+        assert node.position == None, "Expected position to be None"
 
 
-def test_parent():
-    parent = Parent(NodeType.ELEMENT, None)
-    node = Node(NodeType.ELEMENT)
-    literal = Literal(LiteralType.Text, "")
-
-    # No errors when iterating None children
-    assert (
-        len([node for node in parent]) == 0
-    ), "Expected that len is 0 even though children is None"
-
-    with raises(ValueError, match="A self closing element can not pop a child node"):
-        parent.pop(0)
-    with raises(ValueError, match="A self closing element can not be indexed"):
-        parent[0]
-    with raises(ValueError, match="A self closing element can not be indexed"):
-        parent.index(AST())
-    with raises(
-        ValueError, match="A child node can not be appended to a self closing element"
-    ):
-        parent.append(AST())
-    with raises(
-        ValueError, match="A self closing element can not have it's children extended"
-    ):
-        parent.extend([])
-    with raises(
-        ValueError, match="A child node can not be inserted into a self closing element"
-    ):
-        parent.insert(0, AST())
-    with raises(
-        ValueError, match="A child node can not be removed from a self closing element."
-    ):
-        parent.remove(AST())
-
-    parent.children = []
-    parent.append(node)
-    assert parent[0] == node, "Expected first child to be node"
-    parent.remove(node)
-    assert len(parent) == 0, "Expected len to be 0"
-    parent.extend([node, node])
-    assert parent[:] == [node, node], "Expected children slice to be [node, node]"
-    parent.insert(0, literal)
-    assert parent[0] == literal, "Expected first child to be a literal"
-    parent.remove(literal)
-    parent[1] = literal
-    assert parent[1] == literal, "Expected second child to be a literal"
-    parent[:] = [node, literal]
-    assert parent[:] == [
-        node,
-        literal,
-    ], "Expected slice of children to be [node, literal]"
-    del parent[0]
-    assert (
-        len(parent) == 1 and parent[0] == literal
-    ), "Expected len of 1 and only child to be a literal"
-    parent.insert(0, [node, node])
-    del parent[:-1]
-    assert (
-        len(parent) == 1 and parent[0] == literal
-    ), "Expected len of 1 and only child to be a literal"
-    parent.append(node)
-    parent.pop(0)
-    assert (
-        len(parent) == 1 and parent[0] == node
-    ), "Expected len of of 1 and the only child to be a node"
-    assert parent.index(node) == 0, "Expected node at index 0"
-    parent[0] = literal
-
-    parent_dict = {
-        "type": "element",
-        "position": None,
-        "children": [
+    def test_dict_literal(self):
+        literal = Node.from_dict(
             {"type": "literal", "position": None, "name": "text", "content": ""}
-        ],
-    }
-    assert parent.as_dict() == parent_dict, "Invalid dict from parent node"
+        )
+
+        assert isinstance(literal, Literal) and Literal.is_text(
+            literal
+        ), "Expected from_dict to produce a text literal"
+
+    def test_dict_element(self):
+        node = Node(NodeType.AST, None, None, False)
+        element = {
+            "type": "element",
+            "children": None,
+            "position": None,
+            "attributes": {},
+            "tag": "div",
+        }
+
+        assert node.as_dict() == {"type": "ast", "position": None}
+
+        assert isinstance(Node.from_dict(element), Element), "Expected from_dict to produce an Element"
+        assert isinstance(
+            Node.from_dict({"type": "ast", "position": None, "children": None}), AST
+        ), "Expected from_dict to produce an AST without children"
+    
+        assert isinstance(
+            Node.from_dict(
+                {
+                    "type": "ast",
+                    "position": None,
+                    "children": [
+                        {"type": "literal", "position": None, "name": "text", "content": ""}
+                    ],
+                }
+            ),
+            AST,
+        ), "Expected from_dict to produce an AST with children"
+
+    def test_dict_exceptions(self):
+        with raises(
+            ValueError, match="Phml ast dicts must have nodes with the following types: .+"
+        ):
+            Node.from_dict({"type": "invalid", "position": None})
+
+
+class TestParent:
+    @property
+    def node(self):
+        return Node(NodeType.ELEMENT)
+
+    @property
+    def literal(self):
+        return Literal(LiteralType.Text, "")
+
+    def test_self_closing(self):
+        parent = Parent(NodeType.ELEMENT, None)
+        assert (
+            parent.children is None
+        )
+        assert len(parent) == 0
+        assert len([node for node in parent]) == 0
+
+    def test_assigns_parent(self):
+        parent = Parent(NodeType.ELEMENT, [self.literal])
+        assert parent.children == [self.literal]
+        assert parent.children is not None and parent.children[0].parent == parent
+    
+    def test_self_closing_exceptions(self):
+        parent = Parent(NodeType.ELEMENT, None)
+
+        with raises(ValueError, match="A self closing element can not pop a child node"):
+            parent.pop(0)
+
+        with raises(ValueError, match="A self closing element can not be indexed"):
+            parent[0]
+
+        with raises(ValueError, match="A self closing element can not be indexed"):
+            parent.index(AST())
+
+        with raises(
+            ValueError, match="A child node can not be appended to a self closing element"
+        ):
+            parent.append(AST())
+
+        with raises(
+            ValueError, match="A self closing element can not have it's children extended"
+        ):
+            parent.extend([])
+
+        with raises(
+            ValueError, match="A child node can not be inserted into a self closing element"
+        ):
+            parent.insert(0, AST())
+
+        with raises(
+            ValueError, match="A child node can not be removed from a self closing element."
+        ):
+            parent.remove(AST())
+    
+    def test_get(self):
+        parent = Parent(NodeType.ELEMENT, [self.node, self.literal])
+        assert parent[0] == self.node
+        assert parent[:] == [self.node, self.literal]
+        assert parent.index(self.literal) == 1
+
+    def test_add(self):
+        parent = Parent(NodeType.ELEMENT, [])
+
+        parent.append(self.node)
+        assert parent[0] == self.node
+
+        parent.extend([self.node, self.node])
+        assert parent[:] == [self.node, self.node, self.node]
+
+        parent.insert(0, self.literal)
+        assert parent[0] == self.literal
+
+        parent.insert(0, [self.node, self.node])
+        assert len(parent) == 6 and parent.children == [self.node, self.node, self.literal, self.node, self.node, self.node]
+
+    def test_remove(self):
+        node = self.node
+        literal = self.literal
+        parent = Parent(NodeType.ELEMENT, [node, literal])
+
+        parent.remove(node)
+        assert len(parent) == 1, "Expected len to be 0"
+
+        del parent[0]
+        assert len(parent) == 0
+
+        parent.children = [self.node, self.literal, self.literal, self.node, self.literal]
+        del parent[1:3]
+        assert len(parent) == 3 and parent.children == [self.node, self.node, self.literal]
+
+        parent.pop()
+        assert (
+            len(parent) == 2 and parent.children == [self.node, self.literal]
+        )
+       
+        assert parent.pop(1) == self.literal and len(parent) == 1
+        
+    def test_set(self):
+        parent = Parent(NodeType.ELEMENT, [self.node, self.node, self.node])
+
+        parent[1] = self.literal
+        assert parent[1] == self.literal
+
+        parent[:] = [self.literal, self.literal]
+        assert parent[:] == [
+            self.literal,
+            self.literal,
+        ]
+
+    
+    def test_dict(self):
+        parent = Parent(NodeType.ELEMENT, [self.literal])
+        parent_dict = {
+            "type": "element",
+            "position": None,
+            "children": [
+                {"type": "literal", "position": None, "name": "text", "content": ""}
+            ],
+        }
+
+        assert parent.as_dict() == parent_dict
 
 
 def test_ast():
-    AST()
+    ast = AST()
+    assert ast.children == []
 
 
-def test_element():
-    element = Element("div", attributes={"id": "test", "hidden": True}, children=[])
-    element_nc = Element("div", attributes={"id": "test", "hidden": True}, in_pre=True)
+class TestElement:
+    @property
+    def elem(self):
+        return Element("div", attributes={"id": "test", "hidden": True}, children=[])
 
-    with raises(ValueError, match="A self closing element can not pop a child node"):
-        element_nc.pop()
-    with raises(TypeError, match="_default value must be str, bool, or MISSING"):
-        element_nc.get("invalid", 3)
-    with raises(ValueError, match="Attribute '.+' not found"):
-        element_nc.get("invalid")
-    with raises(ValueError, match="A self closing element can not have it's children indexed"):
-        element_nc[0]
+    @property
+    def nc(self):
+        return Element("div", attributes={"id": "test", "hidden": True}, in_pre=True)
 
-    el = {
-        "type": "element",
-        "position": None,
-        "attributes": {"id": "test", "hidden": True},
-        "children": [],
-        "tag": "div",
-    }
-    assert Element.from_dict(el) == element, "Not a valid element from a dict"
-    assert element.as_dict() == el, "Invalid dict from an element"
-    element.append(Element("div"))
-    assert element[0].tag_path == [
-        "div",
-        "div",
-    ], "Invalid tag path, expected ['div', 'div']"
+    def test_self_closing(self):
+        element_nc = self.nc 
+    
+        with raises(ValueError, match="A self closing element can not pop a child node"):
+            element_nc.pop()
+        with raises(TypeError, match="_default value must be str, bool, or MISSING"):
+            element_nc.get("invalid", 3)
+        with raises(ValueError, match="Attribute '.+' not found"):
+            element_nc.get("invalid")
+        with raises(ValueError, match="A self closing element can not have it's children indexed"):
+            element_nc[0]
 
-    assert "id" in element, "Expected attribute 'id' to be in element"
-    assert element["id"] == "test", "Expected element attribute 'id' to be 'test'"
-    element["id"] = "test-mod"
-    assert element["id"] == "test-mod", "Expected element attribute 'id' to be 'test-mod'" 
-    assert element.get("id") == "test-mod", "Expected element.get('id') to be 'test-mod'"
-    assert element.get("invalid", "default") == "default", "Expected element.get to return default value 'default'"
-    assert element.pop("id") == "test-mod", "Expected element.pop to return value of element attribute 'id'"
-    assert element.pop("invalid", "default") == "default", "Expected element.pop to return default value 'default'"
-    assert element.pop() == Element("div"), "Expected element.pop() to return first element"
-    assert "hidden" in element, "Expected attribute 'hidden' to be in element"
-    del element["hidden"]
-    assert "hidden" not in element, "Expected attribute 'hidden' to be deleted from element"
+    def test_dict(self):
+        element = self.elem
+        el = {
+            "type": "element",
+            "position": None,
+            "attributes": {"id": "test", "hidden": True},
+            "children": [],
+            "tag": "div",
+        }
+        assert Element.from_dict(el) == element, "Not a valid element from a dict"
+        assert element.as_dict() == el, "Invalid dict from an element"
 
+    def test_tag_path(self):
+        element = self.elem 
+    
+        element.append(Element("div"))
+        assert element[0].tag_path == [
+            "div",
+            "div",
+        ]
+
+    def test_get(self):
+        element = self.elem 
+
+        assert "id" in element
+        assert element["id"] == "test"
+
+        assert element.get("id") == "test"
+        assert element.get("invalid", "default") == "default"
+
+    def test_set(self):
+        element = self.elem 
+
+        element.attributes["id"] = "test-mod"
+        assert element["id"] == "test-mod"
+
+    def test_remove(self):
+        element = self.elem 
+        element.children.append(Element(""))
+
+        assert element.pop("id") == "test"
+        assert element.pop("invalid", "default") == "default"
+        assert element.pop() == Element("")
+
+        assert "hidden" in element
+        del element["hidden"]
+        assert "hidden" not in element
 
 def test_literal():
     literal_text = Literal(LiteralType.Text, "text")

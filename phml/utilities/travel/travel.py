@@ -5,7 +5,7 @@ Collection of utilities that hep with traversing an ast or node tree.
 
 from typing import Iterator
 
-from phml.nodes import Node, Element, Parent 
+from phml.nodes import Element, Node, Parent
 
 __all__ = ["path", "path_names", "walk", "visit_all_after"]
 
@@ -30,6 +30,7 @@ def path(node: Node) -> list[Node]:
         node = node.parent
 
     return ancestors
+
 
 def path_names(node: Node) -> list[str]:
     """Get a list of nodes where each one is a child of

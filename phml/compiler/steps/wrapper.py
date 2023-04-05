@@ -1,5 +1,5 @@
 from phml.compiler.steps.base import comp_step
-from phml.nodes import Parent, Element
+from phml.nodes import Element, Parent
 
 
 @comp_step

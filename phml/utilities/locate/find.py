@@ -102,7 +102,7 @@ def find_after(
     if start.parent is not None:
         idx = start.parent.index(start)
         if len(start.parent) - 1 > idx:
-            for node in start.parent[idx + 1:]:
+            for node in start.parent[idx + 1 :]:
                 if condition is not None:
                     if check(node, condition, strict=strict):
                         return node
@@ -163,7 +163,7 @@ def find_before(
     if start.parent is not None:
         idx = start.parent.index(start)
         if idx > 0:
-            for node in start.parent[idx - 1::-1]:
+            for node in start.parent[idx - 1 :: -1]:
                 if condition is not None:
                     if check(node, condition, strict=strict):
                         return node
@@ -205,7 +205,7 @@ def find_all_before(
 
 def find_all_between(
     parent: Parent,
-    segment: tuple[int, int|None] = (0, None),
+    segment: tuple[int, int | None] = (0, None),
     condition: Test | None = None,
     strict: bool = True,
 ) -> list[Node]:
@@ -232,4 +232,3 @@ def find_all_between(
             else:
                 results.append(node)
     return results
-
