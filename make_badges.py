@@ -6,14 +6,8 @@ from badges import *
 if __name__ == "__main__":
     from tempfile import TemporaryFile
     from re import search, finditer
-    import sys
 
-    project = ""
-    if len(sys.argv) == 2:
-        project = sys.argv[1]
-
-
-    @badge(project=project)
+    @badge(project="phml")
     def _get_test_links(project: str) -> list[tuple[Name, Url]]:
         passed, total, covered = 0, 0, 0
         with TemporaryFile() as file:
