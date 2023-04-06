@@ -90,7 +90,7 @@ class TestManager:
 
     def test_module_file(self):
         phml = construct_base()
-        phml.add_module("~/Documents/Repo/Python/phml/phml/helpers")
+        phml.add_module((Path(__file__).parent.parent / "phml/helpers").as_posix())
         assert ".phml.helpers" in phml.imports 
 
         phml.remove_module(".phml.helpers")
