@@ -1,33 +1,25 @@
-<!-- Badges -->
-
-![Forks](https://img.shields.io/github/forks/tired-fox/phml.svg?style=social)
-![Stars](https://img.shields.io/github/stars/tired-fox/phml.svg?style=social)
-
-![version](assets/badges/version.svg)
-[![License](https://img.shields.io/github/license/tired-fox/phml.svg?style=flat-square)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
-![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=flat-square)
-[![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square)](https://github.com/Tired-Fox/phml/releases)
-[![Issues](https://img.shields.io/github/issues/tired-fox/phml.svg?style=flat-square)](https://github.com/Tired-Fox/phml/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/tired-fox/phml.svg?style=flat-square)](https://github.com/Tired-Fox/phml/pulls)
-![testing](assets/badges/tests.svg)
-![test coverage](assets/badges/coverage.svg)
-
 # Python Hypertext Markup Language (phml)
 
-[![Deploy Docs](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml/badge.svg?style=flat-square&logo=appveyor)](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml)
-
-**TOC**
-
-- [Python Hypertext Markup Language (phml)](#python-hypertext-markup-language-phml)
-  - [Overview](#overview)
-  - [How to use](#how-to-use)
+<!-- Badges -->
 
 <div align="center">
+  
+![version](assets/badges/version.svg)
+[![License](https://img.shields.io/github/license/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/releases)
+[![Issues](https://img.shields.io/github/issues/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/pulls)
 
+  [![Deploy Docs](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml)
+![Maintained](https://img.shields.io/badge/Maintained%3F-yes-2CBA00.svg?style=flat-square)
+![testing](assets/badges/tests.svg)
+![test coverage](assets/badges/coverage.svg)
+  
 [![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://tired-fox.github.io/phml/phml.html 'Go to project documentation')
-
+  
 </div>
 
+<!-- End Badges -->
 ## Overview
 
 The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language takes inspiration directly from frameworks like Vue.js, Astro.js, Solid.js, and SvelteKit. There is conditional rendering, components, python elements, inline/embedded python blocks, and slot, named slots, and much more. Now let's dive into more the language.
@@ -232,7 +224,10 @@ There are many more features such as globally exposed variables, components, slo
 
 For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
 
+<br>
 <div align="center">
-  ![Made with Python](http://ForTheBadge.com/images/badges/made-with-python.svg)
-  ![Built with love](http://ForTheBadge.com/images/badges/built-with-love.svg)
+
+  ![Made with Python](assets/badges/made_with_python.svg)
+  ![Built with love](https://img.shields.io/badge/Built_With-❤-D15D27?style=for-the-badge&labelColor=E26D25)
+
 </div>
