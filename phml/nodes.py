@@ -1,6 +1,6 @@
 from __future__ import annotations
-from dataclasses import dataclass
 
+from enum import StrEnum, unique
 from types import NoneType
 from typing import Any, Iterator, NoReturn, TypeAlias, overload
 
@@ -23,8 +23,8 @@ def p_code(value) -> str:  # pragma: no cover
     return value.__p_code__()
 
 
-@dataclass
-class LiteralType:
+@unique
+class LiteralType(StrEnum):
     Text = "text"
     Comment = "comment"
 
@@ -36,8 +36,8 @@ class LiteralType:
         raise ValueError(f"Expected on of {', '.join(types)}")
 
 
-@dataclass
-class NodeType:
+@unique
+class NodeType(StrEnum):
     AST = "ast"
     ELEMENT = "element"
     LITERAL = "literal"
