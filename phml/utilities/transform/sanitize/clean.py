@@ -34,96 +34,78 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
         remove_nodes(tree, ["element", {"tag": strip}])
 
     def recurse_check_tag(node: Parent):
-        pop_els = []
-        for child in node:
-            if check(child, "element") and not is_element(child, schema.tag_names):
-                pop_els.append(child)
+        for child in list(node):
+            if isinstance(child, Element) and not is_element(child, schema.tag_names):
+                node.remove(child)
             elif isinstance(child, Parent):
                 recurse_check_tag(child)
 
-        for element in pop_els:
-            node.remove(element)
-
     def recurse_check_ancestor(node: Parent):
-        pop_els = []
-        for child in node:
+        for child in list(node):
             if (
                 isinstance(child, Element)
                 and child.tag in schema.ancestors
                 and (
-                    isinstance(child.parent, Element)
-                    and child.parent.tag not in schema.ancestors[child.tag]
+                    not isinstance(child.parent, Element)
+                    or child.parent.tag not in schema.ancestors[child.tag]
                 )
             ):
-                pop_els.append(child)
+                node.remove(child)
             elif isinstance(child, Element):
                 recurse_check_ancestor(child)
 
-        for element in pop_els:
-            node.remove(element)
-
-    def build_valid_attributes(attributes: list) -> list[str]:
-        """Extract attributes from schema."""
-        valid_attrs = []
-        for attribute in attributes:
-            valid_attrs = (
-                [*valid_attrs, attribute]
-                if isinstance(attribute, str)
-                else [*valid_attrs, attribute[0]]
-            )
-        return valid_attrs
-
     def build_remove_attr_list(
-        properties: dict, attributes: list, valid_attributes: list
+        properties: dict,
+        attributes: dict[str, tuple[str | bool, ...]],
+        valid_attributes: list,
     ):
         """Build the list of attributes to remove from a dict of attributes."""
         result = []
         for attribute in properties:
             if attribute not in valid_attributes:
                 result.append(attribute)
-            else:
-                for attr in attributes:
-                    if (
-                        isinstance(attr, list)
-                        and attr[0] == attribute
-                        and len(attr) > 1
-                    ):
-                        if not all(
-                            val == properties[attribute] for val in attr[1:]
-                        ) or (
-                            attribute in schema.protocols
-                            and not check_protocols(
-                                properties[attribute],
-                                schema.protocols[attribute],
-                            )
-                        ):
-                            result.append(attribute)
-                            break
-                    elif (
-                        attr == attribute
-                        and attr in schema.protocols
-                        and not check_protocols(
-                            properties[attribute], schema.protocols[attribute]
-                        )
-                    ):
-                        result.append(attribute)
-                        break
-
+            elif attribute in attributes:
+                if (
+                    isinstance(properties[attribute], str)
+                    and attribute in schema.protocols
+                    and not check_protocols(
+                        properties[attribute], schema.protocols[attribute]
+                    )
+                ):
+                    result.append(attribute)
+                elif properties[attribute] != attributes[attribute]:
+                    result.append(attribute)
+            elif (
+                isinstance(properties[attribute], str)
+                and attribute in schema.protocols
+                and not check_protocols(
+                    properties[attribute], schema.protocols[attribute]
+                )
+            ):
+                result.append(attribute)
         return result
 
     def recurse_check_attributes(node: Parent):
         for child in node:
             if isinstance(child, Element):
                 if child.tag in schema.attributes:
-                    valid_attributes = build_valid_attributes(
-                        schema.attributes[child.tag]
-                    )
-
-                    # PERF: Not sure if the attributes are still being sanatized correctly
                     pop_attrs = build_remove_attr_list(
                         child.attributes,
-                        schema.attributes[child.tag],
-                        valid_attributes,
+                        {
+                            str(attr[0]): attr[1:]
+                            for attr in (
+                                schema.attributes[child.tag]
+                                + schema.attributes.get("*", [])
+                            )
+                            if isinstance(attr, tuple)
+                        },
+                        [
+                            attr if isinstance(attr, str) else attr[0]
+                            for attr in (
+                                schema.attributes[child.tag]
+                                + schema.attributes.get("*", [])
+                            )
+                        ],
                     )
 
                     for attribute in pop_attrs:
@@ -137,14 +119,25 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
                 for attr, value in schema.required[child.tag].items():
                     if attr not in child.attributes:
                         child[attr] = value
-
+                    elif isinstance(value, bool):
+                        child[attr] = str(value).lower()
+                    elif isinstance(value, str) and child[attr] != value:
+                        child[attr] = value
             elif isinstance(child, Element):
                 recurse_check_required(child)
 
     def check_protocols(value: str, protocols: list[str]):
-        return any(match(f"{protocol}:.*", value) is not None for protocol in protocols)
+        return match(f"{'|'.join(protocols)}:.*", value) is not None
+
+    def recurse_strip(node):
+        for child in list(node):
+            if isinstance(child, Element) and is_element(child, schema.strip):
+                node.remove(child)
+            elif isinstance(child, Parent):
+                recurse_strip(child)
 
     recurse_check_tag(tree)
+    recurse_strip(tree)
     recurse_check_ancestor(tree)
     recurse_check_attributes(tree)
     recurse_check_required(tree)

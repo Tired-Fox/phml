@@ -327,7 +327,7 @@ class Parent(Node):
                     )
                 value.parent = self
                 self.children[key] = value
-            else:
+            elif isinstance(key, slice):
                 if not isinstance(value, list):
                     raise ValueError(
                         "Can not assign value that is not list[phml.Node] to slice of children",
@@ -375,7 +375,7 @@ class Parent(Node):
         raise ValueError("A self closing element can not pop a child node")
 
     def index(self, node: Node) -> int:
-        """Get the index of a node in the childre."""
+        """Get the index of a node in the children."""
         if self.children is not None:
             return self.children.index(node)
         raise ValueError("A self closing element can not be indexed")
@@ -512,7 +512,12 @@ class Element(Parent):
     def __eq__(self, _o) -> bool:
         return (
             isinstance(_o, Element)
-            and _o.attributes == self.attributes
+            and _o.tag == self.tag
+            and (
+                len(self.attributes) == len(_o.attributes)
+                and all(key in self.attributes for key in _o.attributes)
+                and all(_o.attributes[key] == value for key,value in self.attributes.items())
+            )
             and (
                 (_o.children is None and self.children is None)
                 or (len(_o) == len(self) and all(c1 == c2 for c1, c2 in zip(_o, self)))
@@ -597,17 +602,17 @@ class Element(Parent):
     def __setitem__(self, key: str | int | slice, value: Attribute | Node | list):
         if isinstance(key, str) and isinstance(value, Attribute):
             self.attributes[key] = value
-        elif isinstance(key, int) and isinstance(value, Node):
-            self.insert(key, value)
-        elif isinstance(key, slice) and isinstance(value, list):
-            if self.children is None:
-                raise ValueError(
-                    "A self closing element can not have a subset of it's children assigned to",
-                )
-            self.children[key.start : key.stop] = value
+        elif self.children is not None:
+            if isinstance(key, int) and isinstance(value, Node):
+                value.parent = self
+                self.children[key] = value
+            elif isinstance(key, slice) and isinstance(value, list):
+                for child in value:
+                    child.parent = self
+                self.children[key] = value
         else:
             raise ValueError(
-                "Invalid value type. Expected <key:str> -> <value:Attribute> or <key:int> -> <value:Node>",
+                "A self closing element can not have a subset of it's children assigned to",
             )
 
     @overload

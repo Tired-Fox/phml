@@ -141,8 +141,8 @@ def compile_condition_trees(node, trees: list[list[tuple[int, Element]]], contex
 
 @comp_step
 def step_execute_conditions(
-    *,
     node: Parent,
+    _,
     context: dict[str, Any],
 ):
     """Step to process and compile condition attributes in sibling nodes."""

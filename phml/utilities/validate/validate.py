@@ -121,19 +121,21 @@ def is_element(node: Node, *conditions: str | list) -> bool:
     passes.
     """
 
-    return bool(
-        isinstance(node, Element)
-        and any(
-            bool(
-                (isinstance(condition, str) and node.tag == condition)
-                or (
-                    isinstance(condition, list)
-                    and any(node.tag == nested for nested in condition)
-                ),
+    if isinstance(node, Element):
+        if len(conditions) > 0:
+            return any(
+                bool(
+                    (isinstance(condition, str) and node.tag == condition)
+                    or (
+                        isinstance(condition, list)
+                        and any(node.tag == nested for nested in condition)
+                    ),
+                )
+                for condition in conditions
             )
-            for condition in conditions
-        ),
-    )
+        else:
+            return True
+    return False
 
 
 def is_event_handler(attribute: str) -> bool:
@@ -259,7 +261,8 @@ def is_phrasing(node: Element) -> bool:
             or (
                 "rel" in node
                 and all(
-                    token.strip() in body_ok for token in str(node["rel"]).split(" ")
+                    token in body_ok for token in str(node["rel"]).split(" ")
+                    if token.strip() != ""
                 )
             ),
         )

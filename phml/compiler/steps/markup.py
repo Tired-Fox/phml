@@ -31,7 +31,7 @@ except ImportError:  # pragma: no cover
 
 @comp_step
 def step_compile_markdown(
-    *, node: Parent, components: ComponentManager, context: dict[str, Any]
+    node: Parent, components: ComponentManager, context: dict[str, Any]
 ):
     """Step to compile markdown. This step only works when you have `markdown` installed."""
     from phml.core import HypertextManager

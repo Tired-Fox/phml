@@ -16,7 +16,7 @@ components["Sub.Component"]["hash"] = hashes["Sub.Component"]
 html_exists = False
 
 @comp_step
-def step_collect_html(*, node):
+def step_collect_html(node, *_):
     global html_exists
     for n in node:
         if isinstance(n, Element) and n.tag == "html":
@@ -31,8 +31,8 @@ class TestHyperTextMarkupCompiler:
 
     def test_compile(self):
         ast = self.compiler.compile(phml_ast, components, message=message)
-        assert ast == html_ast
 
+        assert ast == html_ast
         assert html_exists
 
     def test_render(self):

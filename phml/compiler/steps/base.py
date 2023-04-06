@@ -6,7 +6,7 @@ from phml.components import ComponentManager
 from phml.nodes import AST, Parent
 
 
-def comp_step(func: Callable):  # pragma: no cover
+def comp_step(func: Callable[[Parent, ComponentManager, dict[str, Any]], None]):  # pragma: no cover
     """Wrapper for compilation steps. This wraps a function that takes a parent node,
     the current context, and component manager. The function is expected to mutate the children nodes.
     It is also expected that the function is not recursive and only mutates the direct children of the node
@@ -28,33 +28,11 @@ def comp_step(func: Callable):  # pragma: no cover
         components: ComponentManager,
         context: dict[str, Any],
     ):
-        (
-            args,
-            varargs,
-            varkw,
-            _,
-            kwonlyargs,
-            _,
-            _,
-        ) = getfullargspec(func)
-        values = {"node": node, "components": components, "context": context}
-        if args is not None and len(args) > 0:
-            # If less then full amount is specifiec then only pass in amount specified
-            return func(*[node, components, context][: min(len(args), len(values))])
-        elif kwonlyargs is not None and len(kwonlyargs) > 0:
-            return func(**{key: values[key] for key in kwonlyargs if key in values})
-        elif varargs is not None:
-            return func(node, components, context)
-        elif varkw is not None:
-            return func(node=node, components=components, context=context)
-        raise TypeError(
-            "Step methods are expected to have a combination of args, kwargs, *, and **"
-        )
-
+        return func(node, components, context)
     return inner
 
 
-def boundry_step(func: Callable):  # pragma: no cover
+def boundry_step(func: Callable[[AST, ComponentManager, dict[str, Any]], None]):  # pragma: no cover
     """Wrapper for setup and post compile steps. This wraps a function that takes an AST node,
     the current context, and the component manager. The funciton is expected to mutate the AST recursively
 
@@ -74,27 +52,5 @@ def boundry_step(func: Callable):  # pragma: no cover
         components: ComponentManager,
         context: dict[str, Any],
     ):
-        (
-            args,
-            varargs,
-            varkw,
-            _,
-            kwonlyargs,
-            _,
-            _,
-        ) = getfullargspec(func)
-        values = {"node": node, "components": components, "context": context}
-        if args is not None and len(args) > 0:
-            # If less then full amount is specifiec then only pass in amount specified
-            return func(*[node, components, context][: min(len(args), len(values))])
-        elif kwonlyargs is not None and len(kwonlyargs) > 0:
-            return func(**{key: values[key] for key in kwonlyargs if key in values})
-        elif varargs is not None:
-            return func(node, components, context)
-        elif varkw is not None:
-            return func(node=node, components=components, context=context)
-        raise TypeError(
-            "Step methods are expected to have a combination of args, kwargs, *, and **"
-        )
-
+        return func(node, components, context)
     return inner

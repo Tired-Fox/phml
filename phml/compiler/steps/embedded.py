@@ -39,7 +39,7 @@ def _process_attributes(node: Element, context: dict[str, Any]):
 
 
 @comp_step
-def step_execute_embedded_python(*, node: Parent, context: dict[str, Any]):
+def step_execute_embedded_python(node: Parent, _, context: dict[str, Any]):
     """Step to process embedded python inside of attributes and text nodes."""
     for child in node:
         if isinstance(child, Element):

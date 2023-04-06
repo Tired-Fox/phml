@@ -71,9 +71,9 @@ def scope_styles(styles: list[Element], hash: int) -> str:
 
 @boundry_step
 def step_add_cached_component_elements(
-    *,
     node: AST,
     components: ComponentManager,
+    _
 ):
     """Step to add the cached script and style elements from components."""
     target = None
@@ -210,7 +210,6 @@ def step_substitute_components(
             if child.parent is not None:
                 idx = child.parent.index(child)
                 replace_slots(child, component)
-                del child.parent[idx]
                 child.parent[idx] = component
 
             components.cache(child.tag, components[child.tag])

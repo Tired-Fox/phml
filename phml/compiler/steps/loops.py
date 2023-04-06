@@ -56,8 +56,8 @@ def replace_default(
 
 @comp_step
 def step_expand_loop_tags(
-    *,
     node: Parent,
+    _,
     context: dict[str, Any],
 ):
     """Step to process and expand all loop (<For/>) elements. Will also set loop elements

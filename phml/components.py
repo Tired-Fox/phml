@@ -95,7 +95,7 @@ def hash_component(cmpt: ComponentType):
         sum(hash(element) for element in cmpt["elements"])
         + sum(hash(style) for style in cmpt["styles"])
         + sum(hash(script) for script in cmpt["scripts"])
-        - int(str(time())[-5:])
+        - int(time()%1000) 
     )
 
 

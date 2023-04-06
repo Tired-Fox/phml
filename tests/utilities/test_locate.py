@@ -1,32 +1,10 @@
 from phml.utilities.locate.find import *
 from phml.utilities.locate.index import Index
 from phml.utilities.locate.select import matches, query, query_all, parse_specifiers
-from phml.builder import p
-from phml.nodes import AST
+from phml import p
+from util_data import ast, container, first, last
 
 from pytest import raises
-
-first = p("div", {"class": "sample", "id": "sample-1"})
-last = p("div", {"class": "sample", "id": "sample-3"})
-container = p("div",
-    {"id": "container"},
-    first,
-    p("p", {"hidden": True}, "test text"),
-    p("div", {"class": "sample", "id": "sample-2"}),
-    last 
-)
-
-ast: AST = p(
-    p("html",
-        p("head",
-            p("title", "test")
-        ),
-        p("body",
-            p("h1", "hello world!"),
-            container
-        )
-    )
-)
 
 class TestFind:
     def test_ancestor(self):

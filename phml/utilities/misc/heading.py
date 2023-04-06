@@ -15,7 +15,8 @@ def heading_rank(node: Element) -> int:
     from phml.utilities import is_heading  # pylint: disable=import-outside-toplevel
 
     if is_heading(node):
-        rank = match(r"h([1-6])", node.tag).group(1)
-        return int(rank)
+        rank = match(r"^h([1-6])$", node.tag)
+        if rank is not None:
+            return int(rank.group(1))
 
     raise TypeError(f"Node must be a heading. Was a {node.type}.{node.tag}")

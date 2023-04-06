@@ -66,12 +66,7 @@ def p(selector: str, *args: str | list | dict | int | Node) -> Element:
 
 
 @overload
-def p(selector: Lit["text"], *args: str) -> Literal:
-    ...
-
-
-@overload
-def p(selector: Lit["comment"], *args: str) -> Literal:
+def p(selector: Lit["text", "comment"], *args: str) -> Literal:
     ...
 
 

@@ -4,7 +4,7 @@ from .base import boundry_step
 
 
 @boundry_step
-def step_ensure_doctype(*, node: AST):  # pragma: no cover
+def step_ensure_doctype(node: AST, *_):  # pragma: no cover
     """Step to sure that the final ast has a doctype node."""
 
     doctypes = [c for c in node if isinstance(c, Element) and c.tag == "doctype"]

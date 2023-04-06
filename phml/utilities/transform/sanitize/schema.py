@@ -1,5 +1,30 @@
 """Defines the schema on how to sanitize the phml ast."""
+from __future__ import annotations
 from dataclasses import dataclass, field
+
+
+def _extend_dict_dict_(
+    origin: dict[str, dict], new: dict[str, dict]
+) -> dict[str, dict]:
+    for key, value in new.items():
+        if key not in origin:
+            origin[key] = value
+        else:
+            origin[key].update(value)
+
+    return origin
+
+
+def _extend_dict_list_(
+    origin: dict[str, list], new: dict[str, list]
+) -> dict[str, list]:
+    for key, value in new.items():
+        if key not in origin:
+            origin[key] = value
+        else:
+            origin[key].extend([item for item in value if item not in origin[key]])
+
+    return origin
 
 
 @dataclass
@@ -11,7 +36,7 @@ class Schema:
     `tag_names (list[str])`: List of allowed tag names.
     `attributes (dict[str, list[str | list[str]]])`: Collection of element name and allowed property
     names.
-    `required (dict[str, str | list[str]])`: Collection of element names and their required
+    `required (dict[str, dict[str, str | bool]])`: Collection of element names and their required
     properties and required property values.
     """
 
@@ -99,12 +124,12 @@ class Schema:
             "input",
         ],
     )
-    attributes: dict[str, list[str | list[str | bool]]] = field(
+    attributes: dict[str, list[str | tuple[str|bool, ...]]] = field(
         default_factory=lambda: {
             "a": ["href"],
             "img": ["src", "longDesc"],
-            "input": [["type", "checkbox"], ["disabled", True]],
-            "li": [["class", "task-list-item"]],
+            "input": [("type", "checkbox"), ("disabled", True)],
+            "li": [("class", "task-list-item")],
             "div": ["itemScope", "itemType"],
             "blockquote": ["cite"],
             "del": ["cite"],
@@ -194,3 +219,35 @@ class Schema:
             },
         },
     )
+
+    def extend(
+        self,
+        strip: list[str] | None = None,
+        ancestors: dict[str, list[str]] | None = None,
+        protocols: dict[str, list[str]] | None = None,
+        tag_names: list[str] | None = None,
+        attributes: dict[str, list[str | tuple[str|bool, ...]]] | None = None,
+        required: dict[str, dict[str, str | bool]] | None = None,
+    ) -> Schema:
+        """Extend the default schemas values.
+
+        Args:
+            `strip (list[str])`: The elements to strip from the tree.
+            `ancestors (dict[str, list[str]])`: Key is a element tag and the value is a list of valid
+                parent elements.
+            `protocols (dict[str, list[str]])`: Collection of element names to list of valid protocols (prefixes).
+            `tag_names (list[str])`: List of allowed tag names.
+            `attributes (dict[str, list[str | list[str]]])`: Collection of element name and allowed property
+                names.
+            `required (dict[str, dict[str, str | bool]])`: Collection of element names and their required
+                properties and required property values.
+        """
+
+        return Schema(
+            strip=list(set([*self.strip, *(strip or [])])),
+            ancestors=_extend_dict_list_({**self.ancestors}, ancestors or {}),
+            protocols=_extend_dict_list_({**self.protocols}, protocols or {}),
+            attributes=_extend_dict_list_({**self.attributes}, attributes or {}),
+            tag_names=list(set([*self.tag_names, *(tag_names or [])])),
+            required=_extend_dict_dict_({**self.required}, required or {}),
+        )
