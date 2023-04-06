@@ -214,16 +214,12 @@ class Node:
     def as_dict(self) -> dict:
         return {
             "type": str(self._type),
-            "position": self._position.as_dict()
-            if self._position is not None
-            else None,
         }
 
     @staticmethod
     def from_dict(data: dict, in_pre: bool = False):
         if data["type"] == NodeType.AST:
             ast = AST(
-                position=Position.from_dict(data["position"]),
                 children=[] if data["children"] is not None else None,
             )
             if data["children"] is not None:
@@ -236,7 +232,6 @@ class Node:
             return Literal(
                 LiteralType.From(data["name"]),
                 data["content"],
-                position=Position.from_dict(data["position"]),
             )
         raise ValueError(
             f"Phml ast dicts must have nodes with the following types: {NodeType.AST}, {NodeType.ELEMENT}, {NodeType.LITERAL}",
@@ -533,7 +528,6 @@ class Element(Parent):
             data["tag"],
             attributes=data["attributes"],
             children=[] if data["children"] is not None else None,
-            position=Position.from_dict(data["position"]),
         )
         if data["children"] is not None:
             element.children = [

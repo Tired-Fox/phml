@@ -47,7 +47,7 @@ class TestNode:
 
     def test_dict_literal(self):
         literal = Node.from_dict(
-            {"type": "literal", "position": None, "name": "text", "content": ""}
+            {"type": "literal", "name": "text", "content": ""}
         )
 
         assert isinstance(literal, Literal) and Literal.is_text(
@@ -59,25 +59,23 @@ class TestNode:
         element = {
             "type": "element",
             "children": None,
-            "position": None,
             "attributes": {},
             "tag": "div",
         }
 
-        assert node.as_dict() == {"type": "ast", "position": None}
+        assert node.as_dict() == {"type": "ast"}
 
         assert isinstance(Node.from_dict(element), Element), "Expected from_dict to produce an Element"
         assert isinstance(
-            Node.from_dict({"type": "ast", "position": None, "children": None}), AST
+            Node.from_dict({"type": "ast", "children": None}), AST
         ), "Expected from_dict to produce an AST without children"
     
         assert isinstance(
             Node.from_dict(
                 {
                     "type": "ast",
-                    "position": None,
                     "children": [
-                        {"type": "literal", "position": None, "name": "text", "content": ""}
+                        {"type": "literal", "name": "text", "content": ""}
                     ],
                 }
             ),
@@ -88,7 +86,7 @@ class TestNode:
         with raises(
             ValueError, match="Phml ast dicts must have nodes with the following types: .+"
         ):
-            Node.from_dict({"type": "invalid", "position": None})
+            Node.from_dict({"type": "invalid"})
 
 
 class TestParent:
@@ -205,9 +203,8 @@ class TestParent:
         parent = Parent(NodeType.ELEMENT, [self.literal])
         parent_dict = {
             "type": "element",
-            "position": None,
             "children": [
-                {"type": "literal", "position": None, "name": "text", "content": ""}
+                {"type": "literal", "name": "text", "content": ""}
             ],
         }
 
@@ -244,7 +241,6 @@ class TestElement:
         element = self.elem
         el = {
             "type": "element",
-            "position": None,
             "attributes": {"id": "test", "hidden": True},
             "children": [],
             "tag": "div",
@@ -294,13 +290,11 @@ def test_literal():
 
     assert literal_text.as_dict() == {
         "type": "literal",
-        "position": None,
         "name": "text",
         "content": "text",
     }, "Invalid dict produced from as_dict"
     assert literal_comment.as_dict() == {
         "type": "literal",
-        "position": None,
         "name": "comment",
         "content": "comment",
     }, "Invalid dict produced from as_dict"

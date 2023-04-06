@@ -505,10 +505,6 @@ phml_dict = {
             "attributes": {"lang": "html"},
             "children": None,
             "type": "element",
-            "position": {
-                "start": {"line": 0, "column": 0},
-                "end": {"line": 0, "column": 15},
-            },
         },
         {
             "tag": "html",
@@ -526,17 +522,9 @@ phml_dict = {
                                     "name": "text",
                                     "content": "Sample title",
                                     "type": "literal",
-                                    "position": {
-                                        "start": {"line": 2, "column": 8},
-                                        "end": {"line": 2, "column": 8},
-                                    },
                                 }
                             ],
                             "type": "element",
-                            "position": {
-                                "start": {"line": 0, "column": 27},
-                                "end": {"line": 2, "column": 16},
-                            },
                         },
                         {
                             "tag": "python",
@@ -546,24 +534,12 @@ phml_dict = {
                                     "name": "text",
                                     "content": '\n            start = "Start"\n            end = "end."\n\n            errors = [\n                "1",\n                "2"\n            ]\n        ',
                                     "type": "literal",
-                                    "position": {
-                                        "start": {"line": 10, "column": 8},
-                                        "end": {"line": 10, "column": 8},
-                                    },
                                 }
                             ],
                             "type": "element",
-                            "position": {
-                                "start": {"line": 2, "column": 16},
-                                "end": {"line": 10, "column": 17},
-                            },
                         },
                     ],
                     "type": "element",
-                    "position": {
-                        "start": {"line": 0, "column": 21},
-                        "end": {"line": 10, "column": 24},
-                    },
                 },
                 {
                     "tag": "body",
@@ -574,37 +550,21 @@ phml_dict = {
                             "attributes": {":message": "message"},
                             "children": None,
                             "type": "element",
-                            "position": {
-                                "start": {"line": 10, "column": 30},
-                                "end": {"line": 10, "column": 62},
-                            },
                         },
                         {
                             "name": "comment",
                             "content": " Sample Comment 1 ",
                             "type": "literal",
-                            "position": {
-                                "start": {"line": 10, "column": 62},
-                                "end": {"line": 10, "column": 87},
-                            },
                         },
                         {
                             "name": "text",
                             "content": "Sample Text",
                             "type": "literal",
-                            "position": {
-                                "start": {"line": 12, "column": 8},
-                                "end": {"line": 12, "column": 8},
-                            },
                         },
                         {
                             "name": "comment",
                             "content": " Sample Comment 2 ",
                             "type": "literal",
-                            "position": {
-                                "start": {"line": 12, "column": 8},
-                                "end": {"line": 12, "column": 33},
-                            },
                         },
                         {
                             "tag": "Sub.Component",
@@ -618,26 +578,14 @@ phml_dict = {
                                             "name": "text",
                                             "content": "Child",
                                             "type": "literal",
-                                            "position": {
-                                                "start": {"line": 12, "column": 5},
-                                                "end": {"line": 12, "column": 56},
-                                            },
                                         }
                                     ],
                                     "type": "element",
-                                    "position": {
-                                        "start": {"line": 12, "column": 48},
-                                        "end": {"line": 12, "column": 9},
-                                    },
                                 },
                                 {
                                     "name": "text",
                                     "content": "Generic text",
                                     "type": "literal",
-                                    "position": {
-                                        "start": {"line": 14, "column": 12},
-                                        "end": {"line": 14, "column": 12},
-                                    },
                                 },
                                 {
                                     "tag": "p",
@@ -647,24 +595,12 @@ phml_dict = {
                                             "name": "text",
                                             "content": "Extra",
                                             "type": "literal",
-                                            "position": {
-                                                "start": {"line": 14, "column": 5},
-                                                "end": {"line": 14, "column": 33},
-                                            },
                                         }
                                     ],
                                     "type": "element",
-                                    "position": {
-                                        "start": {"line": 14, "column": 12},
-                                        "end": {"line": 14, "column": 9},
-                                    },
                                 },
                             ],
                             "type": "element",
-                            "position": {
-                                "start": {"line": 12, "column": 33},
-                                "end": {"line": 14, "column": 25},
-                            },
                         },
                         {
                             "tag": "input",
@@ -677,10 +613,6 @@ phml_dict = {
                             },
                             "children": None,
                             "type": "element",
-                            "position": {
-                                "start": {"line": 14, "column": 25},
-                                "end": {"line": 20, "column": 40},
-                            },
                         },
                         {
                             "tag": "p",
@@ -690,17 +622,9 @@ phml_dict = {
                                     "name": "text",
                                     "content": "Never shows",
                                     "type": "literal",
-                                    "position": {
-                                        "start": {"line": 20, "column": 11},
-                                        "end": {"line": 20, "column": 66},
-                                    },
                                 }
                             ],
                             "type": "element",
-                            "position": {
-                                "start": {"line": 20, "column": 40},
-                                "end": {"line": 20, "column": 15},
-                            },
                         },
                         {
                             "tag": "p",
@@ -710,17 +634,9 @@ phml_dict = {
                                     "name": "text",
                                     "content": "{{ message }}",
                                     "type": "literal",
-                                    "position": {
-                                        "start": {"line": 20, "column": 13},
-                                        "end": {"line": 20, "column": 58},
-                                    },
                                 }
                             ],
                             "type": "element",
-                            "position": {
-                                "start": {"line": 20, "column": 15},
-                                "end": {"line": 20, "column": 17},
-                            },
                         },
                         {
                             "tag": "p",
@@ -730,17 +646,9 @@ phml_dict = {
                                     "name": "text",
                                     "content": "Fallback",
                                     "type": "literal",
-                                    "position": {
-                                        "start": {"line": 20, "column": 8},
-                                        "end": {"line": 20, "column": 34},
-                                    },
                                 }
                             ],
                             "type": "element",
-                            "position": {
-                                "start": {"line": 20, "column": 17},
-                                "end": {"line": 20, "column": 12},
-                            },
                         },
                         {
                             "tag": "pre",
@@ -750,17 +658,9 @@ phml_dict = {
                                     "name": "text",
                                     "content": "text",
                                     "type": "literal",
-                                    "position": {
-                                        "start": {"line": 20, "column": 4},
-                                        "end": {"line": 20, "column": 21},
-                                    },
                                 }
                             ],
                             "type": "element",
-                            "position": {
-                                "start": {"line": 20, "column": 12},
-                                "end": {"line": 20, "column": 10},
-                            },
                         },
                         {
                             "tag": "ul",
@@ -778,30 +678,12 @@ phml_dict = {
                                                     "name": "text",
                                                     "content": "{{error}}",
                                                     "type": "literal",
-                                                    "position": {
-                                                        "start": {
-                                                            "line": 20,
-                                                            "column": 9,
-                                                        },
-                                                        "end": {
-                                                            "line": 20,
-                                                            "column": 56,
-                                                        },
-                                                    },
                                                 }
                                             ],
                                             "type": "element",
-                                            "position": {
-                                                "start": {"line": 20, "column": 43},
-                                                "end": {"line": 20, "column": 14},
-                                            },
                                         }
                                     ],
                                     "type": "element",
-                                    "position": {
-                                        "start": {"line": 20, "column": 14},
-                                        "end": {"line": 20, "column": 20},
-                                    },
                                 },
                                 {
                                     "tag": "li",
@@ -811,24 +693,12 @@ phml_dict = {
                                             "name": "text",
                                             "content": "Loop fallback",
                                             "type": "literal",
-                                            "position": {
-                                                "start": {"line": 20, "column": 13},
-                                                "end": {"line": 20, "column": 43},
-                                            },
                                         }
                                     ],
                                     "type": "element",
-                                    "position": {
-                                        "start": {"line": 20, "column": 20},
-                                        "end": {"line": 20, "column": 18},
-                                    },
                                 },
                             ],
                             "type": "element",
-                            "position": {
-                                "start": {"line": 20, "column": 10},
-                                "end": {"line": 20, "column": 23},
-                            },
                         },
                         {
                             "tag": "Markdown",
@@ -839,46 +709,25 @@ phml_dict = {
                             },
                             "children": None,
                             "type": "element",
-                            "position": {
-                                "start": {"line": 20, "column": 23},
-                                "end": {"line": 28, "column": 42},
-                            },
                         },
                     ],
                     "type": "element",
-                    "position": {
-                        "start": {"line": 10, "column": 24},
-                        "end": {"line": 28, "column": 49},
-                    },
                 },
             ],
             "type": "element",
-            "position": {
-                "start": {"line": 0, "column": 15},
-                "end": {"line": 28, "column": 56},
-            },
         },
         {
             "name": "comment",
             "content": "Extra comment at end of file",
             "type": "literal",
-            "position": {
-                "start": {"line": 28, "column": 56},
-                "end": {"line": 28, "column": 91},
-            },
         },
         {
             "name": "text",
             "content": "Extra text at end of file",
             "type": "literal",
-            "position": {
-                "start": {"line": 30, "column": 0},
-                "end": {"line": 30, "column": 0},
-            },
         },
     ],
     "type": "ast",
-    "position": None,
 }
 
 hashes = {
