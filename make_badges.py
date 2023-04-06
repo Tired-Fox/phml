@@ -116,8 +116,8 @@ if __name__ == "__main__":
 <br>
 <div align="center">
 
-  ![Made with Python](assets/badges/made_with_python.svg)
-  ![Built with love](assets/badges/built_with_love.svg)
+![Made with Python](assets/badges/made_with_python.svg)
+![Built with love](assets/badges/built_with_love.svg)
 
 </div>
 
