@@ -32,7 +32,8 @@ dev = [
   "requests"
 ]
 markdown = [
-  "markdown"
+  "markdown",
+  "pygmentize"
 ]
 
 [project.urls]
