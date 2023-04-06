@@ -11,7 +11,7 @@
 ![Maintained](assets/badges/maintained.svg)
 ![testing](assets/badges/tests.svg)
 ![test coverage](assets/badges/coverage.svg)
-  
+
 </div>
 
 <!-- End Badges -->
@@ -220,15 +220,8 @@ There are many more features such as globally exposed variables, components, slo
 
 For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
 
-<!-- Footer Badges --!>
 
 <br>
 <div align="center">
-
+  
 ![Made with Python](assets/badges/made_with_python.svg)
-![Built with love](assets/badges/built_with_love.svg)
-
-</div>
-
-<!-- End Badges -->
-
