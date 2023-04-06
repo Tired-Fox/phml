@@ -24,10 +24,12 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
   "pytest",
+  "pytest-cov"
 ]
 dev = [
   "black",
   "ruff"
+  "requests"
 ]
 markdown = [
   "markdown"

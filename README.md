@@ -1,25 +1,29 @@
 # Python Hypertext Markup Language (phml)
 
-<!-- Badges -->
+<!-- Header Badges -->
 
 <div align="center">
   
 ![version](assets/badges/version.svg)
-[![License](https://img.shields.io/github/license/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
-[![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/releases)
+[![License](assets/badges/license.svg)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square&color=9
+cf)](https://github.com/Tired-Fox/phml/releases)
 [![Issues](https://img.shields.io/github/issues/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/pulls)
+[![Pull Requests](https://img.shields.io/github/issues-pr/tired-fox/phml.svg?style=flat-square&c
+olor=9cf)](https://github.com/Tired-Fox/phml/pulls)
 
-  [![Deploy Docs](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml)
-![Maintained](https://img.shields.io/badge/Maintained%3F-yes-2CBA00.svg?style=flat-square)
+![Maintained](assets/badges/maintained.svg)
 ![testing](assets/badges/tests.svg)
 ![test coverage](assets/badges/coverage.svg)
   
-[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://tired-fox.github.io/phml/phml.html 'Go to project documentation')
-  
+<!-- !PERF: Make sure to edit this lines link! -->
+[![view - Documentation](assets/badges/documentation.svg)](https://tired-fox.github.io/phml/phml
+.html 'Go to project documentation')
+
 </div>
 
 <!-- End Badges -->
+
 ## Overview
 
 The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language takes inspiration directly from frameworks like Vue.js, Astro.js, Solid.js, and SvelteKit. There is conditional rendering, components, python elements, inline/embedded python blocks, and slot, named slots, and much more. Now let's dive into more the language.
@@ -224,10 +228,15 @@ There are many more features such as globally exposed variables, components, slo
 
 For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
 
+<!-- Footer Badges --!>
+
 <br>
 <div align="center">
 
   ![Made with Python](assets/badges/made_with_python.svg)
-  ![Built with love](https://img.shields.io/badge/Built_With-❤-D15D27?style=for-the-badge&labelColor=E26D25)
+  ![Built with love](assets/badges/built_with_love.svg)
 
 </div>
+
+<!-- End Badges -->
+
