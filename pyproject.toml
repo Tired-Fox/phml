@@ -22,19 +22,19 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-tests = [
-  "pytest",
-  "pytest-cov",
-  "coverage"
-]
 dev = [
   "black",
   "ruff",
   "requests"
 ]
+tests = [
+  "pytest",
+  "pytest-cov",
+  "coverage"
+]
 markdown = [
   "markdown",
-  "pygmentize"
+  "Pygments"
 ]
 
 [project.urls]
