@@ -1,4 +1,4 @@
-from enum import EnumType
+from dataclasses import dataclass
 from typing import Any
 
 from phml.embedded import exec_embedded
@@ -8,7 +8,8 @@ from phml.nodes import Element, Parent
 from .base import comp_step
 
 
-class Condition(EnumType):
+@dataclass
+class Condition:
     """Variants of valid conditions.
 
     Options:
