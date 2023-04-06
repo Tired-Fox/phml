@@ -24,7 +24,7 @@ if __name__ == "__main__":
         ),
         (
             "maintained",
-            "badge/Maintained%3F-yes-2CBA00.svg",
+            f"badge/maintained-yes-{primary}.svg",
             {"style": "flat-square"}
         ),
         (
@@ -96,15 +96,10 @@ if __name__ == "__main__":
 ![version](assets/badges/version.svg)
 [![License](assets/badges/license.svg)](https://github.com/Tired-Fox/{project}/blob/main/LICENSE)
 [![Release](https://img.shields.io/github/v/release/tired-fox/{project}.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/releases)
-[![Issues](https://img.shields.io/github/issues/tired-fox/{project}.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/tired-fox/{project}.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/pulls)
-
 ![Maintained](assets/badges/maintained.svg)
+
 ![testing](assets/badges/tests.svg)
 ![test coverage](assets/badges/coverage.svg)
-  
-<!-- !PERF: Make sure to edit this lines link! -->
-[![view - Documentation](assets/badges/documentation.svg)](https://tired-fox.github.io/{project}/phml.html 'Go to project documentation')
   
 </div>
 
