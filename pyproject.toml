@@ -28,7 +28,7 @@ tests = [
 ]
 dev = [
   "black",
-  "ruff"
+  "ruff",
   "requests"
 ]
 markdown = [
