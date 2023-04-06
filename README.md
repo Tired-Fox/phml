@@ -20,6 +20,8 @@
 
 The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language takes inspiration directly from frameworks like Vue.js, Astro.js, Solid.js, and SvelteKit. There is conditional rendering, components, python elements, inline/embedded python blocks, and slot, named slots, and much more. Now let's dive into more the language.
 
+### Python Element
+
 Let's start with the new `python` element. Python is a whitespace language. As such, phml
 has the challenge of maintaining the indentation in an appropriate way as to preserve the intended whitespace. The key focus is the indended whitespace. While this can be tricky the first line with content serves as a reference. The amount of indentation for the first line is removed from each line and the remaining whitespace is left alone. For example if there is a python block that looks like this.
 
@@ -50,6 +52,8 @@ how you normally would and they are now available to the scope of the entire fil
 ```
 
 phml combines all `python` elements and treats them as one python file. This is of the likes of the `script` or `style` tags. With the fact that you can write any code in the python element and used it anywhere else in the file you of the full power of the python programming language at your desposal.
+
+### Inline Python and Python Attributes
 
 Next up is inline python blocks. These are represented with `{{}}` in text elements. Any text in-between the brackets will be processed as python. This is mostly useful when you want to inject a value from python. Assume that there is a variable defined in the `python` element called `message`
 and it contains `Hello World!`. Now this variable can be used like this, `<p>{{ message }}</p>`,
@@ -82,6 +86,8 @@ The compiled html will be:
 ```
 
 Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in phml, you would inject python logic into an attribute similar to this `src="{url('youtube')}"`. If you would like to make the whole attribute value a python expression you may prefix any attribute with a `:`. This keeps the attribute name the same after the prefix, but tells the parser that the entire value should be processed as python. So the previous example with `URL` can also be expressed as `<a :href="URL('youtube')>Youtube</a>"`.
+
+### Components
 
 PHML includes a powerful component system. The components are partial phml files and are added to the core compiler. After adding the component whenever an element with the same name as the component is found, it is replaced. Components have scoped `python` elements, while all `style` and `script` elements are global to the file they are injected into. Components require that there is only one element, that isn't a `python`, `script`, or `style` tag, to be present. A sample component can look something like the example below.
 
@@ -180,20 +186,36 @@ Middle
 ...
 ```
 
-PHML also has very basic markdown support. You may use the `Markdown` element to render markdown in place of the element itself. The element has 3 main uses: using the `src`/`:src` attribute to pass a string, the `file`/`:file` attribute to load the markdown from a file, and finally to just write markdown text inside as children to the element. The text as children is adjusted to have a normalized indent similar to the `python` element. If all of these methods are used, they are combined. The are combined in the order of `src`, then `file`, then the children.
+### Markdown (Optional)
+
+PHML also has very basic markdown support. The `Markdown` element can be used to render markdown in place of the element itself. The markdown component is an optional feature of phml. To enable the feature you can run `pip3 install phml[markdown]` or `pip3 install markdown`, then use the component in a phml file. The markdown component can only reference/render a markdown file. To do so, use the `:src`/`src` attribute to specify the path to the markdown file, relative to the current file. If phml is rendering from a parsed dict or str, then the current working directory is used.
+
+The markdown component uses a few default extensions while parsing. First it uses `codehilite` and `fenced_code` for highlighting code blocks, this also requires a css file generated with `pygmentize`. Lastly, it will use `tables` to add the ability to parse markdown tables. This makes the markdown close to a github flavor. 
+
+Users may need to add additional markdown extension or to configure them. That is where the `:extras`/`extras` and `:configs` attributes come in. The `:extras` attribute is a list of string names of the markdown extensions to add. The `extras` attribute, also `:extras`, is a space seperated string of the extension names. To configure the extensions the python attribute `:configs` is used. The attribute must be a dict of the format `{ '<extension>': { `<option>`: <value> } }`. The options and available values are found in the `markdown` modules [documentation](https://python-markdown.github.io/extensions/).
+  
+When the markdown is compiled, the resulting html elements are nested in an `article` element. All attributes that are not `src`, `extras`, or `:config` on the markdown component are added to the parent `article` element and are left unprocessed. This means that python attributes other than `:config` or `:extras` on the markdown component are left "as is".
 
 ```html
 <!-- file.phml -->
-<Markdown src="# Sample markdown" file="../markdown/file.md">
-  This is samle markdown text.
-</Markdown>
+<Markdown
+  src="../markdown/file.md"
+  extras="smarty footnotes"
+  :configs="{
+     "footnotes": {
+       "BACKLINK_TEXT": "$"           
+     }
+  }"
+>
 ```
-
+___
+  
 > :warning: This language is in early development stages. Everything is currently subject to change. All forms of feedback are encouraged.
 
-For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
+<br>
+For more information, check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
 
-## How to use
+## Basic Usage
 
 The current version is able to parse phml using an html parser. This creates a phml ast which then can be converted back to phml or to json.
 
