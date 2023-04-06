@@ -4,21 +4,18 @@
 
 <div align="center">
   
-![version](assets/badges/version.svg)
-[![License](assets/badges/license.svg)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
-[![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square&color=9
-cf)](https://github.com/Tired-Fox/phml/releases)
-[![Issues](https://img.shields.io/github/issues/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/tired-fox/phml.svg?style=flat-square&c
-olor=9cf)](https://github.com/Tired-Fox/phml/pulls)
+  ![version](assets/badges/version.svg)
+  [![License](assets/badges/license.svg)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
+  [![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/releases)
+  [![Issues](https://img.shields.io/github/issues/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/issues)
+  [![Pull Requests](https://img.shields.io/github/issues-pr/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/pulls)
 
-![Maintained](assets/badges/maintained.svg)
-![testing](assets/badges/tests.svg)
-![test coverage](assets/badges/coverage.svg)
+  ![Maintained](assets/badges/maintained.svg)
+  ![testing](assets/badges/tests.svg)
+  ![test coverage](assets/badges/coverage.svg)
   
 <!-- !PERF: Make sure to edit this lines link! -->
-[![view - Documentation](assets/badges/documentation.svg)](https://tired-fox.github.io/phml/phml
-.html 'Go to project documentation')
+  [![view - Documentation](assets/badges/documentation.svg)](https://tired-fox.github.io/phml/phml.html 'Go to project documentation')
 
 </div>
 
@@ -227,7 +224,6 @@ Every time `phml.parse` or `phml.load` is called it will overwrite the stored as
 There are many more features such as globally exposed variables, components, slots, exposing python files to be used in phml files, etc...
 
 For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
-
 <!-- Footer Badges --!>
 
 <br>
