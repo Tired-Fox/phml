@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Unicode Characters</title>
+    </head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', sans-serif;
+            font-size: 62.5%;
+        }
+        p {
+            font-size: 3rem;
+        }
+
+        button {
+            padding: .25rem;
+            border: none;
+            outline: none;
+            background-color: transparent;
+        }
+
+        #unicode-table {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: auto;
+        }
+
+        #unicode-table>p {
+            text-align: center;
+        }
+    </style>
+    <script defer>
+        const copyUnicode = (value) => {
+            character = String.fromCharCode(value);
+            navigator.clipboard.writeText(character).finally(() =>{
+                alert(`Copied text ${character} for unicode <${value}>`)
+            });
+        }
+    </script>
+    <body>
+        <!--  List of all unicode characters  -->
+        <div id="unicode-table">
+            <For :each="num in range(10001)">
+              <button id="u{{ num }}" onclick="copyUnicode({{ num }})">
+                <p>&#{{ num }}</p>
+              </button>
+            </For>
+            <!-- This is a fallback for a for loop. This can be any number of @elif ending with an optional @else -->
+            <p @else>{{ _loop_fail_ }}</p>
+        </div>
+    </body>
+</html>

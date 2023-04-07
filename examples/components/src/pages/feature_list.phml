@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Feature List</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: rgb(238, 238, 238);
+      padding: 1rem;
+    }
+  </style>
+  <python>
+    features = [
+    "loops with @for",
+    "components",
+    "components with props",
+    "components with children"
+    ]
+  </python>
+</head>
+
+<body>
+  <Hero>
+    <h1 slot="title">Features</h1>
+    <p>Here is a list of all the features that are used:</p>
+  </Hero>
+  <ul>
+    <For each="feature in features">
+      <li>
+        <p>{{ feature }}</p>
+      </li>
+    </For>
+  </ul>
+  <a href="index.html">Home</a>
+</body>
+
+</html>

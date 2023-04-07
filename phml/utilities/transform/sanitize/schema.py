@@ -127,7 +127,8 @@ class Schema:
     attributes: dict[str, list[str | tuple[str|bool, ...]]] = field(
         default_factory=lambda: {
             "a": ["href"],
-            "img": ["src", "longDesc"],
+            "article": ["class"],
+            "img": ["src", "longDesc", "loading"],
             "input": [("type", "checkbox"), ("disabled", True)],
             "li": [("class", "task-list-item")],
             "div": ["itemScope", "itemType"],

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
+        <title>elif</title>
+    </head>
+    <python>
+        message = "This is an elif condition."
+    </python>
+    <body>
+        <h2>PHML conditional elements</h2>
+        <h4>Elif Conditions</h4>
+        <p>I won't go into to much detail now. You may look at the code and documentation.</p>
+        <p @if="blank(message)" class="if-alert">This is an if condition. An error occured</p>
+        <p @elif="not blank(message)" class="elif">{{ message }}{{ escaped }}</p>
+        <div class="flex justify-between">
+            <a href="index.html"><h5>← If Condition</h5></a>
+            
+            <a href="else.html"><h5>Else Condition →</h5></a>
+        </div>
+    </body>
+
+</html>

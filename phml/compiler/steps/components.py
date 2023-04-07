@@ -183,7 +183,7 @@ def step_substitute_components(
         if isinstance(child, Element) and child.tag in components:
             # Need a deep copy of the component as to not manipulate the cached comonent data
             elements = deepcopy(components[child.tag]["elements"])
-            props = components[child.tag]["props"]
+            props = {**components[child.tag]["props"]}
             context = {**child.context, **components[child.tag]["context"]}
 
             attrs = {

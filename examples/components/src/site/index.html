@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta
+      http-equiv="X-UA-Compatible"
+      content="IE=edge"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Home</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+      * {
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+      }
+
+      body {
+        background-color: rgb(238, 238, 238);
+        padding: 1rem;
+      }
+    </style>
+    <style>
+      [data-phml-cmpt-scope='Hero~9437413576116610978'] h1 {
+          margin: 0;
+      }
+
+      [data-phml-cmpt-scope='Hero~9437413576116610978'] #hero {
+          margin-bottom: 1rem;
+      }
+
+      [data-phml-cmpt-scope='Hero~9437413576116610978'] .centered {
+        width: fit-content;
+        height: fit-content;
+        margin-inline: auto;
+      }
+
+      [data-phml-cmpt-scope='Hero~9437413576116610978'] img {
+        border-radius: .5rem;
+        box-shadow: 0px 5px 10px rgba(0, 0, 0, .45);
+      }
+      [data-phml-cmpt-scope='Callout~8537960921568600125'] .w-6 {
+          width: 1.5rem;
+      }
+
+      [data-phml-cmpt-scope='Callout~8537960921568600125'] .h-6 {
+
+          height: 1.5rem;
+      }
+
+      [data-phml-cmpt-scope='Callout~8537960921568600125'] .callout h3 {
+          margin: 0;
+      }
+
+      [data-phml-cmpt-scope='Callout~8537960921568600125'] .callout {
+          width: 100%;
+          height: fit-content;
+          
+          display: flex;
+          flex-direction: column;
+          
+          box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+          background-color: white;
+          border-radius: .25rem;
+          margin-block: 1rem;
+          padding: 1rem;
+      }
+
+      [data-phml-cmpt-scope='Callout~8537960921568600125'] .callout-header {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+      }
+
+      [data-phml-cmpt-scope='Callout~8537960921568600125'] .callout-body {
+          margin-left: 2.5rem;
+          width: fit-content;
+          height: fit-content;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-phml-cmpt-scope="Hero~9437413576116610978">
+      <div id="hero">
+        <div class="centered">
+          <img
+            src="https://picsum.photos/800/450"
+            alt="Hero Image"
+            loading="lazy"
+          />
+        </div>
+        <h1>Overview</h1>
+        <p>
+          Last updated:
+          <time datetime="2023-04-07">April 7, 2023</time>
+        </p>
+      </div>
+    </div>
+    <p>
+      phml is python embedded inside of html. This is powerful when used with other libraries
+          such as flask. Even when it is used by itself it can be very powerful. This example
+          shows proof of that.
+    </p>
+    <div data-phml-cmpt-scope="Callout~8537960921568600125">
+      <div class="callout">
+        <!--Icon-->
+        <div class="callout-header">
+          <div data-phml-cmpt-scope="Icons.Warning~-1116050774598496699">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewbox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="rgb(250 204 21)"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+              />
+            </svg>
+          </div>
+          <!--Title-->
+          <h3>Some warning callout</h3>
+        </div>
+        <div class="callout-body">
+          <!--Message-->
+        </div>
+      </div>
+    </div>
+    <p>
+      This homepage shows examples of components. The components I created are callouts.
+          I can give these custom elements attributes which are used as props for the components.
+          Conditional attributes are preserved and placed on the parent wrapper element of the
+          component. The `icon` attribute defines the type of icon that is used in the callout.
+          the title attribute allows for custom titles, and the message attribute allows for a single
+          text node in the children. The component also has a conditional `Slot` element that
+          is a placeholder for all the children of the component. All children given to the `Callout`
+          component on this page will replace the `Slot` element in the component. Below you will
+          see more variations of the callout component.
+    </p>
+    <div data-phml-cmpt-scope="Callout~8537960921568600125">
+      <div class="callout">
+        <!--Icon-->
+        <div class="callout-header">
+          <div data-phml-cmpt-scope="Icons.Info~-470696466632199735">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewbox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="rgb(14 165 233)"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+              />
+            </svg>
+          </div>
+          <!--Title-->
+          <h3>INFO</h3>
+        </div>
+        <div class="callout-body">
+          <!--Message-->
+          <p>Here is an info message</p>
+        </div>
+      </div>
+    </div>
+    <div data-phml-cmpt-scope="Callout~8537960921568600125">
+      <div class="callout">
+        <!--Icon-->
+        <div class="callout-header">
+          <div data-phml-cmpt-scope="Icons.Danger~-664959840184655204">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewbox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="rgb(244 63 94)"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z"
+              />
+            </svg>
+          </div>
+          <!--Title-->
+          <h3>DANGER</h3>
+        </div>
+        <div class="callout-body">
+          <!--Message-->
+          <p>Callout with children</p>
+        </div>
+      </div>
+    </div>
+    <div data-phml-cmpt-scope="Callout~8537960921568600125">
+      <div class="callout">
+        <!--Icon-->
+        <div class="callout-header">
+          <div data-phml-cmpt-scope="Icons.Danger~-664959840184655204">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewbox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="rgb(244 63 94)"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z"
+              />
+            </svg>
+          </div>
+          <!--Title-->
+          <h3>FAIL</h3>
+        </div>
+        <div class="callout-body">
+          <!--Message-->
+          <p>Same callout displaying prop and children</p>
+          <p>Child element</p>
+        </div>
+      </div>
+    </div>
+    <a href="feature_list.html">List of features in this example</a>
+  </body>
+</html>

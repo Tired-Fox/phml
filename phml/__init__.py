@@ -5,13 +5,6 @@ from dataclasses import dataclass
 
 from .core import HypertextManager
 from .builder import p
-
-__all__ = [
-    "HypertextManager",
-    "p"
-]
-
-
 @dataclass
 class Version:
     """Version object for phml.

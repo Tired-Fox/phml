@@ -4,6 +4,7 @@ from typing import Any
 from phml.components import ComponentManager
 from phml.embedded import exec_embedded
 from phml.nodes import Element, Parent
+from phml.utilities import sanatize
 
 from .base import comp_step
 
@@ -17,13 +18,13 @@ except ImportError:  # pragma: no cover
     )
 
     class Markdown:
-        def __init__(self, *args, **kwargs) -> None:
+        def __init__(self, *_a, **_k) -> None:
             raise error
 
-        def registerExtensions(self, *args, **kwargs):
+        def registerExtensions(self, *_a, **_k):
             raise error
 
-        def reset(self, *args, **kwargs):
+        def reset(self, *_a, **_k):
             raise error
 
     MARKDOWN = Markdown
@@ -77,23 +78,29 @@ def step_compile_markdown(
                     "<Markdown /> element must have a 'src' or ':src' attribute that is a string",
                 )
 
-            path = Path(src).resolve()
+            if context.get("_phml_path_", None) is not None:
+                path = Path(context["_phml_path_"]).parent / Path(src)
+            else:
+                path = Path.cwd() / Path(src)
+
             if not path.is_file():
                 raise FileNotFoundError(f"No markdown file at path '{path}'")
 
             with path.open("r", encoding="utf-8") as md_file:
                 content = str(markdown.reset().convert(md_file.read()))
 
-            # TODO:
-            # PERF: Sanatize the markdown
             phml = HypertextManager()
             phml.components = components
             ast = phml.parse(content).ast
 
             if len(ast) > 0 and md.parent is not None:
+                wrapper = Element("article", attributes=md.attributes, children=ast.children)
+                sanatize(wrapper)
+
                 idx = md.parent.index(md)
+
                 md.parent.remove(md)
                 md.parent.insert(
                     idx,
-                    Element("article", attributes=md.attributes, children=ast.children),
+                    wrapper
                 )

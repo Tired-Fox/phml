@@ -5,7 +5,7 @@ from phml import p
 
 class TestMisc:
     def test_depth(self):
-        assert depth(first) == 3
+        assert depth(dest) == 3
 
     def test_size(self):
         assert size(ast) == 14

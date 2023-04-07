@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{{ page_title or "Document" }}</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: rgb(238, 238, 238);
+      padding: 1rem;
+    }
+  </style>
+  <python>
+    page_title="Home"
+  </python>
+</head>
+
+<body>
+  <Hero>
+    <p>
+      Last updated:
+      <time datetime="2023-04-07">April 7, 2023</time>
+    </p>
+    <h1 slot="title">Overview</h1>
+    <div slot="hero-img" class="centered">
+      <img src="https://picsum.photos/800/450" alt="Hero Image" loading="lazy">
+    </div>
+  </Hero>
+
+  <p>
+    phml is python embedded inside of html. This is powerful when used with other libraries
+    such as flask. Even when it is used by itself it can be very powerful. This example
+    shows proof of that.
+  </p>
+
+  <Callout icon="warning" title="Some warning callout" />
+
+  <p>
+    This homepage shows examples of components. The components I created are callouts.
+    I can give these custom elements attributes which are used as props for the components.
+    Conditional attributes are preserved and placed on the parent wrapper element of the
+    component. The `icon` attribute defines the type of icon that is used in the callout.
+    the title attribute allows for custom titles, and the message attribute allows for a single
+    text node in the children. The component also has a conditional `Slot` element that
+    is a placeholder for all the children of the component. All children given to the `Callout`
+    component on this page will replace the `Slot` element in the component. Below you will
+    see more variations of the callout component.
+  </p>
+
+  <Callout icon="info" message="Here is an info message" />
+
+  <Callout icon="danger">
+    <p>Callout with children</p>
+  </Callout>
+
+  <Callout icon="fail" message="Same callout displaying prop and children">
+    <p>Child element</p>
+  </Callout>
+
+  <a href="feature_list.html">List of features in this example</a>
+</body>
+
+</html>

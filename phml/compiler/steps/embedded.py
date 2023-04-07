@@ -23,10 +23,7 @@ def _process_attributes(node: Element, context: dict[str, Any]):
             )
             if result is not None:
                 node.pop(attribute, None)
-                if isinstance(result, str):
-                    node[attribute.lstrip(":")] = escape(result, **ESCAPE_OPTIONS)
-                else:
-                    node[attribute.lstrip(":")] = result
+                node[attribute.lstrip(":")] = result
         else:
             if isinstance(node[attribute], str):
                 value = exec_embedded_blocks(
@@ -35,7 +32,7 @@ def _process_attributes(node: Element, context: dict[str, Any]):
                     **context,
                 )
                 if value is not None:
-                    node[attribute] = escape(value, **ESCAPE_OPTIONS)
+                    node[attribute] = value
 
 
 @comp_step
@@ -47,12 +44,9 @@ def step_execute_embedded_python(node: Parent, _, context: dict[str, Any]):
                 child,
                 build_recursive_context(child, context),
             )
-        elif Literal.is_text(child) and "{{" in child.content:
-            child.content = escape(
-                exec_embedded_blocks(
-                    child.content.strip(),
-                    f"Text in <{node.tag}> at {node.position!r}",
-                    **build_recursive_context(child, context),
-                ),
-                **ESCAPE_OPTIONS,
+        elif Literal.is_text(child) and "{{" in child.content and child.parent.tag not in ["script", "style", "python"]:
+            child.content = exec_embedded_blocks(
+                child.content.strip(),
+                f"Text in <{node.tag}> at {node.position!r}",
+                **build_recursive_context(child, context),
             )

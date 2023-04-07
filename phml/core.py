@@ -5,7 +5,7 @@ import sys
 from contextlib import contextmanager
 from importlib import import_module
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, overload
+from typing import TYPE_CHECKING, Any, NoReturn, overload
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -48,11 +48,18 @@ class HypertextManager:
     ) -> Iterator[HypertextManager]:
         with PHMLTryCatch():
             core = HypertextManager()
+            core._from_path = Path(_from)
+            core._from_path.parent.mkdir(parents=True, exist_ok=True)
             core._from_file = Path(_from).open("r", encoding="utf-8")
-            core._from_path = _from
             if _to is not None:
-                core._to_file = Path(_to).open("+w", encoding="utf-8")
+                output = Path(_to)
+                output.parent.mkdir(parents=True, exist_ok=True)
+                core._to_file = output.open("+w", encoding="utf-8")
+
+            core.parse()
+
             yield core
+
             core._from_path = None
             core._from_file.close()
             if core._to_file is not None:
@@ -273,7 +280,7 @@ class HypertextManager:
         """Renders the phml ast into an html string. If currently in a context manager
         the resulting string will also be output to an associated file.
         """
-        context = {**self.context, **context}
+        context = {**self.context, **context, "_phml_path_": self._from_path}
         if self._ast is not None:
             with PHMLTryCatch(self._from_path, "phml:__render"):
                 result = self.compiler.render(
@@ -299,12 +306,15 @@ class HypertextManager:
             path (str): The output path for the rendered html.
             compress (bool): Whether to compress the output. Defaults to False.
         """
-        with Path(_path).open("+w", encoding="utf-8") as file:
+        path = Path(_path).with_suffix(".html")
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        with path.open("+w", encoding="utf-8") as file:
             file.write(self.compiler.render(self.compile(**context), _compress))
         return self
 
     @overload
-    def add(self, file: str, *, ignore: str = ""):
+    def add(self, file: str | Path, *, ignore: str = ""):
         """Add a component to the component manager with a file path. Also, componetes can be added to
         the component manager with a name and str or an already parsed component dict.
 
@@ -335,10 +345,10 @@ class HypertextManager:
 
     def add(
         self,
-        file: str | None = None,
+        file: str | Path | None = None,
         *,
         name: str | None = None,
-        data: ComponentType | None = None,
+        data: ComponentType | str | None = None,
         ignore: str = "",
     ):
         """Add a component to the component manager. The components are used by the compiler

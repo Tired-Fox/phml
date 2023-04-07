@@ -4,9 +4,10 @@ Embedded has all the logic for processing python elements, attributes, and text 
 from __future__ import annotations
 
 import ast
+from functools import cached_property
+from html import escape
 import re
 import types
-from functools import cached_property
 from pathlib import Path
 from shutil import get_terminal_size
 from traceback import FrameSummary, extract_tb
@@ -16,9 +17,14 @@ from phml.embedded.built_in import built_in_funcs, built_in_types
 from phml.helpers import normalize_indent
 from phml.nodes import Element, Literal
 
+ESCAPE_OPTIONS = {
+    "quote": False,
+}
+
 # Global cached imports
 __IMPORTS__ = {}
 __FROM_IMPORTS__ = {}
+
 
 # PERF: Only allow assignments, methods, imports, and classes?
 class EmbeddedTryCatch:
@@ -497,6 +503,9 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
         ccode = compile(AST, "_phml_embedded_", "exec")
         local_env = {}
         exec(ccode, {**context}, local_env)
+
+        if isinstance(local_env[RESULT], str):
+            return escape(local_env[RESULT], **ESCAPE_OPTIONS)
         return local_env[RESULT]
 
 
@@ -515,13 +524,13 @@ def exec_embedded_blocks(code: str, _path: str = "", **context: dict[str, Any]):
         str: The value of the passed in string with the python blocks replaced.
     """
 
-    result = ""
+    result = [""]
     data = []
     next_block = re.search(r"\{\{", code)
     while next_block is not None:
         start = next_block.start()
         if start > 0:
-            result += code[:start]
+            result[-1] += code[:start]
         code = code[start + 2 :]
 
         balance = 2
@@ -533,20 +542,50 @@ def exec_embedded_blocks(code: str, _path: str = "", **context: dict[str, Any]):
                 balance += 1
             index += 1
 
-        result += "{}"
+        result.append("")
         data.append(
             str(
                 exec_embedded(
-                    code[: index - 2],
+                    code[: index - 2].strip(),
                     _path + f" block #{len(data)+1}",
                     **context,
                 ),
             ),
         )
-        code = code[index + 1 :]
+        code = code[index:]
         next_block = re.search(r"(?<!\\)\{\{", code)
 
     if len(code) > 0:
-        result += code
+        result[-1] += code
 
-    return result.format(*data)
+    if len(data) != len(result) - 1:
+        raise ValueError(
+            f"Not enough data to replace inline python blocks: expected {len(result) - 1} but there was {len(data)}"
+        )
+
+    def merge(dest: list, source: list) -> list:
+        """Merge source into dest. For every item in source place each item between items of dest.
+        If there is more items in source the spaces between items in dest then the extra items in source
+        are ignored.
+
+        Example:
+            dest = [1, 2, 3]
+            source = ["red", "blue", "green"]
+            merge(dest, source) == [1, "red", 2, "blue", 3]
+
+            or
+
+            dest = [1, 2, 3]
+            source = ["red"]
+            merge(dest, source) == [1, "red", 2, 3]
+        """
+        combination = []
+        for f_item, s_item in zip(dest, source):
+            combination.extend([f_item, s_item])
+
+        idx = len(combination) // 2
+        if idx < len(dest):
+            combination.extend(dest[idx:])
+        return combination
+
+    return "".join(merge(result, data))

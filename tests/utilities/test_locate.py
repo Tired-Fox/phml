@@ -2,13 +2,13 @@ from phml.utilities.locate.find import *
 from phml.utilities.locate.index import Index
 from phml.utilities.locate.select import matches, query, query_all, parse_specifiers
 from phml import p
-from util_data import ast, container, first, last
+from util_data import ast, container, dest, last
 
 from pytest import raises
 
 class TestFind:
     def test_ancestor(self):
-        assert ancestor(first, last) == container
+        assert ancestor(dest, last) == container
 
     def test_find(self):
         assert find(ast, ["div", {"id": "sample-1"}]) is not None 
@@ -19,15 +19,15 @@ class TestFind:
         assert find_all(ast, "span") == []
 
     def test_find_after(self):
-        assert find_after(first, ["div", {"id": "sample-2"}]) is not None
-        assert find_after(first, "span") is None
-        assert find_after(first) is not None
+        assert find_after(dest, ["div", {"id": "sample-2"}]) is not None
+        assert find_after(dest, "span") is None
+        assert find_after(dest) is not None
 
     def test_find_all_after(self):
-        assert find_all_after(first, ["div", {"class": "sample"}]) != []
-        assert find_all_after(first, "span") == []
+        assert find_all_after(dest, ["div", {"class": "sample"}]) != []
+        assert find_all_after(dest, "span") == []
         assert find_all_after(p("div", {}), "div") == []
-        assert find_all_after(first) != []
+        assert find_all_after(dest) != []
 
     def test_find_before(self):
         assert find_before(last, ["div", {"id": "sample-2"}]) is not None
@@ -80,18 +80,18 @@ class TestIndex:
 class TestSelect:
     def test_query(self):
         assert query(ast, "div") == container
-        assert query(ast, "div#sample-1.sample") == first
+        assert query(ast, "div#sample-1.sample") == dest
         assert query(ast, "div > p") == container[1]
         assert query(ast, "div > div + p") == container[1]
         assert query(ast, "div > div ~ #sample-3") == last
-        assert query(ast, "div div") == first
+        assert query(ast, "div div") == dest
         assert query(ast, "div > div ~ *") is not None
-        assert query(ast, "div > [class=sample]") == first
-        assert query(ast, "div > [id^=sample]") == first
-        assert query(ast, "div > [id$=ple-1]") == first
-        assert query(ast, "div > [id~=sample]") == first
-        assert query(ast, "div > [id*=sample]") == first
-        assert query(ast, "div > [id|=sample]") == first
+        assert query(ast, "div > [class=sample]") == dest
+        assert query(ast, "div > [id^=sample]") == dest
+        assert query(ast, "div > [id$=ple-1]") == dest
+        assert query(ast, "div > [id~=sample]") == dest
+        assert query(ast, "div > [id*=sample]") == dest
+        assert query(ast, "div > [id|=sample]") == dest
         assert query(ast, "span") is None
     
         assert query(p("div", p("div", {})), "div ~ div") is None

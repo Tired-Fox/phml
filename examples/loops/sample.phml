@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sample 1</title>
+    </head>
+    <python>
+        if True:
+            print("Hello World")
+        message = "Hello World!"
+        errors = [
+            "Error 1",
+            "Error 2",
+            "Bad formatting",
+            "Yolo",
+        ]
+    </python>
+    <body>
+        <img src="https://picsum.photos/200/300" alt="Example" />
+
+        <!--  Brackets ({,}) inject python. Can be any python,
+        but it must return or result in a value  -->
+        <h2>
+            {{ message }}
+        </h2>
+
+        <ul>
+            <For :each="error in errors">
+              <li>{{ error }}</li>
+            </For>
+        </ul>
+
+        <p>
+            <For :each="char in message">
+                <span>{{ char }}</span>
+            </For>
+        </p>
+    </body>
+</html>

@@ -171,7 +171,7 @@ class ComponentManager:
         return component
 
     @overload
-    def add(self, file: str, *, ignore: str = ""):
+    def add(self, file: str | Path, *, ignore: str = ""):
         """Add a component to the component manager with a file path. Also, componetes can be added to
         the component manager with a name and str or an already parsed component dict.
 
@@ -202,7 +202,7 @@ class ComponentManager:
 
     def add(
         self,
-        file: str | None = None,
+        file: str | Path | None = None,
         *,
         name: str | None = None,
         data: str | ComponentType | None = None,
@@ -238,9 +238,10 @@ class ComponentManager:
                     "Expected component data to be a string or a ComponentType dict",
                 )
         else:
-            with Path(file).open("r", encoding="utf-8") as c_file:
-                name = self.generate_name(file, ignore)
-                content.update(self.parse(c_file.read(), file))
+            file = Path(file)
+            with file.open("r", encoding="utf-8") as c_file:
+                name = self.generate_name(file.as_posix(), ignore)
+                content.update(self.parse(c_file.read(), file.as_posix()))
 
         self.validate(content)
         content["hash"] = name + content["hash"]
@@ -249,11 +250,11 @@ class ComponentManager:
     def __iter__(self) -> Iterator[tuple[str, ComponentType]]:
         yield from self.components.items()
 
-    def keys(self) -> Iterator[str]:
-        yield from self.components.keys()
+    def keys(self):
+        return self.components.keys()
 
-    def values(self) -> Iterator[ComponentType]:
-        yield from self.components.values()
+    def values(self):
+        return self.components.values()
 
     def __contains__(self, key: str) -> bool:
         return key in self.components

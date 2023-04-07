@@ -1,0 +1,64 @@
+<python>
+    Props = {
+        "icon": "info",
+        "message": None,
+        "title": None
+    }
+</python>
+
+<div class="callout">
+    <!-- Icon -->
+    <div class="callout-header">
+        <Icons.Warning @if="icon in ['warn', 'warning']" />
+        <Icons.Danger @elif="icon in ['important', 'danger', 'fail', 'failure']" />
+        <Icons.Info @else />
+        <!-- Title -->
+        <h3>{{ title or icon.upper() if not blank(icon) else "INFO" }}</h3>
+    </div>
+    <div class="callout-body">
+        <!-- Message -->
+        <p @if="not blank(message)">{{ message }}</p>
+        <Slot @else />
+    </div>
+</div>
+
+<style scoped>
+    .w-6 {
+        width: 1.5rem;
+    }
+
+    .h-6 {
+
+        height: 1.5rem;
+    }
+
+    .callout h3 {
+        margin: 0;
+    }
+
+    .callout {
+        width: 100%;
+        height: fit-content;
+        
+        display: flex;
+        flex-direction: column;
+        
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        background-color: white;
+        border-radius: .25rem;
+        margin-block: 1rem;
+        padding: 1rem;
+    }
+
+    .callout-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .callout-body {
+        margin-left: 2.5rem;
+        width: fit-content;
+        height: fit-content;
+    }
+</style>

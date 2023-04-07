@@ -4,14 +4,14 @@ from phml.nodes import AST
 __all__ = [
     "ast",
     "container",
-    "first",
+    "dest",
     "para",
     "text",
     "middle",
     "last"
 ]
 
-first = p("div", {"class": "sample", "id": "sample-1"})
+dest = p("div", {"class": "sample", "id": "sample-1"})
 last = p("div", {"class": "sample", "id": "sample-3"})
 text = p("text", "test text")
 para = p("p", {"hidden": True}, text)
@@ -19,7 +19,7 @@ middle = p("div", {"class": "sample", "id": "sample-2"})
 
 container = p("div",
     {"id": "container"},
-    first,
+    dest,
     para,
     middle,
     last 
