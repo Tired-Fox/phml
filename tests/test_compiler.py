@@ -30,23 +30,23 @@ class TestHyperTextMarkupCompiler:
     compiler = HypertextMarkupCompiler()
 
     def test_compile(self):
-        ast = self.compiler.compile(phml_ast, components, message=message)
+        ast = self.compiler.compile(phml_ast, components, message=message, _phml_path_="tests/src/")
 
         assert ast == html_ast
         assert html_exists
 
     def test_render(self):
-        ast = self.compiler.compile(phml_ast, components, message=message)
+        ast = self.compiler.compile(phml_ast, components, message=message, _phml_path_="tests/src/")
         result = self.compiler.render(ast)
         assert result == html_file
 
     def test_compiler_compressed(self):
-        ast = self.compiler.compile(phml_ast, components, message=message)
+        ast = self.compiler.compile(phml_ast, components, message=message, _phml_path_="tests/src/")
         result = self.compiler.render(ast, True)
         assert result == html_file_compressed
 
     def test_compiler_unknown_renderable(self):
-        ast = self.compiler.compile(phml_ast, components, message=message)
+        ast = self.compiler.compile(phml_ast, components, message=message, _phml_path_="tests/src/")
         ast.append(AST())
         with raises(TypeError, match="Unknown renderable node type .+"):
             self.compiler.render(ast)
@@ -82,9 +82,9 @@ class TestCompilerStepExceptions:
             ValueError,
             match="Expected expression in 'each' attribute for <For/> to be a valid list comprehension.",
         ):
-            self.compiler.compile(no_expression, self.components)
+            self.compiler.compile(no_expression, self.components, _phml_path_="tests/src/")
 
-        assert self.compiler.compile(no_iterations, self.components) == AST(
+        assert self.compiler.compile(no_iterations, self.components, _phml_path_="tests/src/") == AST(
             [Element("p", children=[Literal(LiteralType.Text, "No Iterations")])]
         )
 
@@ -95,17 +95,18 @@ class TestCompilerStepExceptions:
         components["Sub.Component"]["elements"].append(
             Element("Slot", {"name": "extra"})
         )
+
         with raises(
             ValueError,
             match="Can not have more that one of the same named slot in a component",
         ):
-            self.compiler.compile(phml_ast, components)
+            self.compiler.compile(phml_ast, components, _phml_path_="tests/src/")
 
         components["Sub.Component"]["elements"][-1] = Element("Slot")
         with raises(
             ValueError, match="Can not have more that one catch all slot in a component"
         ):
-            self.compiler.compile(phml_ast, components)
+            self.compiler.compile(phml_ast, components, _phml_path_="tests/src/")
 
         del components["Sub.Component"]["elements"][-1]
 
@@ -156,6 +157,7 @@ class TestCompilerStepExceptions:
             self.compiler.compile(
                 self.parser.parse("""<Markdown :extras='["footnotes"]'>"""),
                 self.components,
+                _phml_path_="tests/src/"
             )
 
         # Invalid `:extras` value type
@@ -164,14 +166,15 @@ class TestCompilerStepExceptions:
             match="Expected ':extras' attribute to be a space seperated list as a str or a python list of str",
         ):
             self.compiler.compile(
-                self.parser.parse("""<Markdown :extras='None'>"""), self.components
+                self.parser.parse("""<Markdown :extras='None'>"""), self.components, _phml_path_="tests/src/"
             )
         # Markdown file doesn't exist
         with raises(FileNotFoundError, match="No markdown file at path '.+'"):
             self.compiler.compile(self.parser.parse(
                 """\
-<Markdown src="src/readme.md" />\
+<Markdown src="invalid/readme.md" />\
 """
                 ),
-                self.components
+                self.components,
+                _phml_path_="tests/src/"
             )

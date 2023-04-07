@@ -57,7 +57,7 @@ phml_file = """\
             <li @else>Loop fallback</li>
         </ul>
         <Markdown
-          src="tests/src/readme.md"
+          src="readme.md"
           extras="footnotes"
           :configs="{
             'footnotes': {
@@ -114,7 +114,7 @@ html_file = """\
     <input
       type="text"
       max="100"
-      value="Startwith this, not end."
+      value="Start with this, not end."
       data-is-active="false"
       hidden
     />
@@ -147,7 +147,7 @@ html_file_compressed = """\
   border: 1px solid black;
 }</style><script>window.onload = () => {
   alert("Test");
-};</script></head><body><div data-phml-cmpt-scope="Component~3090413834174898802"><p>Component</p><p>Hello World!</p></div><!--Sample Comment 1-->Sample Text<!--Sample Comment 2--><div data-phml-cmpt-scope="Sub.Component~6689333506419787003"><div><p>Sub component</p><p>Child</p>Generic text<p>Extra</p></div></div><input type="text" max="100" value="Startwith this, not end." data-is-active="false" hidden/><p>Hello World!</p><pre>text</pre><ul><li>1</li><li>2</li></ul><article><h1>Sample Markdown</h1><p>Markdown text here</p></article></body></html><!--Extra comment at end of file-->Extra text at end of file\
+};</script></head><body><div data-phml-cmpt-scope="Component~3090413834174898802"><p>Component</p><p>Hello World!</p></div><!--Sample Comment 1-->Sample Text<!--Sample Comment 2--><div data-phml-cmpt-scope="Sub.Component~6689333506419787003"><div><p>Sub component</p><p>Child</p>Generic text<p>Extra</p></div></div><input type="text" max="100" value="Start with this, not end." data-is-active="false" hidden/><p>Hello World!</p><pre>text</pre><ul><li>1</li><li>2</li></ul><article><h1>Sample Markdown</h1><p>Markdown text here</p></article></body></html><!--Extra comment at end of file-->Extra text at end of file\
 """
 
 phml_ast = AST(
@@ -291,7 +291,7 @@ phml_ast = AST(
                             "Markdown",
                             position=Position(Point(20, 23), Point(28, 42)),
                             attributes={
-                                "src": "tests/src/readme.md",
+                                "src": "readme.md",
                                 "extras": "footnotes",
                                 ":configs": "{\n            'footnotes': {\n              'BACKLINK_TEXT': '$'\n            }\n          }",
                             },
@@ -432,7 +432,7 @@ html_ast = AST(
                             attributes={
                                 "type": "text",
                                 "max": "100",
-                                "value": "Startwith this, not end.",
+                                "value": "Start with this, not end.",
                                 "data-is-active": False,
                                 "hidden": True,
                             },
@@ -556,11 +556,7 @@ phml_dict = {
                             "content": " Sample Comment 1 ",
                             "type": "literal",
                         },
-                        {
-                            "name": "text",
-                            "content": "Sample Text",
-                            "type": "literal",
-                        },
+                        {"name": "text", "content": "Sample Text", "type": "literal"},
                         {
                             "name": "comment",
                             "content": " Sample Comment 2 ",
@@ -654,11 +650,7 @@ phml_dict = {
                             "tag": "pre",
                             "attributes": {},
                             "children": [
-                                {
-                                    "name": "text",
-                                    "content": "text",
-                                    "type": "literal",
-                                }
+                                {"name": "text", "content": "text", "type": "literal"}
                             ],
                             "type": "element",
                         },
@@ -703,7 +695,7 @@ phml_dict = {
                         {
                             "tag": "Markdown",
                             "attributes": {
-                                "src": "tests/src/readme.md",
+                                "src": "readme.md",
                                 "extras": "footnotes",
                                 ":configs": "{\n            'footnotes': {\n              'BACKLINK_TEXT': '$'\n            }\n          }",
                             },
@@ -721,11 +713,7 @@ phml_dict = {
             "content": "Extra comment at end of file",
             "type": "literal",
         },
-        {
-            "name": "text",
-            "content": "Extra text at end of file",
-            "type": "literal",
-        },
+        {"name": "text", "content": "Extra text at end of file", "type": "literal"},
     ],
     "type": "ast",
 }
@@ -746,8 +734,9 @@ if __name__ == "__main__":
 
     phml = HypertextManager()
     phml.load("src/index.phml")
-    print(phml.ast.as_dict(), "\n\n")
-    print(p_code(phml.ast), "\n\n")
+
+    Path("src/phml_dict.py").write_text(str(phml.ast.as_dict()))
+    Path("src/phml_ast.py").write_text(p_code(phml.ast))
 
     # Add components
     phml.add("src/component.phml", ignore="src/")
@@ -757,9 +746,7 @@ if __name__ == "__main__":
     phml.components["Component"]["hash"] = hashes["Component"]
     phml.components["Sub.Component"]["hash"] = hashes["Sub.Component"]
 
-    print(p_code(phml.compile(message=message)))
-    print(phml.render(message=message), "\n\n")
-    print(phml.render(True, message=message))
+    Path("src/html_ast.py").write_text(p_code(phml.compile(message=message)))
 
     phml.write("src/index.html", message=message).write(
         "src/index-compressed.html", True, message=message

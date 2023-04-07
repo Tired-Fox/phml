@@ -84,10 +84,25 @@ def recurse_check_attributes(node: Node, schema: Schema):
                 ],
                 schema,
             )
+        else:
+            pop_attrs = build_remove_attr_list(
+                node.attributes,
+                {
+                    str(attr[0]): attr[1:]
+                    for attr in schema.attributes.get("*", [])
+                    if isinstance(attr, tuple)
+                },
+                [
+                    attr if isinstance(attr, str) else attr[0]
+                    for attr in schema.attributes.get("*", [])
+                ],
+                schema,
+            )
 
-            for attribute in pop_attrs:
-                node.pop(attribute, None)
+        for attribute in pop_attrs:
+            node.pop(attribute, None)
 
+    if isinstance(node, Parent):
         for child in node:
             recurse_check_attributes(child, schema)
 

@@ -216,6 +216,7 @@ class HypertextManager:
                 self._ast = self.parser.parse(data)
             elif self._from_file is not None:
                 self._ast = self.parser.parse(self._from_file.read())
+                self._from_file.seek(0)
 
         return self
 
@@ -269,14 +270,14 @@ class HypertextManager:
         """Compile the python blocks, python attributes, and phml components and return the resulting ast.
         The resulting ast replaces the core objects ast.
         """
-        context = {**self.context, **context}
+        context = {**self.context, **context, "_phml_path_": self._from_path}
         if self._ast is not None:
             with PHMLTryCatch(self._from_path, "phml:__compile__"):
                 ast = self.compiler.compile(self._ast, self.components, **context)
             return ast
         raise ValueError("Must first parse a phml file before compiling to an AST")
 
-    def render(self, _compress: bool = False, **context: Any) -> str | None:
+    def render(self, _compress: bool = False, **context: Any) -> str:
         """Renders the phml ast into an html string. If currently in a context manager
         the resulting string will also be output to an associated file.
         """
@@ -287,6 +288,7 @@ class HypertextManager:
                     self.compile(**context),
                     _compress,
                 )
+
                 if self._to_file is not None:
                     self._to_file.write(result)
                 elif self._from_file is not None and self._from_path is not None:

@@ -79,7 +79,11 @@ def step_compile_markdown(
                 )
 
             if context.get("_phml_path_", None) is not None:
-                path = Path(context["_phml_path_"]).parent / Path(src)
+                path = Path(context["_phml_path_"])
+                if path.suffix not in ["", None]:
+                    path = path.parent / Path(src)
+                else:
+                    path = path / Path(src)
             else:
                 path = Path.cwd() / Path(src)
 

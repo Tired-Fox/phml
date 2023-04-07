@@ -39,28 +39,30 @@ class TestManager:
     def test_render(self, tmp_path: Path):
         out = tmp_path / "index.html"
         start = tmp_path / "index.phml"
+        
+        (tmp_path / "readme.md").write_text(Path("tests/src/readme.md").read_text())
 
         start.write_text(phml_file, encoding="utf-8")
     
         with HypertextManager.open(start) as phml:
             construct_base(phml)
-            phml.parse()
-            phml.render(message=message)
+            phml.render(message=message, _phml_path_="tests/src/")
     
         assert out.read_text() == html_file
 
     def test_open(self, tmp_path: Path):
         out = tmp_path / "index.html"
         compressed_out = tmp_path / "index-compress.html"
+
+        (tmp_path / "readme.md").write_text(Path("tests/src/readme.md").read_text())
     
         start = tmp_path / "index.phml"
         start.write_text(phml_file, encoding="utf-8")
     
         with HypertextManager.open("tests/src/index.phml", out) as phml:
             construct_base(phml)
-    
             phml.parse()
-            data = phml.render(message=message)
+            data = phml.render(message=message, _phml_path_="tests/src/")
             phml.write(compressed_out, True, message=message)
     
         assert data == html_file
@@ -70,7 +72,7 @@ class TestManager:
 
     def test_render_exceptions(self):
         with raises(ValueError, match="Must first parse a phml file before rendering a phml AST"):
-            HypertextManager().render()
+            HypertextManager().render(_phml_path_="tests/src/")
 
 
     def test_format(self, tmp_path: Path):
@@ -129,7 +131,7 @@ class TestManager:
         phml.expose({"data": None}, message=message)
         assert "message" in phml.context
         assert "data" in phml.context
-        assert phml.render() == html_file
+        assert phml.render(_phml_path_="tests/src/") == html_file
     
 
     def test_redact(self):

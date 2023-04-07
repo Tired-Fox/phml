@@ -42,7 +42,7 @@
             <li @else>Loop fallback</li>
         </ul>
         <Markdown
-          src="tests/src/readme.md"
+          src="readme.md"
           extras="footnotes"
           :configs="{
             'footnotes': {
