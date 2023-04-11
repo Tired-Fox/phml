@@ -2,11 +2,15 @@
 .. include:: ../README.md
 """
 from dataclasses import dataclass
-from .core import PHML, Formats
+
+from .builder import p
+from .core import HypertextManager
+
+
 @dataclass
 class Version:
     """Version object for phml.
-    
+
     {Major}.{Minor}.{Alpha}
 
     Alpha:
@@ -20,11 +24,13 @@ class Version:
         All minor changes pulled together into a collection of tasks into a
         milestone/goal release.
     """
+
     Major: int = 0
-    Minor: int = 2
-    Alpha: int = 3
+    Minor: int = 3
+    Alpha: int = 0
 
     def __str__(self) -> str:
-        return f"{self.Major}.{self.Beta}.{self.Alpha}"
+        return f"{self.Major}.{self.Minor}.{self.Alpha}"
 
-__version__ = str(Version)
+
+__version__ = str(Version())

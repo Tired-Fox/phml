@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sample title</title>
+    <style>
+      div {
+        margin: 0;
+      }
+      [data-phml-cmpt-scope='Component~3090413834174898802'] div {
+        color: red
+      }
+
+      [data-phml-cmpt-scope='Component~3090413834174898802'] :is(.card),
+      [data-phml-cmpt-scope='Component~3090413834174898802'] span {
+        border: 1px solid black;
+      }
+    </style>
+    <script>
+      window.onload = () => {
+        alert("Test");
+      };
+    </script>
+  </head>
+  <body>
+    <div data-phml-cmpt-scope="Component~3090413834174898802">
+      <p>Component</p>
+      <p>Hello World!</p>
+    </div>
+    <!--Sample Comment 1-->
+    Sample Text
+    <!--Sample Comment 2-->
+    <div data-phml-cmpt-scope="Sub.Component~6689333506419787003">
+      <div>
+        <p>Sub component</p>
+        <p>Child</p>
+        Generic text
+        <p>Extra</p>
+      </div>
+    </div>
+    <input
+      type="text"
+      max="100"
+      value="Start with this, not end."
+      data-is-active="false"
+      hidden
+    />
+    <p>Hello World!</p>
+<pre>text</pre>
+    <ul>
+      <li>1</li>
+      <li>2</li>
+    </ul>
+    <article>
+      <h1>Sample Markdown</h1>
+      <p>Markdown text here</p>
+    </article>
+  </body>
+</html>
+<!--Extra comment at end of file-->
+Extra text at end of file

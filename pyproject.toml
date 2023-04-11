@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "phml"
-version = "0.2.3"
+version = "0.3.0"
 description = "Python Hypertext Markup Language - Extension of HTML"
 readme = "README.md"
 license = "MIT"
@@ -12,18 +12,29 @@ authors = [
     { name="Tired Fox", email="zboehm104@gmail.com"}
 ]
 classifiers = [
-
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "saimll>=0.3.0",
-    "defusedxml",
-    "markdown"
+  "saimll>=0.3.0",
 ]
 
 [project.optional-dependencies]
+dev = [
+  "black",
+  "ruff",
+  "requests"
+]
 tests = [
-    "pytest"
+  "pytest",
+  "pytest-cov",
+  "coverage"
+]
+markdown = [
+  "markdown",
+  "Pygments"
 ]
 
 [project.urls]
@@ -33,6 +44,9 @@ tests = [
 [project.scripts]
 
 [tool.ruff]
+ignore = [
+  "ANN101"
+]
 extend-select = [
     'E',
     'F',
@@ -40,7 +54,6 @@ extend-select = [
     "C90",
     "I",
     "N",
-    "D",
     "UP",
     "ANN",
     "S",

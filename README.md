@@ -1,37 +1,32 @@
-![version](assets/badges/version.svg) [![License](https://img.shields.io/badge/License-MIT-9cf)](https://github.com/Tired-Fox/phml/blob/main/LICENSE) [![tired-fox - phml](https://img.shields.io/static/v1?label=tired-fox&message=phml&color=9cf&logo=github)](https://github.com/tired-fox/phml "Go to GitHub repo")
-[![stars - phml](https://img.shields.io/github/stars/tired-fox/phml?style=social)](https://github.com/tired-fox/phml)
-[![forks - phml](https://img.shields.io/github/forks/tired-fox/phml?style=social)](https://github.com/tired-fox/phml)
-
 # Python Hypertext Markup Language (phml)
 
-[![Deploy Docs](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml) [![GitHub release](https://img.shields.io/github/release/tired-fox/phml?include_prereleases=&sort=semver&color=brightgreen)](https://github.com/tired-fox/phml/releases/) 
-[![issues - phml](https://img.shields.io/github/issues/tired-fox/phml)](https://github.com/tired-fox/phml/issues) ![quality](assets/badges/quality.svg) ![testing](assets/badges/testing.svg) ![test coverage](assets/badges/test_cov.svg)
-
-**TOC**
-- [Python Hypertext Markup Language (phml)](#python-hypertext-markup-language-phml)
-  - [Overview](#overview)
-  - [How to use](#how-to-use)
-
+<!-- Header Badges -->
 
 <div align="center">
+  
+![version](assets/badges/version.svg)
+[![License](assets/badges/license.svg)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/releases)
+![Maintained](assets/badges/maintained.svg)
 
-[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://tired-fox.github.io/phml/phml.html "Go to project documentation")
+![testing](assets/badges/tests.svg)
+![test coverage](assets/badges/coverage.svg)
 
 </div>
+
+<!-- End Badges -->
 
 ## Overview
 
 The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language takes inspiration directly from frameworks like Vue.js, Astro.js, Solid.js, and SvelteKit. There is conditional rendering, components, python elements, inline/embedded python blocks, and slot, named slots, and much more. Now let's dive into more the language.
 
+### Python Element
+
 Let's start with the new `python` element. Python is a whitespace language. As such, phml
 has the challenge of maintaining the indentation in an appropriate way as to preserve the intended whitespace. The key focus is the indended whitespace. While this can be tricky the first line with content serves as a reference. The amount of indentation for the first line is removed from each line and the remaining whitespace is left alone. For example if there is a python block that looks like this.
 
 ```html
-<python>
-  message = "hello world"
-  if "hello" in message:
-    print(message)
-</python>
+<python> message = "hello world" if "hello" in message: print(message) </python>
 ```
 
 The resulting python code would look like this.
@@ -47,29 +42,24 @@ how you normally would and they are now available to the scope of the entire fil
 
 ```html
 <python>
-def URL(link: str) -> str:
-    links = {
-        "youtube": "https://youtube.com"
-    }
-    if link in links:
-        return links[link]
-    else:
-        return ""
+  def URL(link: str) -> str: links = { "youtube": "https://youtube.com" } if
+  link in links: return links[link] else: return ""
 </python>
 
 ...
 
 <a href="{URL('youtube')}">Youtube</a>
-
 ```
 
 phml combines all `python` elements and treats them as one python file. This is of the likes of the `script` or `style` tags. With the fact that you can write any code in the python element and used it anywhere else in the file you of the full power of the python programming language at your desposal.
+
+### Inline Python and Python Attributes
 
 Next up is inline python blocks. These are represented with `{{}}` in text elements. Any text in-between the brackets will be processed as python. This is mostly useful when you want to inject a value from python. Assume that there is a variable defined in the `python` element called `message`
 and it contains `Hello World!`. Now this variable can be used like this, `<p>{{ message }}</p>`,
 which renders to, `<p>Hello World!</p>`.
 
-> Note:  Inline python blocks are only rendered in a Text element or inside an html attribute.
+> Note: Inline python blocks are only rendered in a Text element or inside an html attribute.
 
 Conditional rendering with `@if`, `@elif`, and `@else` is an extremely helpful tool in phml.
 `@if` can be used alone and the python inside it's value must be truthy for the element to be rendered. `@elif` requires an element with a `@if` or `@elif` attribute immediately before it, and it's condition is rendered the same as `@if` but only rendered if a `@if` or `@elif` first fails. `@else` requires there to be either a `@if` or a `@else` immediately before it. It only renders if the previous element's condition fails. If `@elif` or `@else` is on an element, but the previous element isn't a `@if` or `@elif` then an exception will occur. Most importantly, the first element in a chain of conditions must be a `@if`.
@@ -89,34 +79,32 @@ The compiled html will be:
 
 ```html
 <ul>
-    <li>1</li>
-    <li>2</li>
-    <li>3</li>
+  <li>1</li>
+  <li>2</li>
+  <li>3</li>
 </ul>
 ```
 
 Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in phml, you would inject python logic into an attribute similar to this `src="{url('youtube')}"`. If you would like to make the whole attribute value a python expression you may prefix any attribute with a `:`. This keeps the attribute name the same after the prefix, but tells the parser that the entire value should be processed as python. So the previous example with `URL` can also be expressed as `<a :href="URL('youtube')>Youtube</a>"`.
 
-PHML includes a powerful component system. The components are partial phml files and are added to the core compiler. After adding the component whenever an element with the same name as the component is found, it is replaced. Components have scoped `python` elements, while all `style` and `script` elements are global to the file they are injected into. Components require that there is only one element, that isn't a `python`, `script`, or `style` tag, to be present. A sample component can look something like the example below. 
+### Components
+
+PHML includes a powerful component system. The components are partial phml files and are added to the core compiler. After adding the component whenever an element with the same name as the component is found, it is replaced. Components have scoped `python` elements, while all `style` and `script` elements are global to the file they are injected into. Components require that there is only one element, that isn't a `python`, `script`, or `style` tag, to be present. A sample component can look something like the example below.
 
 ```html
 <!-- Component.phml -->
-<div>
- # content goes here
-</div>
+<div># content goes here</div>
 
-<python>
-# python code goes here
-</python>
+<python> # python code goes here </python>
 <style>
-/* styles go here */
+  /* styles go here */
 </style>
 <script>
-// js goes here
+  // js goes here
 </script>
 ```
 
-Components can be added to the compiler by using `PHML.add('path/to/component.phml')`. You can define a components name when adding it to the compiler like this `PHML.add(('Component', 'path/to/component.phml'))`, or you can just let the compiler figure it out for you. Each directory in the path given along with the file name are combine to create the components name. So if you pass a component path that is `path/to/component.phml` it will create a components name of `Path.To.Component` which is then used as `<Path.To.Component />`. The compiler will try to parse and understand the component name and make it Pascal case. So if you have a file name of `CoMP_onEnt.phml` it will result in `CoMPOnEnt`. It uses `_` as a seperator between words along with capital letters. It will also recognize an all caps word bordering a new word with a capital letter.
+Components can be added to the compiler by using `HypertextManager.add('path/to/component.phml')`. You can define a components name when adding it to the compiler like this `HypertextManager.add(('Component', 'path/to/component.phml'))`, or you can just let the compiler figure it out for you. Each directory in the path given along with the file name are combine to create the components name. So if you pass a component path that is `path/to/component.phml` it will create a components name of `Path.To.Component` which is then used as `<Path.To.Component />`. The compiler will try to parse and understand the component name and make it Pascal case. So if you have a file name of `CoMP_onEnt.phml` it will result in `CoMPOnEnt`. It uses `_` as a seperator between words along with capital letters. It will also recognize an all caps word bordering a new word with a capital letter.
 
 Great now you have components. But what if you have a few components that are siblings and you don't want them to be nested in a parent element. PHML provides a `<>` element which is a placeholder element. All children are treated as they are at the root of the component.
 
@@ -129,8 +117,8 @@ Great now you have components. But what if you have a few components that are si
 ...
 <!-- Component.phml -->
 <>
-  <p>Hello</p>
-  <p>World</p>
+<p>Hello</p>
+<p>World</p>
 <>
 ```
 
@@ -150,11 +138,7 @@ Now how do you pass information to component to use in rendering? That is where 
 
 ```html
 <!-- component.phml -->
-<python>
-Props = {
-  message: ""
-}
-</python>
+<python> Props = { message: "" } </python>
 
 <p>{{ message }}</p>
 
@@ -167,15 +151,11 @@ Props = {
 Both normal attribute values and python attributes can be used for props. The above example really only works for self closing components. What if you want to pass children to the component? That is where slots come in.
 
 ```html
-<python>
-Props = {
-  message: ""
-}
-</python>
+<python> Props = { message: "" } </python>
 
 <div class="callout">
   <p @if="message is not None">{{ message }}</p>
-  <Slot />
+  <slot />
 </div>
 ```
 
@@ -184,17 +164,17 @@ The `Slot` element must be capitalized. When a `Slot` element is present any chi
 ```html
 <!-- component.phml -->
 <div>
-  <Slot name="top" />
-  <Slot />
-  <Slot name="bottom" />
+  <slot name="top" />
+  <slot />
+  <slot name="bottom" />
 </div>
 
 <!-- file.phml -->
 ...
 <Component>
-<p slot="bottom">Bottom</p>
-<p slot="top">Top</p>
-Middle
+  <p slot="bottom">Bottom</p>
+  <p slot="top">Top</p>
+  Middle
 </Component>
 ...
 
@@ -206,40 +186,51 @@ Middle
 ...
 ```
 
-PHML also has very basic markdown support. You may use the `Markdown` element to render markdown in place of the element itself. The element has 3 main uses: using the `src`/`:src` attribute to pass a string, the `file`/`:file` attribute to load the markdown from a file, and finally to just write markdown text inside as children to the element. The text as children is adjusted to have a normalized indent similar to the `python` element. If all of these methods are used, they are combined. The are combined in the order of `src`, then `file`, then the children.
+### Markdown (Optional)
+
+PHML also has very basic markdown support. The `Markdown` element can be used to render markdown in place of the element itself. The markdown component is an optional feature of phml. To enable the feature you can run `pip3 install phml[markdown]` or `pip3 install markdown`, then use the component in a phml file. The markdown component can only reference/render a markdown file. To do so, use the `:src`/`src` attribute to specify the path to the markdown file, relative to the current file. If phml is rendering from a parsed dict or str, then the current working directory is used.
+
+The markdown component uses a few default extensions while parsing. First it uses `codehilite` and `fenced_code` for highlighting code blocks, this also requires a css file generated with `pygmentize`. Lastly, it will use `tables` to add the ability to parse markdown tables. This makes the markdown close to a github flavor. 
+
+Users may need to add additional markdown extension or to configure them. That is where the `:extras`/`extras` and `:configs` attributes come in. The `:extras` attribute is a list of string names of the markdown extensions to add. The `extras` attribute, also `:extras`, is a space seperated string of the extension names. To configure the extensions the python attribute `:configs` is used. The attribute must be a dict of the format `{ '<extension>': { `<option>`: <value> } }`. The options and available values are found in the `markdown` modules [documentation](https://python-markdown.github.io/extensions/).
+  
+When the markdown is compiled, the resulting html elements are nested in an `article` element. All attributes that are not `src`, `extras`, or `:config` on the markdown component are added to the parent `article` element and are left unprocessed. This means that python attributes other than `:config` or `:extras` on the markdown component are left "as is".
 
 ```html
 <!-- file.phml -->
 <Markdown
-  src="# Sample markdown"
-  file="../markdown/file.md"
+  src="../markdown/file.md"
+  extras="smarty footnotes"
+  :configs="{
+     "footnotes": {
+       "BACKLINK_TEXT": "$"           
+     }
+  }"
 >
-  This is samle markdown text.
-</Markdown>
 ```
-
+___
+  
 > :warning: This language is in early development stages. Everything is currently subject to change. All forms of feedback are encouraged.
 
-For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
+<br>
+For more information, check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
 
-## How to use
+## Basic Usage
 
 The current version is able to parse phml using an html parser. This creates a phml ast which then can be converted back to phml or to json.
 
 **Use**
 
-PHML provides file type variables for better ease of use. The types include `HTML`, `PHML`, `JSON`, and `XML`. They can be used with the import `from phml import Formats`. Then all you need to do is use `Formats.HTML` or any other format. If you want to compile to `html` then there is no need to use the `Formats` import.
-
-First import the core parser and compiler, `from phml import PHML`. Then you can do the following:
+First import the core parser and compiler, `from phml import HypertextManager`. Then you can do the following:
 
 ```python
-phml = PHML().load("path/to/file.phml")
+phml = HypertextManager().load("path/to/file.phml")
 print(phml.render())
 ```
 
 There is method chaining so most if not all methods can be chained. The obvious exception being any method that returns a value.
 
-By default `PHML.render()` will return the `html` string. If you want to get a `json` string you may pass `Formats.JSON`. `PHML.render(file_type=Formats.JSON)`.
+By default `HypertextManager.render()` will return the `html` string. If you want to get a `json` string you may pass `Formats.JSON`. `HypertextManager.render(file_type=Formats.JSON)`.
 
 If you want to write to a file you can call `phml.write("path/to/output/file.phml")`. Same with `render` it defaults to html. You can change this the same way as `render`. `core.write("path/to/otuput/file.json", file_type=Formats.JSON)`.
 
@@ -250,3 +241,15 @@ Every time `phml.parse` or `phml.load` is called it will overwrite the stored as
 There are many more features such as globally exposed variables, components, slots, exposing python files to be used in phml files, etc...
 
 For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
+
+<!-- Footer Badges -->
+
+<br>
+<div align="center">
+  
+![Made with Python](assets/badges/made_with_python.svg)
+![Built with love](assets/badges/built_with_love.svg)
+
+</div>
+
+<!-- End Badges -->

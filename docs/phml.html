@@ -26,7 +26,7 @@
   <li><a href="#python-hypertext-markup-language-phml">Python Hypertext Markup Language (phml)</a>
   <ul>
     <li><a href="#overview">Overview</a></li>
-    <li><a href="#how-to-use">How to use</a></li>
+    <li><a href="#basic-usage">Basic Usage</a></li>
   </ul></li>
 </ul>
 
@@ -34,10 +34,28 @@
         <h2>Submodules</h2>
         <ul>
                 <li><a href="phml/builder.html">builder</a></li>
+                <li><a href="phml/compiler.html">compiler</a></li>
+                <li><a href="phml/components.html">components</a></li>
                 <li><a href="phml/core.html">core</a></li>
-                <li><a href="phml/types.html">types</a></li>
+                <li><a href="phml/embedded.html">embedded</a></li>
+                <li><a href="phml/helpers.html">helpers</a></li>
+                <li><a href="phml/nodes.html">nodes</a></li>
+                <li><a href="phml/parser.html">parser</a></li>
                 <li><a href="phml/utilities.html">utilities</a></li>
         </ul>
+
+        <h2>API Documentation</h2>
+            <ul class="memberlist">
+            <li>
+                    <a class="class" href="#Version">Version</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#Version.__init__">Version</a>
+                        </li>
+                </ul>
+
+            </li>
+    </ul>
 
 
 
@@ -53,44 +71,35 @@
                     <h1 class="modulename">
 phml    </h1>
 
-                        <div class="docstring"><p><img src="assets/badges/version.svg" alt="version" /> <a href="https://github.com/Tired-Fox/phml/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-9cf" alt="License" /></a> <a href="https://github.com/tired-fox/phml" title="Go to GitHub repo"><img src="https://img.shields.io/static/v1?label=tired-fox&amp;message=phml&amp;color=9cf&amp;logo=github" alt="tired-fox - phml" /></a>
-<a href="https://github.com/tired-fox/phml"><img src="https://img.shields.io/github/stars/tired-fox/phml?style=social" alt="stars - phml" /></a>
-<a href="https://github.com/tired-fox/phml"><img src="https://img.shields.io/github/forks/tired-fox/phml?style=social" alt="forks - phml" /></a></p>
+                        <div class="docstring"><h1 id="python-hypertext-markup-language-phml">Python Hypertext Markup Language (phml)</h1>
 
-<h1 id="python-hypertext-markup-language-phml">Python Hypertext Markup Language (phml)</h1>
-
-<p><a href="https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml"><img src="https://github.com/Tired-Fox/phml/actions/workflows/deploy_docs.yml/badge.svg" alt="Deploy Docs" /></a> <a href="https://github.com/tired-fox/phml/releases/"><img src="https://img.shields.io/github/release/tired-fox/phml?include_prereleases=&amp;sort=semver&amp;color=brightgreen" alt="GitHub release" /></a> 
-<a href="https://github.com/tired-fox/phml/issues"><img src="https://img.shields.io/github/issues/tired-fox/phml" alt="issues - phml" /></a> <img src="assets/badges/quality.svg" alt="quality" /> <img src="assets/badges/testing.svg" alt="testing" /> <img src="assets/badges/test_cov.svg" alt="test coverage" /></p>
-
-<p><strong>TOC</strong></p>
-
-<ul>
-<li><a href="#python-hypertext-markup-language-phml">Python Hypertext Markup Language (phml)</a>
-<ul>
-<li><a href="#overview">Overview</a></li>
-<li><a href="#how-to-use">How to use</a></li>
-</ul></li>
-</ul>
+<!-- Header Badges -->
 
 <div align="center">
 
-[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://tired-fox.github.io/phml/phml.html "Go to project documentation")
+![version](assets/badges/version.svg)
+[![License](assets/badges/license.svg)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/releases)
+![Maintained](assets/badges/maintained.svg)
+
+![testing](assets/badges/tests.svg)
+![test coverage](assets/badges/coverage.svg)
 
 </div>
+
+<!-- End Badges -->
 
 <h2 id="overview">Overview</h2>
 
 <p>The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language takes inspiration directly from frameworks like Vue.js, Astro.js, Solid.js, and SvelteKit. There is conditional rendering, components, python elements, inline/embedded python blocks, and slot, named slots, and much more. Now let's dive into more the language.</p>
 
+<h3 id="python-element">Python Element</h3>
+
 <p>Let's start with the new <code>python</code> element. Python is a whitespace language. As such, phml
 has the challenge of maintaining the indentation in an appropriate way as to preserve the intended whitespace. The key focus is the indended whitespace. While this can be tricky the first line with content serves as a reference. The amount of indentation for the first line is removed from each line and the remaining whitespace is left alone. For example if there is a python block that looks like this.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span>
-  message = &quot;hello world&quot;
-  if &quot;hello&quot; in message:
-    print(message)
-<span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
+<pre><span></span><code><span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span> message = &quot;hello world&quot; if &quot;hello&quot; in message: print(message) <span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
 </code></pre>
 </div>
 
@@ -108,14 +117,8 @@ how you normally would and they are now available to the scope of the entire fil
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span>
-def URL(link: str) -&gt; str:
-    links = {
-        &quot;youtube&quot;: &quot;https://youtube.com&quot;
-    }
-    if link in links:
-        return links[link]
-    else:
-        return &quot;&quot;
+  def URL(link: str) -&gt; str: links = { &quot;youtube&quot;: &quot;https://youtube.com&quot; } if
+  link in links: return links[link] else: return &quot;&quot;
 <span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
 
 ...
@@ -126,12 +129,14 @@ def URL(link: str) -&gt; str:
 
 <p>phml combines all <code>python</code> elements and treats them as one python file. This is of the likes of the <code>script</code> or <code>style</code> tags. With the fact that you can write any code in the python element and used it anywhere else in the file you of the full power of the python programming language at your desposal.</p>
 
+<h3 id="inline-python-and-python-attributes">Inline Python and Python Attributes</h3>
+
 <p>Next up is inline python blocks. These are represented with <code>{{}}</code> in text elements. Any text in-between the brackets will be processed as python. This is mostly useful when you want to inject a value from python. Assume that there is a variable defined in the <code>python</code> element called <code>message</code>
 and it contains <code>Hello World!</code>. Now this variable can be used like this, <code>&lt;p&gt;{{ message }}&lt;/p&gt;</code>,
 which renders to, <code>&lt;p&gt;Hello World!&lt;/p&gt;</code>.</p>
 
 <blockquote>
-  <p>Note:  Inline python blocks are only rendered in a Text element or inside an html attribute.</p>
+  <p>Note: Inline python blocks are only rendered in a Text element or inside an html attribute.</p>
 </blockquote>
 
 <p>Conditional rendering with <code>@if</code>, <code>@elif</code>, and <code>@else</code> is an extremely helpful tool in phml.
@@ -153,36 +158,34 @@ which renders to, <code>&lt;p&gt;Hello World!&lt;/p&gt;</code>.</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>1<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>2<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>3<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>1<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>2<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>3<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
 </code></pre>
 </div>
 
 <p>Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in phml, you would inject python logic into an attribute similar to this <code>src="{url('youtube')}"</code>. If you would like to make the whole attribute value a python expression you may prefix any attribute with a <code>:</code>. This keeps the attribute name the same after the prefix, but tells the parser that the entire value should be processed as python. So the previous example with <code>URL</code> can also be expressed as <code>&lt;a :href="URL('youtube')&gt;Youtube&lt;/a&gt;"</code>.</p>
 
-<p>PHML includes a powerful component system. The components are partial phml files and are added to the core compiler. After adding the component whenever an element with the same name as the component is found, it is replaced. Components have scoped <code>python</code> elements, while all <code>style</code> and <code>script</code> elements are global to the file they are injected into. Components require that there is only one element, that isn't a <code>python</code>, <code>script</code>, or <code>style</code> tag, to be present. A sample component can look something like the example below. </p>
+<h3 id="components">Components</h3>
+
+<p>PHML includes a powerful component system. The components are partial phml files and are added to the core compiler. After adding the component whenever an element with the same name as the component is found, it is replaced. Components have scoped <code>python</code> elements, while all <code>style</code> and <code>script</code> elements are global to the file they are injected into. Components require that there is only one element, that isn't a <code>python</code>, <code>script</code>, or <code>style</code> tag, to be present. A sample component can look something like the example below.</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="cm">&lt;!-- Component.phml --&gt;</span>
-<span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
- # content goes here
-<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span># content goes here<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 
-<span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span>
-# python code goes here
-<span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span> # python code goes here <span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
 <span class="p">&lt;</span><span class="nt">style</span><span class="p">&gt;</span><span class="w"></span>
-<span class="c">/* styles go here */</span><span class="w"></span>
+<span class="w">  </span><span class="c">/* styles go here */</span><span class="w"></span>
 <span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
 <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span><span class="w"></span>
-<span class="c1">// js goes here</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// js goes here</span><span class="w"></span>
 <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
 </code></pre>
 </div>
 
-<p>Components can be added to the compiler by using <code>PHML.add('path/to/component.phml')</code>. You can define a components name when adding it to the compiler like this <code>PHML.add(('Component', 'path/to/component.phml'))</code>, or you can just let the compiler figure it out for you. Each directory in the path given along with the file name are combine to create the components name. So if you pass a component path that is <code>path/to/component.phml</code> it will create a components name of <code>Path.To.Component</code> which is then used as <code>&lt;Path.To.Component /&gt;</code>. The compiler will try to parse and understand the component name and make it Pascal case. So if you have a file name of <code>CoMP_onEnt.phml</code> it will result in <code>CoMPOnEnt</code>. It uses <code>_</code> as a seperator between words along with capital letters. It will also recognize an all caps word bordering a new word with a capital letter.</p>
+<p>Components can be added to the compiler by using <code>HypertextManager.add('path/to/component.phml')</code>. You can define a components name when adding it to the compiler like this <code>HypertextManager.add(('Component', 'path/to/component.phml'))</code>, or you can just let the compiler figure it out for you. Each directory in the path given along with the file name are combine to create the components name. So if you pass a component path that is <code>path/to/component.phml</code> it will create a components name of <code>Path.To.Component</code> which is then used as <code>&lt;Path.To.Component /&gt;</code>. The compiler will try to parse and understand the component name and make it Pascal case. So if you have a file name of <code>CoMP_onEnt.phml</code> it will result in <code>CoMPOnEnt</code>. It uses <code>_</code> as a seperator between words along with capital letters. It will also recognize an all caps word bordering a new word with a capital letter.</p>
 
 <p>Great now you have components. But what if you have a few components that are siblings and you don't want them to be nested in a parent element. PHML provides a <code>&lt;&gt;</code> element which is a placeholder element. All children are treated as they are at the root of the component.</p>
 
@@ -195,8 +198,8 @@ which renders to, <code>&lt;p&gt;Hello World!&lt;/p&gt;</code>.</p>
 ...
 <span class="cm">&lt;!-- Component.phml --&gt;</span>
 <span class="err">&lt;</span>&gt;
-  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Hello<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>World<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Hello<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>World<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
 <span class="err">&lt;</span>&gt;
 </code></pre>
 </div>
@@ -218,11 +221,7 @@ which renders to, <code>&lt;p&gt;Hello World!&lt;/p&gt;</code>.</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="cm">&lt;!-- component.phml --&gt;</span>
-<span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span>
-Props = {
-  message: &quot;&quot;
-}
-<span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span> Props = { message: &quot;&quot; } <span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
 
 <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>{{ message }}<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
 
@@ -236,15 +235,11 @@ Props = {
 <p>Both normal attribute values and python attributes can be used for props. The above example really only works for self closing components. What if you want to pass children to the component? That is where slots come in.</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span>
-Props = {
-  message: &quot;&quot;
-}
-<span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
+<pre><span></span><code><span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span> Props = { message: &quot;&quot; } <span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
 
 <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;callout&quot;</span><span class="p">&gt;</span>
   <span class="p">&lt;</span><span class="nt">p</span> <span class="err">@</span><span class="na">if</span><span class="o">=</span><span class="s">&quot;message is not None&quot;</span><span class="p">&gt;</span>{{ message }}<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">Slot</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">slot</span> <span class="p">/&gt;</span>
 <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 </code></pre>
 </div>
@@ -254,17 +249,17 @@ Props = {
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="cm">&lt;!-- component.phml --&gt;</span>
 <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">Slot</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;top&quot;</span> <span class="p">/&gt;</span>
-  <span class="p">&lt;</span><span class="nt">Slot</span> <span class="p">/&gt;</span>
-  <span class="p">&lt;</span><span class="nt">Slot</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">slot</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;top&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">slot</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">slot</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span> <span class="p">/&gt;</span>
 <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 
 <span class="cm">&lt;!-- file.phml --&gt;</span>
 ...
 <span class="p">&lt;</span><span class="nt">Component</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span> <span class="na">slot</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">&gt;</span>Bottom<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span> <span class="na">slot</span><span class="o">=</span><span class="s">&quot;top&quot;</span><span class="p">&gt;</span>Top<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-Middle
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">slot</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">&gt;</span>Bottom<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">slot</span><span class="o">=</span><span class="s">&quot;top&quot;</span><span class="p">&gt;</span>Top<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  Middle
 <span class="p">&lt;/</span><span class="nt">Component</span><span class="p">&gt;</span>
 ...
 
@@ -277,67 +272,201 @@ Middle
 </code></pre>
 </div>
 
-<p>PHML also has very basic markdown support. You may use the <code>Markdown</code> element to render markdown in place of the element itself. The element has 3 main uses: using the <code>src</code>/<code>:src</code> attribute to pass a string, the <code>file</code>/<code>:file</code> attribute to load the markdown from a file, and finally to just write markdown text inside as children to the element. The text as children is adjusted to have a normalized indent similar to the <code>python</code> element. If all of these methods are used, they are combined. The are combined in the order of <code>src</code>, then <code>file</code>, then the children.</p>
+<h3 id="markdown-optional">Markdown (Optional)</h3>
+
+<p>PHML also has very basic markdown support. The <code>Markdown</code> element can be used to render markdown in place of the element itself. The markdown component is an optional feature of phml. To enable the feature you can run <code>pip3 install phml[markdown]</code> or <code>pip3 install markdown</code>, then use the component in a phml file. The markdown component can only reference/render a markdown file. To do so, use the <code>:src</code>/<code>src</code> attribute to specify the path to the markdown file, relative to the current file. If phml is rendering from a parsed dict or str, then the current working directory is used.</p>
+
+<p>The markdown component uses a few default extensions while parsing. First it uses <code>codehilite</code> and <code>fenced_code</code> for highlighting code blocks, this also requires a css file generated with <code>pygmentize</code>. Lastly, it will use <code>tables</code> to add the ability to parse markdown tables. This makes the markdown close to a github flavor. </p>
+
+<p>Users may need to add additional markdown extension or to configure them. That is where the <code>:extras</code>/<code>extras</code> and <code>:configs</code> attributes come in. The <code>:extras</code> attribute is a list of string names of the markdown extensions to add. The <code>extras</code> attribute, also <code>:extras</code>, is a space seperated string of the extension names. To configure the extensions the python attribute <code>:configs</code> is used. The attribute must be a dict of the format <code>{ '&lt;extension&gt;': {</code><option><code>: &lt;value&gt; } }</code>. The options and available values are found in the <code>markdown</code> modules <a href="https://python-markdown.github.io/extensions/">documentation</a>.</p>
+
+<p>When the markdown is compiled, the resulting html elements are nested in an <code>article</code> element. All attributes that are not <code>src</code>, <code>extras</code>, or <code>:config</code> on the markdown component are added to the parent <code>article</code> element and are left unprocessed. This means that python attributes other than <code>:config</code> or <code>:extras</code> on the markdown component are left "as is".</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="cm">&lt;!-- file.phml --&gt;</span>
 <span class="p">&lt;</span><span class="nt">Markdown</span>
-  <span class="na">src</span><span class="o">=</span><span class="s">&quot;# Sample markdown&quot;</span>
-  <span class="na">file</span><span class="o">=</span><span class="s">&quot;../markdown/file.md&quot;</span>
+  <span class="na">src</span><span class="o">=</span><span class="s">&quot;../markdown/file.md&quot;</span>
+  <span class="na">extras</span><span class="o">=</span><span class="s">&quot;smarty footnotes&quot;</span>
+  <span class="na">:configs</span><span class="o">=</span><span class="s">&quot;{</span>
+<span class="s">     &quot;</span><span class="na">footnotes</span><span class="err">&quot;</span><span class="na">:</span> <span class="err">{</span>
+       <span class="err">&quot;</span><span class="na">BACKLINK_TEXT</span><span class="err">&quot;</span><span class="na">:</span> <span class="err">&quot;$&quot;</span>           
+     <span class="err">}</span>
+  <span class="err">}&quot;</span>
 <span class="p">&gt;</span>
-  This is samle markdown text.
-<span class="p">&lt;/</span><span class="nt">Markdown</span><span class="p">&gt;</span>
 </code></pre>
 </div>
+
+<hr />
 
 <blockquote>
   <p>:warning: This language is in early development stages. Everything is currently subject to change. All forms of feedback are encouraged.</p>
 </blockquote>
 
-<p>For more information check out the <a href="https://tired-fox.github.io/phml/phml.html">API Docs</a></p>
+<p><br>
+For more information, check out the <a href="https://tired-fox.github.io/phml/phml.html">API Docs</a></p>
 
-<h2 id="how-to-use">How to use</h2>
+<h2 id="basic-usage">Basic Usage</h2>
 
 <p>The current version is able to parse phml using an html parser. This creates a phml ast which then can be converted back to phml or to json.</p>
 
 <p><strong>Use</strong></p>
 
-<p>PHML provides file type variables for better ease of use. The types include <code>HTML</code>, <code>PHML</code>, <code>JSON</code>, and <code>XML</code>. They can be used with the import <code>from phml import Formats</code>. Then all you need to do is use <code>Formats.HTML</code> or any other format. If you want to compile to <code>html</code> then there is no need to use the <code>Formats</code> import.</p>
-
-<p>First import the core parser and compiler, <code>from phml import PHML</code>. Then you can do the following:</p>
+<p>First import the core parser and compiler, <code>from phml import HypertextManager</code>. Then you can do the following:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">phml</span> <span class="o">=</span> <span class="n">PHML</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;path/to/file.phml&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="n">render</span><span class="p">())</span>
+<pre><span></span><code><span class="n">phml</span> <span class="o">=</span> <span class="n">HypertextManager</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;path/to/file.phml&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">phml</span><span class="o">.</span><span class="n">render</span><span class="p">())</span>
 </code></pre>
 </div>
 
 <p>There is method chaining so most if not all methods can be chained. The obvious exception being any method that returns a value.</p>
 
-<p>By default <code>PHML.render()</code> will return the <code>html</code> string. If you want to get a <code>json</code> string you may pass <code>Formats.JSON</code>. <code>PHML.render(file_type=Formats.JSON)</code>.</p>
+<p>By default <code>HypertextManager.render()</code> will return the <code>html</code> string. If you want to get a <code>json</code> string you may pass <code>Formats.JSON</code>. <code>HypertextManager.render(file_type=Formats.JSON)</code>.</p>
 
-<p>If you want to write to a file you can call <code>PHML.write("path/to/output/file.phml")</code>. Same with <code>render</code> it defaults to html. You can change this the same way as <code>render</code>. <code>PHML.write("path/to/otuput/file.json", file_type=Formats.JSON)</code>.</p>
+<p>If you want to write to a file you can call <code>phml.write("path/to/output/file.phml")</code>. Same with <code>render</code> it defaults to html. You can change this the same way as <code>render</code>. <code>core.write("path/to/otuput/file.json", file_type=Formats.JSON)</code>.</p>
 
-<p>For both <code>render</code> and <code>write</code> you will first need to call <code>PHML.load("path/to/source/file.phml")</code>. This parses the source file and stores the ast in the parser. <code>render</code> and <code>write</code> then use that ast to create the desired output. Optionally if you already have a phml or html string or a properly formatted dict you can call <code>core.parse(data)</code> which will parse that information similar to <code>load</code>.</p>
+<p>For both <code>render</code> and <code>write</code> you will first need to call <code>phml.load("path/to/source/file.phml")</code>. This parses the source file and stores the ast in the parser. <code>render</code> and <code>write</code> then use that ast to create the desired output. Optionally if you already have a phml or html string or a properly formatted dict you can call <code>core.parse(data)</code> which will parse that information similar to <code>load</code>.</p>
 
-<p>Every time <code>PHML.parse</code> or <code>PHML.load</code> is called it will overwrite the stored ast variable.</p>
+<p>Every time <code>phml.parse</code> or <code>phml.load</code> is called it will overwrite the stored ast variable.</p>
 
 <p>There are many more features such as globally exposed variables, components, slots, exposing python files to be used in phml files, etc...</p>
+
+<p>For more information check out the <a href="https://tired-fox.github.io/phml/phml.html">API Docs</a></p>
+
+<!-- Footer Badges -->
+
+<p><br></p>
+
+<div align="center">
+
+![Made with Python](assets/badges/made_with_python.svg)
+![Built with love](assets/badges/built_with_love.svg)
+
+</div>
+
+<!-- End Badges -->
 </div>
 
                         <input id="mod-phml-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 
                         <label class="view-source-button" for="mod-phml-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">1</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a><span class="sd">.. include:: ../README.md</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos">4</span></a><span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">PHML</span><span class="p">,</span> <span class="n">Formats</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos">5</span></a><span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2.2&quot;</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">.. include:: ../README.md</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">HypertextManager</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">.builder</span> <span class="kn">import</span> <span class="n">p</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="nd">@dataclass</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="k">class</span> <span class="nc">Version</span><span class="p">:</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="sd">&quot;&quot;&quot;Version object for phml.</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    {Major}.{Minor}.{Alpha}</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">    Alpha:</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">        Includes all bugfixes and small feature changes that go into the</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">        iterations of a task.</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">    Minor:</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">        All alpha changes pulled together into a task version release.</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">    Major:</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">        All minor changes pulled together into a collection of tasks into a</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">        milestone/goal release.</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">Major</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">Minor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">Alpha</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Major</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Minor</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Alpha</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="n">__version__</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Version</span><span class="p">())</span>
 </span></pre></div>
 
 
             </section>
+                <section id="Version">
+                            <input id="Version-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+                    <div class="decorator">@dataclass</div>
+
+    <span class="def">class</span>
+    <span class="name">Version</span>:
+
+                <label class="view-source-button" for="Version-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Version"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Version-9"><a href="#Version-9"><span class="linenos"> 9</span></a><span class="nd">@dataclass</span>
+</span><span id="Version-10"><a href="#Version-10"><span class="linenos">10</span></a><span class="k">class</span> <span class="nc">Version</span><span class="p">:</span>
+</span><span id="Version-11"><a href="#Version-11"><span class="linenos">11</span></a>    <span class="sd">&quot;&quot;&quot;Version object for phml.</span>
+</span><span id="Version-12"><a href="#Version-12"><span class="linenos">12</span></a>
+</span><span id="Version-13"><a href="#Version-13"><span class="linenos">13</span></a><span class="sd">    {Major}.{Minor}.{Alpha}</span>
+</span><span id="Version-14"><a href="#Version-14"><span class="linenos">14</span></a>
+</span><span id="Version-15"><a href="#Version-15"><span class="linenos">15</span></a><span class="sd">    Alpha:</span>
+</span><span id="Version-16"><a href="#Version-16"><span class="linenos">16</span></a><span class="sd">        Includes all bugfixes and small feature changes that go into the</span>
+</span><span id="Version-17"><a href="#Version-17"><span class="linenos">17</span></a><span class="sd">        iterations of a task.</span>
+</span><span id="Version-18"><a href="#Version-18"><span class="linenos">18</span></a>
+</span><span id="Version-19"><a href="#Version-19"><span class="linenos">19</span></a><span class="sd">    Minor:</span>
+</span><span id="Version-20"><a href="#Version-20"><span class="linenos">20</span></a><span class="sd">        All alpha changes pulled together into a task version release.</span>
+</span><span id="Version-21"><a href="#Version-21"><span class="linenos">21</span></a>
+</span><span id="Version-22"><a href="#Version-22"><span class="linenos">22</span></a><span class="sd">    Major:</span>
+</span><span id="Version-23"><a href="#Version-23"><span class="linenos">23</span></a><span class="sd">        All minor changes pulled together into a collection of tasks into a</span>
+</span><span id="Version-24"><a href="#Version-24"><span class="linenos">24</span></a><span class="sd">        milestone/goal release.</span>
+</span><span id="Version-25"><a href="#Version-25"><span class="linenos">25</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="Version-26"><a href="#Version-26"><span class="linenos">26</span></a>
+</span><span id="Version-27"><a href="#Version-27"><span class="linenos">27</span></a>    <span class="n">Major</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="Version-28"><a href="#Version-28"><span class="linenos">28</span></a>    <span class="n">Minor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span id="Version-29"><a href="#Version-29"><span class="linenos">29</span></a>    <span class="n">Alpha</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span id="Version-30"><a href="#Version-30"><span class="linenos">30</span></a>
+</span><span id="Version-31"><a href="#Version-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Version-32"><a href="#Version-32"><span class="linenos">32</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Major</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Minor</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">Alpha</span><span class="si">}</span><span class="s2">&quot;</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Version object for phml.</p>
+
+<p>{Major}.{Minor}.{Alpha}</p>
+
+<h6 id="alpha">Alpha</h6>
+
+<blockquote>
+  <p>Includes all bugfixes and small feature changes that go into the
+  iterations of a task.</p>
+</blockquote>
+
+<h6 id="minor">Minor</h6>
+
+<blockquote>
+  <p>All alpha changes pulled together into a task version release.</p>
+</blockquote>
+
+<h6 id="major">Major</h6>
+
+<blockquote>
+  <p>All minor changes pulled together into a collection of tasks into a
+  milestone/goal release.</p>
+</blockquote>
+</div>
+
+
+                            <div id="Version.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">Version</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">Major</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>, </span><span class="param"><span class="n">Minor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>, </span><span class="param"><span class="n">Alpha</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Version.__init__"></a>
+    
+    
+
+                            </div>
+                </section>
     </main>
 <script>
     function escapeHTML(html) {

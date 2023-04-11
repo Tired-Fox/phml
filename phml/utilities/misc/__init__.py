@@ -3,22 +3,10 @@
 Helpful utilities for different tasks that doesn't have a place in the other categories.
 """
 
-from phml.core.nodes import Element, Root
+from phml.nodes import Parent
 
 from .classes import *
-from .component import *
 from .heading import *
-from .inspect import *
-
-# __all__ = [
-#     "depth",
-#     "size",
-#     "heading_rank",
-#     "classnames",
-#     "ClassList",
-#     "inspect",
-#     "normalize_indent",
-# ]
 
 
 def depth(node) -> int:
@@ -36,7 +24,7 @@ def depth(node) -> int:
     return level
 
 
-def size(node: Root | Element) -> int:
+def size(node: Parent) -> int:
     """Get the number of nodes recursively."""
     from phml.utilities import walk  # pylint: disable=import-outside-toplevel
 
@@ -46,9 +34,3 @@ def size(node: Root | Element) -> int:
         count += 1
 
     return count
-
-
-def offset(content: str | list[str]) -> int:
-    """Get the leading offset of the first line of the string."""
-    content = content.split("\n") if isinstance(content, str) else content
-    return len(content[0]) - len(content[0].lstrip())

@@ -1,148 +1,126 @@
-from subprocess import Popen, PIPE
-from tempfile import TemporaryFile
-from re import search, finditer
-import requests
+from pathlib import Path
+from subprocess import PIPE, Popen
 
-
-def get_score(command: str) -> float:
-    """Get pylint score"""
-
-    with TemporaryFile() as file:
-        data = Popen(command, stdout=file, stderr=PIPE)
-        data.wait()
-        file.seek(0)
-        output = file.read().decode("utf-8")
-
-    start = output.find("Your code has been rated at ")
-    if start == -1:
-        raise ValueError(f'Could not find quality score in "{output.rstrip()}".')
-
-    start += len("Your code has been rated at ")
-    end = start + output[start:].find("/")
-    score = float(output[start:end])
-
-    return score
-
-
-def get_color(score: float) -> str:
-    """Get color for shield"""
-
-    if score < 0.6:
-        return "critical"
-
-    elif score < 0.8:
-        return "orange"
-
-    elif score < 0.9:
-        return "yellow"
-
-    elif score < 0.95:
-        return "yellowgreen"
-
-    else:
-        return "brightgreen"
-
-
-def get_test_color(score: float) -> str:
-
-    if score < 0.6:
-        return "critical"
-
-    elif score < 0.8:
-        return "orange"
-
-    elif score < 0.9:
-        return "yellow"
-
-    elif score < 1:
-        return "yellowgreen"
-
-    else:
-        return "brightgreen"
-
-
-def create_link(label: str, score: float) -> str:
-    """Create link using shields.io"""
-
-    label = label.replace(" ", "_")
-    color = get_color(score / 10)
-    return f"https://img.shields.io/badge/{label}-{score}-{color}"
-
-
-def write_quality_badge(command: str, output_file: str) -> None:
-    """Write badge for code quality"""
-
-    score = get_score(command)
-    link = create_link("code rating", score)
-
-    with open(output_file, "wb") as output:
-        data = requests.get(link, timeout=1000).content
-        output.write(data)
-
-
-def write_version_badge(output_file: str) -> None:
-    """Write badge for version badge"""
-
-    from phml import __version__ as version
-
-    link = f"https://img.shields.io/badge/version-{version}-9cf"
-
-    with open(output_file, "wb") as output:
-        data = requests.get(link, timeout=1000).content
-        output.write(data)
-
-
-def get_test_results(command: str) -> tuple[int, int, int]:
-    """Get pytest-cov results"""
-
-    passed, total, covered = 0, 0, 0
-    with TemporaryFile() as file:
-        data = Popen(command, stdout=file, stderr=PIPE)
-        data.wait()
-        file.seek(0)
-        output = file.read().decode("utf-8")
-
-    for line in output.split("\n"):
-        if search(r"TOTAL\s+(\d+)\s+(\d+)\s+(\d+)%", line) is not None:
-            _, _, covered = search(r"TOTAL\s+(\d+)\s+(\d+)\s+(\d+)%", line).groups()
-            covered = int(covered)
-        elif search(r"(failed|passed)", line) is not None:
-            for status in finditer(r"\s(\d{1,})\s(?!warning)([a-z]+),?", line):
-                count, condition = status.groups()
-                if condition == "passed":
-                    passed = int(count)
-                total += int(count)
-
-    return passed, total, covered
-
-
-def write_test_badges(command: str, test_output: str, test_cov_output: str):
-
-    passed, total, covered = get_test_results(command)
-
-    test_link = (
-        f"https://img.shields.io/badge/testing-{passed}/{total}-{get_test_color(passed/total if passed > 0 else 0)}"
-    )
-    test_cov_link = (
-        f"https://img.shields.io/badge/test_coverage-{covered}%25-{get_color(covered/100)}"
-    )
-
-    with open(test_output, "wb") as output:
-        data = requests.get(test_link).content
-        output.write(data)
-
-    with open(test_cov_output, "wb") as output:
-        data = requests.get(test_cov_link).content
-        output.write(data)
-
-
-def main() -> None:
-    """Main method"""
-
-    write_quality_badge("pylint phml", "assets/badges/quality.svg")
-    write_version_badge("assets/badges/version.svg")
-    write_test_badges("make test", "assets/badges/testing.svg", "assets/badges/test_cov.svg")
-
+import phml as module
+from badges import *
 
 if __name__ == "__main__":
-    main()
+    from re import finditer, search
+    from tempfile import TemporaryFile
+
+    project = "phml"
+    primary = "9cf"
+
+    project_badges: list[tuple[str, str, Parameters]] = [
+        (
+            "version",
+            Create.badge("verson", str(module.__version__), "9cf"),
+            {"style": "flat-square", "logo": "aiohttp", "logoColor": "white"},
+        ),
+        (
+            "license",
+            f"github/license/tired-fox/{project}.svg",
+            {"style": "flat-square", "color": primary}
+        ),
+        (
+            "maintained",
+            f"badge/maintained-yes-{primary}.svg",
+            {"style": "flat-square"}
+        ),
+        (
+            "documentation",
+            "badge/view-Documentation-blue",
+            {"style": "for-the-badge"}
+        ),
+        (
+            "built_with_love",
+            "badge/Built_With-❤-D15D27",
+            {"style": "for-the-badge", "labelColor": "E26D25"}
+        ),
+    ]
+
+    def _get_test_links() -> list[tuple[Name, Url]]:
+        passed, total, covered = 0, 0, 0
+        with TemporaryFile() as file:
+            data = Popen(f'pytest --cov="./{project}" tests/', stdout=file, stderr=PIPE)
+            data.wait()
+            file.seek(0)
+            output = file.read().decode("utf-8")
+
+        for line in output.split("\n"):
+            if search(r"TOTAL\s+(\d+)\s+(\d+)\s+(\d+)%", line) is not None:
+                _, _, covered = search(r"TOTAL\s+(\d+)\s+(\d+)\s+(\d+)%", line).groups()
+                covered = int(covered)
+            elif search(r"(failed|passed)", line) is not None:
+                for status in finditer(r"\s(\d{1,})\s(?!warning)([a-z]+),?", line):
+                    count, condition = status.groups()
+                    if condition == "passed":
+                        passed = int(count)
+                    total += int(count)
+
+        test_link = sheild_io_link(
+            Create.badge(
+                "tests",
+                f"{passed}/{total}",
+                Color.percentage(passed / total if passed > 0 else 0),
+            ),
+            {
+                "style": "flat-square",
+                "logo": "testcafe",
+                "logoColor": "white",
+            },
+        )
+
+        test_cov_link = sheild_io_link(
+            Create.badge("coverage", f"{covered}%25", Color.percentage(covered / 100)),
+            {
+                "style": "flat-square",
+                "logo": "codeforces",
+                "logoColor": "white",
+            },
+        )
+
+        return [("tests", test_link), ("coverage", test_cov_link)]
+
+    badges = Badges(_get_test_links)
+
+    for badge in project_badges:
+        badges.badge(*badge)
+
+    badges.collect("assets/badges/")
+    header_badges = f"""
+<!-- Header Badges -->
+
+<div align="center">
+  
+![version](assets/badges/version.svg)
+[![License](assets/badges/license.svg)](https://github.com/Tired-Fox/{project}/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/tired-fox/{project}.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/releases)
+![Maintained](assets/badges/maintained.svg)
+
+![testing](assets/badges/tests.svg)
+![test coverage](assets/badges/coverage.svg)
+  
+</div>
+
+<!-- End Badges -->
+"""
+    footer_badges = """\
+<!-- Footer Badges --!>
+
+<br>
+<div align="center">
+
+![Made with Python](assets/badges/made_with_python.svg)
+![Built with love](assets/badges/built_with_love.svg)
+
+</div>
+
+<!-- End Badges -->\
+"""
+    print("Copying badge: made_with_python")
+    Path("assets/badges/made_with_python.svg").write_text(PRESETS["made_with_python"])
+
+    print(header_badges)
+    print(footer_badges)
+

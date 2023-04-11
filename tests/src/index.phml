@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Sample title
+        </title>
+        <python>
+            start = "Start"
+            end = "end."
+
+            errors = [
+                "1",
+                "2"
+            ]
+        </python>
+    </head>
+    <body>
+        <Component :message="message" />
+        <!-- Sample Comment 1 -->
+        Sample Text
+        <!-- Sample Comment 2 -->
+        <Sub.Component>
+            <p>Child</p>
+            Generic text
+            <p slot="extra">Extra</p>
+        </Sub.Component>
+        <input
+            type="text"
+            max="100"
+            value="{{ start }} with this, not {{ end }}"
+            :hidden="True"
+            data-is-active="no"
+        >
+        <p @if="False">Never shows</p>
+        <p @elif="not blank(message)">{{ message }}</p>
+        <p @else>Fallback</p>
+        <pre>text</pre>
+        <ul>
+            <For :each="error in errors">
+                <li>{{error}}</li>
+            </For>
+            <li @else>Loop fallback</li>
+        </ul>
+        <Markdown
+          src="readme.md"
+          extras="footnotes"
+          :configs="{
+            'footnotes': {
+              'BACKLINK_TEXT': '$'
+            }
+          }"
+        />
+    </body>
+</html>
+<!--Extra comment at end of file-->
+Extra text at end of file

@@ -4,38 +4,48 @@ install:
 	pip3 install -e .
 
 all:
-	make install format lint list-todo
+	make install format lint
 
 format:
-	isort $(PROJECT) && black $(PROJECT)
+	isort ./$(project) && black $(PROJECT)
 
 lint:
-	pylint $(PROJECT)
+	ruff check ./$(PROJECT)
+
+statistics:
+	ruff check --statistics ./$(PROJECT)
 
 type:
 	mypy $(PROJECT)
 
+# Testing
+
 test:
-	pytest --cov="./phml" tests/
+	pytest --cov="./$(PROJECT)" tests/
 
 cover:
 	coverage html
 
+open:
+	python cover.py
+
 test-cov:
 	make test cover
+
+# Built/Deploy
 
 build_docs:
 	pdoc $(PROJECT) -d google -o docs/
 
 badges:
-	python3 make_badges.py
+	python make_badges.py
 
 build:
 	make badges
-	python3 -m build
+	python -m build
 
 deploy:
-	python3 -m twine upload --repository pypi dist/*
+	python -m twine upload --repository pypi dist/*
 
 build_deploy:
 	make build deploy

@@ -5,12 +5,12 @@ Collection of utilities that hep with traversing an ast or node tree.
 
 from typing import Iterator
 
-from phml.core.nodes import NODE, Element, Root
+from phml.nodes import Element, Node, Parent
 
-__all__ = ["path", "path_names", "walk", "visit_children", "visit_all_after"]
+__all__ = ["path", "path_names", "walk", "visit_all_after"]
 
 
-def path(node: NODE) -> list[NODE]:
+def path(node: Node) -> list[Element]:
     """Get a list of nodes where each one is a child of
     the other leading to the node passed in. This gives a
     path to the node.
@@ -18,20 +18,21 @@ def path(node: NODE) -> list[NODE]:
     Does not include given node.
 
     Args:
-        node (NODE): Node to find ancestors of.
+        node (Node): Node to find ancestors of.
 
     Returns:
-        list[NODE]: List of nodes leading to the given node
+        list[Node]: List of nodes leading to the given node
         starting from the root.
     """
     ancestors = []
-    while node.parent is not None:
+    while node.parent is not None and isinstance(node.parent, Element):
         ancestors = [node.parent, *ancestors]
         node = node.parent
 
     return ancestors
 
-def path_names(node: NODE) -> list[str]:
+
+def path_names(node: Node) -> list[str]:
     """Get a list of nodes where each one is a child of
     the other leading to the node passed in. This gives a
     path to the node.
@@ -39,54 +40,49 @@ def path_names(node: NODE) -> list[str]:
     Does not include given node.
 
     Args:
-        node (NODE): Node to find ancestors of.
+        node (Node): Node to find ancestors of.
 
     Returns:
         list[str]: List of nodes leading to the given node
         starting from the root.
     """
     ancestors = []
-    while node.parent is not None and node.parent.type != "root":
+    while node.parent is not None and isinstance(node.parent, Element):
         ancestors = [node.parent.tag, *ancestors]
         node = node.parent
 
     return ancestors
 
 
-def walk(node: Root | Element) -> Iterator:
+def walk(node: Parent) -> Iterator:
     """Recursively traverse the node and it's chidlren as an iterator.
     Left to right depth first.
     """
 
-    def get_children(parent) -> Iterator:
-        yield parent
-        if parent.type in ["root", "element"]:
-            for child in parent.children:
+    def get_children(n: Node) -> Iterator:
+        yield n
+        if isinstance(n, Parent):
+            for child in n:
                 yield from get_children(child)
 
     yield node
-    if node.type in ["root", "element"]:
-        for child in visit_children(node):
+    if isinstance(node, Parent):
+        for child in node:
             yield from get_children(child)
 
 
-def visit_children(parent: Root | Element) -> Iterator:
-    """Traverse the children of a Root or Element as an iterator."""
-    for child in parent.children:
-        yield child
-
-
-def visit_all_after(start: NODE) -> Iterator:
+def visit_all_after(start: Node) -> Iterator:
     """Recursively traverse the tree starting at given node."""
 
     def get_children(parent) -> Iterator:
         yield parent
         if parent.type in ["root", "element"]:
-            for child in parent.children:
+            for child in parent:
                 yield from get_children(child)
 
     parent = start.parent
-    idx = parent.children.index(start)
-    if idx < len(parent.children) - 1:
-        for child in parent.children[idx + 1 :]:
-            yield from get_children(child)
+    if parent is not None:
+        idx = parent.index(start)
+        if idx < len(parent) - 1:
+            for child in parent[idx + 1 :]:
+                yield from get_children(child)

@@ -7,7 +7,6 @@ or ast.
 
 from .check import *
 from .validate import *
-from .check import *
 
 # __all__ = [
 #     "validate",

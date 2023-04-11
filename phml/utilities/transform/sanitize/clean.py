@@ -1,12 +1,142 @@
-from re import match
-from typing import Optional
+from __future__ import annotations
 
-from phml.core.nodes import AST, Element, Root
+from re import match
+
+from phml.nodes import Element, Node, Parent
 
 from .schema import Schema
 
 
-def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
+def recurse_check_tag(node: Parent, schema: Schema):
+    from phml.utilities import is_element
+
+    for child in list(node):
+        if isinstance(child, Element) and not is_element(child, schema.tag_names):
+            node.remove(child)
+        elif isinstance(child, Parent):
+            recurse_check_tag(child, schema)
+
+
+def recurse_check_ancestor(node: Parent, schema: Schema):
+    for child in list(node):
+        if (
+            isinstance(child, Element)
+            and child.tag in schema.ancestors
+            and (
+                not isinstance(child.parent, Element)
+                or child.parent.tag not in schema.ancestors[child.tag]
+            )
+        ):
+            node.remove(child)
+        elif isinstance(child, Element):
+            recurse_check_ancestor(child, schema)
+
+
+def build_remove_attr_list(
+    properties: dict,
+    attributes: dict[str, tuple[str | bool, ...]],
+    valid_attributes: list,
+    schema: Schema,
+):
+    """Build the list of attributes to remove from a dict of attributes."""
+    result = []
+    for attribute in properties:
+        if attribute not in valid_attributes:
+            result.append(attribute)
+        elif attribute in attributes:
+            if (
+                isinstance(properties[attribute], str)
+                and attribute in schema.protocols
+                and not check_protocols(
+                    properties[attribute], schema.protocols[attribute], schema
+                )
+            ):
+                result.append(attribute)
+            elif properties[attribute] != attributes[attribute]:
+                result.append(attribute)
+        elif (
+            isinstance(properties[attribute], str)
+            and attribute in schema.protocols
+            and not check_protocols(
+                properties[attribute], schema.protocols[attribute], schema
+            )
+        ):
+            result.append(attribute)
+    return result
+
+
+def recurse_check_attributes(node: Node, schema: Schema):
+    if isinstance(node, Element):
+        if node.tag in schema.attributes:
+            pop_attrs = build_remove_attr_list(
+                node.attributes,
+                {
+                    str(attr[0]): attr[1:]
+                    for attr in (
+                        schema.attributes[node.tag] + schema.attributes.get("*", [])
+                    )
+                    if isinstance(attr, tuple)
+                },
+                [
+                    attr if isinstance(attr, str) else attr[0]
+                    for attr in (
+                        schema.attributes[node.tag] + schema.attributes.get("*", [])
+                    )
+                ],
+                schema,
+            )
+        else:
+            pop_attrs = build_remove_attr_list(
+                node.attributes,
+                {
+                    str(attr[0]): attr[1:]
+                    for attr in schema.attributes.get("*", [])
+                    if isinstance(attr, tuple)
+                },
+                [
+                    attr if isinstance(attr, str) else attr[0]
+                    for attr in schema.attributes.get("*", [])
+                ],
+                schema,
+            )
+
+        for attribute in pop_attrs:
+            node.pop(attribute, None)
+
+    if isinstance(node, Parent):
+        for child in node:
+            recurse_check_attributes(child, schema)
+
+
+def recurse_check_required(node: Parent, schema: Schema):
+    for child in node:
+        if isinstance(child, Element) and child.tag in schema.required:
+            for attr, value in schema.required[child.tag].items():
+                if attr not in child.attributes:
+                    child[attr] = value
+                elif isinstance(value, bool):
+                    child[attr] = str(value).lower()
+                elif isinstance(value, str) and child[attr] != value:
+                    child[attr] = value
+        elif isinstance(child, Element):
+            recurse_check_required(child, schema)
+
+
+def check_protocols(value: str, protocols: list[str], schema: Schema):
+    return match(f"{'|'.join(protocols)}:.*", value) is not None
+
+
+def recurse_strip(node, schema: Schema):
+    from phml.utilities import is_element
+
+    for child in list(node):
+        if isinstance(child, Element) and is_element(child, schema.strip):
+            node.remove(child)
+        elif isinstance(child, Parent):
+            recurse_strip(child, schema)
+
+
+def sanatize(tree: Parent, schema: Schema = Schema()):
     """Sanatize elements and attributes in the phml tree. Should be used when using
     data from an unkown source. It should be used with an AST that has already been
     compiled to html to no unkown values are unchecked.
@@ -21,121 +151,17 @@ def sanatize(tree: AST | Root | Element, schema: Optional[Schema] = Schema()):
         This utility will edit the tree in place.
 
     Args:
-        tree (AST | Root | Element): The root of the tree that will be sanatized.
-        schema (Optional[Schema], optional): User defined schema. Defaults to github schema.
+        tree (Parent): The root of the tree that will be sanatized.
+        schema (Schema, optional): User defined schema. Defaults to github schema.
     """
 
-    from phml.utilities import check, is_element, remove_nodes  # pylint: disable=import-outside-toplevel
-
-    if isinstance(tree, AST):
-        src = tree.tree
-    else:
-        src = tree
+    from phml.utilities import remove_nodes  # pylint: disable=import-outside-toplevel
 
     for strip in schema.strip:
-        remove_nodes(src, ["element", {"tag": strip}])
+        remove_nodes(tree, ["element", {"tag": strip}])
 
-    def recurse_check_tag(node: Root | Element):
-        pop_els = []
-        for idx, child in enumerate(node.children):
-            if check(child, "element") and not is_element(child, schema.tag_names):
-                pop_els.append(child)
-            elif check(node.children[idx], "element"):
-                recurse_check_tag(node.children[idx])
-
-        for element in pop_els:
-            node.children.remove(element)
-
-    def recurse_check_ancestor(node: Root | Element):
-        pop_els = []
-        for idx, child in enumerate(node.children):
-            if (
-                check(child, "element")
-                and child.tag in schema.ancestors.keys()
-                and (
-                    check(child.parent, "root")
-                    or child.parent.tag not in schema.ancestors[child.tag]
-                )
-            ):
-                pop_els.append(child)
-            elif check(node.children[idx], "element"):
-                recurse_check_ancestor(node.children[idx])
-
-        for element in pop_els:
-            node.children.remove(element)
-
-    def build_valid_attributes(attributes: list) -> list[str]:
-        """Extract attributes from schema."""
-        valid_attrs = []
-        for attribute in attributes:
-            valid_attrs = (
-                [*valid_attrs, attribute]
-                if isinstance(attribute, str)
-                else [*valid_attrs, attribute[0]]
-            )
-        return valid_attrs
-
-    def build_remove_attr_list(properties: dict, attributes: dict, valid_attributes: list):
-        """Build the list of attributes to remove from a dict of attributes."""
-        result = []
-        for attribute in properties:
-            if attribute not in valid_attributes:
-                result.append(attribute)
-            else:
-                for attr in attributes:
-                    if isinstance(attr, list) and attr[0] == attribute and len(attr) > 1:
-                        if not all(val == properties[attribute] for val in attr[1:]) or (
-                            attribute in schema.protocols
-                            and not check_protocols(
-                                properties[attribute], schema.protocols[attribute]
-                            )
-                        ):
-                            result.append(attribute)
-                            break
-                    elif (
-                        attr == attribute
-                        and attr in schema.protocols
-                        and not check_protocols(properties[attribute], schema.protocols[attribute])
-                    ):
-                        result.append(attribute)
-                        break
-
-        return result
-
-    def recurse_check_attributes(node: Root | Element):
-        for idx, child in enumerate(node.children):
-            if check(child, "element"):
-                if child.tag in schema.attributes:
-                    valid_attributes = build_valid_attributes(schema.attributes[child.tag])
-
-                    pop_attrs = build_remove_attr_list(
-                        node.children[idx].properties,
-                        schema.attributes[child.tag],
-                        valid_attributes,
-                    )
-
-                    for attribute in pop_attrs:
-                        node.children[idx].properties.pop(attribute, None)
-
-                recurse_check_attributes(node.children[idx])
-
-    def recurse_check_required(node: Root | Element):
-        for idx, child in enumerate(node.children):
-            if check(child, "element") and child.tag in schema.required:
-                for attr, value in schema.required[child.tag].items():
-                    if attr not in child.properties:
-                        node.children[idx][attr] = value
-
-            elif check(node.children[idx], "element"):
-                recurse_check_required(node.children[idx])
-
-    def check_protocols(value: str, protocols: list[str]):
-        for protocol in protocols:
-            if match(f"{protocol}:.*", value) is not None:
-                return True
-        return False
-
-    recurse_check_tag(src)
-    recurse_check_ancestor(src)
-    recurse_check_attributes(src)
-    recurse_check_required(src)
+    recurse_check_tag(tree, schema)
+    recurse_strip(tree, schema)
+    recurse_check_ancestor(tree, schema)
+    recurse_check_attributes(tree, schema)
+    recurse_check_required(tree, schema)

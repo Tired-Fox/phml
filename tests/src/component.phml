@@ -1,0 +1,33 @@
+<python>
+  Props = {
+      "message": ""
+  }
+</python>
+
+<>
+  <p>Component</p>
+  <p>{{ message }}</p>
+</>
+
+<script>
+window.onload = () => {
+  alert("Test");
+};
+</script>
+
+<style>
+  div {
+    margin: 0;
+  }
+</style>
+
+<style scoped>
+  div {
+    color: red
+  }
+
+  :is(.card),
+  span {
+    border: 1px solid black;
+  }
+</style>

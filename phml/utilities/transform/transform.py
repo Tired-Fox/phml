@@ -3,9 +3,10 @@
 Utility methods that revolve around transforming or manipulating the ast.
 """
 
-from typing import Callable, Optional
+from functools import wraps
+from typing import Callable
 
-from phml.core.nodes import AST, NODE, Element, Root
+from phml.nodes import Element, Literal, Node, Parent
 from phml.utilities.misc import heading_rank
 from phml.utilities.travel.travel import walk
 from phml.utilities.validate.check import Test, check
@@ -22,7 +23,7 @@ __all__ = [
 
 
 def filter_nodes(
-    tree: Root | Element | AST,
+    tree: Parent,
     condition: Test,
     strict: bool = True,
 ):
@@ -33,38 +34,34 @@ def filter_nodes(
     Same as remove_nodes but keeps the nodes that match.
 
     Args:
-        tree (Root | Element): The tree node to filter.
+        tree (Parent): The tree node to filter.
         condition (Test): The condition to apply to each node.
 
     Returns:
-        Root | Element: The given tree after being filtered.
+        Parent: The given tree after being filtered.
     """
-
-    if tree.__class__.__name__ == "AST":
-        tree = tree.tree
 
     def filter_children(node):
         children = []
-        for i, child in enumerate(node.children):
-            if child.type in ["root", "element"]:
-                node.children[i] = filter_children(node.children[i])
+        for child in node:
+            if isinstance(child, Parent):
+                child = filter_children(child)
                 if not check(child, condition, strict=strict):
-                    for idx, _ in enumerate(child.children):
-                        child.children[idx].parent = node
-                    children.extend(node.children[i].children)
+                    children.extend(child.children or [])
                 else:
-                    children.append(node.children[i])
+                    children.append(child)
             elif check(child, condition, strict=strict):
-                children.append(node.children[i])
+                children.append(child)
 
-        node.children = children
+        if node.children is not None:
+            node[:] = children
         return node
 
     filter_children(tree)
 
 
 def remove_nodes(
-    tree: Root | Element | AST,
+    tree: Parent,
     condition: Test,
     strict: bool = True,
 ):
@@ -74,22 +71,21 @@ def remove_nodes(
     Same as filter_nodes except removes nodes that match.
 
     Args:
-        tree (Root | Element): The parent node to start recursively removing from.
+        tree (Parent): The parent node to start recursively removing from.
         condition (Test): The condition to apply to each node.
     """
-    if tree.__class__.__name__ == "AST":
-        tree = tree.tree
 
     def filter_children(node):
-        node.children = [n for n in node.children if not check(n, condition, strict=strict)]
-        for child in node.children:
-            if child.type in ["root", "element"]:
-                filter_children(child)
+        if node.children is not None:
+            node.children = [n for n in node if not check(n, condition, strict=strict)]
+            for child in node:
+                if isinstance(child, Parent):
+                    filter_children(child)
 
     filter_children(tree)
 
 
-def map_nodes(tree: Root | Element | AST, transform: Callable):
+def map_nodes(tree: Parent, transform: Callable[[Node], Node]):
     """Takes a tree and a callable that returns a node and maps each node.
 
     Signature for the transform function should be as follows:
@@ -105,29 +101,25 @@ def map_nodes(tree: Root | Element | AST, transform: Callable):
     ```
 
     Args:
-        tree (Root | Element): Tree to transform.
+        tree (Parent): Tree to transform.
         transform (Callable): The Callable that returns a node that is assigned
         to each node.
     """
 
-    if tree.__class__.__name__ == "AST":
-        tree = tree.tree
-
-    def recursive_map(node):
-        for i, child in enumerate(node.children):
-            if isinstance(child, Element):
-                recursive_map(node.children[i])
-                node.children[i] = transform(child)
-            else:
-                node.children[i] = transform(child)
+    def recursive_map(node: Parent):
+        for child in node:
+            idx = node.index(child)
+            node[idx] = transform(child)
+            if isinstance(node[idx], Element):
+                recursive_map(node[idx])
 
     recursive_map(tree)
 
 
 def replace_node(
-    start: Root | Element,
+    start: Parent,
     condition: Test,
-    replacement: Optional[NODE | list[NODE]],
+    replacement: Node | list[Node] | None,
     all_nodes: bool = False,
     strict: bool = True,
 ):
@@ -135,41 +127,31 @@ def replace_node(
     a node or list of nodes. If replacement is None the found node is just removed.
 
     Args:
-        start (Root | Element): The starting point.
+        start (Parent): The starting point.
         condition (test): Test condition to find the correct node.
-        replacement (NODE | list[NODE] | None): What to replace the node with.
+        replacement (Node | list[Node] | None): What to replace the node with.
     """
-    for node in walk(start):
-        if check(node, condition, strict=strict):
-            if node.parent is not None:
-                idx = node.parent.children.index(node)
+
+    # Convert iterator to static list to avoid errors while editing tree
+    for node in list(walk(start)):
+        if node != start and check(node, condition, strict=strict):
+            parent = node.parent
+            if parent is not None:
+                idx = parent.index(node)
                 if replacement is not None:
-                    parent = node.parent
                     if isinstance(replacement, list):
-                        for item in replacement:
-                            item.parent = node.parent
-                        parent.children = (
-                            node.parent.children[:idx]
-                            + replacement
-                            + node.parent.children[idx + 1 :]
-                        )
+                        parent[idx : idx + 1] = replacement
                     else:
-                        replacement.parent = node.parent
-                        parent.children = (
-                            node.parent.children[:idx]
-                            + [replacement]
-                            + node.parent.children[idx + 1 :]
-                        )
+                        parent[idx] = replacement
                 else:
-                    parent = node.parent
-                    parent.children.pop(idx)
+                    del node.parent[idx]
 
             if not all_nodes:
                 break
 
 
-def find_and_replace(start: Root | Element, *replacements: tuple[str, str | Callable]) -> int:
-    """Takes a ast, root, or any node and replaces text in `text`
+def find_and_replace(start: Parent, *replacements: tuple[str, str | Callable]):
+    """Takes a node and replaces text in Literal.Text
     nodes with matching replacements.
 
     First value in each replacement tuple is the regex to match and
@@ -180,12 +162,14 @@ def find_and_replace(start: Root | Element, *replacements: tuple[str, str | Call
     from re import finditer  # pylint: disable=import-outside-toplevel
 
     for node in walk(start):
-        if node.type == "text":
+        if Literal.is_text(node):
             for replacement in replacements:
                 if isinstance(replacement[1], str):
-                    for match in finditer(replacement[0], node.value):
-                        node.value = (
-                            node.value[: match.start()] + replacement[1] + node.value[match.end() :]
+                    for match in finditer(replacement[0], node.content):
+                        node.content = (
+                            node.content[: match.start()]
+                            + replacement[1]
+                            + node.content[match.end() :]
                         )
 
 
@@ -201,22 +185,21 @@ def shift_heading(node: Element, amount: int):
     node.tag = f"h{min(6, max(1, rank))}"
 
 
-def modify_children(func):
-    """Function wrapper that when called and passed an
-    AST, Root, or Element will apply the wrapped function
-    to each child. This means that whatever is returned
-    from the wrapped function will be assigned to the child.
+def modify_children(func: Callable[[Node, int, Parent], Node]):
+    """Function wrapper that when called, and passed a Parent node,
+    will apply the wrapped function to each child.
 
-    The wrapped function will be passed the child node,
-    the index in the parents children, and the parent node
+    The following args are passed to the wrapped method:
+        child (Node): A child of the parent node.
+        index (int): The index of the child in the parent node.
+        parent (Parent): The starting parent node.
+
+    The wrapped method is expected to return a new or modified node.
     """
-    from phml.utilities import visit_children  # pylint: disable=import-outside-toplevel
 
-    def inner(start: AST | Element | Root):
-        if isinstance(start, AST):
-            start = start.tree
-
-        for idx, child in enumerate(visit_children(start)):
-            start.children[idx] = func(child, idx, child.parent)
+    @wraps(func)
+    def inner(start: Parent):
+        for idx, child in enumerate(start):
+            start[idx] = func(child, idx, start)
 
     return inner
