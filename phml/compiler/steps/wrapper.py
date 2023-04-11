@@ -1,8 +1,8 @@
-from phml.compiler.steps.base import comp_step
+from phml.compiler.steps.base import scoped_step
 from phml.nodes import Element, Parent
 
 
-@comp_step
+@scoped_step
 def step_replace_phml_wrapper(node: Parent, *_):
     for child in list(node):
         if isinstance(child, Element) and child.tag in ["", "Template"]:

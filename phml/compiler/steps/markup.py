@@ -6,7 +6,7 @@ from phml.embedded import exec_embedded
 from phml.nodes import Element, Parent
 from phml.utilities import sanatize
 
-from .base import comp_step
+from .base import scoped_step
 
 try:  # pragma: no cover
     from markdown import Markdown as PyMarkdown
@@ -30,7 +30,7 @@ except ImportError:  # pragma: no cover
     MARKDOWN = Markdown
 
 
-@comp_step
+@scoped_step
 def step_compile_markdown(
     node: Parent, components: ComponentManager, context: dict[str, Any]
 ):

@@ -806,7 +806,7 @@ class Literal(Node):
             return [
                 SAIML.parse(
                     f"{' '*indent}[@Fred]{self.type}[@F].[@Fblue]{self.name}[@F]"
-                    + (f"\n[@Fgreen]{content}[@F]" if text else ""),
+                    + (f"\n[@Fgreen]{SAIML.escape(content)}[@F]" if text else ""),
                 ),
             ]
         return [
@@ -832,4 +832,6 @@ def inspect(
     Return:
         A formatted multiline string representation of the node and it's children.
     """
-    return "\n".join(node.__format__(color=color, text=text))
+    if isinstance(node, Node):
+        return "\n".join(node.__format__(color=color, text=text))
+    raise TypeError(f"Can only inspect phml Nodes was, {node!r}")

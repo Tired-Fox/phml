@@ -5,7 +5,7 @@ from phml.embedded import exec_embedded, exec_embedded_blocks
 from phml.helpers import build_recursive_context
 from phml.nodes import Element, Literal, Parent
 
-from .base import comp_step
+from .base import scoped_step
 
 ESCAPE_OPTIONS = {
     "quote": False,
@@ -35,7 +35,7 @@ def _process_attributes(node: Element, context: dict[str, Any]):
                     node[attribute] = value
 
 
-@comp_step
+@scoped_step
 def step_execute_embedded_python(node: Parent, _, context: dict[str, Any]):
     """Step to process embedded python inside of attributes and text nodes."""
     for child in node:

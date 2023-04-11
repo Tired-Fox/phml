@@ -6,7 +6,7 @@ from phml.embedded import exec_embedded
 from phml.helpers import build_recursive_context
 from phml.nodes import Element, Literal, Parent
 
-from .base import comp_step
+from .base import scoped_step
 
 
 def _update_fallbacks(node: Element, exc: Exception):
@@ -54,7 +54,7 @@ def replace_default(
         _update_fallbacks(node, exc)
 
 
-@comp_step
+@scoped_step
 def step_expand_loop_tags(
     node: Parent,
     _,

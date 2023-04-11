@@ -1,9 +1,9 @@
 from phml.nodes import AST, Element
 
-from .base import boundry_step
+from .base import setup_step
 
 
-@boundry_step
+@setup_step
 def step_ensure_doctype(node: AST, *_):  # pragma: no cover
     """Step to sure that the final ast has a doctype node."""
 

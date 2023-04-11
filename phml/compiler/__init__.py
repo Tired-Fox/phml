@@ -1,27 +1,28 @@
 from collections.abc import Callable
 from copy import deepcopy
-from typing import Any
+from typing import Any, Literal as Lit, NoReturn, overload
 
 from phml.components import ComponentManager
 from phml.embedded import Embedded
 from phml.helpers import normalize_indent
 from phml.nodes import AST, Element, Literal, LiteralType, Parent
 
-from .steps.base import comp_step
+from .steps.base import scoped_step, post_step, setup_step
 
 from .steps import *
 
 __all__ = [
-    "SETUP",
-    "STEPS",
-    "POST",
     "HypertextMarkupCompiler",
-    "comp_step"
+    "setup_step",
+    "scoped_step",
+    "post_step",
+    "add_step",
+    "remove_step"
 ]
 
-SETUP: list[Callable] = []
+__SETUP__: list[Callable] = []
 
-STEPS: list[Callable] = [
+__STEPS__: list[Callable] = [
     step_replace_phml_wrapper,
     step_expand_loop_tags,
     step_execute_conditions,
@@ -30,10 +31,43 @@ STEPS: list[Callable] = [
     step_substitute_components,
 ]
 
-POST: list[Callable] = [
+__POST__: list[Callable] = [
     step_add_cached_component_elements,
 ]
 
+StepStage = Lit["setup", "scoped", "post"]
+
+@overload
+def add_step(step: Callable[[AST, ComponentManager, dict[str, Any]], None], stage: Lit["setup", "post"]) -> NoReturn:
+    ...
+
+@overload
+def add_step(step: Callable[[Parent, ComponentManager, dict[str, Any]], None], stage: Lit["scoped"]) -> NoReturn:
+    ...
+
+def add_step(step: Callable[[Parent, ComponentManager, dict[str, Any]], None]|Callable[[AST, ComponentManager, dict[str, Any]], None], stage: StepStage):
+    if stage == "setup":
+        __SETUP__.append(step)
+    elif stage == "scoped":
+        __STEPS__.append(step)
+    elif stage == "post":
+        __POST__.append(step)
+
+@overload
+def remove_step(step: Callable[[AST, ComponentManager, dict[str, Any]], None], stage: Lit["setup", "post"]) -> NoReturn:
+    ...
+
+@overload
+def remove_step(step: Callable[[Parent, ComponentManager, dict[str, Any]], None], stage: Lit["scoped"]) -> NoReturn:
+    ...
+
+def remove_step(step: Callable[[Parent, ComponentManager, dict[str, Any]], None]|Callable[[AST, ComponentManager, dict[str, Any]], None], stage: StepStage):
+    if stage == "setup":
+        __SETUP__.remove(step)
+    elif stage == "scoped":
+        __STEPS__.remove(step)
+    elif stage == "post":
+        __POST__.remove(step)
 
 class HypertextMarkupCompiler:
     def _get_python_elements(self, node: Parent) -> list[Element]:
@@ -58,7 +92,7 @@ class HypertextMarkupCompiler:
         """Process steps for a given scope/parent node."""
 
         # Core compile steps
-        for _step in STEPS:
+        for _step in __STEPS__:
             _step(node, components, context)
 
         # Recurse steps for each scope
@@ -77,7 +111,7 @@ class HypertextMarkupCompiler:
             embedded += Embedded(p_elem)
 
         # Setup steps to collect data before comiling at different scopes
-        for step in SETUP:
+        for step in __SETUP__:
             step(node, _components, context)
 
         # Recursively process scopes
@@ -85,7 +119,7 @@ class HypertextMarkupCompiler:
         self._process_scope_(node, _components, context)
 
         # Post compiling steps to finalize the ast
-        for step in POST:
+        for step in __POST__:
             step(node, _components, context)
 
         return node

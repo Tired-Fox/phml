@@ -5,7 +5,7 @@ from phml.embedded import exec_embedded
 from phml.helpers import build_recursive_context
 from phml.nodes import Element, Parent
 
-from .base import comp_step
+from .base import scoped_step
 
 
 class Condition(EnumType):
@@ -139,7 +139,7 @@ def compile_condition_trees(node, trees: list[list[tuple[int, Element]]], contex
                 break
 
 
-@comp_step
+@scoped_step
 def step_execute_conditions(
     node: Parent,
     _,

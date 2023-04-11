@@ -6,7 +6,7 @@ from phml.components import ComponentManager
 from phml.helpers import iterate_nodes, normalize_indent
 from phml.nodes import AST, Element, Literal, LiteralType, Node, Parent
 
-from .base import boundry_step, comp_step
+from .base import setup_step, scoped_step
 
 re_selector = re.compile(r"(\n|\}| *)([^}@/]+)(\s*{)")
 re_split_selector = re.compile(r"(?:\)(?:.|\s)*|(?<!\()(?:.|\s)*)(,)")
@@ -69,7 +69,7 @@ def scope_styles(styles: list[Element], hash: int) -> str:
     return "\n".join(result)
 
 
-@boundry_step
+@setup_step
 def step_add_cached_component_elements(
     node: AST,
     components: ComponentManager,
@@ -171,7 +171,7 @@ def replace_slots(child: Element, component: Element):
                 parent.remove(node)
 
 
-@comp_step
+@scoped_step
 def step_substitute_components(
     node: Parent,
     components: ComponentManager,
