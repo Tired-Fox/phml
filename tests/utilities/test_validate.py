@@ -1,8 +1,9 @@
 from pytest import raises
-from phml.utilities.validate import *
+from util_data import *
+
 from phml import p
 from phml.nodes import Element, Literal, LiteralType, Parent, Position
-from util_data import *
+from phml.utilities.validate import *
 
 
 class TestCheck:

@@ -4,12 +4,6 @@ A collection of utilities around querying for specific
 types of data.
 """
 
-# PERF: Support for all `:` selectors from https://www.w3schools.com/cssref/css_selectors.php
-# - Strip all `::` selectors and `:` not supported by phml implementation
-# - This will allow for parsing of css selectors and and adding scoping to component style elements
-# Add a data-phml-style-scope attribute to matching elements in the components. Edit the selector to then
-# have :is([data-phml-style-scope="phml-<hash>"])<selector>
-
 import re
 from typing import Callable
 

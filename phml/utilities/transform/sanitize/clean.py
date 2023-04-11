@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 from re import match
 
-from phml.nodes import Element, Parent, Node
+from phml.nodes import Element, Node, Parent
 
 from .schema import Schema
+
 
 def recurse_check_tag(node: Parent, schema: Schema):
     from phml.utilities import is_element
@@ -13,6 +15,7 @@ def recurse_check_tag(node: Parent, schema: Schema):
             node.remove(child)
         elif isinstance(child, Parent):
             recurse_check_tag(child, schema)
+
 
 def recurse_check_ancestor(node: Parent, schema: Schema):
     for child in list(node):
@@ -28,11 +31,12 @@ def recurse_check_ancestor(node: Parent, schema: Schema):
         elif isinstance(child, Element):
             recurse_check_ancestor(child, schema)
 
+
 def build_remove_attr_list(
     properties: dict,
     attributes: dict[str, tuple[str | bool, ...]],
     valid_attributes: list,
-    schema: Schema
+    schema: Schema,
 ):
     """Build the list of attributes to remove from a dict of attributes."""
     result = []
@@ -44,8 +48,7 @@ def build_remove_attr_list(
                 isinstance(properties[attribute], str)
                 and attribute in schema.protocols
                 and not check_protocols(
-                    properties[attribute], schema.protocols[attribute],
-                    schema
+                    properties[attribute], schema.protocols[attribute], schema
                 )
             ):
                 result.append(attribute)
@@ -55,12 +58,12 @@ def build_remove_attr_list(
             isinstance(properties[attribute], str)
             and attribute in schema.protocols
             and not check_protocols(
-                properties[attribute], schema.protocols[attribute],
-                schema
+                properties[attribute], schema.protocols[attribute], schema
             )
         ):
             result.append(attribute)
     return result
+
 
 def recurse_check_attributes(node: Node, schema: Schema):
     if isinstance(node, Element):
@@ -70,16 +73,14 @@ def recurse_check_attributes(node: Node, schema: Schema):
                 {
                     str(attr[0]): attr[1:]
                     for attr in (
-                        schema.attributes[node.tag]
-                        + schema.attributes.get("*", [])
+                        schema.attributes[node.tag] + schema.attributes.get("*", [])
                     )
                     if isinstance(attr, tuple)
                 },
                 [
                     attr if isinstance(attr, str) else attr[0]
                     for attr in (
-                        schema.attributes[node.tag]
-                        + schema.attributes.get("*", [])
+                        schema.attributes[node.tag] + schema.attributes.get("*", [])
                     )
                 ],
                 schema,
@@ -106,6 +107,7 @@ def recurse_check_attributes(node: Node, schema: Schema):
         for child in node:
             recurse_check_attributes(child, schema)
 
+
 def recurse_check_required(node: Parent, schema: Schema):
     for child in node:
         if isinstance(child, Element) and child.tag in schema.required:
@@ -119,8 +121,10 @@ def recurse_check_required(node: Parent, schema: Schema):
         elif isinstance(child, Element):
             recurse_check_required(child, schema)
 
+
 def check_protocols(value: str, protocols: list[str], schema: Schema):
     return match(f"{'|'.join(protocols)}:.*", value) is not None
+
 
 def recurse_strip(node, schema: Schema):
     from phml.utilities import is_element
@@ -130,6 +134,7 @@ def recurse_strip(node, schema: Schema):
             node.remove(child)
         elif isinstance(child, Parent):
             recurse_strip(child, schema)
+
 
 def sanatize(tree: Parent, schema: Schema = Schema()):
     """Sanatize elements and attributes in the phml tree. Should be used when using
@@ -150,13 +155,10 @@ def sanatize(tree: Parent, schema: Schema = Schema()):
         schema (Schema, optional): User defined schema. Defaults to github schema.
     """
 
-    from phml.utilities import (  # pylint: disable=import-outside-toplevel
-        remove_nodes,
-    )
+    from phml.utilities import remove_nodes  # pylint: disable=import-outside-toplevel
 
     for strip in schema.strip:
         remove_nodes(tree, ["element", {"tag": strip}])
-
 
     recurse_check_tag(tree, schema)
     recurse_strip(tree, schema)

@@ -1,4 +1,3 @@
-from html import escape
 from typing import Any
 
 from phml.embedded import exec_embedded, exec_embedded_blocks
@@ -6,10 +5,6 @@ from phml.helpers import build_recursive_context
 from phml.nodes import Element, Literal, Parent
 
 from .base import scoped_step
-
-ESCAPE_OPTIONS = {
-    "quote": False,
-}
 
 
 def _process_attributes(node: Element, context: dict[str, Any]):
@@ -44,7 +39,11 @@ def step_execute_embedded_python(node: Parent, _, context: dict[str, Any]):
                 child,
                 build_recursive_context(child, context),
             )
-        elif Literal.is_text(child) and "{{" in child.content and child.parent.tag not in ["script", "style", "python"]:
+        elif (
+            Literal.is_text(child)
+            and "{{" in child.content
+            and child.parent.tag not in ["script", "style", "python"]
+        ):
             child.content = exec_embedded_blocks(
                 child.content.strip(),
                 f"Text in <{node.tag}> at {node.position!r}",

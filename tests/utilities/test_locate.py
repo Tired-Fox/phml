@@ -1,10 +1,12 @@
-from phml.utilities.locate.find import *
-from phml.utilities.locate.index import Index
-from phml.utilities.locate.select import matches, query, query_all, parse_specifiers
-from phml import p
+from pytest import raises
 from util_data import ast, container, dest, last
 
-from pytest import raises
+from phml import p
+from phml.utilities.locate.find import *
+from phml.utilities.locate.index import Index
+from phml.utilities.locate.select import (matches, parse_specifiers, query,
+                                          query_all)
+
 
 class TestFind:
     def test_ancestor(self):

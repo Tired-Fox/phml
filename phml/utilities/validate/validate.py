@@ -261,7 +261,8 @@ def is_phrasing(node: Element) -> bool:
             or (
                 "rel" in node
                 and all(
-                    token in body_ok for token in str(node["rel"]).split(" ")
+                    token in body_ok
+                    for token in str(node["rel"]).split(" ")
                     if token.strip() != ""
                 )
             ),

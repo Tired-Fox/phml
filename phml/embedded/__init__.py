@@ -4,10 +4,10 @@ Embedded has all the logic for processing python elements, attributes, and text 
 from __future__ import annotations
 
 import ast
-from functools import cached_property
-from html import escape
 import re
 import types
+from functools import cached_property
+from html import escape
 from pathlib import Path
 from shutil import get_terminal_size
 from traceback import FrameSummary, extract_tb

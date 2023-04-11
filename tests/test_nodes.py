@@ -1,16 +1,7 @@
 from pytest import raises
 
-from phml.nodes import (
-    LiteralType,
-    Point,
-    Position,
-    Node,
-    Parent,
-    AST,
-    Element,
-    Literal,
-    NodeType,
-)
+from phml.nodes import (AST, Element, Literal, LiteralType, Node, NodeType,
+                        Parent, Point, Position)
 
 
 def test_point():

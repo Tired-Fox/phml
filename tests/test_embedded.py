@@ -1,10 +1,12 @@
-from phml.embedded import *
-from pytest import raises
-
 # Imports used for assert
 import time
-from time import sleep
 from re import match, sub
+from time import sleep
+
+from pytest import raises
+
+from phml.embedded import *
+
 
 class TestEmbeddedImports:
     def test_module(self):

@@ -98,13 +98,12 @@ def step_compile_markdown(
             ast = phml.parse(content).ast
 
             if len(ast) > 0 and md.parent is not None:
-                wrapper = Element("article", attributes=md.attributes, children=ast.children)
+                wrapper = Element(
+                    "article", attributes=md.attributes, children=ast.children
+                )
                 sanatize(wrapper)
 
                 idx = md.parent.index(md)
 
                 md.parent.remove(md)
-                md.parent.insert(
-                    idx,
-                    wrapper
-                )
+                md.parent.insert(idx, wrapper)

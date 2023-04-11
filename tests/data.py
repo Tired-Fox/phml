@@ -1,5 +1,6 @@
-from phml.nodes import *
 from pathlib import Path
+
+from phml.nodes import *
 
 __all__ = [
     "phml_file",

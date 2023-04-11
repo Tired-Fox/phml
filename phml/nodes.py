@@ -516,7 +516,10 @@ class Element(Parent):
             and (
                 len(self.attributes) == len(_o.attributes)
                 and all(key in self.attributes for key in _o.attributes)
-                and all(_o.attributes[key] == value for key,value in self.attributes.items())
+                and all(
+                    _o.attributes[key] == value
+                    for key, value in self.attributes.items()
+                )
             )
             and (
                 (_o.children is None and self.children is None)

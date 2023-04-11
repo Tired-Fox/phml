@@ -6,7 +6,7 @@ from phml.components import ComponentManager
 from phml.helpers import iterate_nodes, normalize_indent
 from phml.nodes import AST, Element, Literal, LiteralType, Node, Parent
 
-from .base import setup_step, scoped_step
+from .base import scoped_step, setup_step
 
 re_selector = re.compile(r"(\n|\}| *)([^}@/]+)(\s*{)")
 re_split_selector = re.compile(r"(?:\)(?:.|\s)*|(?<!\()(?:.|\s)*)(,)")
@@ -70,11 +70,7 @@ def scope_styles(styles: list[Element], hash: int) -> str:
 
 
 @setup_step
-def step_add_cached_component_elements(
-    node: AST,
-    components: ComponentManager,
-    _
-):
+def step_add_cached_component_elements(node: AST, components: ComponentManager, _):
     """Step to add the cached script and style elements from components."""
     target = None
     for child in node:

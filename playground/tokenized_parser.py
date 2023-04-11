@@ -3,6 +3,7 @@ This is about twice as slow as the current regex parser.
 """
 from dataclasses import dataclass
 from pathlib import Path
+
 from phml.nodes import *
 from phml.parser import HypertextMarkupParser
 

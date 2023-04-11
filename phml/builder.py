@@ -122,8 +122,8 @@ def parse_root(children: list):
 def parse_node(selector: str, props: dict, children: list):
     """From the provided selector, props, and children build an element node."""
     from phml.utilities import (
-        parse_specifiers,  # pylint: disable=import-outside-toplevel
-    )
+        parse_specifiers,
+    )  # pylint: disable=import-outside-toplevel
 
     node = parse_specifiers(selector)
     if not isinstance(node[0], dict) or len(node[0]["attributes"]) > 0:

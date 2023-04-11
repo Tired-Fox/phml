@@ -1,5 +1,6 @@
-from phml import HypertextManager
 from pathlib import Path
+
+from phml import HypertextManager
 
 out = "src/site/"
 

@@ -3,8 +3,10 @@
 """
 from dataclasses import dataclass
 
-from .core import HypertextManager
 from .builder import p
+from .core import HypertextManager
+
+
 @dataclass
 class Version:
     """Version object for phml.
@@ -24,8 +26,8 @@ class Version:
     """
 
     Major: int = 0
-    Minor: int = 2
-    Alpha: int = 3
+    Minor: int = 3
+    Alpha: int = 0
 
     def __str__(self) -> str:
         return f"{self.Major}.{self.Minor}.{self.Alpha}"

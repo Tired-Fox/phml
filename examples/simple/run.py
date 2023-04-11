@@ -7,7 +7,6 @@ methods are virtually equivelant, but are focused toward different preferences/s
 """
 from phml import HypertextManager
 
-
 if __name__ == "__main__":
     context_message = "This phml is compiled with the phml context manager"
     manual_message = "This phml is compiled with manual phml manager calls"

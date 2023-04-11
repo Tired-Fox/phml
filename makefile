@@ -7,7 +7,7 @@ all:
 	make install format lint
 
 format:
-	ruff check --fix-only && black $(PROJECT)
+	isort ./$(project) && black $(PROJECT)
 
 lint:
 	ruff check ./$(PROJECT)

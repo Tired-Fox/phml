@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 from .compiler import HypertextMarkupCompiler
 from .components import ComponentManager, ComponentType
+
+# TODO: Optimize and extract manipulation of import dicts
 from .embedded import __FROM_IMPORTS__, __IMPORTS__, Module
 from .helpers import PHMLTryCatch
 from .nodes import AST, Node, Parent

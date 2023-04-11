@@ -1,7 +1,9 @@
 from pytest import raises
-from phml.utilities.misc import *
 from util_data import *
+
 from phml import p
+from phml.utilities.misc import *
+
 
 class TestMisc:
     def test_depth(self):

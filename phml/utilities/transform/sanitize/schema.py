@@ -1,5 +1,6 @@
 """Defines the schema on how to sanitize the phml ast."""
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 
 
@@ -124,7 +125,7 @@ class Schema:
             "input",
         ],
     )
-    attributes: dict[str, list[str | tuple[str|bool, ...]]] = field(
+    attributes: dict[str, list[str | tuple[str | bool, ...]]] = field(
         default_factory=lambda: {
             "a": ["href"],
             "article": ["class"],
@@ -227,7 +228,7 @@ class Schema:
         ancestors: dict[str, list[str]] | None = None,
         protocols: dict[str, list[str]] | None = None,
         tag_names: list[str] | None = None,
-        attributes: dict[str, list[str | tuple[str|bool, ...]]] | None = None,
+        attributes: dict[str, list[str | tuple[str | bool, ...]]] | None = None,
         required: dict[str, dict[str, str | bool]] | None = None,
     ) -> Schema:
         """Extend the default schemas values.

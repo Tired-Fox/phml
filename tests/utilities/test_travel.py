@@ -1,5 +1,7 @@
+from util_data import container, dest, last, middle, para, text
+
 from phml.utilities.travel import *
-from util_data import container, dest, para, text, middle, last
+
 
 def test_path():
     assert (first_path := path(dest)) != []

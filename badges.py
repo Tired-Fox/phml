@@ -1,11 +1,13 @@
 from __future__ import annotations
+
+import math
+import posixpath
 from dataclasses import dataclass
 from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Literal, TypeAlias, TypedDict
+
 import requests
-import posixpath
-import math
 
 __all__ = [
     "STYLES",

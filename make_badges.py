@@ -1,12 +1,12 @@
 from pathlib import Path
-from subprocess import Popen, PIPE
-import phml as module
+from subprocess import PIPE, Popen
 
+import phml as module
 from badges import *
 
 if __name__ == "__main__":
+    from re import finditer, search
     from tempfile import TemporaryFile
-    from re import search, finditer
 
     project = "phml"
     primary = "9cf"

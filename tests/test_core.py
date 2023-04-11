@@ -1,9 +1,11 @@
 from pathlib import Path
 
-from pytest import raises
-from phml import HypertextManager 
 from data import *
+from pytest import raises
+
+from phml import HypertextManager
 from phml.nodes import AST
+
 
 def construct_base(phml: HypertextManager | None = None):
     if phml is None:

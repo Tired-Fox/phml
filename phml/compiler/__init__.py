@@ -1,15 +1,16 @@
 from collections.abc import Callable
 from copy import deepcopy
-from typing import Any, Literal as Lit, NoReturn, overload
+from typing import Any
+from typing import Literal as Lit
+from typing import NoReturn, overload
 
 from phml.components import ComponentManager
 from phml.embedded import Embedded
 from phml.helpers import normalize_indent
 from phml.nodes import AST, Element, Literal, LiteralType, Parent
 
-from .steps.base import scoped_step, post_step, setup_step
-
 from .steps import *
+from .steps.base import post_step, scoped_step, setup_step
 
 __all__ = [
     "HypertextMarkupCompiler",
@@ -17,7 +18,7 @@ __all__ = [
     "scoped_step",
     "post_step",
     "add_step",
-    "remove_step"
+    "remove_step",
 ]
 
 __SETUP__: list[Callable] = []
@@ -37,15 +38,28 @@ __POST__: list[Callable] = [
 
 StepStage = Lit["setup", "scoped", "post"]
 
-@overload
-def add_step(step: Callable[[AST, ComponentManager, dict[str, Any]], None], stage: Lit["setup", "post"]) -> NoReturn:
-    ...
 
 @overload
-def add_step(step: Callable[[Parent, ComponentManager, dict[str, Any]], None], stage: Lit["scoped"]) -> NoReturn:
+def add_step(
+    step: Callable[[AST, ComponentManager, dict[str, Any]], None],
+    stage: Lit["setup", "post"],
+) -> NoReturn:
     ...
 
-def add_step(step: Callable[[Parent, ComponentManager, dict[str, Any]], None]|Callable[[AST, ComponentManager, dict[str, Any]], None], stage: StepStage):
+
+@overload
+def add_step(
+    step: Callable[[Parent, ComponentManager, dict[str, Any]], None],
+    stage: Lit["scoped"],
+) -> NoReturn:
+    ...
+
+
+def add_step(
+    step: Callable[[Parent, ComponentManager, dict[str, Any]], None]
+    | Callable[[AST, ComponentManager, dict[str, Any]], None],
+    stage: StepStage,
+):
     if stage == "setup":
         __SETUP__.append(step)
     elif stage == "scoped":
@@ -53,21 +67,35 @@ def add_step(step: Callable[[Parent, ComponentManager, dict[str, Any]], None]|Ca
     elif stage == "post":
         __POST__.append(step)
 
-@overload
-def remove_step(step: Callable[[AST, ComponentManager, dict[str, Any]], None], stage: Lit["setup", "post"]) -> NoReturn:
-    ...
 
 @overload
-def remove_step(step: Callable[[Parent, ComponentManager, dict[str, Any]], None], stage: Lit["scoped"]) -> NoReturn:
+def remove_step(
+    step: Callable[[AST, ComponentManager, dict[str, Any]], None],
+    stage: Lit["setup", "post"],
+) -> NoReturn:
     ...
 
-def remove_step(step: Callable[[Parent, ComponentManager, dict[str, Any]], None]|Callable[[AST, ComponentManager, dict[str, Any]], None], stage: StepStage):
+
+@overload
+def remove_step(
+    step: Callable[[Parent, ComponentManager, dict[str, Any]], None],
+    stage: Lit["scoped"],
+) -> NoReturn:
+    ...
+
+
+def remove_step(
+    step: Callable[[Parent, ComponentManager, dict[str, Any]], None]
+    | Callable[[AST, ComponentManager, dict[str, Any]], None],
+    stage: StepStage,
+):
     if stage == "setup":
         __SETUP__.remove(step)
     elif stage == "scoped":
         __STEPS__.remove(step)
     elif stage == "post":
         __POST__.remove(step)
+
 
 class HypertextMarkupCompiler:
     def _get_python_elements(self, node: Parent) -> list[Element]:

@@ -1,11 +1,11 @@
+from data import *
 from pytest import raises
 
-from phml.compiler import HypertextMarkupCompiler, __SETUP__, add_step, setup_step
-from phml.parser import HypertextMarkupParser
+from phml.compiler import (__SETUP__, HypertextMarkupCompiler, add_step,
+                           setup_step)
 from phml.components import ComponentManager
-from phml.nodes import Element, AST, Literal, LiteralType
-
-from data import *
+from phml.nodes import AST, Element, Literal, LiteralType
+from phml.parser import HypertextMarkupParser
 
 components = ComponentManager()
 components.add("tests/src/component.phml", ignore="tests/src/")

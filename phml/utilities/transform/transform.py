@@ -140,7 +140,7 @@ def replace_node(
                 idx = parent.index(node)
                 if replacement is not None:
                     if isinstance(replacement, list):
-                        parent[idx:idx+1] = replacement
+                        parent[idx : idx + 1] = replacement
                     else:
                         parent[idx] = replacement
                 else:

@@ -5,11 +5,11 @@ transforming, traveling, or validating nodes.
 """
 
 from re import split, sub
-from typing import overload
 
-from phml.nodes import Element, Node
+from phml.nodes import Element
 
 __all__ = ["classnames", "ClassList"]
+
 
 def classnames(  # pylint: disable=keyword-arg-before-vararg
     node: Element | None = None,
@@ -147,9 +147,9 @@ def validate_node(
 ) -> tuple[Element | None, tuple]:
     """Validate a node is a node and that it is an element."""
 
-    if isinstance(node, (str , int , list , dict)):
+    if isinstance(node, (str, int, list, dict)):
         return None, (node, *conditionals)
-    
+
     if not isinstance(node, Element):
         raise TypeError("Node must be an element")
 

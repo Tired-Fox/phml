@@ -1,6 +1,8 @@
-from pytest import raises
-from phml.parser import HypertextMarkupParser
 from data import *
+from pytest import raises
+
+from phml.parser import HypertextMarkupParser
+
 
 class TestHyperTextParser:
     parser = HypertextMarkupParser()
