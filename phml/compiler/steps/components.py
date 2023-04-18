@@ -109,6 +109,8 @@ def step_add_cached_component_elements(node: AST, components: ComponentManager, 
             script = Element("script", children=[Literal(LiteralType.Text, script)])
             target.append(script)
 
+    components.clear_cache()
+
 
 class SlotNames(TypedDict):
     __blank__: Node | None

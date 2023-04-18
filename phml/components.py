@@ -127,6 +127,10 @@ class ComponentManager:
         """Get the current cache of component scripts and styles"""
         return self._cache
 
+    def clear_cache(self):
+        """Clear the cached component data."""
+        self._cache = {}
+
     def cache(self, key: str, value: ComponentType):
         """Add a cache for a specific component. Will only add the cache if
         the component is new and unique.
