@@ -86,7 +86,7 @@ def build_condition_trees(node: Element) -> list[list[Element]]:
         if isinstance(child, Element):
             condition = get_element_condition(child)
             if condition > Condition.NONE and validate_condition(
-                previous, condition, node.position
+                previous, condition, child.position
             ):
                 if condition == Condition.IF:
                     condition_trees.append([(condition, child)])

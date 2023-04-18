@@ -54,7 +54,7 @@ def scope_style(style: str, scope: str) -> str:
     return result
 
 
-def scope_styles(styles: list[Element], hash: int) -> str:
+def scope_styles(styles: list[Element], hash: str) -> str:
     """Parse styles and find selectors with regex. When a selector is found then add scoped
     hashed data attribute to the selector.
     """
@@ -72,13 +72,11 @@ def scope_styles(styles: list[Element], hash: int) -> str:
 @setup_step
 def step_add_cached_component_elements(node: AST, components: ComponentManager, _):
     """Step to add the cached script and style elements from components."""
-    target = None
-    for child in node:
-        if isinstance(child, Element) and child.tag == "html":
-            target = child
-            for c in child:
-                if isinstance(c, Element) and c.tag == "head":
-                    target = c
+    from phml.utilities import query
+
+    n_style = query(node, "head > style")
+    n_script = query(node, "head > script")
+    target = query(node, "head") or  node
 
     cache = components.get_cache()
     style = ""
@@ -92,18 +90,24 @@ def step_add_cached_component_elements(node: AST, components: ComponentManager, 
         script += f"\n{scripts}"
 
     if len(style.strip()) > 0:
-        style = Element("style", children=[Literal(LiteralType.Text, style)])
-        if target is not None:
-            target.append(style)
+        if n_style is not None:
+            if len(n_style) == 0 or not Literal.is_text(n_style[0]):
+                n_style.children = []
+                n_style.append(Literal(LiteralType.Text, ""))
+            n_style[0].content = normalize_indent(n_style[0].content) + style
         else:
-            node.append(style)
+            style = Element("style", children=[Literal(LiteralType.Text, style)])
+            target.append(style)
 
     if len(script.strip()) > 0:
-        script = Element("script", children=[Literal(LiteralType.Text, script)])
-        if target is not None:
-            target.append(script)
+        if n_script is not None:
+            if len(n_script) == 0 or not Literal.is_text(n_script[0]):
+                n_script.children = []
+                n_script.append(Literal(LiteralType.Text, ""))
+            n_script[0].content = normalize_indent(n_script[0].content) + script
         else:
-            node.append(script)
+            script = Element("script", children=[Literal(LiteralType.Text, script)])
+            target.append(script)
 
 
 class SlotNames(TypedDict):

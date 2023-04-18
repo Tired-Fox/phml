@@ -6,7 +6,7 @@ from __future__ import annotations
 import ast
 import re
 import types
-from functools import cached_property
+from functools import cache, cached_property
 from html import escape
 from pathlib import Path
 from shutil import get_terminal_size
@@ -186,39 +186,52 @@ class Module:
         self.objects = imports or []
         if imports is not None and len(imports) > 0:
             if module not in __FROM_IMPORTS__:
-                raise ValueError(f"Unkown module {module!r}")
-            try:
-                imports = {
-                    _import: __FROM_IMPORTS__[module][_import] for _import in imports
-                }
-            except KeyError as kerr:
-                back_frame = kerr.__traceback__.tb_frame.f_back
-                back_tb = types.TracebackType(
-                    tb_next=None,
-                    tb_frame=back_frame,
-                    tb_lasti=back_frame.f_lasti,
-                    tb_lineno=back_frame.f_lineno,
-                )
-                FrameSummary("", 2, "")
-                raise ValueError(
-                    f"{', '.join(kerr.args)!r} {'arg' if len(kerr.args) > 1 else 'is'} not found in cached imported module {module!r}",
-                ).with_traceback(back_tb)
+                if module not in __IMPORTS__:
+                    raise ValueError(f"Unkown module {module!r}")
+                else:
+                    _imports = {
 
-            globals().update(imports)
-            locals().update(imports)
+                        _import: getattr(__IMPORTS__[module], _import) for _import in imports
+                    }
+            else:
+                try:
+                    _imports = {
+                        _import: __FROM_IMPORTS__[module][_import] for _import in imports
+                    }
+                except KeyError as kerr:
+                    back_frame = kerr.__traceback__.tb_frame.f_back
+                    back_tb = types.TracebackType(
+                        tb_next=None,
+                        tb_frame=back_frame,
+                        tb_lasti=back_frame.f_lasti,
+                        tb_lineno=back_frame.f_lineno,
+                    )
+                    FrameSummary("", 2, "")
+                    raise ValueError(
+                        f"{', '.join(kerr.args)!r} {'arg' if len(kerr.args) > 1 else 'is'} not found in cached imported module {module!r}",
+                    ).with_traceback(back_tb)
+
+            globals().update(_imports)
+            locals().update(_imports)
             self.module = module
         else:
             if module not in __IMPORTS__:
                 raise ValueError(f"Unkown module {module!r}")
 
-            imports = {module: __IMPORTS__[module]}
-            locals().update(imports)
-            globals().update(imports)
+            _imports = {module: __IMPORTS__[module]}
+            locals().update(_imports)
+            globals().update(_imports)
             self.module = module
 
     def collect(self) -> Any:
         """Collect the imports and return the single import or a tuple of multiple imports."""
         if len(self.objects) > 0:
+
+            if self.module not in __FROM_IMPORTS__:
+                if len(self.objects) == 1:
+                    return getattr(__IMPORTS__[self.module], self.objects[0])
+                return tuple([getattr(__IMPORTS__[self.module], obj) for obj in self.objects])
+
             if len(self.objects) == 1:
                 return __FROM_IMPORTS__[self.module][self.objects[0]]
             return tuple(
@@ -233,11 +246,11 @@ class EmbeddedImport:
     module: str
     """Package where the import(s) are from."""
 
-    objects: list[str]
+    objects: list[str|tuple[str, str]]
     """The imported objects."""
 
     def __init__(
-        self, module: str, values: str | list[str] | None = None, *, push: bool = False
+        self, module: str, values: str | list[str] | None = None
     ) -> None:
         self.module = module
 
@@ -246,9 +259,7 @@ class EmbeddedImport:
         else:
             self.objects = parse_import_values(values or "")
 
-        if push:
-            self.data
-
+    @cache
     def _parse_from_import(self):
         if self.module in __FROM_IMPORTS__:
             values = list(
@@ -262,17 +273,27 @@ class EmbeddedImport:
             values = self.objects
 
         if len(values) > 0:
-            local_env = {}
-            exec_val = compile(str(self), "_embedded_import_", "exec")
-            exec(exec_val, {}, local_env)
+            if self.module not in __FROM_IMPORTS__ and self.module in __IMPORTS__:
+                imports = {}
+                for key in self.objects:
+                    if isinstance(key, str):
+                        imports[key] = getattr(__IMPORTS__[self.module], key)
+                    else:
+                        imports[key[1]] = getattr(__IMPORTS__[self.module], key[0])
+                return imports
+            else:
+                local_env = {}
+                exec_val = compile(str(self), "_embedded_import_", "exec")
+                exec(exec_val, {}, local_env)
 
-            if self.module not in __FROM_IMPORTS__:
-                __FROM_IMPORTS__[self.module] = {}
-            __FROM_IMPORTS__[self.module].update(local_env)
+                if self.module not in __FROM_IMPORTS__:
+                    __FROM_IMPORTS__[self.module] = {}
+                __FROM_IMPORTS__[self.module].update(local_env)
 
         keys = [key if isinstance(key, str) else key[1] for key in self.objects]
         return {key: __FROM_IMPORTS__[self.module][key] for key in keys}
 
+    @cache
     def _parse_import(self):
         if self.module not in __IMPORTS__:
             local_env = {}
@@ -283,16 +304,9 @@ class EmbeddedImport:
         return {self.module: __IMPORTS__[self.module]}
 
     def __iter__(self) -> Iterator[tuple[str, Any]]:
-        if len(self.objects) > 0:
-            if self.module not in __FROM_IMPORTS__:
-                raise KeyError(f"{self.module} is not a known exposed module")
-            yield from __FROM_IMPORTS__[self.module].items()
-        else:
-            if self.module not in __IMPORTS__:
-                raise KeyError(f"{self.module} is not a known exposed module")
-            yield __IMPORTS__[self.module]
+        yield from self.data.items()
 
-    @cached_property
+    @property
     def data(self) -> dict[str, Any]:
         """The actual imports stored by a name to value mapping."""
         if len(self.objects) > 0:
@@ -304,7 +318,8 @@ class EmbeddedImport:
 
     def __repr__(self) -> str:
         if len(self.objects) > 0:
-            return f"FROM({self.module}).IMPORT({', '.join(self.objects)})"
+            keys = [key if isinstance(key, str) else f"{key[0]} as {key[1]}" for key in self.objects]
+            return f"FROM({self.module!r}).IMPORT({', '.join(keys)})"
         return f"IMPORT({self.module})"
 
     def __str__(self) -> str:

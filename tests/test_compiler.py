@@ -1,8 +1,13 @@
 from data import *
 from pytest import raises
 
-from phml.compiler import (__SETUP__, HypertextMarkupCompiler, add_step,
-                           setup_step)
+from phml.compiler import (
+    __SETUP__,
+    HypertextMarkupCompiler,
+    add_step,
+    remove_step,
+    setup_step,
+)
 from phml.components import ComponentManager
 from phml.nodes import AST, Element, Literal, LiteralType
 from phml.parser import HypertextMarkupParser
@@ -25,6 +30,24 @@ def step_collect_html(node, *_):
 
 
 add_step(step_collect_html, "setup")
+
+
+def test_add_step():
+    from phml.compiler import __POST__, __STEPS__
+
+    add_step(step_collect_html, "post")
+    assert step_collect_html in __POST__
+    add_step(step_collect_html, "scoped")
+    assert step_collect_html in __STEPS__
+    remove_step(step_collect_html, "post")
+    assert step_collect_html not in __POST__
+    remove_step(step_collect_html, "scoped")
+    assert step_collect_html not in __STEPS__
+    add_step(step_collect_html, "setup")
+    assert step_collect_html in __SETUP__
+    remove_step(step_collect_html, "setup")
+    assert step_collect_html not in __SETUP__
+    add_step(step_collect_html, "setup")
 
 
 class TestHyperTextMarkupCompiler:

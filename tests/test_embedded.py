@@ -34,6 +34,7 @@ class TestEmbeddedImports:
         assert i_sub == sub
 
     def test_from_module_list(self):
+        
         d_sub_time = EmbeddedImport("time", ["sleep"]).data
         i_sleep = Module("time", imports=["sleep"]).collect()
 

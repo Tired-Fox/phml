@@ -60,11 +60,11 @@ def add_step(
     | Callable[[AST, ComponentManager, dict[str, Any]], None],
     stage: StepStage,
 ):
-    if stage == "setup":
+    if stage == "setup" and step not in __SETUP__:
         __SETUP__.append(step)
-    elif stage == "scoped":
+    elif stage == "scoped" and step not in __STEPS__:
         __STEPS__.append(step)
-    elif stage == "post":
+    elif stage == "post" and step not in __POST__:
         __POST__.append(step)
 
 
@@ -128,6 +128,18 @@ class HypertextMarkupCompiler:
             if isinstance(child, Element):
                 self._process_scope_(child, components, context)
 
+    @overload
+    def compile(
+        self, node: AST, _components: ComponentManager, **context: Any
+    ) -> AST:
+        ...
+
+    @overload
+    def compile(
+        self, node: Parent, _components: ComponentManager, **context: Any
+    ) -> Parent:
+        ...
+
     def compile(
         self, node: Parent, _components: ComponentManager, **context: Any
     ) -> Parent:
@@ -187,8 +199,8 @@ class HypertextMarkupCompiler:
             key, value = list(element.attributes.items())[0]
             attrs = lead_space + self._render_attribute(key, value)
 
-        result = f"{' '*indent if not element.in_pre else ''}<{element.tag}{attrs}{'' if len(element) > 0 else '/'}>"
-        if len(element) == 0:
+        result = f"{' '*indent if not element.in_pre else ''}<{element.tag}{attrs}{'' if element.children is not None else '/'}>"
+        if element.children is None:
             return result
 
         if (
@@ -202,7 +214,7 @@ class HypertextMarkupCompiler:
                 and "\n" not in result
             )
         ):
-            children = self._render_tree_(element, _compress=compress)
+            children = self._render_tree_(element, _compress="")
             result += children + f"</{element.tag}>"
         else:
             children = self._render_tree_(element, indent + 2, _compress=compress)

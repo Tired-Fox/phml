@@ -9,7 +9,7 @@ from .helpers import iterate_nodes
 from .nodes import Element, Literal
 from .parser import HypertextMarkupParser
 
-__all__ = ["ComponentType", "ComponentManager", "tokenize_name"]
+__all__ = ["ComponentType", "ComponentManager", "tokenize_name", "parse_cmpt_name"]
 
 
 class ComponentType(TypedDict):
@@ -84,7 +84,7 @@ def tokenize_name(
     return tokens
 
 
-def _parse_cmpt_name(name: str) -> str:
+def parse_cmpt_name(name: str) -> str:
     tokens = tokenize_name(name.rsplit(".", 1)[0], normalize=True, title_case=True)
     return "".join(tokens)
 
@@ -107,7 +107,8 @@ class ComponentManager:
         self._parser = HypertextMarkupParser()
         self._cache: dict[str, ComponentCacheType] = {}
 
-    def generate_name(self, path: str, ignore: str = "") -> str:
+    @staticmethod
+    def generate_name(path: str, ignore: str = "") -> str:
         """Generate a component name based on it's path. Optionally strip part of the path
         from the beginning.
         """
@@ -118,7 +119,7 @@ class ComponentManager:
         return ".".join(
             [
                 *[part[0].upper() + part[1:].lower() for part in parts[:-1]],
-                _parse_cmpt_name(parts[-1]),
+                parse_cmpt_name(parts[-1]),
             ],
         )
 
@@ -171,7 +172,7 @@ class ComponentManager:
         return component
 
     @overload
-    def add(self, file: str | Path, *, ignore: str = ""):
+    def add(self, file: str | Path, *, name: str|None = None, ignore: str = ""):
         """Add a component to the component manager with a file path. Also, componetes can be added to
         the component manager with a name and str or an already parsed component dict.
 
@@ -240,7 +241,7 @@ class ComponentManager:
         else:
             file = Path(file)
             with file.open("r", encoding="utf-8") as c_file:
-                name = self.generate_name(file.as_posix(), ignore)
+                name = name or self.generate_name(file.as_posix(), ignore)
                 content.update(self.parse(c_file.read(), file.as_posix()))
 
         self.validate(content)

@@ -81,6 +81,7 @@ class HypertextManager:
         *,
         name: str | None = None,
         imports: list[str] | None = None,
+        ignore: str = "",
     ) -> NoReturn:
         """Pass and imported a python file as a module. The modules are imported and added
         to phml's cached imports. These modules are **ONLY** exposed to the python elements.
@@ -129,17 +130,25 @@ class HypertextManager:
                     break
                 index += 1
 
-            name = "/".join(path_p[index:]).rsplit(".", 1)[0].replace("/", ".")
+            mod_name = "/".join(path_p[index:]).rsplit(".", 1)[0].replace("/", ".")
             path = "/".join(path_p[:index])
 
             # Make the path that is imported form the only path in sys.path
             # this will prevent module conflicts and garuntees the correct module is imported
             sys_path = list(sys.path)
             sys.path = [path]
-            mod = import_module(name)
+            mod = import_module(mod_name)
             sys.path = sys_path
 
-            name = f".{name}"
+            mod_name = (
+                Path("/".join(path_p[index:]))
+                .relative_to(ignore)
+                .with_suffix("")
+                .as_posix()
+                .replace("/", ".")
+            )
+
+            name = f".{name or mod_name}"
         else:
             if module.startswith(".."):
                 current = Path(os.getcwd()).as_posix()
@@ -268,7 +277,7 @@ class HypertextManager:
 
         return result
 
-    def compile(self, **context: Any) -> Parent:
+    def compile(self, **context: Any) -> AST:
         """Compile the python blocks, python attributes, and phml components and return the resulting ast.
         The resulting ast replaces the core objects ast.
         """
@@ -279,7 +288,9 @@ class HypertextManager:
             return ast
         raise ValueError("Must first parse a phml file before compiling to an AST")
 
-    def render(self, _compress: bool = False, **context: Any) -> str:
+    def render(
+        self, _compress: bool = False, _ast: AST | None = None, **context: Any
+    ) -> str:
         """Renders the phml ast into an html string. If currently in a context manager
         the resulting string will also be output to an associated file.
         """
@@ -287,7 +298,7 @@ class HypertextManager:
         if self._ast is not None:
             with PHMLTryCatch(self._from_path, "phml:__render"):
                 result = self.compiler.render(
-                    self.compile(**context),
+                    _ast or self.compile(**context),
                     _compress,
                 )
 
@@ -303,7 +314,13 @@ class HypertextManager:
             return result
         raise ValueError("Must first parse a phml file before rendering a phml AST")
 
-    def write(self, _path: str | Path, _compress: bool = False, **context: Any):
+    def write(
+        self,
+        _path: str | Path,
+        _compress: bool = False,
+        _ast: AST | None = None,
+        **context: Any,
+    ):
         """Render and write the current ast to a file.
 
         Args:
@@ -314,11 +331,11 @@ class HypertextManager:
         path.parent.mkdir(parents=True, exist_ok=True)
 
         with path.open("+w", encoding="utf-8") as file:
-            file.write(self.compiler.render(self.compile(**context), _compress))
+            file.write(self.compiler.render(_ast or self.compile(**context), _compress))
         return self
 
     @overload
-    def add(self, file: str | Path, *, ignore: str = ""):
+    def add(self, file: str | Path, *, name: str | None = None, ignore: str = ""):
         """Add a component to the component manager with a file path. Also, componetes can be added to
         the component manager with a name and str or an already parsed component dict.
 

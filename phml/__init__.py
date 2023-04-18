@@ -27,7 +27,7 @@ class Version:
 
     Major: int = 0
     Minor: int = 3
-    Alpha: int = 0
+    Alpha: int = 1
 
     def __str__(self) -> str:
         return f"{self.Major}.{self.Minor}.{self.Alpha}"

@@ -603,9 +603,15 @@ class Element(Parent):
         ...
 
     def __setitem__(self, key: str | int | slice, value: Attribute | Node | list):
-        if isinstance(key, str) and isinstance(value, Attribute):
+        if isinstance(key, str):
+            if not isinstance(value, Attribute):
+                raise TypeError(f"Expected bool or str to be assigned to attribute {key!r} but was; {value!r}")
             self.attributes[key] = value
-        elif self.children is not None:
+        else:
+            if self.children is None:
+                raise ValueError(
+                    "A self closing element can not have a subset of it's children assigned to",
+                )
             if isinstance(key, int) and isinstance(value, Node):
                 value.parent = self
                 self.children[key] = value
@@ -613,10 +619,6 @@ class Element(Parent):
                 for child in value:
                     child.parent = self
                 self.children[key] = value
-        else:
-            raise ValueError(
-                "A self closing element can not have a subset of it's children assigned to",
-            )
 
     @overload
     def __delitem__(self, key: int) -> NoReturn:
