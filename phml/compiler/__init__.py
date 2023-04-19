@@ -129,9 +129,7 @@ class HypertextMarkupCompiler:
                 self._process_scope_(child, components, context)
 
     @overload
-    def compile(
-        self, node: AST, _components: ComponentManager, **context: Any
-    ) -> AST:
+    def compile(self, node: AST, _components: ComponentManager, **context: Any) -> AST:
         ...
 
     @overload
@@ -199,7 +197,12 @@ class HypertextMarkupCompiler:
             key, value = list(element.attributes.items())[0]
             attrs = lead_space + self._render_attribute(key, value)
 
-        result = f"{' '*indent if not element.in_pre else ''}<{element.tag}{attrs}{'' if element.children is not None else '/'}>"
+        result = (
+            f"{' '*indent if not element.in_pre else ''}"
+            f"<{'!' if element.decl else ''}{element.tag}"
+            + f"{attrs}{'' if element.children is not None else '/'}>"
+        )
+
         if element.children is None:
             return result
 
@@ -267,10 +270,7 @@ class HypertextMarkupCompiler:
         result = []
         for child in node:
             if isinstance(child, Element):
-                if child.tag == "doctype":
-                    result.append("<!DOCTYPE html>")
-                else:
-                    result.append(self._render_element(child, indent, _compress))
+                result.append(self._render_element(child, indent, _compress))
             elif isinstance(child, Literal):
                 result.append(self._render_literal(child, indent, _compress))
             else:

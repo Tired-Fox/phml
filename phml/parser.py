@@ -250,9 +250,10 @@ class HypertextMarkupParser:
                 elif begin[2]["opening"] == "!":
                     current.append(
                         Element(
-                            "doctype",
-                            {"lang": attr.get("lang", "html")},
+                            name,
+                            attr,
                             position=Position.from_pos(position),
+                            decl=True
                         ),
                     )
                 elif (

@@ -494,11 +494,13 @@ class Element(Parent):
         position: Position | None = None,
         parent: Parent | None = None,
         in_pre: bool = False,
+        decl: bool = False,
     ) -> None:
         super().__init__(NodeType.ELEMENT, children, position, parent, in_pre)
         self.tag = tag
         self.attributes = attributes or {}
         self.context = {}
+        self.decl = decl
 
     def __p_code__(self) -> str:
         children = (
@@ -507,12 +509,14 @@ class Element(Parent):
             else f"[{', '.join([p_code(child) for child in self])}]"
         )
         in_pre = f", in_pre={self.in_pre}" if self.in_pre else ""
-        return f"Element({self.tag!r}, position={p_code(self.position)}, attributes={self.attributes}, children={children}{in_pre})"
+        in_pre = f", decl={self.decl}" if self.decl else ""
+        return f"Element({self.tag!r}, position={p_code(self.position)}, attributes={self.attributes}, children={children}{in_pre}{decl})"
 
     def __eq__(self, _o) -> bool:
         return (
             isinstance(_o, Element)
             and _o.tag == self.tag
+            and _o.decl == self.decl
             and (
                 len(self.attributes) == len(_o.attributes)
                 and all(key in self.attributes for key in _o.attributes)
@@ -528,7 +532,7 @@ class Element(Parent):
         )
 
     def as_dict(self) -> dict:
-        return {"tag": self.tag, "attributes": self.attributes, **super().as_dict()}
+        return {"tag": self.tag, "attributes": self.attributes, "decl": self.decl, **super().as_dict()}
 
     @staticmethod
     def from_dict(data: dict, in_pre: bool = False) -> Element:
@@ -536,6 +540,7 @@ class Element(Parent):
             data["tag"],
             attributes=data["attributes"],
             children=[] if data["children"] is not None else None,
+            decl=data["decl"]
         )
         if data["children"] is not None:
             element.children = [
@@ -605,7 +610,9 @@ class Element(Parent):
     def __setitem__(self, key: str | int | slice, value: Attribute | Node | list):
         if isinstance(key, str):
             if not isinstance(value, Attribute):
-                raise TypeError(f"Expected bool or str to be assigned to attribute {key!r} but was; {value!r}")
+                raise TypeError(
+                    f"Expected bool or str to be assigned to attribute {key!r} but was; {value!r}"
+                )
             self.attributes[key] = value
         else:
             if self.children is None:
@@ -720,6 +727,14 @@ class Element(Parent):
     def __repr__(self) -> str:
         return f"{self.type}.{self.tag}(cldrn={self.len_as_str()}, attrs={self.attributes})"
 
+    def len_as_str(self, color: bool = False) -> str:  # pragma: no cover
+        value = len(self) if self.children is not None else '/' if not self.decl else "!"
+        if color:
+            return SAIML.parse(
+                f"[@F66]{value}[@F]",
+            )
+        return f"{value}"
+
     def __format__(
         self,
         indent: int = 0,
@@ -781,12 +796,12 @@ class Literal(Node):
         return {"name": str(self.name), "content": self.content, **super().as_dict()}
 
     @staticmethod
-    def is_text(node: Node) -> bool:
+    def is_text(node: Node | None) -> bool:
         """Check if a node is a literal and a text node."""
         return isinstance(node, Literal) and node.name == LiteralType.Text
 
     @staticmethod
-    def is_comment(node: Node) -> bool:
+    def is_comment(node: Node | None) -> bool:
         """Check if a node is a literal and a comment."""
         return isinstance(node, Literal) and node.name == LiteralType.Comment
 

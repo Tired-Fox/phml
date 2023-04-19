@@ -295,7 +295,7 @@ class HypertextManager:
         the resulting string will also be output to an associated file.
         """
         context = {**self.context, **context, "_phml_path_": self._from_path}
-        if self._ast is not None:
+        if self._ast is not None or _ast is not None:
             with PHMLTryCatch(self._from_path, "phml:__render"):
                 result = self.compiler.render(
                     _ast or self.compile(**context),
