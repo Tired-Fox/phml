@@ -1,3 +1,17 @@
-<div something="here">
-  Sample
-</div>
+<div something="here">Sample</div>
+
+<p>
+  Users may need to add additional markdown extension or to configure them. That
+  is where the <code>:extras</code>/<code>extras</code> and
+  <code>:configs</code> attributes come in. The <code>:extras</code> attribute
+  is a list of string names of the markdown extensions to add. The
+  <code>extras</code> attribute, also <code>:extras</code>, is a space seperated
+  string of the extension names. To configure the extensions the python
+  attribute <code>:configs</code> is used. The attribute must be a dict of the
+  format <code>{ '&lt;extension&gt;': {</code>
+  <option>
+    <code>: &lt;value&gt; } }</code>. The options and available values are found
+    in the <code>markdown</code> modules
+    <a href="https://python-markdown.github.io/extensions/">documentation</a>.
+  </option>
+</p>

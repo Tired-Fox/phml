@@ -200,7 +200,7 @@ class HypertextMarkupCompiler:
         result = (
             f"{' '*indent if not element.in_pre else ''}"
             f"<{'!' if element.decl else ''}{element.tag}"
-            + f"{attrs}{'' if element.children is not None else '/'}>"
+            + f"{attrs}{'' if element.children is not None or element.decl else '/'}>"
         )
 
         if element.children is None:

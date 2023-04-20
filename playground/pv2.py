@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Iterator
-from re import finditer, split
+import re
+
+from re import finditer
 from phml.nodes import (
     AST,
     Attribute,
@@ -17,7 +19,58 @@ class ParseError(Exception):
     __module__ = Exception.__module__
 
 
+class ParseWarn(Exception):
+    __module__ = Exception.__module__
+
+
+ELEMENT_PARTS = re.compile(
+    r"<(!|\/)?([^<>/='\"\s]*)\s*((?:\s*[^<>/='\"\s]+(?:=(?:'[^']*'|\"[^\"]*\"|[^<>/='\"\s]*))?)*)[^<>/='\"]*(\/)?>"
+)
 WHITESPACE = [" ", "\n", "\t", "\r", "\f"]
+OPTIONAL_CLOSING_TAGS = [
+    "html",
+    "head",
+    "body",
+    "p",
+    "li",
+    "dt",
+    "dd",
+    "option",
+    "thead",
+    "th",
+    "tbody",
+    "tr",
+    "td",
+    "tfoot",
+    "colgroup",
+]
+SELF_CLOSING_TAGS = [
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+    "command",
+    "keygen",
+    "menuitem",
+    "Slot",
+    "Markdown",
+]
+
+
+# def _column_(self, data: str):
+#     if data.count("\n") > 0:
+#         return len(data.rsplit("\n", 1)[-1])
+#     return max(0, len(data) - 1)
 
 
 class Location:
@@ -64,9 +117,10 @@ class Parser:
         self.current: Parent = self.ast
 
     def _element_(self, capture: str) -> int:
+        # !PERF: Optimize
         idx = 1
-
         escaped = None
+
         while idx < len(capture):
             if capture[idx] == "'":
                 if escaped == "'":
@@ -83,11 +137,6 @@ class Parser:
             idx += 1
         return idx
 
-    def _column_(self, data: str):
-        if data.count("\n") > 0:
-            return len(data.rsplit("\n", 1)[-1])
-        return max(0, len(data) - 1)
-
     def _update_loc_(self, capture: str):
         """Update the line and column number given a string capture."""
         self.loc.line += capture.count("\n")
@@ -102,10 +151,8 @@ class Parser:
         Returns:
             str: Capture slice of code.
         """
-        start = start or self.loc.index
-        end = end or len(self.content)
 
-        capture = self.content[start:end]
+        capture = self.content[start or self.loc.index : end or len(self.content)]
         self.loc.index += len(capture)
         self._update_loc_(capture)
         return capture
@@ -120,8 +167,10 @@ class Parser:
         i = 0
         while i < len(content):
             if content[i] in firsts:
-                idx = firsts.index(content[i])
-                if content[i : i + len(patterns[idx])] == patterns[idx]:
+                if (
+                    content[i : i + len(patterns[idx := firsts.index(content[i])])]
+                    == patterns[idx]
+                ):
                     return i, patterns[idx]
             elif content[i] in self.quotes:
                 self.quotes[content[i]] += 1
@@ -157,14 +206,11 @@ class Parser:
                 if all(i % 2 == 0 for i in self.quotes.values()):
                     length = 2 + len(self.tag_stack[-1])
                     content = self.content[
-                        (index + opening[0]) : (
-                            index + opening[0] + length 
-                        )
+                        (index + opening[0]) : (index + opening[0] + length)
                     ]
                     if (
                         len(content) >= length
-                        and content[:length]
-                        == f"</{self.tag_stack[-1]}"
+                        and content[:length] == f"</{self.tag_stack[-1]}"
                     ):
                         return index + opening[0]
                     index += opening[0] + len(content)
@@ -210,9 +256,8 @@ class Parser:
             ):
                 self._capture_and_update_(end=idx)
 
-            for closing in finditer(">", self.content[idx:]):
-                end = closing.start()
-                if self._element_(self.content[idx + 1 : idx + end + 1]) is not None:
+            while (end := self._find_(self.content[idx:], ">")) is not None:
+                if self._element_(self.content[idx + 1 : idx + end[0] + 1]) is not None:
                     return self._capture_and_update_(end=idx)
 
             return self._capture_and_update_()
@@ -240,10 +285,10 @@ class Parser:
 
                 idx += 2
                 value = ""
-                while (
-                    idx < len(attrs) and (attrs[idx] != pattern
+                while idx < len(attrs) and (
+                    attrs[idx] != pattern
                     if pattern is not None
-                    else attrs[idx] not in WHITESPACE)
+                    else attrs[idx] not in WHITESPACE
                 ):
                     value += attrs[idx]
                     idx += 1
@@ -281,16 +326,52 @@ class Parser:
 
         return attributes
 
+    def _build_element_(self, parts: tuple, start: Location) -> Element | None:
+        if parts[0] == "/":
+            tag = parts[1] or ""
+            _tag = self.tag_stack.pop()
+            if tag != _tag:
+                message = f"<{start}> : Unbalanced tags, attempted to close {tag!r}, but {_tag!r} must be closed first"
+                if _tag in OPTIONAL_CLOSING_TAGS:
+                    raise ParseError(message) from ParseWarn(
+                        "PHML does not support optional closing tags. Try to avoid omitting optional closing tags for:"
+                        + f"{', '.join(repr(tag) for tag in OPTIONAL_CLOSING_TAGS)}"
+                    )
+                raise ParseError(message)
+
+            if self.current.parent is None:
+                self.current = self.ast
+            else:
+                self.current = self.current.parent
+
+            return None
+        elif parts[0] == "!":
+            tag = parts[1] or ""
+            attributes = self._parse_attributes_(parts[2] or "")
+            return Element(
+                tag,
+                attributes,
+                in_pre="pre" in self.tag_stack or tag == "pre",
+                decl=True,
+            )
+        else:
+            tag = parts[1]
+            attributes = self._parse_attributes_(parts[2] or "")
+            return Element(
+                tag,
+                attributes,
+                [] if parts[3] != "/" and not self._is_self_closing_(tag) else None,
+                in_pre="pre" in self.tag_stack,
+            )
+
     def _parse_token_(self) -> Literal | Element | None:
         token = self._next_()
         start = self.loc.copy()
 
-        # switch on token
         if token == "<!--":
             content = self._next_()
-            if next := self._next_() != "-->":
+            if self._next_() != "-->":
                 raise ParseError(f"<{start}> : Comment was never closed")
-
             return Literal(
                 LiteralType.Comment,
                 content.strip(),
@@ -299,46 +380,8 @@ class Parser:
             )
 
         if token.startswith("<") and token.endswith(">"):
-            if token[1] == "/":
-                tag = token[2:-1].strip().split(" ", 1)[0]
-                _tag = self.tag_stack.pop()
-                if tag != _tag:
-                    raise ParseError(f"<{start}> : Closing a non opened tag {tag!r}")
-
-                if self.current.parent is None:
-                    self.current = self.ast
-                else:
-                    self.current = self.current.parent
-
-                return None
-            elif token[1] == "!":
-                content = token[2:-1]
-                tag = split("\\s", content, 1)[0]
-                content = content[len(tag) :].strip()
-                attributes = self._parse_attributes_(content)
-                return Element(
-                    tag,
-                    attributes,
-                    in_pre="pre" in self.tag_stack or tag == "pre",
-                    decl=True,
-                )
-            else:
-                if token[-2] == "/":
-                    content = token[1:-2]
-                    children = None
-                else:
-                    content = token[1:-1]
-                    children = []
-
-                tag = split("\\s", content, 1)[0]
-                content = content[len(tag) :].strip()
-                attributes = self._parse_attributes_(content)
-                return Element(
-                    tag,
-                    attributes,
-                    children if not self._is_self_closing_(tag) else None,
-                    in_pre="pre" in self.tag_stack,
-                )
+            if (parts := ELEMENT_PARTS.match(token)) is not None:
+                return self._build_element_(parts.groups(), start)
 
         if "pre" not in self.tag_stack and not (
             len(self.tag_stack) > 0
@@ -357,27 +400,7 @@ class Parser:
     def _is_self_closing_(self, name: str) -> bool:
         """Check if the tag is self closing. Only check if auto_closing is toggled on."""
 
-        return name in [
-            "area",
-            "base",
-            "br",
-            "col",
-            "embed",
-            "hr",
-            "img",
-            "input",
-            "link",
-            "meta",
-            "param",
-            "source",
-            "track",
-            "wbr",
-            "command",
-            "keygen",
-            "menuitem",
-            "Slot",
-            "Markdown",
-        ]
+        return name in SELF_CLOSING_TAGS
 
     def feed(self, code: str):
         self.content += code
@@ -429,28 +452,43 @@ if __name__ == "__main__":
     )
     print(phml.render(_ast=ast))
 
-    with open("../examples/loops/src/unicode.html", "r", encoding="utf-8") as file:
-        code = file.read()
+    large = ("../examples/loops/src/unicode.html", 3)
+    medium = ("../docs/phml.html", 25)
+    small = ("../examples/loops/unicode.phml", 100)
 
-    count= 3
+    if True:
+        size = small 
 
-    n_times = []
-    for i in range(count):
-        n_start = time_ns()
-        n_ast = n_parser.parse(code)
-        n_total = time_ns() - n_start
-        n_times.append(n_total)
-    n_average = sum(n_times) / count
+        with open(size[0], "r", encoding="utf-8") as file:
+            code = file.read()
 
-    o_times = []
-    for i in range(count):
-        o_start = time_ns()
-        o_ast = o_parser.parse(code)
-        o_total = time_ns() - o_start
-        o_times.append(o_total)
-    o_average = sum(o_times) / count
+        count = size[1]
 
-    result = "<" if n_average < o_average else ">"
-    print(
-        f"Tokenize {result} Regex:\n  {round(n_average * (10**-9), 9)}s {result} {round(o_average * (10**-9), 9)}s"
-    )
+        n_times = []
+        for i in range(count):
+            n_start = time_ns()
+            n_ast = n_parser.parse(code)
+            n_total = time_ns() - n_start
+            n_times.append(n_total)
+        n_average = sum(n_times) / count
+
+        o_times = []
+        for i in range(count):
+            o_start = time_ns()
+            o_ast = o_parser.parse(code)
+            o_total = time_ns() - o_start
+            o_times.append(o_total)
+        o_average = sum(o_times) / count
+
+        if n_average < o_average:
+            result = "<"
+            speed = "faster"
+            times = round((1-(n_average / o_average))*100)
+        else:
+            times = round((n_average / o_average)*100)
+            result = ">"
+            speed = "slower"
+        print(
+            f"Tokenize {result} Regex:\n  {round(n_average * (10**-9), 9)}s {result} {round(o_average * (10**-9), 9)}s"
+            + f"\nNew version is {times}% {speed}"
+        )
