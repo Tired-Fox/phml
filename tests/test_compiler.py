@@ -123,7 +123,7 @@ class TestCompilerStepExceptions:
         ) == AST([Element("p", children=[Literal(LiteralType.Text, "No Iterations")])])
 
         ast = self.compiler.compile(has_exception, components)
-        assert len(ast) == 3 and isinstance(ast[0], Element) and ast[0].tag == "p"
+        assert len(ast) == 1 and isinstance(ast[0], Element) and ast[0].tag == "p"
 
     def test_step_component_slot_multiple_exception(self):
         components["Sub.Component"]["elements"].append(

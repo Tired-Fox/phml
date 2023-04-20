@@ -38,6 +38,27 @@ __POST__: list[Callable] = [
 
 StepStage = Lit["setup", "scoped", "post"]
 
+self_closing = [
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+    "command",
+    "keygen",
+    "menuitem",
+    "Slot",
+    "Markdown",
+]
 
 @overload
 def add_step(
@@ -197,10 +218,14 @@ class HypertextMarkupCompiler:
             key, value = list(element.attributes.items())[0]
             attrs = lead_space + self._render_attribute(key, value)
 
+        closing = "/"
+        if element.children is not None or element.decl or element.tag in self_closing:
+            closing = ""
+
         result = (
             f"{' '*indent if not element.in_pre else ''}"
             f"<{'!' if element.decl else ''}{element.tag}"
-            + f"{attrs}{'' if element.children is not None or element.decl else '/'}>"
+            + f"{attrs}{closing}>"
         )
 
         if element.children is None:

@@ -118,7 +118,7 @@ html_file = """\
       value="Start with this, not end."
       data-is-active="false"
       hidden
-    />
+    >
     <p>Hello World!</p>
 <pre>text</pre>
     <ul>
@@ -148,17 +148,18 @@ html_file_compressed = """\
   border: 1px solid black;
 }</style><script>window.onload = () => {
   alert("Test");
-};</script></head><body><div data-phml-cmpt-scope="Component~3090413834174898802"><p>Component</p><p>Hello World!</p></div><!--Sample Comment 1-->Sample Text<!--Sample Comment 2--><div data-phml-cmpt-scope="Sub.Component~6689333506419787003"><div><p>Sub component</p><p>Child</p>Generic text<p>Extra</p></div></div><input type="text" max="100" value="Start with this, not end." data-is-active="false" hidden/><p>Hello World!</p><pre>text</pre><ul><li>1</li><li>2</li></ul><article><h1>Sample Markdown</h1><p>Markdown text here</p></article></body></html><!--Extra comment at end of file-->Extra text at end of file\
+};</script></head><body><div data-phml-cmpt-scope="Component~3090413834174898802"><p>Component</p><p>Hello World!</p></div><!--Sample Comment 1-->Sample Text<!--Sample Comment 2--><div data-phml-cmpt-scope="Sub.Component~6689333506419787003"><div><p>Sub component</p><p>Child</p>Generic text<p>Extra</p></div></div><input type="text" max="100" value="Start with this, not end." data-is-active="false" hidden><p>Hello World!</p><pre>text</pre><ul><li>1</li><li>2</li></ul><article><h1>Sample Markdown</h1><p>Markdown text here</p></article></body></html><!--Extra comment at end of file-->Extra text at end of file\
 """
 
 phml_ast = AST(
     position=None,
     children=[
         Element(
-            "doctype",
+            "DOCTYPE",
             position=Position(Point(0, 0), Point(0, 15)),
-            attributes={"lang": "html"},
+            attributes={"html": True},
             children=None,
+            decl=True,
         ),
         Element(
             "html",
@@ -312,10 +313,11 @@ html_ast = AST(
     position=None,
     children=[
         Element(
-            "doctype",
+            "DOCTYPE",
             position=Position(Point(0, 0), Point(0, 15)),
-            attributes={"lang": "html"},
+            attributes={"html": True},
             children=None,
+            decl=True,
         ),
         Element(
             "html",
@@ -502,10 +504,11 @@ html_ast = AST(
 phml_dict = {
     "children": [
         {
-            "tag": "doctype",
-            "attributes": {"lang": "html"},
+            "tag": "DOCTYPE",
+            "attributes": {"html": True},
             "children": None,
             "type": "element",
+            "decl": True,
         },
         {
             "tag": "html",
@@ -526,6 +529,7 @@ phml_dict = {
                                 }
                             ],
                             "type": "element",
+                            "decl": False
                         },
                         {
                             "tag": "python",
@@ -538,9 +542,11 @@ phml_dict = {
                                 }
                             ],
                             "type": "element",
+                            "decl": False
                         },
                     ],
                     "type": "element",
+                    "decl": False
                 },
                 {
                     "tag": "body",
@@ -551,6 +557,7 @@ phml_dict = {
                             "attributes": {":message": "message"},
                             "children": None,
                             "type": "element",
+                            "decl": False
                         },
                         {
                             "name": "comment",
@@ -578,6 +585,7 @@ phml_dict = {
                                         }
                                     ],
                                     "type": "element",
+                                    "decl": False
                                 },
                                 {
                                     "name": "text",
@@ -595,9 +603,11 @@ phml_dict = {
                                         }
                                     ],
                                     "type": "element",
+                                    "decl": False
                                 },
                             ],
                             "type": "element",
+                            "decl": False
                         },
                         {
                             "tag": "input",
@@ -610,6 +620,7 @@ phml_dict = {
                             },
                             "children": None,
                             "type": "element",
+                            "decl": False
                         },
                         {
                             "tag": "p",
@@ -622,6 +633,7 @@ phml_dict = {
                                 }
                             ],
                             "type": "element",
+                            "decl": False
                         },
                         {
                             "tag": "p",
@@ -634,6 +646,7 @@ phml_dict = {
                                 }
                             ],
                             "type": "element",
+                            "decl": False
                         },
                         {
                             "tag": "p",
@@ -646,6 +659,7 @@ phml_dict = {
                                 }
                             ],
                             "type": "element",
+                            "decl": False
                         },
                         {
                             "tag": "pre",
@@ -654,6 +668,7 @@ phml_dict = {
                                 {"name": "text", "content": "text", "type": "literal"}
                             ],
                             "type": "element",
+                            "decl": False
                         },
                         {
                             "tag": "ul",
@@ -674,9 +689,11 @@ phml_dict = {
                                                 }
                                             ],
                                             "type": "element",
+                                            "decl": False
                                         }
                                     ],
                                     "type": "element",
+                                    "decl": False
                                 },
                                 {
                                     "tag": "li",
@@ -689,9 +706,11 @@ phml_dict = {
                                         }
                                     ],
                                     "type": "element",
+                                    "decl": False
                                 },
                             ],
                             "type": "element",
+                            "decl": False
                         },
                         {
                             "tag": "Markdown",
@@ -702,12 +721,15 @@ phml_dict = {
                             },
                             "children": None,
                             "type": "element",
+                            "decl": False
                         },
                     ],
                     "type": "element",
+                    "decl": False
                 },
             ],
             "type": "element",
+            "decl": False
         },
         {
             "name": "comment",

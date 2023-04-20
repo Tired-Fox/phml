@@ -52,6 +52,7 @@ class TestNode:
             "children": None,
             "attributes": {},
             "tag": "div",
+            "decl": False
         }
 
         assert node.as_dict() == {"type": "ast"}
@@ -235,6 +236,7 @@ class TestElement:
             "attributes": {"id": "test", "hidden": True},
             "children": [],
             "tag": "div",
+            "decl": False
         }
         assert Element.from_dict(el) == element, "Not a valid element from a dict"
         assert element.as_dict() == el, "Invalid dict from an element"
