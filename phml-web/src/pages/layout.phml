@@ -1,0 +1,10 @@
+<python>
+  from .phml_web.utils import hello
+  hello()
+</python>
+<>
+    <link rel="stylesheet" href="@/global.css" />
+    <article>
+        <Slot />
+    </article>
+</>

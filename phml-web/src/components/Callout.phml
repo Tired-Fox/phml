@@ -1,0 +1,105 @@
+<python>
+    # For variables to be exposed the methods defined in this block they must be global
+    # If you just want them to be exposed to the html below and not the methods they can remain local
+    # Locals and globals defined in python blocks are exposed to the html below either way
+
+    global danger_style
+    global warning_style
+    
+    danger_style = ["danger", "error", "important"]
+    warning_style = ["warn", "warning"]
+
+    def get_style(style: str):
+        if style in danger_style:
+            return "danger"
+        elif style in warning_style:
+            return "warning"
+        else:
+            return "info"
+
+    def style_name(style: str):
+        if style in danger_style:
+            return "shape-hexagon"
+        elif style in warning_style:
+            return "shape-triangle"
+        else:
+            return "shape-circle"
+
+    props.add("style", "info")
+</python>
+
+<div class="callout" :data-type="get_style(props.style)"">
+    <div class="callout-title">
+      <GgIcon :name="style_name(props.style)" />
+    </div> 
+    <div class="callout-body">
+        <Slot />
+    </div>
+</div>
+
+<style scoped>
+    .callout {
+        width: fit-content;
+        max-width: 90%;
+        border-radius: .5rem;
+        margin-inline: auto;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 14px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+
+        --callout-red: 214, 6, 32;
+        --callout-blue: 6, 159, 214;
+        --callout-orange: 235, 150, 5;
+    }
+
+    .callout svg {
+        aspect-ratio: 1;
+        width: 1.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .callout-title {
+        width: 100%;
+        border-radius: .5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-block: .25rem;
+    }
+
+    .callout[data-type="info"] .callout-title {
+        background-color: rgba(var(--callout-blue), 0.1);
+    }
+
+    .callout[data-type="danger"] .callout-title {
+        background-color: rgba(var(--callout-red), 0.1);
+    }
+
+    .callout[data-type="warning"] .callout-title {
+        background-color: rgba(var(--callout-orange), 0.1);
+    }
+
+    .callout[data-type="info"] :is(svg, a) {
+        color: rgb(var(--callout-blue));
+    }
+
+    .callout[data-type="danger"] :is(svg, a) {
+        color: rgb(var(--callout-red));
+    }
+
+    .callout[data-type="warning"] :is(svg, a) {
+        color: rgb(var(--callout-orange));
+    }
+
+    .callout-body {
+        width: 100%;
+        padding: 1rem;
+    }
+</style>

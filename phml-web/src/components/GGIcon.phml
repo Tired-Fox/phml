@@ -1,0 +1,6 @@
+<python>
+    props.add("name", "shape-circle")
+</python>
+<svg>
+    <use :xlink:href="'/all.svg#gg-'+props.name"/>
+</svg>

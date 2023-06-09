@@ -115,7 +115,7 @@ class TestManager:
         phml.remove_module("time", imports=["sleep"])
         assert ".time" not in phml.from_imports
         phml.remove_module("time")
-        assert ".time" not in phml.imports
+        assert "time" not in phml.imports
 
     def test_module_module(self):
         phml = construct_base()
@@ -125,8 +125,8 @@ class TestManager:
         assert ".phml.builder" in phml.from_imports
         assert "p" in phml.from_imports[".phml.builder"]
     
-        phml.remove_module(".phml.builder")
-        assert ".phml.builder" not in phml.from_imports
+        phml.remove_module("phml.builder")
+        assert "phml.builder" not in phml.from_imports
 
     def test_expose(self):
         phml = construct_base().load("tests/src/index.phml")
@@ -143,4 +143,13 @@ class TestManager:
         phml.redact("message", "data")
         assert "message" not in phml.context
         assert "data" not in phml.context
+
+    def test_base(self):
+        phml = construct_base()
+
+        phml.add_module("time", base="phml")
+        assert ".phml.time" in phml.imports
+
+        phml.remove_module("phml.time")
+        assert ".phml.time" not in phml.imports
 

@@ -1,23 +1,23 @@
 <python>
-    Props = {
-        "icon": "info",
-        "message": None,
-        "title": None
-    }
+    props.extend(
+      "message",
+      "title",
+      icon="info",
+    )
 </python>
 
 <div class="callout">
     <!-- Icon -->
     <div class="callout-header">
-        <Icons.Warning @if="icon in ['warn', 'warning']" />
-        <Icons.Danger @elif="icon in ['important', 'danger', 'fail', 'failure']" />
+        <Icons.Warning @if="props.icon in ['warn', 'warning']" />
+        <Icons.Danger @elif="props.icon in ['important', 'danger', 'fail', 'failure']" />
         <Icons.Info @else />
         <!-- Title -->
-        <h3>{{ title or icon.upper() if not blank(icon) else "INFO" }}</h3>
+        <h3>{{ props.title or props.icon.upper() if not blank(props.icon) else "INFO" }}</h3>
     </div>
     <div class="callout-body">
         <!-- Message -->
-        <p @if="not blank(message)">{{ message }}</p>
+        <p @if="not blank(props.message)">{{ props.message }}</p>
         <Slot @else />
     </div>
 </div>

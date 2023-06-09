@@ -188,6 +188,7 @@ class Parser:
             "python",
             "script",
             "style",
+            "code"
         ]:
             index = int(self.loc.index)
 
@@ -457,7 +458,7 @@ if __name__ == "__main__":
     small = ("../examples/loops/unicode.phml", 100)
 
     if True:
-        size = small 
+        size = small
 
         with open(size[0], "r", encoding="utf-8") as file:
             code = file.read()
@@ -483,9 +484,9 @@ if __name__ == "__main__":
         if n_average < o_average:
             result = "<"
             speed = "faster"
-            times = round((1-(n_average / o_average))*100)
+            times = round((1 - (n_average / o_average)) * 100)
         else:
-            times = round((n_average / o_average)*100)
+            times = round((n_average / o_average) * 100)
             result = ">"
             speed = "slower"
         print(

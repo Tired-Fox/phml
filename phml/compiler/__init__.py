@@ -21,6 +21,8 @@ __all__ = [
     "remove_step",
 ]
 
+PRE_LIKE = ["script", "style", "python", "code"]
+
 __SETUP__: list[Callable] = []
 
 __STEPS__: list[Callable] = [
@@ -235,7 +237,7 @@ class HypertextMarkupCompiler:
             compress != "\n"
             or element.in_pre
             or (
-                element.tag not in ["script", "style", "python"]
+                element.tag not in PRE_LIKE 
                 and len(element) == 1
                 and Literal.is_text(element[0])
                 and "\n" not in element[0].content
@@ -263,20 +265,18 @@ class HypertextMarkupCompiler:
             compress = ""
             content = literal.content
         else:
-            content = literal.content.strip()
-            if compress == "\n":
+            content = literal.content
+            # if compress == "\n":
+            #     content = normalize_indent(literal.content, indent)
+            #     content = content.strip()
+            if not isinstance(literal.parent, AST) and literal.parent.tag in PRE_LIKE:
                 content = normalize_indent(literal.content, indent)
                 content = content.strip()
-            elif not isinstance(literal.parent, AST) and literal.parent.tag in [
-                "python",
-                "script",
-                "style",
-            ]:
-                content = normalize_indent(literal.content)
-                content = content.strip()
-                offset = ""
             else:
-                lines = content.split("\n")
+                if indent != -1:
+                    lines = content.strip().split("\n")
+                else:
+                    lines = content.split("\n")
                 content = f"{compress}{offset}".join(lines)
 
         if literal.name == LiteralType.Text:
@@ -293,15 +293,15 @@ class HypertextMarkupCompiler:
         _compress: str = "\n",
     ):
         result = []
-        for child in node:
+        for i, child in enumerate(node):
             if isinstance(child, Element):
-                result.append(self._render_element(child, indent, _compress))
+                result.append(f"{_compress}{self._render_element(child, indent, _compress)}")
             elif isinstance(child, Literal):
-                result.append(self._render_literal(child, indent, _compress))
+                result.append(self._render_literal(child, indent if i == 0 else -1, _compress))
             else:
                 raise TypeError(f"Unknown renderable node type {type(child)}")
 
-        return _compress.join(result)
+        return "".join(result).lstrip("\n")
 
     def render(
         self,

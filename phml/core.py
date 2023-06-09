@@ -16,7 +16,7 @@ from .components import ComponentManager, ComponentType
 # TODO: Optimize and extract manipulation of import dicts
 from .embedded import __FROM_IMPORTS__, __IMPORTS__, Module
 from .helpers import PHMLTryCatch
-from .nodes import AST, Node, Parent
+from .nodes import AST, Node
 from .parser import HypertextMarkupParser
 
 
@@ -81,8 +81,9 @@ class HypertextManager:
         *,
         name: str | None = None,
         imports: list[str] | None = None,
+        base: str = "",
         ignore: str = "",
-    ) -> NoReturn:
+    ) -> str:
         """Pass and imported a python file as a module. The modules are imported and added
         to phml's cached imports. These modules are **ONLY** exposed to the python elements.
         To use them in the python elements or the other scopes in the files you must use the python
@@ -104,6 +105,7 @@ class HypertextManager:
         Args:
             module (str): Absolute or relative path to a module, or module syntax reference to a module.
             name (str): Optional name for the module after it is imported.
+            base (str): The base module to use for the name/path.
             imports (list[str]): Optional list of objects to import from the module. Turns the import to
                 `from <module> import <...objects>` from `import <module>`.
 
@@ -146,6 +148,7 @@ class HypertextManager:
                 .with_suffix("")
                 .as_posix()
                 .replace("/", ".")
+                .replace("-", "_")
             )
 
             name = f".{name or mod_name}"
@@ -163,6 +166,9 @@ class HypertextManager:
             else:
                 mod = import_module(module)
             name = f".{module.lstrip('..')}"
+
+        if base != "":
+            name = f".{base.strip('.').replace('-', '_')}{name}"
 
         # Add imported module or module objects to appropriate collection
         if imports is not None and len(imports) > 0:

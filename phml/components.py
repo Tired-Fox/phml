@@ -4,17 +4,16 @@ from re import finditer
 from time import time
 from typing import Any, Iterator, TypedDict, overload
 
-from .embedded import Embedded
+from .embedded import Embedded, Props
 from .helpers import iterate_nodes
 from .nodes import Element, Literal
 from .parser import HypertextMarkupParser
 
 __all__ = ["ComponentType", "ComponentManager", "tokenize_name", "parse_cmpt_name"]
 
-
 class ComponentType(TypedDict):
     hash: str
-    props: dict[str, Any]
+    props: Props
     context: dict[str, Any]
     scripts: list[Element]
     styles: list[Element]
@@ -30,8 +29,8 @@ class ComponentCacheType(TypedDict):
 def DEFAULT_COMPONENT() -> ComponentType:
     return {
         "hash": "",
-        "props": {},
         "context": {},
+        "props": Props(),
         "scripts": [],
         "styles": [],
         "elements": [],
@@ -146,11 +145,12 @@ class ComponentManager:
         ast = self._parser.parse(content)
 
         component: ComponentType = DEFAULT_COMPONENT()
-        context = Embedded("", path)
+        props = Props()
+        context = Embedded("", path, {"props": props})
 
         for node in iterate_nodes(ast):
             if isinstance(node, Element) and node.tag == "python":
-                context += Embedded(node, path)
+                context += Embedded(node, path, {"props": props})
                 if node.parent is not None:
                     node.parent.remove(node)
 
@@ -167,13 +167,16 @@ class ComponentManager:
             elif isinstance(node, Literal):
                 component["elements"].append(node)
 
-        component["props"] = context.context.pop("Props", {})
+        component["props"] = context.context.pop("props", Props())
         component["context"] = context.context
         if len(component["elements"]) == 0:
             raise ValueError("Must have at least one root element in component")
         component["hash"] = f"~{hash_component(component)}"
 
         return component
+
+    def __repr__(self) -> str:
+        return str(self.components)
 
     @overload
     def add(self, file: str | Path, *, name: str|None = None, ignore: str = ""):
@@ -278,11 +281,6 @@ class ComponentManager:
         del self.components[key]
 
     def validate(self, data: ComponentType):
-        if "props" not in data or not isinstance(data["props"], dict):
-            raise ValueError(
-                "Expected ComponentType 'props' that is a dict of str to any value",
-            )
-
         if "context" not in data or not isinstance(data["context"], dict):
             raise ValueError(
                 "Expected ComponentType 'context' that is a dict of str to any value",

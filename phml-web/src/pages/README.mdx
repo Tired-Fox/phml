@@ -1,20 +1,12 @@
-# Python Hypertext Markup Language (phml)
+---
+title: Welcome
+---
 
-<!-- Header Badges -->
+# Welcome to Pythonic Hypertext Markup Language (PHML)
 
-<div align="center">
-  
-![version](assets/badges/version.svg)
-[![Release](https://img.shields.io/github/v/release/tired-fox/phml.svg?style=flat-square&color=9cf)](https://github.com/Tired-Fox/phml/releases)
-[![License](assets/badges/license.svg)](https://github.com/Tired-Fox/phml/blob/main/LICENSE)
-![Maintained](assets/badges/maintained.svg)
-
-![testing](assets/badges/tests.svg)
-![test coverage](assets/badges/coverage.svg)
-
-</div>
-
-<!-- End Badges -->
+<Callout style="danger">
+  For more information, check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
+</Callout>
 
 ## Overview
 
@@ -42,7 +34,7 @@ how you normally would and they are now available to the scope of the entire fil
 
 ```html
 <python>
-  def URL(link: str) -> str: 
+  def URL(link: str) -> str:
     links = { "youtube": "https://youtube.com" }
     if link in links:
       return links[link] else: return ""
@@ -194,7 +186,7 @@ PHML also has very basic markdown support. The `Markdown` element can be used to
 
 The markdown component uses a few default extensions while parsing. First it uses `codehilite` and `fenced_code` for highlighting code blocks, this also requires a css file generated with `pygmentize`. Lastly, it will use `tables` to add the ability to parse markdown tables. This makes the markdown close to a github flavor. 
 
-Users may need to add additional markdown extension or to configure them. That is where the `:extras`/`extras` and `:configs` attributes come in. The `:extras` attribute is a list of string names of the markdown extensions to add. The `extras` attribute, also `:extras`, is a space seperated string of the extension names. To configure the extensions the python attribute `:configs` is used. The attribute must be a dict of the format `{ '<extension>': { `<option>`: <value> } }`. The options and available values are found in the `markdown` modules [documentation](https://python-markdown.github.io/extensions/).
+Users may need to add additional markdown extension or to configure them. That is where the `:extras`/`extras` and `:configs` attributes come in. The `:extras` attribute is a list of string names of the markdown extensions to add. The `extras` attribute, also `:extras`, is a space seperated string of the extension names. To configure the extensions the python attribute `:configs` is used. The attribute must be a dict of the format `{ '<extension>': { '<option>': <value> } }`. The options and available values are found in the `markdown` modules [documentation](https://python-markdown.github.io/extensions/).
   
 When the markdown is compiled, the resulting html elements are nested in an `article` element. All attributes that are not `src`, `extras`, or `:config` on the markdown component are added to the parent `article` element and are left unprocessed. This means that python attributes other than `:config` or `:extras` on the markdown component are left "as is".
 
@@ -215,7 +207,6 @@ ___
 > :warning: This language is in early development stages. Everything is currently subject to change. All forms of feedback are encouraged.
 
 <br>
-For more information, check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
 
 ## Basic Usage
 
@@ -241,17 +232,3 @@ For both `render` and `write` you will first need to call `phml.load("path/to/so
 Every time `phml.parse` or `phml.load` is called it will overwrite the stored ast variable.
 
 There are many more features such as globally exposed variables, components, slots, exposing python files to be used in phml files, etc...
-
-For more information check out the [API Docs](https://tired-fox.github.io/phml/phml.html)
-
-<!-- Footer Badges -->
-
-<br>
-<div align="center">
-  
-![Made with Python](assets/badges/made_with_python.svg)
-![Built with love](assets/badges/built_with_love.svg)
-
-</div>
-
-<!-- End Badges -->

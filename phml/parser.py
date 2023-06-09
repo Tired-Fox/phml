@@ -21,13 +21,24 @@ def strip(data: str, cur_tags: list[str]) -> str:
     in a `pre` tag.
     """
     if len(cur_tags) > 0 and (
-        cur_tags[-1] == "python"
-        or cur_tags[-1] == "script"
-        or cur_tags[-1] == "style"
+        cur_tags[-1] in ["python", "script", "style"]
         or "pre" in cur_tags
     ):
         return data
-    return data.strip()
+
+    lines = data.rstrip().split("\n")
+    start = -1
+
+    for _ in range(0, len(lines)):
+        start += 1
+        if lines[start].strip() != "":
+            break
+
+    data = "".join(lines[start:])
+    if data.strip() == "":
+        return ""
+
+    return data 
 
 
 self_closing = [

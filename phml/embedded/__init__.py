@@ -25,6 +25,47 @@ ESCAPE_OPTIONS = {
 __IMPORTS__ = {}
 __FROM_IMPORTS__ = {}
 
+class Props:
+    def __init__(self):
+        self._props_ = {}
+
+    def add(self, name: str, default: Any | None = None):
+        """Add a prop to the collection of valid props. If no default value is provided then
+        the props default value is `None`.
+        """
+        self._props_[name] = default
+        setattr(self, name, default)
+
+    def extend(self, *args: str, **props: Any | None):
+        """Extend the props with args and kwargs. The args are string of the names
+        with the values defaulting to `None`. Kwargs are props names to default value.
+
+        The args are added first then the kwargs, this means that kwargs overwrite any
+        args with the same name.
+        """
+        self._props_.update({key: None for key in args})
+        self._props_.update({key: value for key, value in props.items()})
+        for key in args:
+            setattr(self, key, None)
+        for key, value in props.items():
+            setattr(self, key, value)
+
+    def update(self, props: dict[str, Any]):
+        self._props_.update(props)
+        for key, value in props.items():
+            setattr(self, key, value)
+
+    def __iter__(self):
+        yield from self._props_.items()
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._props_
+
+    def __getitem__(self, key: str) -> Any:
+        self._props_[key]
+
+    def __repr__(self) -> str:
+        return str(self._props_)
 
 # PERF: Only allow assignments, methods, imports, and classes?
 class EmbeddedTryCatch:
@@ -99,9 +140,9 @@ class EmbeddedPythonException(Exception):
                 self.c_slice[0] or self._pos[1],
             )
             if pos[0] > self._content.count("\n"):
-                message = f"{self._path} Failed to execute phml embedded python"
+                message = f"{self._path} Failed to execute embedded python"
             else:
-                message = f"[{pos[0]+1}:{pos[1]}] {self._path} Failed to execute phml embedded python"
+                message = f"[{pos[0]+1}:{pos[1]}] {self._path} Failed to execute embedded python"
         if self._content != "":
             lines = self._content.split("\n")
             target_lines = lines[self.l_slice[0] - 1 : self.l_slice[1]]
@@ -190,13 +231,14 @@ class Module:
                     raise ValueError(f"Unkown module {module!r}")
                 else:
                     _imports = {
-
-                        _import: getattr(__IMPORTS__[module], _import) for _import in imports
+                        _import: getattr(__IMPORTS__[module], _import)
+                        for _import in imports
                     }
             else:
                 try:
                     _imports = {
-                        _import: __FROM_IMPORTS__[module][_import] for _import in imports
+                        _import: __FROM_IMPORTS__[module][_import]
+                        for _import in imports
                     }
                 except KeyError as kerr:
                     back_frame = kerr.__traceback__.tb_frame.f_back
@@ -226,11 +268,12 @@ class Module:
     def collect(self) -> Any:
         """Collect the imports and return the single import or a tuple of multiple imports."""
         if len(self.objects) > 0:
-
             if self.module not in __FROM_IMPORTS__:
                 if len(self.objects) == 1:
                     return getattr(__IMPORTS__[self.module], self.objects[0])
-                return tuple([getattr(__IMPORTS__[self.module], obj) for obj in self.objects])
+                return tuple(
+                    [getattr(__IMPORTS__[self.module], obj) for obj in self.objects]
+                )
 
             if len(self.objects) == 1:
                 return __FROM_IMPORTS__[self.module][self.objects[0]]
@@ -246,12 +289,10 @@ class EmbeddedImport:
     module: str
     """Package where the import(s) are from."""
 
-    objects: list[str|tuple[str, str]]
+    objects: list[str | tuple[str, str]]
     """The imported objects."""
 
-    def __init__(
-        self, module: str, values: str | list[str] | None = None
-    ) -> None:
+    def __init__(self, module: str, values: str | list[str] | None = None) -> None:
         self.module = module
 
         if isinstance(values, list):
@@ -318,7 +359,10 @@ class EmbeddedImport:
 
     def __repr__(self) -> str:
         if len(self.objects) > 0:
-            keys = [key if isinstance(key, str) else f"{key[0]} as {key[1]}" for key in self.objects]
+            keys = [
+                key if isinstance(key, str) else f"{key[0]} as {key[1]}"
+                for key in self.objects
+            ]
             return f"FROM({self.module!r}).IMPORT({', '.join(keys)})"
         return f"IMPORT({self.module})"
 
@@ -339,7 +383,7 @@ class Embedded:
     to reduce duplicate imports.
     """
 
-    def __init__(self, content: str | Element, path: str | None = None) -> None:
+    def __init__(self, content: str | Element, path: str | None = None, context: dict[str, Any] = {}) -> None:
         self._path = path or "<python>"
         self._pos = (0, 0)
         if isinstance(content, Element):
@@ -356,7 +400,7 @@ class Embedded:
             content = content[0].content
         content = normalize_indent(content)
         self.imports = []
-        self.context = {}
+        self.context = context
         if len(content) > 0:
             with EmbeddedTryCatch(path, content, self._pos):
                 self.parse_data(content)
@@ -420,7 +464,8 @@ class Embedded:
 
         local_env = {}
         global_env = {key: value for _import in self.imports for key, value in _import}
-        context = {**global_env}
+        global_env.update(self.context)
+        context = {**global_env, **self.context}
 
         for block in blocks:
             exec_val = compile(block, self._path, "exec")
@@ -556,7 +601,7 @@ def exec_embedded_blocks(code: str, _path: str = "", **context: dict[str, Any]):
             elif code[index] == "{":
                 balance += 1
             index += 1
-
+        
         result.append("")
         data.append(
             str(

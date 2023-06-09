@@ -1,8 +1,9 @@
 import re
-from copy import deepcopy
+from copy import copy, deepcopy
 from typing import Any, TypedDict
 
 from phml.components import ComponentManager
+from phml.embedded import Props
 from phml.helpers import iterate_nodes, normalize_indent
 from phml.nodes import AST, Element, Literal, LiteralType, Node, Parent
 
@@ -185,7 +186,7 @@ def step_substitute_components(
         if isinstance(child, Element) and child.tag in components:
             # Need a deep copy of the component as to not manipulate the cached comonent data
             elements = deepcopy(components[child.tag]["elements"])
-            props = {**components[child.tag]["props"]}
+            props = components[child.tag]["props"]
             context = {**child.context, **components[child.tag]["context"]}
 
             attrs = {
@@ -193,8 +194,9 @@ def step_substitute_components(
                 for key, value in child.attributes.items()
                 if key.lstrip(":") in props
             }
+
             props.update(attrs)
-            context.update(props)
+            context.update({"props": props})
 
             component = Element(
                 "div",

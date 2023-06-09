@@ -30,5 +30,5 @@
     <Slot name="hero-img">
     <Slot name="title">
     <Slot>
-    <p @if="not blank(message)">{{ tmessage }}</p>
+    <p @if="not blank(props.message)">{{ tmessage }}</p>
 </div>

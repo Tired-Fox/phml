@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta
+      http-equiv="X-UA-Compatible"
+      content="IE=edge"
+    >
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    >
+    <meta charset="UTF-8">
+    <link
+      rel="shortcut icon"
+      href="favicon.ico"
+      type="image/x-icon"
+    >
+    <title>Welcome</title>
+    <style>
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout {
+          width: fit-content;
+          max-width: 90%;
+          border-radius: .5rem;
+          margin-inline: auto;
+
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+
+          font-size: 14px;
+          box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+
+          --callout-red: 214, 6, 32;
+          --callout-blue: 6, 159, 214;
+          --callout-orange: 235, 150, 5;
+      }
+
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout svg {
+          aspect-ratio: 1;
+          width: 1.4rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout-title {
+          width: 100%;
+          border-radius: .5rem;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding-block: .25rem;
+      }
+
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="info"] .callout-title {
+          background-color: rgba(var(--callout-blue), 0.1);
+      }
+
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="danger"] .callout-title {
+          background-color: rgba(var(--callout-red), 0.1);
+      }
+
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="warning"] .callout-title {
+          background-color: rgba(var(--callout-orange), 0.1);
+      }
+
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="info"] :is(svg, a) {
+          color: rgb(var(--callout-blue));
+      }
+
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="danger"] :is(svg, a) {
+          color: rgb(var(--callout-red));
+      }
+
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="warning"] :is(svg, a) {
+          color: rgb(var(--callout-orange));
+      }
+
+      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout-body {
+          width: 100%;
+          padding: 1rem;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="highlight.css"
+    >
+    <script>
+
+    </script>
+    <link
+      rel="stylesheet"
+      href="/global.css"
+    >
+  </head>
+  <body>
+    <article>
+      <article>
+        <h1 id="welcome-to-pythonic-hypertext-markup-language-phml">Welcome to Pythonic Hypertext Markup Language (PHML)</h1>
+        <p>
+          <div data-phml-cmpt-scope="Callout~4609416344631519693">
+            <div
+              class="callout"
+              data-type="danger"
+            >
+              <div class="callout-title">
+                <div data-phml-cmpt-scope="GgIcon~6633562121893774063">
+                  <svg>
+                    <use xlink:href="/all.svg#gg-shape-hexagon"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="callout-body">
+                For more information, check out the
+                <a href="https://tired-fox.github.io/phml/phml.html">API Docs</a>
+              </div>
+            </div>
+          </div>
+        </p>
+        <h2 id="overview">Overview</h2>
+        <p>The idea behind the creation of Python in Hypertext Markup Language (phml), is to allow for web page generation with direct access to python. This language takes inspiration directly from frameworks like Vue.js, Astro.js, Solid.js, and SvelteKit. There is conditional rendering, components, python elements, inline/embedded python blocks, and slot, named slots, and much more. Now let's dive into more the language.</p>
+        <h3 id="python-element">Python Element</h3>
+        <p>
+          Let's start with the new
+          <code>
+            python
+          </code> element. Python is a whitespace language. As such, phmlhas the challenge of maintaining the indentation in an appropriate way as to preserve the intended whitespace. The key focus is the indended whitespace. While this can be tricky the first line with content serves as a reference. The amount of indentation for the first line is removed from each line and the remaining whitespace is left alone. For example if there is a python block that looks like this.
+        </p>
+        <div class="highlight">
+<pre><span></span><code><span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span> message = &quot;hello world&quot; if &quot;hello&quot; in message: print(message) <span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
+</code></pre>
+        </div>
+        <p>The resulting python code would look like this.</p>
+        <div class="highlight">
+<pre><span></span><code><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;hello world&quot;</span>
+<span class="k">if</span> <span class="s2">&quot;hello&quot;</span> <span class="ow">in</span> <span class="n">message</span><span class="p">:</span>
+  <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</code></pre>
+        </div>
+        <p>
+          So now we can write python code, now what? You can define functions and variableshow you normally would and they are now available to the scope of the entire file. Consider the following example; You can define function called
+          <code>
+            URL
+          </code> in the
+          <code>
+            python
+          </code> element and it can be accessed in any other part of the file. So the code would look like this:
+        </p>
+        <div class="highlight">
+<pre><span></span><code><span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span>
+  def URL(link: str) -&gt; str:
+    links = { &quot;youtube&quot;: &quot;https://youtube.com&quot; }
+    if link in links:
+      return links[link] else: return &quot;&quot;
+<span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
+
+...
+
+<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{URL(&#39;youtube&#39;)}&quot;</span><span class="p">&gt;</span>Youtube<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+</code></pre>
+        </div>
+        <p>
+          phml combines all
+          <code>
+            python
+          </code> elements and treats them as one python file. This is of the likes of the
+          <code>
+            script
+          </code> or
+          <code>
+            style
+          </code> tags. With the fact that you can write any code in the python element and used it anywhere else in the file you of the full power of the python programming language at your desposal.
+        </p>
+        <h3 id="inline-python-and-python-attributes">Inline Python and Python Attributes</h3>
+        <p>
+          Next up is inline python blocks. These are represented with
+          <code>
+            {{}}
+          </code> in text elements. Any text in-between the brackets will be processed as python. This is mostly useful when you want to inject a value from python. Assume that there is a variable defined in the
+          <code>
+            python
+          </code> element called
+          <code>
+            message
+          </code>and it contains
+          <code>
+            Hello World!
+          </code>. Now this variable can be used like this,
+          <code>
+            &lt;p&gt;{{ message }}&lt;/p&gt;
+          </code>,which renders to,
+          <code>
+            &lt;p&gt;Hello World!&lt;/p&gt;
+          </code>.
+        </p>
+        <blockquote>
+          <p>Note: Inline python blocks are only rendered in a Text element or inside an html attribute.</p>
+        </blockquote>
+        <p>
+          Conditional rendering with
+          <code>
+            @if
+          </code>,
+          <code>
+            @elif
+          </code>, and
+          <code>
+            @else
+          </code> is an extremely helpful tool in phml.
+          <code>
+            @if
+          </code> can be used alone and the python inside it's value must be truthy for the element to be rendered.
+          <code>
+            @elif
+          </code> requires an element with a
+          <code>
+            @if
+          </code> or
+          <code>
+            @elif
+          </code> attribute immediately before it, and it's condition is rendered the same as
+          <code>
+            @if
+          </code> but only rendered if a
+          <code>
+            @if
+          </code> or
+          <code>
+            @elif
+          </code> first fails.
+          <code>
+            @else
+          </code> requires there to be either a
+          <code>
+            @if
+          </code> or a
+          <code>
+            @else
+          </code> immediately before it. It only renders if the previous element's condition fails. If
+          <code>
+            @elif
+          </code> or
+          <code>
+            @else
+          </code> is on an element, but the previous element isn't a
+          <code>
+            @if
+          </code> or
+          <code>
+            @elif
+          </code> then an exception will occur. Most importantly, the first element in a chain of conditions must be a
+          <code>
+            @if
+          </code>.
+        </p>
+        <p>
+          Other than conditions, there is also a built in for loop element. The format looks something like
+          <code>
+            &lt;For :each="item in collection&gt;"
+          </code> and it duplicates it's children at the node position of the
+          <code>
+            For
+          </code> element. The
+          <code>
+            For
+          </code> element requires there to be an
+          <code>
+            each
+          </code> attribute for it to be rendered. You can consider the value of this element as pythons equivelent to
+          <code>
+            for item in collection:
+          </code> as this is what the
+          <code>
+            each
+          </code> attribute expands out to. The attributes defined in the
+          <code>
+            each
+          </code> element,
+          <code>
+            item
+          </code> from the previous example, is exposed to the children of the for loop. The attributes from the iteration are scoped recursively through the children. All conditionals work for the the
+          <code>
+            For
+          </code> element. An added feature is when a
+          <code>
+            For
+          </code> iteration has an error or iterates zero times, the
+          <code>
+            @elif
+          </code> or
+          <code>
+            @else
+          </code> following the
+          <code>
+            For
+          </code> is used instead. This means that a
+          <code>
+            For
+          </code> failing or generating zero is like a failed
+          <code>
+            @if
+          </code> and can be treated as such. Below is an example of how a
+          <code>
+            For
+          </code> element could be used.
+        </p>
+        <div class="highlight">
+<pre><span></span><code><span class="p">&lt;</span><span class="nt">ul</span>
+  <span class="err">&lt;</span><span class="na">For</span> <span class="na">:each</span><span class="o">=</span><span class="s">&quot;i in range(3)&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>{i}<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">For</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">li</span> <span class="err">@</span><span class="na">else</span><span class="p">&gt;</span>No items in range<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+</code></pre>
+        </div>
+        <p>The compiled html will be:</p>
+        <div class="highlight">
+<pre><span></span><code><span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>1<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>2<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>3<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+</code></pre>
+        </div>
+        <p>
+          Python attributes are shortcuts for using inline python blocks in html attributes. Normally, in phml, you would inject python logic into an attribute similar to this
+          <code>
+            src="{url('youtube')}"
+          </code>. If you would like to make the whole attribute value a python expression you may prefix any attribute with a
+          <code>
+            :
+          </code>. This keeps the attribute name the same after the prefix, but tells the parser that the entire value should be processed as python. So the previous example with
+          <code>
+            URL
+          </code> can also be expressed as
+          <code>
+            &lt;a :href="URL('youtube')&gt;Youtube&lt;/a&gt;"
+          </code>.
+        </p>
+        <h3 id="components">Components</h3>
+        <p>
+          PHML includes a powerful component system. The components are partial phml files and are added to the core compiler. After adding the component whenever an element with the same name as the component is found, it is replaced. Components have scoped
+          <code>
+            python
+          </code> elements, while all
+          <code>
+            style
+          </code> and
+          <code>
+            script
+          </code> elements are global to the file they are injected into. Components require that there is only one element, that isn't a
+          <code>
+            python
+          </code>,
+          <code>
+            script
+          </code>, or
+          <code>
+            style
+          </code> tag, to be present. A sample component can look something like the example below.
+        </p>
+        <div class="highlight">
+<pre><span></span><code><span class="cm">&lt;!-- Component.phml --&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span># content goes here<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span> # python code goes here <span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">style</span><span class="p">&gt;</span><span class="w"></span>
+<span class="w">  </span><span class="c">/* styles go here */</span><span class="w"></span>
+<span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// js goes here</span><span class="w"></span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre>
+        </div>
+        <p>
+          Components can be added to the compiler by using
+          <code>
+            HypertextManager.add('path/to/component.phml')
+          </code>. You can define a components name when adding it to the compiler like this
+          <code>
+            HypertextManager.add(('Component', 'path/to/component.phml'))
+          </code>, or you can just let the compiler figure it out for you. Each directory in the path given along with the file name are combine to create the components name. So if you pass a component path that is
+          <code>
+            path/to/component.phml
+          </code> it will create a components name of
+          <code>
+            Path.To.Component
+          </code> which is then used as
+          <code>
+            &lt;Path.To.Component /&gt;
+          </code>. The compiler will try to parse and understand the component name and make it Pascal case. So if you have a file name of
+          <code>
+            CoMP_onEnt.phml
+          </code> it will result in
+          <code>
+            CoMPOnEnt
+          </code>. It uses
+          <code>
+            _
+          </code> as a seperator between words along with capital letters. It will also recognize an all caps word bordering a new word with a capital letter.
+        </p>
+        <p>
+          Great now you have components. But what if you have a few components that are siblings and you don't want them to be nested in a parent element. PHML provides a
+          <code>
+            &lt;&gt;
+          </code> element which is a placeholder element. All children are treated as they are at the root of the component.
+        </p>
+        <div class="highlight">
+<pre><span></span><code><span class="cm">&lt;!-- file.phml --&gt;</span>
+...
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">Component</span> <span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+...
+<span class="cm">&lt;!-- Component.phml --&gt;</span>
+<span class="err">&lt;</span>&gt;
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Hello<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>World<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="err">&lt;</span>&gt;
+</code></pre>
+        </div>
+        <p>will result in the following rendered html</p>
+        <div class="highlight">
+<pre><span></span><code><span class="cm">&lt;!-- file.html --&gt;</span>
+...
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Hello<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>World<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+...
+</code></pre>
+        </div>
+        <p>
+          Now how do you pass information to component to use in rendering? That is where the
+          <code>
+            Props
+          </code> variable comes in. The
+          <code>
+            Props
+          </code> variable is a dictionary defined in the components
+          <code>
+            python
+          </code> element. This defines what attributes on the component are props along with their default values.
+        </p>
+        <div class="highlight">
+<pre><span></span><code><span class="cm">&lt;!-- component.phml --&gt;</span>
+<span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span> Props = { message: &quot;&quot; } <span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>{{ message }}<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+<span class="cm">&lt;!-- file.phml --&gt;</span>
+...
+<span class="p">&lt;</span><span class="nt">Component</span> <span class="na">message</span><span class="o">=</span><span class="s">&quot;Hello World!&quot;</span> <span class="p">/&gt;</span>
+...
+</code></pre>
+        </div>
+        <p>Both normal attribute values and python attributes can be used for props. The above example really only works for self closing components. What if you want to pass children to the component? That is where slots come in.</p>
+        <div class="highlight">
+<pre><span></span><code><span class="p">&lt;</span><span class="nt">python</span><span class="p">&gt;</span> Props = { message: &quot;&quot; } <span class="p">&lt;/</span><span class="nt">python</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;callout&quot;</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="err">@</span><span class="na">if</span><span class="o">=</span><span class="s">&quot;message is not None&quot;</span><span class="p">&gt;</span>{{ message }}<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">slot</span> <span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</code></pre>
+        </div>
+        <p>
+          The
+          <code>
+            Slot
+          </code> element must be capitalized. When a
+          <code>
+            Slot
+          </code> element is present any children inside of a component are inserted in place of it. If no children exist then the slot is just removed. What about having multiple slots and having certain components go to certain slot. PHML covers this with the
+          <code>
+            slot
+          </code> and
+          <code>
+            name
+          </code> attribute. The slot attribute holds the name of the slot that the child element should be placed in. The name attribute goes on the
+          <code>
+            Slot
+          </code> element itself giving it it's name. There may only be one
+          <code>
+            Slot
+          </code> of every name including the default
+          <code>
+            Slot
+          </code> with no name attribute. An example of this will look something like this.
+        </p>
+        <div class="highlight">
+<pre><span></span><code><span class="cm">&lt;!-- component.phml --&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">slot</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;top&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">slot</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">slot</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span> <span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+<span class="cm">&lt;!-- file.phml --&gt;</span>
+...
+<span class="p">&lt;</span><span class="nt">Component</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">slot</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">&gt;</span>Bottom<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">slot</span><span class="o">=</span><span class="s">&quot;top&quot;</span><span class="p">&gt;</span>Top<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  Middle
+<span class="p">&lt;/</span><span class="nt">Component</span><span class="p">&gt;</span>
+...
+
+<span class="cm">&lt;!-- file.html --&gt;</span>
+...
+<span class="p">&lt;</span><span class="nt">p</span> <span class="na">slot</span><span class="o">=</span><span class="s">&quot;top&quot;</span><span class="p">&gt;</span>Top<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+Middle
+<span class="p">&lt;</span><span class="nt">p</span> <span class="na">slot</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">&gt;</span>Bottom<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+...
+</code></pre>
+        </div>
+        <h3 id="markdown-optional">Markdown (Optional)</h3>
+        <p>
+          PHML also has very basic markdown support. The
+          <code>
+            Markdown
+          </code> element can be used to render markdown in place of the element itself. The markdown component is an optional feature of phml. To enable the feature you can run
+          <code>
+            pip3 install phml[markdown]
+          </code> or
+          <code>
+            pip3 install markdown
+          </code>, then use the component in a phml file. The markdown component can only reference/render a markdown file. To do so, use the
+          <code>
+            :src
+          </code>/
+          <code>
+            src
+          </code> attribute to specify the path to the markdown file, relative to the current file. If phml is rendering from a parsed dict or str, then the current working directory is used.
+        </p>
+        <p>
+          The markdown component uses a few default extensions while parsing. First it uses
+          <code>
+            codehilite
+          </code> and
+          <code>
+            fenced_code
+          </code> for highlighting code blocks, this also requires a css file generated with
+          <code>
+            pygmentize
+          </code>. Lastly, it will use
+          <code>
+            tables
+          </code> to add the ability to parse markdown tables. This makes the markdown close to a github flavor.
+        </p>
+        <p>
+          Users may need to add additional markdown extension or to configure them. That is where the
+          <code>
+            :extras
+          </code>/
+          <code>
+            extras
+          </code> and
+          <code>
+            :configs
+          </code> attributes come in. The
+          <code>
+            :extras
+          </code> attribute is a list of string names of the markdown extensions to add. The
+          <code>
+            extras
+          </code> attribute, also
+          <code>
+            :extras
+          </code>, is a space seperated string of the extension names. To configure the extensions the python attribute
+          <code>
+            :configs
+          </code> is used. The attribute must be a dict of the format
+          <code>
+            { '&lt;extension&gt;': { '&lt;option&gt;': &lt;value&gt; } }
+          </code>. The options and available values are found in the
+          <code>
+            markdown
+          </code> modules
+          <a href="https://python-markdown.github.io/extensions/">documentation</a>.
+        </p>
+        <p>
+          When the markdown is compiled, the resulting html elements are nested in an
+          <code>
+            article
+          </code> element. All attributes that are not
+          <code>
+            src
+          </code>,
+          <code>
+            extras
+          </code>, or
+          <code>
+            :config
+          </code> on the markdown component are added to the parent
+          <code>
+            article
+          </code> element and are left unprocessed. This means that python attributes other than
+          <code>
+            :config
+          </code> or
+          <code>
+            :extras
+          </code> on the markdown component are left "as is".
+        </p>
+        <div class="highlight">
+<pre><span></span><code><span class="cm">&lt;!-- file.phml --&gt;</span>
+<span class="p">&lt;</span><span class="nt">Markdown</span>
+  <span class="na">src</span><span class="o">=</span><span class="s">&quot;../markdown/file.md&quot;</span>
+  <span class="na">extras</span><span class="o">=</span><span class="s">&quot;smarty footnotes&quot;</span>
+  <span class="na">:configs</span><span class="o">=</span><span class="s">&quot;{</span>
+<span class="s">     &quot;</span><span class="na">footnotes</span><span class="err">&quot;</span><span class="na">:</span> <span class="err">{</span>
+       <span class="err">&quot;</span><span class="na">BACKLINK_TEXT</span><span class="err">&quot;</span><span class="na">:</span> <span class="err">&quot;$&quot;</span>           
+     <span class="err">}</span>
+  <span class="err">}&quot;</span>
+<span class="p">&gt;</span>
+</code></pre>
+        </div>
+        <hr>
+        <blockquote>
+          <p>:warning: This language is in early development stages. Everything is currently subject to change. All forms of feedback are encouraged.</p>
+        </blockquote>
+        <p>
+          <br>
+        </p>
+        <h2 id="basic-usage">Basic Usage</h2>
+        <p>The current version is able to parse phml using an html parser. This creates a phml ast which then can be converted back to phml or to json.</p>
+        <p>
+          <strong>Use</strong>
+        </p>
+        <p>
+          First import the core parser and compiler,
+          <code>
+            from phml import HypertextManager
+          </code>. Then you can do the following:
+        </p>
+        <div class="highlight">
+<pre><span></span><code><span class="n">phml</span> <span class="o">=</span> <span class="n">HypertextManager</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;path/to/file.phml&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">phml</span><span class="o">.</span><span class="n">render</span><span class="p">())</span>
+</code></pre>
+        </div>
+        <p>There is method chaining so most if not all methods can be chained. The obvious exception being any method that returns a value.</p>
+        <p>
+          By default
+          <code>
+            HypertextManager.render()
+          </code> will return the
+          <code>
+            html
+          </code> string. If you want to get a
+          <code>
+            json
+          </code> string you may pass
+          <code>
+            Formats.JSON
+          </code>.
+          <code>
+            HypertextManager.render(file_type=Formats.JSON)
+          </code>.
+        </p>
+        <p>
+          If you want to write to a file you can call
+          <code>
+            phml.write("path/to/output/file.phml")
+          </code>. Same with
+          <code>
+            render
+          </code> it defaults to html. You can change this the same way as
+          <code>
+            render
+          </code>.
+          <code>
+            core.write("path/to/otuput/file.json", file_type=Formats.JSON)
+          </code>.
+        </p>
+        <p>
+          For both
+          <code>
+            render
+          </code> and
+          <code>
+            write
+          </code> you will first need to call
+          <code>
+            phml.load("path/to/source/file.phml")
+          </code>. This parses the source file and stores the ast in the parser.
+          <code>
+            render
+          </code> and
+          <code>
+            write
+          </code> then use that ast to create the desired output. Optionally if you already have a phml or html string or a properly formatted dict you can call
+          <code>
+            core.parse(data)
+          </code> which will parse that information similar to
+          <code>
+            load
+          </code>.
+        </p>
+        <p>
+          Every time
+          <code>
+            phml.parse
+          </code> or
+          <code>
+            phml.load
+          </code> is called it will overwrite the stored ast variable.
+        </p>
+        <p>There are many more features such as globally exposed variables, components, slots, exposing python files to be used in phml files, etc...</p>
+      </article>
+    </article>
+  </body>
+</html>

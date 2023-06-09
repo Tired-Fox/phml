@@ -11,7 +11,7 @@ from phml.nodes import Element
 __all__ = ["classnames", "ClassList"]
 
 
-def classnames(  # pylint: disable=keyword-arg-before-vararg
+def classnames(
     node: Element | None = None,
     *conditionals: str | int | list | dict[str, bool] | Element,
 ) -> str | None:

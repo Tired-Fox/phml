@@ -8,7 +8,6 @@ from .base import scoped_step
 
 
 def _process_attributes(node: Element, context: dict[str, Any]):
-    context = build_recursive_context(node, context)
     for attribute in list(node.attributes.keys()):
         if attribute.startswith(":"):
             result = exec_embedded(
@@ -34,18 +33,17 @@ def _process_attributes(node: Element, context: dict[str, Any]):
 def step_execute_embedded_python(node: Parent, _, context: dict[str, Any]):
     """Step to process embedded python inside of attributes and text nodes."""
     for child in node:
+        context = build_recursive_context(child, context)
+
         if isinstance(child, Element):
-            _process_attributes(
-                child,
-                build_recursive_context(child, context),
-            )
+            _process_attributes(child, context)
         elif (
             Literal.is_text(child)
             and "{{" in child.content
-            and child.parent.tag not in ["script", "style", "python"]
+            and child.parent.tag not in ["script", "style", "python", "code"]
         ):
             child.content = exec_embedded_blocks(
                 child.content.strip(),
                 f"Text in <{node.tag}> at {node.position!r}",
-                **build_recursive_context(child, context),
+                **context,
             )

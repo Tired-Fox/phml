@@ -88,16 +88,6 @@ def p(  # pylint: disable=[invalid-name,keyword-arg-before-vararg]
     }
 
     if selector is not None:
-        # Is a comment
-        # if isinstance(selector, str) and selector.startswith("<!--"):
-        #     return Literal(LiteralType.Comment, selector.replace("<!--", "").replace("-->", ""))
-        # Is a text node
-        # if (
-        #     isinstance(selector, str)
-        #     and (len(selector.split(" ")) > 1 or len(selector.split("\n")) > 1)
-        #     and len(args) == 0
-        # ):
-        #     return Literal(LiteralType.Text, selector)
         if not isinstance(selector, str):
             args = (selector, *args)
             selector = None

@@ -6,7 +6,7 @@ from typing import Any, Iterator
 from phml.nodes import AST, Element, Node, Parent
 
 
-def build_recursive_context(node: Node, context: dict[str, Any]) -> dict[str, Any]:
+def build_recursive_context(node: Node, context: dict[str, Any] = {}) -> dict[str, Any]:
     """Build recursive context for the current node."""
     parent = node.parent
     parents = []
@@ -16,11 +16,12 @@ def build_recursive_context(node: Node, context: dict[str, Any]) -> dict[str, An
         parents.append(parent)
         parent = parent.parent
 
-    for parent in parents:
+    for parent in reversed(parents):
         result.update(parent.context)
 
     if isinstance(node, Element):
         result.update(node.context)
+
     return result
 
 
