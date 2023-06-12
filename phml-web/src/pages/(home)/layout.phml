@@ -1,0 +1,24 @@
+<main id="home">
+    <aside>
+        <nav>
+            <a href="@/api/" aria-label="API Documentation">API</a>
+            <a href="@/docs/" aria-label="Documentation">Docs</a>
+        </nav>
+    </aside>
+    <Slot />
+</main>
+<style>
+    aside>nav {
+        display: flex;
+        flex-direction: column;
+        height: fit-content;
+    }
+    aside {
+        height: fit-content;
+        position: sticky;
+        top: 1rem;
+    }
+    #home {
+        gap: 2rem;
+    }
+</style>

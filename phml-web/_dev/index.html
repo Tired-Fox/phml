@@ -5,11 +5,11 @@
       http-equiv="X-UA-Compatible"
       content="IE=edge"
     >
+    <meta charset="UTF-8">
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     >
-    <meta charset="UTF-8">
     <link
       rel="shortcut icon"
       href="favicon.ico"
@@ -17,7 +17,7 @@
     >
     <title>Welcome</title>
     <style>
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout {
           width: fit-content;
           max-width: 90%;
           border-radius: .5rem;
@@ -36,7 +36,7 @@
           --callout-orange: 235, 150, 5;
       }
 
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout svg {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout svg {
           aspect-ratio: 1;
           width: 1.4rem;
           display: flex;
@@ -44,7 +44,7 @@
           justify-content: center;
       }
 
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout-title {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout-title {
           width: 100%;
           border-radius: .5rem;
           display: flex;
@@ -53,31 +53,31 @@
           padding-block: .25rem;
       }
 
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="info"] .callout-title {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout[data-type="info"] .callout-title {
           background-color: rgba(var(--callout-blue), 0.1);
       }
 
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="danger"] .callout-title {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout[data-type="danger"] .callout-title {
           background-color: rgba(var(--callout-red), 0.1);
       }
 
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="warning"] .callout-title {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout[data-type="warning"] .callout-title {
           background-color: rgba(var(--callout-orange), 0.1);
       }
 
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="info"] :is(svg, a) {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout[data-type="info"] :is(svg, a) {
           color: rgb(var(--callout-blue));
       }
 
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="danger"] :is(svg, a) {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout[data-type="danger"] :is(svg, a) {
           color: rgb(var(--callout-red));
       }
 
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout[data-type="warning"] :is(svg, a) {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout[data-type="warning"] :is(svg, a) {
           color: rgb(var(--callout-orange));
       }
 
-      [data-phml-cmpt-scope='Callout~4609416344631519693'] .callout-body {
+      [data-phml-cmpt-scope='Callout~12942088714994925132'] .callout-body {
           width: 100%;
           padding: 1rem;
       }
@@ -95,17 +95,33 @@
     >
   </head>
   <body>
-    <article>
+    <main id="home">
+      <aside>
+        <nav>
+          <a
+            href="/api"
+            aria-label="API Documentation"
+          >
+            API
+          </a>
+          <a
+            href="/docs"
+            aria-label="Documentation"
+          >
+            Docs
+          </a>
+        </nav>
+      </aside>
       <article>
         <h1 id="welcome-to-pythonic-hypertext-markup-language-phml">Welcome to Pythonic Hypertext Markup Language (PHML)</h1>
         <p>
-          <div data-phml-cmpt-scope="Callout~4609416344631519693">
+          <div data-phml-cmpt-scope="Callout~12942088714994925132">
             <div
               class="callout"
               data-type="danger"
             >
               <div class="callout-title">
-                <div data-phml-cmpt-scope="GgIcon~6633562121893774063">
+                <div data-phml-cmpt-scope="GgIcon~9054682964475783156">
                   <svg>
                     <use xlink:href="/all.svg#gg-shape-hexagon"/>
                   </svg>
@@ -708,6 +724,21 @@ Middle
         </p>
         <p>There are many more features such as globally exposed variables, components, slots, exposing python files to be used in phml files, etc...</p>
       </article>
-    </article>
+    </main>
+    <style>
+      aside>nav {
+          display: flex;
+          flex-direction: column;
+          height: fit-content;
+      }
+      aside {
+          height: fit-content;
+          position: sticky;
+          top: 1rem;
+      }
+      #home {
+          gap: 2rem;
+      }
+    </style>
   </body>
 </html>
