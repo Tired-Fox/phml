@@ -7,7 +7,7 @@ from phml.embedded import Props
 from phml.helpers import iterate_nodes, normalize_indent
 from phml.nodes import AST, Element, Literal, LiteralType, Node, Parent
 
-from .base import scoped_step, setup_step
+from .base import post_step, scoped_step, setup_step
 
 re_selector = re.compile(r"(\n|\}| *)([^}@/]+)(\s*{)")
 re_split_selector = re.compile(r"(?:\)(?:.|\s)*|(?<!\()(?:.|\s)*)(,)")
@@ -70,8 +70,8 @@ def scope_styles(styles: list[Element], hash: str) -> str:
     return "\n".join(result)
 
 
-@setup_step
-def step_add_cached_component_elements(node: AST, components: ComponentManager, _):
+@post_step
+def step_add_cached_component_elements(node: AST, components: ComponentManager, _, results: dict[str, Any]):
     """Step to add the cached script and style elements from components."""
     from phml.utilities import query
 
@@ -80,6 +80,8 @@ def step_add_cached_component_elements(node: AST, components: ComponentManager, 
     target = query(node, "head") or  node
 
     cache = components.get_cache()
+    results["components"] = [key for key in cache.keys()]
+
     style = ""
     script = ""
     for cmpt in cache:
@@ -179,6 +181,7 @@ def step_substitute_components(
     node: Parent,
     components: ComponentManager,
     context: dict[str, Any],
+    _
 ):
     """Step to substitute components in for matching nodes."""
 
@@ -187,7 +190,7 @@ def step_substitute_components(
             # Need a deep copy of the component as to not manipulate the cached comonent data
             elements = deepcopy(components[child.tag]["elements"])
             props = components[child.tag]["props"]
-            context = {**child.context, **components[child.tag]["context"]}
+            ctxt = {**child.context, **components[child.tag]["context"]}
 
             attrs = {
                 key: value
@@ -196,7 +199,7 @@ def step_substitute_components(
             }
 
             props.update(attrs)
-            context.update({"props": props})
+            ctxt.update({"props": props})
 
             component = Element(
                 "div",
@@ -207,7 +210,7 @@ def step_substitute_components(
             for elem in elements:
                 elem.parent = component
                 if isinstance(elem, Element):
-                    elem.context.update(context)
+                    elem.context.update(ctxt)
 
             component.extend(elements)
 

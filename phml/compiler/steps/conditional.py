@@ -144,6 +144,7 @@ def step_execute_conditions(
     node: Parent,
     _,
     context: dict[str, Any],
+    _results
 ):
     """Step to process and compile condition attributes in sibling nodes."""
     cond_trees = build_condition_trees(node)

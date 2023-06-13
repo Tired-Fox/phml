@@ -121,6 +121,9 @@ def remove_step(
 
 
 class HypertextMarkupCompiler:
+    def __init__(self) -> None:
+        self.results: dict[str, Any] = {}
+
     def _get_python_elements(self, node: Parent) -> list[Element]:
         result = []
         for child in node:
@@ -141,10 +144,9 @@ class HypertextMarkupCompiler:
         context: dict,
     ):
         """Process steps for a given scope/parent node."""
-
         # Core compile steps
         for _step in __STEPS__:
-            _step(node, components, context)
+            _step(node, components, context, self.results)
 
         # Recurse steps for each scope
         for child in node:
@@ -164,6 +166,8 @@ class HypertextMarkupCompiler:
     def compile(
         self, node: Parent, _components: ComponentManager, **context: Any
     ) -> Parent:
+        self.results = {}
+
         # get all python elements and process them
         node = deepcopy(node)
         p_elems = self._get_python_elements(node)
@@ -173,7 +177,7 @@ class HypertextMarkupCompiler:
 
         # Setup steps to collect data before comiling at different scopes
         for step in __SETUP__:
-            step(node, _components, context)
+            step(node, _components, context, self.results)
 
         # Recursively process scopes
         context.update(embedded.context)
@@ -181,7 +185,7 @@ class HypertextMarkupCompiler:
 
         # Post compiling steps to finalize the ast
         for step in __POST__:
-            step(node, _components, context)
+            step(node, _components, context, self.results)
 
         return node
 
@@ -248,8 +252,12 @@ class HypertextMarkupCompiler:
             result += children + f"</{element.tag}>"
         else:
             children = self._render_tree_(element, indent + 2, _compress=compress)
-            result += compress + children
-            result += f"{compress}{' '*indent}</{element.tag}>"
+            if len(children) > 0:
+                result += compress + children
+                result += f"{compress}{' '*indent}</{element.tag}>"
+            else:
+                result += children
+                result += f"</{element.tag}>"
 
         return result
 

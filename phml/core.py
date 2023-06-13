@@ -168,7 +168,7 @@ class HypertextManager:
             name = f".{module.lstrip('..')}"
 
         if base != "":
-            name = f".{base.strip('.').replace('-', '_')}{name}"
+            name = f"{base.strip('.').replace('-', '_')}{name}"
 
         # Add imported module or module objects to appropriate collection
         if imports is not None and len(imports) > 0:

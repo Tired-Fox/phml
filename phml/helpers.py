@@ -10,7 +10,7 @@ def build_recursive_context(node: Node, context: dict[str, Any] = {}) -> dict[st
     """Build recursive context for the current node."""
     parent = node.parent
     parents = []
-    result = {**context}
+    result = {}
 
     while parent is not None and not isinstance(parent, AST):
         parents.append(parent)
@@ -21,6 +21,8 @@ def build_recursive_context(node: Node, context: dict[str, Any] = {}) -> dict[st
 
     if isinstance(node, Element):
         result.update(node.context)
+
+    result.update(context)
 
     return result
 

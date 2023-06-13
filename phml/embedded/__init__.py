@@ -25,6 +25,7 @@ ESCAPE_OPTIONS = {
 __IMPORTS__ = {}
 __FROM_IMPORTS__ = {}
 
+
 class Props:
     def __init__(self):
         self._props_ = {}
@@ -66,6 +67,7 @@ class Props:
 
     def __repr__(self) -> str:
         return str(self._props_)
+
 
 # PERF: Only allow assignments, methods, imports, and classes?
 class EmbeddedTryCatch:
@@ -383,7 +385,12 @@ class Embedded:
     to reduce duplicate imports.
     """
 
-    def __init__(self, content: str | Element, path: str | None = None, context: dict[str, Any] = {}) -> None:
+    def __init__(
+        self,
+        content: str | Element,
+        path: str | None = None,
+        context: dict[str, Any] = {},
+    ) -> None:
         self._path = path or "<python>"
         self._pos = (0, 0)
         if isinstance(content, Element):
@@ -479,6 +486,7 @@ class Embedded:
 
 def _validate_kwargs(code: ast.Module, kwargs: dict[str, Any]):
     exclude_list = [*built_in_funcs, *built_in_types]
+    used_vars = []
     for var in (
         name.id
         for name in ast.walk(code)
@@ -488,8 +496,10 @@ def _validate_kwargs(code: ast.Module, kwargs: dict[str, Any]):
         )  # Get all variables/names used. This can be methods or values
         and name.id not in exclude_list
     ):
+        used_vars.append(var)
         if var not in kwargs:
             kwargs[var] = None
+    return used_vars
 
 
 def update_ast_node_pos(dest, source):
@@ -502,10 +512,40 @@ def update_ast_node_pos(dest, source):
     dest.end_col_offset = source.end_col_offset
 
 
+def merge(dest: list, source: list) -> list:
+    """Merge source into dest. For every item in source place each item between items of dest.
+    If there is more items in source the spaces between items in dest then the extra items in source
+    are ignored.
+
+    Example:
+        dest = [1, 2, 3]
+        source = ["red", "blue", "green"]
+        merge(dest, source) == [1, "red", 2, "blue", 3]
+
+        or
+
+        dest = [1, 2, 3]
+        source = ["red"]
+        merge(dest, source) == [1, "red", 2, 3]
+    """
+    combination = []
+    for f_item, s_item in zip(dest, source):
+        combination.extend([f_item, s_item])
+
+    idx = len(combination) // 2
+    if idx < len(dest):
+        combination.extend(dest[idx:])
+    return combination
+
+
 RESULT = "_phml_embedded_result_"
 
+USED_VARS = list[str]
 
-def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
+
+def exec_embedded(
+    code: str, _path: str | None = None, **context: Any
+) -> tuple[USED_VARS, Any]:
     """Execute embedded python and return the extracted value. This is the last
     assignment in the embedded python. The embedded python must have the last line as a value
     or an assignment.
@@ -531,7 +571,7 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
     with EmbeddedTryCatch(_path, code):
         code = normalize_indent(code)
         AST = ast.parse(code)
-        _validate_kwargs(AST, context)
+        used = _validate_kwargs(AST, context)
 
         last = AST.body[-1]
         returns = [ret for ret in AST.body if isinstance(ret, ast.Return)]
@@ -565,11 +605,13 @@ def exec_embedded(code: str, _path: str | None = None, **context: Any) -> Any:
         exec(ccode, {**context}, local_env)
 
         if isinstance(local_env[RESULT], str):
-            return escape(local_env[RESULT], **ESCAPE_OPTIONS)
-        return local_env[RESULT]
+            return used, escape(local_env[RESULT], **ESCAPE_OPTIONS)
+        return used, local_env[RESULT]
 
 
-def exec_embedded_blocks(code: str, _path: str = "", **context: dict[str, Any]):
+def exec_embedded_blocks(
+    code: str, _path: str = "", **context: dict[str, Any]
+) -> tuple[USED_VARS, str]:
     """Execute embedded python inside `{{}}` blocks. The resulting values are subsituted
     in for the found blocks.
 
@@ -586,7 +628,9 @@ def exec_embedded_blocks(code: str, _path: str = "", **context: dict[str, Any]):
 
     result = [""]
     data = []
+    used = []
     next_block = re.search(r"\{\{", code)
+
     while next_block is not None:
         start = next_block.start()
         if start > 0:
@@ -601,17 +645,17 @@ def exec_embedded_blocks(code: str, _path: str = "", **context: dict[str, Any]):
             elif code[index] == "{":
                 balance += 1
             index += 1
-        
+
         result.append("")
-        data.append(
-            str(
-                exec_embedded(
-                    code[: index - 2].strip(),
-                    _path + f" block #{len(data)+1}",
-                    **context,
-                ),
-            ),
+        used_vars, emb = exec_embedded(
+            code[: index - 2].strip(),
+            _path + f" block #{len(data)+1}",
+            **context,
         )
+        data.append(
+            str(emb),
+        )
+        used.extend(used_vars)
         code = code[index:]
         next_block = re.search(r"(?<!\\)\{\{", code)
 
@@ -623,29 +667,4 @@ def exec_embedded_blocks(code: str, _path: str = "", **context: dict[str, Any]):
             f"Not enough data to replace inline python blocks: expected {len(result) - 1} but there was {len(data)}"
         )
 
-    def merge(dest: list, source: list) -> list:
-        """Merge source into dest. For every item in source place each item between items of dest.
-        If there is more items in source the spaces between items in dest then the extra items in source
-        are ignored.
-
-        Example:
-            dest = [1, 2, 3]
-            source = ["red", "blue", "green"]
-            merge(dest, source) == [1, "red", 2, "blue", 3]
-
-            or
-
-            dest = [1, 2, 3]
-            source = ["red"]
-            merge(dest, source) == [1, "red", 2, 3]
-        """
-        combination = []
-        for f_item, s_item in zip(dest, source):
-            combination.extend([f_item, s_item])
-
-        idx = len(combination) // 2
-        if idx < len(dest):
-            combination.extend(dest[idx:])
-        return combination
-
-    return "".join(merge(result, data))
+    return used, "".join(merge(result, data))

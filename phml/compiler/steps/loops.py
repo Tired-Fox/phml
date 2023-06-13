@@ -59,6 +59,7 @@ def step_expand_loop_tags(
     node: Parent,
     _,
     context: dict[str, Any],
+    _results
 ):
     """Step to process and expand all loop (<For/>) elements. Will also set loop elements
     to have a false condition attribute to allow for fallback sibling elements."""
