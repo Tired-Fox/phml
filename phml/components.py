@@ -265,7 +265,7 @@ class ComponentManager:
         return self.components.values()
 
     def __contains__(self, key: str) -> bool:
-        return key in self.components
+        return key in self.components.keys()
 
     def __getitem__(self, key: str) -> ComponentType:
         return self.components[key]

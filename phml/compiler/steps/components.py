@@ -1,13 +1,14 @@
 import re
-from copy import copy, deepcopy
+from copy import deepcopy
 from typing import Any, TypedDict
 
 from phml.components import ComponentManager
-from phml.embedded import Props
 from phml.helpers import iterate_nodes, normalize_indent
 from phml.nodes import AST, Element, Literal, LiteralType, Node, Parent
 
-from .base import post_step, scoped_step, setup_step
+from .base import post_step, scoped_step
+
+DATA_ATTR = "data-phml-scope"
 
 re_selector = re.compile(r"(\n|\}| *)([^}@/]+)(\s*{)")
 re_split_selector = re.compile(r"(?:\)(?:.|\s)*|(?<!\()(?:.|\s)*)(,)")
@@ -63,7 +64,7 @@ def scope_styles(styles: list[Element], hash: str) -> str:
     for style in styles:
         content = normalize_indent(style[0].content)
         if "scoped" in style:
-            content = scope_style(content, f"[data-phml-cmpt-scope='{hash}']")
+            content = scope_style(content, f"[{DATA_ATTR}='{hash}']")
 
         result.append(content)
 
@@ -180,14 +181,13 @@ def replace_slots(child: Element, component: Element):
 def step_substitute_components(
     node: Parent,
     components: ComponentManager,
-    context: dict[str, Any],
-    _
+    *_
 ):
     """Step to substitute components in for matching nodes."""
 
     for child in node:
         if isinstance(child, Element) and child.tag in components:
-            # Need a deep copy of the component as to not manipulate the cached comonent data
+            # Need a deep copy of the component as to not manipulate the cached component data
             elements = deepcopy(components[child.tag]["elements"])
             props = components[child.tag]["props"]
             ctxt = {**child.context, **components[child.tag]["context"]}
@@ -203,7 +203,7 @@ def step_substitute_components(
 
             component = Element(
                 "div",
-                attributes={"data-phml-cmpt-scope": f"{components[child.tag]['hash']}"},
+                attributes={DATA_ATTR: f"{components[child.tag]['hash']}"},
                 children=[],
             )
 

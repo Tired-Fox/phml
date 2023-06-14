@@ -17,8 +17,6 @@ __all__ = [
     "setup_step",
     "scoped_step",
     "post_step",
-    "add_step",
-    "remove_step",
 ]
 
 PRE_LIKE = ["script", "style", "python", "code"]
@@ -62,67 +60,77 @@ self_closing = [
     "Markdown",
 ]
 
-@overload
-def add_step(
-    step: Callable[[AST, ComponentManager, dict[str, Any]], None],
-    stage: Lit["setup", "post"],
-) -> NoReturn:
-    ...
-
-
-@overload
-def add_step(
-    step: Callable[[Parent, ComponentManager, dict[str, Any]], None],
-    stage: Lit["scoped"],
-) -> NoReturn:
-    ...
-
-
-def add_step(
-    step: Callable[[Parent, ComponentManager, dict[str, Any]], None]
-    | Callable[[AST, ComponentManager, dict[str, Any]], None],
-    stage: StepStage,
-):
-    if stage == "setup" and step not in __SETUP__:
-        __SETUP__.append(step)
-    elif stage == "scoped" and step not in __STEPS__:
-        __STEPS__.append(step)
-    elif stage == "post" and step not in __POST__:
-        __POST__.append(step)
-
-
-@overload
-def remove_step(
-    step: Callable[[AST, ComponentManager, dict[str, Any]], None],
-    stage: Lit["setup", "post"],
-) -> NoReturn:
-    ...
-
-
-@overload
-def remove_step(
-    step: Callable[[Parent, ComponentManager, dict[str, Any]], None],
-    stage: Lit["scoped"],
-) -> NoReturn:
-    ...
-
-
-def remove_step(
-    step: Callable[[Parent, ComponentManager, dict[str, Any]], None]
-    | Callable[[AST, ComponentManager, dict[str, Any]], None],
-    stage: StepStage,
-):
-    if stage == "setup":
-        __SETUP__.remove(step)
-    elif stage == "scoped":
-        __STEPS__.remove(step)
-    elif stage == "post":
-        __POST__.remove(step)
-
 
 class HypertextMarkupCompiler:
     def __init__(self) -> None:
+        self.pre = list(__SETUP__)
+        self.scoped = list(__STEPS__)
+        self.post = list(__POST__)
         self.results: dict[str, Any] = {}
+
+
+    @overload
+    def add_step(
+        self,
+        step: Callable[[AST, ComponentManager, dict[str, Any], dict[str, Any]], None],
+        stage: Lit["setup", "post"],
+    ) -> NoReturn:
+        ...
+    
+    
+    @overload
+    def add_step(
+        self,
+        step: Callable[[Parent, ComponentManager, dict[str, Any], dict[str, Any]], None],
+        stage: Lit["scoped"],
+    ) -> NoReturn:
+        ...
+
+
+    def add_step(
+        self,
+        step: Callable[[Parent, ComponentManager, dict[str, Any], dict[str, Any]], None]
+        | Callable[[AST, ComponentManager, dict[str, Any], dict[str, Any]], None],
+        stage: StepStage,
+    ):
+        if stage == "setup" and stage not in self.pre:
+            self.pre.append(step)
+        elif stage == "scoped" and stage not in self.scoped:
+            self.scoped.append(step)
+        elif stage == "post" and stage not in self.post:
+            self.post.append(step)
+
+
+    @overload
+    def remove_step(
+        self,
+        step: Callable[[AST, ComponentManager, dict[str, Any], dict[str, Any]], None],
+        stage: Lit["setup", "post"],
+    ) -> NoReturn:
+        ...
+
+
+    @overload
+    def remove_step(
+        self,
+        step: Callable[[Parent, ComponentManager, dict[str, Any], dict[str, Any]], None],
+        stage: Lit["scoped"],
+    ) -> NoReturn:
+        ...
+
+
+    def remove_step(
+        self,
+        step: Callable[[Parent, ComponentManager, dict[str, Any], dict[str, Any]], None]
+        | Callable[[AST, ComponentManager, dict[str, Any], dict[str, Any]], None],
+        stage: StepStage,
+    ):
+        if stage == "setup":
+            self.pre.remove(step)
+        elif stage == "scoped":
+            self.scoped.remove(step)
+        elif stage == "post":
+            self.post.remove(step)
 
     def _get_python_elements(self, node: Parent) -> list[Element]:
         result = []
@@ -145,7 +153,7 @@ class HypertextMarkupCompiler:
     ):
         """Process steps for a given scope/parent node."""
         # Core compile steps
-        for _step in __STEPS__:
+        for _step in self.scoped:
             _step(node, components, context, self.results)
 
         # Recurse steps for each scope
@@ -176,7 +184,7 @@ class HypertextMarkupCompiler:
             embedded += Embedded(p_elem)
 
         # Setup steps to collect data before comiling at different scopes
-        for step in __SETUP__:
+        for step in self.pre:
             step(node, _components, context, self.results)
 
         # Recursively process scopes
@@ -184,7 +192,7 @@ class HypertextMarkupCompiler:
         self._process_scope_(node, _components, context)
 
         # Post compiling steps to finalize the ast
-        for step in __POST__:
+        for step in self.post:
             step(node, _components, context, self.results)
 
         return node
@@ -230,8 +238,7 @@ class HypertextMarkupCompiler:
 
         result = (
             f"{' '*indent if not element.in_pre else ''}"
-            f"<{'!' if element.decl else ''}{element.tag}"
-            + f"{attrs}{closing}>"
+            f"<{'!' if element.decl else ''}{element.tag}" + f"{attrs}{closing}>"
         )
 
         if element.children is None:
@@ -241,7 +248,7 @@ class HypertextMarkupCompiler:
             compress != "\n"
             or element.in_pre
             or (
-                element.tag not in PRE_LIKE 
+                element.tag not in PRE_LIKE
                 and len(element) == 1
                 and Literal.is_text(element[0])
                 and "\n" not in element[0].content
@@ -303,9 +310,13 @@ class HypertextMarkupCompiler:
         result = []
         for i, child in enumerate(node):
             if isinstance(child, Element):
-                result.append(f"{_compress}{self._render_element(child, indent, _compress)}")
+                result.append(
+                    f"{_compress}{self._render_element(child, indent, _compress)}"
+                )
             elif isinstance(child, Literal):
-                result.append(self._render_literal(child, indent if i == 0 else -1, _compress))
+                result.append(
+                    self._render_literal(child, indent if i == 0 else -1, _compress)
+                )
             else:
                 raise TypeError(f"Unknown renderable node type {type(child)}")
 

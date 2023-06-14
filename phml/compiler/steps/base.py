@@ -8,7 +8,7 @@ __all__ = ["scoped_step", "setup_step", "post_step"]
 
 
 def scoped_step(
-    func: Callable[[Parent, ComponentManager, dict[str, Any], dict[str, Any]], dict[str, Any]|None]
+    func: Callable[[Parent, ComponentManager, dict[str, Any], dict[str, Any]], None]
 ):  # pragma: no cover
     """Wrapper for compilation steps. This wraps a function that takes a parent node,
     the current context, and component manager. The function is expected to mutate the children nodes.
@@ -44,7 +44,7 @@ def scoped_step(
 
 
 def setup_step(
-    func: Callable[[AST, ComponentManager, dict[str, Any], dict[str, Any]], dict[str, Any]|None]
+    func: Callable[[AST, ComponentManager, dict[str, Any], dict[str, Any]], None]
 ):  # pragma: no cover
     """Wrapper for setup compile processes. This wraps a function that takes an AST node,
     the current context, and the component manager. The funciton is expected to mutate the AST recursively
@@ -78,7 +78,7 @@ def setup_step(
 
 
 def post_step(
-    func: Callable[[AST, ComponentManager, dict[str, Any], dict[str, Any]], dict[str, Any]|None]
+    func: Callable[[AST, ComponentManager, dict[str, Any], dict[str, Any]], None]
 ):  # pragma: no cover
     """Wrapper for post compile processes. This wraps a function that takes an AST node,
     the current context, and the component manager. The funciton is expected to mutate the AST recursively

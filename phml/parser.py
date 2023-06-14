@@ -26,19 +26,19 @@ def strip(data: str, cur_tags: list[str]) -> str:
     ):
         return data
 
-    lines = data.rstrip().split("\n")
-    start = -1
+    # lines = data.rstrip().split("\n")
+    # start = -1
 
-    for _ in range(0, len(lines)):
-        start += 1
-        if lines[start].strip() != "":
-            break
+    # for _ in range(0, len(lines)):
+    #     start += 1
+    #     if lines[start].strip() != "":
+    #         break
 
-    data = "".join(lines[start:])
+    # data = "".join(lines[start:])
     if data.strip() == "":
         return ""
 
-    return data 
+    return f" {data.strip()}"
 
 
 self_closing = [
@@ -231,7 +231,7 @@ class HypertextMarkupParser:
                 current.append(
                     Literal(
                         LiteralType.Comment,
-                        str(attr["data"]),
+                        str(attr['data']),
                         position=Position.from_pos(position),
                         in_pre=self.in_pre > 0,
                     ),

@@ -56,5 +56,5 @@ def step_execute_embedded_python(node: Parent, _, context: dict[str, Any], resul
             )
 
             results["used_vars"].extend(used)
-            child.content = content
+            child.content = f" {content.strip()}"
 

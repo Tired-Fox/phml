@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections.abc import Iterable
 
 from enum import StrEnum, unique
 from types import NoneType
@@ -390,7 +391,7 @@ class Parent(Node):
                 "A child node can not be appended to a self closing element",
             )
 
-    def extend(self, nodes: list):
+    def extend(self, nodes: Iterable[Node]):
         """Extend the children with a list of nodes."""
         if self.children is not None:
             for child in nodes:

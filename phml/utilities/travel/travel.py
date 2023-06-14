@@ -54,7 +54,7 @@ def path_names(node: Node) -> list[str]:
     return ancestors
 
 
-def walk(node: Parent) -> Iterator:
+def walk(node: Parent) -> Iterator[Node]:
     """Recursively traverse the node and it's chidlren as an iterator.
     Left to right depth first.
     """
