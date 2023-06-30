@@ -73,7 +73,7 @@ def tokenize_name(
             # Token is all numbers. Set to full capture
             result = str(nums)
 
-        if normalize:
+        if normalize and not result.isupper():
             result = result.lower()
 
         if len(result) > 0:

@@ -6,7 +6,7 @@ from __future__ import annotations
 import ast
 import re
 import types
-from functools import cache, cached_property
+from functools import cache
 from html import escape
 from pathlib import Path
 from shutil import get_terminal_size
@@ -467,11 +467,13 @@ class Embedded:
         return blocks, imports
 
     def parse_data(self, content: str):
+        from phml.utilities.misc.classes import classnames
+
         blocks, self.imports = self.split_contexts(content)
 
         local_env = {}
         global_env = {key: value for _import in self.imports for key, value in _import}
-        global_env.update(self.context)
+        global_env.update({**self.context, "classnames": classnames})
         context = {**global_env, **self.context}
 
         for block in blocks:

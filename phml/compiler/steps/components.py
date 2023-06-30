@@ -181,6 +181,7 @@ def replace_slots(child: Element, component: Element):
 def step_substitute_components(
     node: Parent,
     components: ComponentManager,
+    context: dict,
     *_
 ):
     """Step to substitute components in for matching nodes."""
