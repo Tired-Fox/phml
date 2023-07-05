@@ -12,7 +12,7 @@ from .base import scoped_step
 def _update_fallbacks(node: Element, exc: Exception):
     fallbacks = _get_fallbacks(node)
     for fallback in fallbacks:
-        fallback.context["_loop_fail_"] = exc
+        fallback.context["exception"] = exc
 
 
 def _remove_fallbacks(node: Element):
@@ -59,7 +59,7 @@ def step_expand_loop_tags(
     node: Parent,
     _,
     context: dict[str, Any],
-    _results
+    results
 ):
     """Step to process and expand all loop (<For/>) elements. Will also set loop elements
     to have a false condition attribute to allow for fallback sibling elements."""
@@ -119,14 +119,17 @@ for {loop.get(":each", loop.get("each", ""))}:
         else:
             _each = f'each="{loop["each"]}"'
 
+        if "used_vars" not in results:
+            results["used_vars"] = []
         try:
-            iterations, new_nodes = exec_embedded(
+            used_vars, (iterations, new_nodes) = exec_embedded(
                 process,
                 f"<For {_each}>",
                 **build_recursive_context(loop, context),
                 __gen_new_children__=gen_new_children,
                 __node__=loop,
             )
+            results["used_vars"].extend(used_vars)
 
             if iterations == 0:
                 replace_default(

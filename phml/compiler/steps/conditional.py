@@ -99,7 +99,7 @@ def build_condition_trees(node: Element) -> list[list[Element]]:
 
 def get_condition_result(
     cond: tuple[int, Element], context: dict[str, Any], position
-) -> bool:
+) -> tuple[list[str], bool]:
     """Parse the python condition in the attribute and return the result.
 
     Raises:
@@ -115,22 +115,26 @@ def get_condition_result(
             **build_recursive_context(cond[1], context),
         )
 
-        if not isinstance(result, bool):
+        if not isinstance(result[1], bool):
             raise ValueError(
                 "Expected boolean expression in condition "
-                + f"attribute '{condition}' at {position!r}",
+                + f"attribute '{condition}' at {position!r}: was {result[1]!r}",
             )
 
         return result
-    return True
+    return [], True
 
 
-def compile_condition_trees(node, trees: list[list[tuple[int, Element]]], context):
+def compile_condition_trees(node, trees: list[list[tuple[int, Element]]], context, results):
     """Compiles the conditions. This will removed False condition nodes and keep True condition nodes."""
+    if "used_vars" not in results:
+        results["used_vars"] = []
+
     for tree in trees:
         for i, cond in enumerate(tree):
             result = get_condition_result(cond, context, node.position)
-            if not result:
+            results["used_vars"].extend(result[0])
+            if not result[1]:
                 cond[1].parent.remove(cond[1])
             else:
                 cond[1].pop(Condition.to_str(cond[0]), None)
@@ -144,8 +148,8 @@ def step_execute_conditions(
     node: Parent,
     _,
     context: dict[str, Any],
-    _results
+    results
 ):
     """Step to process and compile condition attributes in sibling nodes."""
     cond_trees = build_condition_trees(node)
-    compile_condition_trees(node, cond_trees, context)
+    compile_condition_trees(node, cond_trees, context, results)
